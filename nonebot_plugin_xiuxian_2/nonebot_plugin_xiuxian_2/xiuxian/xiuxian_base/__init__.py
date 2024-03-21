@@ -1091,16 +1091,12 @@ async def gm_command_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
     stone_num = re.findall("\d+", msg)  ## 灵石数
     nick_name = re.findall("\D+", msg)  ## 道号
     give_stone_num = stone_num[0]
-    if 1 <= int(give_stone_num) <= 10000000:
-        pass
+    if XiuConfig().img:
+        pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
+        await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
     else:
-        msg = "请输入正确的灵石数量！"
-        if XiuConfig().img:
-            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
-            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
-        else:
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-        await gm_command.finish()
+        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+    await gm_command.finish()
     for arg in args:
         if arg.type == "at":
             give_qq = arg.data.get("qq", "")

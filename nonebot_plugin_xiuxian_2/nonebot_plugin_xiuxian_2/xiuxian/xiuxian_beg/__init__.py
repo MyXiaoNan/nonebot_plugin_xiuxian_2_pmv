@@ -82,7 +82,7 @@ async def beg_stone(bot: Bot, event: GroupMessageEvent):
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await beg_stone.finish()
 
-    elif user_info.is_ban == 0 and diff_days > 1 and user_root == "器师":
+    elif user_info.is_ban == 0 and diff_days >= 1 and user_root == "伪灵根":
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + "道友已有宗门庇佑，又何必来此寻求机缘呢？")
             await bot.send_group_msg(group_id=event.group_id, message=MessageSegment.image(pic))
@@ -105,7 +105,7 @@ async def beg_stone(bot: Bot, event: GroupMessageEvent):
             await bot.send_group_msg(group_id=event.group_id, message=msg)
 
     
-    elif diff_days > 1 and user_rank > 53 and user_info.is_ban == 0 and user_root not in {"器师", "轮回道果", "真·轮回道果"}:
+    elif diff_days > 1 and user_rank > 53 and user_info.is_ban == 0 and user_root not in {"伪灵根", "轮回道果", "真·轮回道果"}:
         msg = "道友妄图弄虚作假，天谴已至，废你修为，罚你从头来过！"
         exp = user_msg.exp
         now_exp = exp - 100
