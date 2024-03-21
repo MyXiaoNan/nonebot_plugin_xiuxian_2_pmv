@@ -63,8 +63,9 @@ async def beg_stone(bot: Bot, event: GroupMessageEvent):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     user_id = event.get_user_id()
     isUser, user_info, _ = check_user(event)
-    user_rank = USERRANK[user_info.level]
     user_msg = sql_message.get_user_message(user_id)
+    user_root = user_msg.root_type
+    user_rank = USERRANK[user_info.level]
 
     create_time = datetime.strptime(user_info.create_time, "%Y-%m-%d %H:%M:%S.%f")
     now_time = datetime.now()
@@ -90,7 +91,7 @@ async def beg_stone(bot: Bot, event: GroupMessageEvent):
             await bot.send_group_msg(group_id=event.group_id, message=msg)
 
     
-    elif diff_days > 1 and user_rank > 53 and user_info.is_ban == 0:
+    elif diff_days > 1 and user_rank > 53 and user_info.is_ban == 0 and user_root != "器师":
         msg = "道友妄图弄虚作假，天谴已至，废你修为，罚你从头来过！"
         exp = user_msg.exp
         now_exp = exp - 100
