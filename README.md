@@ -1,0 +1,2 @@
+# nonebot_plugin_xiuxian_2_pmv
+基于Nonebot2的修仙文字游戏插件，修改版
