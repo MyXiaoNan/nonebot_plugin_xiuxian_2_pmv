@@ -270,7 +270,7 @@ async def boss_delete_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
     await boss_delete.finish()
 
 @boss_delete_all.handle(parameterless=[Cooldown(at_sender=True)])
-async def boss_delete_all(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
+async def boss_delete_all_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     msg = args.extract_plain_text().strip()
     group_id = str(event.group_id)
@@ -634,6 +634,7 @@ async def boss_info_(bot: Bot, event: GroupMessageEvent, args: Message = Command
 @create.handle(parameterless=[Cooldown(at_sender=True)])
 async def create_(bot: Bot, event: GroupMessageEvent):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
+    import asyncio
     group_id = str(event.group_id)
     isInGroup = isInGroups(event)
     if not isInGroup:  # 不在配置表内
@@ -666,6 +667,17 @@ async def create_(bot: Bot, event: GroupMessageEvent):
         await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
     else:
         await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+    # 调试用代码
+    """ await asyncio.sleep(1)
+    boss = group_boss[group_id][-1]
+    bossmsgs = f'''
+剩余血量：{number_to(boss['气血'])}
+        '''
+    msg = bossmsgs
+    if XiuConfig().img:
+        pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
+        await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic)) """
+    
     await create.finish()
 
 @create_appoint.handle()

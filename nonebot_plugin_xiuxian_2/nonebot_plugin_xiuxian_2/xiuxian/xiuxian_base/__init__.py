@@ -31,6 +31,7 @@ from ..utils import (
     Txt2Img
 )
 from ..item_json import Items
+items = Items()
 
 # 定时任务
 scheduler = require("nonebot_plugin_apscheduler").scheduler
@@ -55,6 +56,7 @@ level_up_zj = on_command("直接突破",aliases={"给我破","破","给 我 破"
 give_stone = on_command("送灵石", priority=5, permission=GROUP, block=True)
 steal_stone = on_command("偷灵石", aliases={"飞龙探云手"}, priority=4, permission=GROUP, block=True)
 gm_command = on_command("神秘力量", permission=SUPERUSER, priority=10, block=True)
+cz = on_command('创造力量', permission=SUPERUSER, priority=15,block=True)
 rob_stone = on_command("抢劫", aliases={"抢灵石","拿来吧你"}, priority=5, permission=GROUP, block=True)
 restate = on_command("重置状态", permission=SUPERUSER, priority=12, block=True)
 open_xiuxian = on_command("启用修仙功能", aliases={'禁用修仙功能'}, permission=SUPERUSER, priority=5, block=True)
@@ -1147,6 +1149,67 @@ async def gm_command_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await gm_command.finish()
+
+
+@cz.handle(parameterless=[Cooldown(at_sender=True)])
+async def cz_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
+    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    give_qq = None  # 艾特的时候存到这里
+    msg = args.extract_plain_text().split()
+    if not args:
+        msg = "请输入正确指令！例如：创造力量 物品 数量"
+        if XiuConfig().img:
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
+            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+        else:
+            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await cz.finish()
+    goods_name = msg[0]
+    goods_id = -1
+    goods_type = None
+    for k, v in items.items.items():
+        if goods_name == v['name']:
+            goods_id = k
+            goods_type = v['type']
+            break
+        else:
+            continue
+    
+    if len(msg) < 2 or not msg[1].isdigit():
+        goods_num = 1 # 默认数量
+    else:
+        goods_num = int(msg[1]) # 数量
+    for arg in args:
+        if arg.type == "at":
+            give_qq = arg.data.get("qq", "")
+    if give_qq:
+        give_user = sql_message.get_user_message(give_qq)
+        if give_user:
+            sql_message.send_back(give_qq, goods_id, goods_name, goods_type, goods_num)# 增加用户道具
+            msg = "{}道友获得了系统赠送的{}个{}！".format(give_user.user_name, goods_num, goods_name)
+            if XiuConfig().img:
+                pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
+                await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+            else:
+                await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+            await cz.finish()
+        else:
+            msg = "对方未踏入修仙界，不可赠送！"
+            if XiuConfig().img:
+                pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
+                await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+            else:
+                await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+            await cz.finish()
+    else:
+        msg = f"请艾特目标用户！"
+        if XiuConfig().img:
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
+            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+        else:
+            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await cz.finish()
+    
 
 
 @rob_stone.handle(parameterless=[Cooldown(cd_time=60 ,at_sender=True)])
