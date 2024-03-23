@@ -97,7 +97,6 @@ async def exercises_info(bot: Bot, event: GroupMessageEvent):
 @exercises.handle(parameter=[CommandArg(name='args', required=False)])
 async def exercises(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """突破"""
-    """坊市查看"""
     await data_check_conf(bot, event)
     print(event)
     isUser, user_msg, msg = check_user(event)
@@ -110,7 +109,7 @@ async def exercises(bot: Bot, event: GroupMessageEvent, args: Message = CommandA
             await exercises_info.finish(msg, at_sender=True)
 
     stone = user_msg.stone  # 灵石
-    cost_stone = XiuxianDateManage().get_level_cost(next_level_name)
+    can_breakthrough= XiuxianDateManage().get_level_cost()
 
     if can_breakthrough(exp, stone, cost_exp, cost_stone, user_backs):
         msg = f"突破到{next_level_name}，需要" \
