@@ -339,11 +339,10 @@ class XiuxianDateManage:
         data = jsondata.level_data()
         return data[name]['power']
     
-    # 这里是炼体花费
     def get_level_cost(self, name):
-        """获取境界花费"""
-        data = jsondata.level_data()
-        return data[name]['spend']
+        """获取炼体境界倍率"""
+        data = jsondata.exercises_level_data()
+        return data[name]['cost_exp'], data[name]['cost_stone']
 
     def update_power2(self, user_id) -> None:
         """更新战力"""
@@ -445,7 +444,7 @@ class XiuxianDateManage:
 
     def ban_user(self, user_id):
         """小黑屋"""
-        sql = f"UPDATE user_xiuxian SET is_ban=1, stone = 0 where user_id=?"
+        sql = f"UPDATE user_xiuxian SET is_ban=1 where user_id=?"
         cur = self.conn.cursor()
         cur.execute(sql, (user_id,))
         self.conn.commit()
