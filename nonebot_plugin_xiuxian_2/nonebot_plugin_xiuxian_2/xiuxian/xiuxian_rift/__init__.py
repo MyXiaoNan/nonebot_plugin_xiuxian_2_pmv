@@ -13,7 +13,7 @@ from nonebot.adapters.onebot.v11 import (
 )
 from .old_rift_info import old_rift_info
 from .. import DRIVER
-from ..lay_out import assign_bot, assign_bot_group, put_bot, Cooldown
+from ..lay_out import assign_bot, assign_bot_group, put_bot, Cooldown, data_check, data_check_conf
 from nonebot.permission import SUPERUSER
 from nonebot.log import logger
 from ..xiuxian2_handle import XiuxianDateManage

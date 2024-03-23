@@ -35,8 +35,7 @@ from ..xiuxian2_handle import (
     get_weapon_info_msg, get_armor_info_msg,
     get_sec_msg, get_main_info_msg, get_sub_info_msg, UserBuffDate
 )
-from ..xiuxian_config import XiuConfig
-from ..xiuxian_config import USERRANK
+from ..xiuxian_config import XiuConfig, USERRANK
 
 items = Items()
 config = get_config()
@@ -45,7 +44,7 @@ auction = {}
 AUCTIONSLEEPTIME = 120  # 拍卖初始等待时间（秒）
 cache_help = {}
 auction_offer_flag = False  # 拍卖标志
-AUCTIONOFFERSLEEPTIME = 20  # 每次拍卖增加拍卖剩余的时间（秒）
+AUCTIONOFFERSLEEPTIME = 30  # 每次拍卖增加拍卖剩余的时间（秒）
 auction_offer_time_count = 0  # 计算剩余时间
 auction_offer_all_count = 0  # 控制线程等待时间
 auction_time_config = config['拍卖会定时参数']  #
@@ -171,8 +170,12 @@ async def set_auction_by_scheduler_():
         now_price = int(auction['now_price'])
         user_info = sql_message.get_user_message(auction['user_id'])
         user_stone = user_info.stone
+        punish_stone = now_price * 0.1
         if user_stone < now_price:
-            msg = f"拍卖会结算！竞拍者灵石小于拍卖，判定为捣乱，捣乱次数+1!"
+            user_info.is_ban = 1
+            sql_message.update_ls(user_info.user_id, punish_stone, 2)  # 扣除用户灵石
+            msg = f"拍卖会结算！竞拍者灵石小于拍卖物品要求之数量，判定为捣乱，捣乱次数+1!\n"
+            msg += "扣除道友{}枚灵石作为惩罚，望道友莫要再捣乱！".format(punish_stone)
             for group_id in groups:
                 bot = await assign_bot_group(group_id=group_id)
                 try:

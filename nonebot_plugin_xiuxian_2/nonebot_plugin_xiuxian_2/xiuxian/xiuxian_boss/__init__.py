@@ -90,9 +90,9 @@ battle = on_command("讨伐boss", aliases={"讨伐世界boss", "讨伐Boss", "�
                     permission=GROUP, block=True)
 boss_help = on_command("世界boss帮助", aliases={"世界Boss帮助", "世界BOSS帮助"}, priority=5, block=True)
 boss_delete = on_command("天罚boss", aliases={"天罚世界boss", "天罚Boss", "天罚BOSS", "天罚世界Boss", "天罚世界BOSS"}, priority=7,
-                         rule=check_rule_bot_boss(), block=True)
+                         rule=check_rule_bot_boss(), permission=GROUP and (SUPERUSER | GROUP_ADMIN | GROUP_OWNER), block=True)
 boss_delete_all = on_command("天罚所有boss", aliases={"天罚所有世界boss", "天罚所有Boss", "天罚所有BOSS", "天罚所有世界Boss","天罚所有世界BOSS"}, priority=5,
-                             rule=check_rule_bot_boss(), block=True)
+                             rule=check_rule_bot_boss(), permission=GROUP and (SUPERUSER | GROUP_ADMIN | GROUP_OWNER), block=True)
 boss_integral_info = on_command("世界积分查看",aliases={"查看世界积分", "查询世界积分", "世界积分查询"} ,priority=10, permission=GROUP, block=True)
 boss_integral_use = on_command("世界积分兑换", priority=6, permission=GROUP, block=True)
 

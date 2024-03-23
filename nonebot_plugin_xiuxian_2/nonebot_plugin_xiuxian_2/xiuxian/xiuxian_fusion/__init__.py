@@ -24,7 +24,6 @@ items = Items()
 from nonebot.permission import SUPERUSER
 
 tz = on_command('合成天罪', priority=15, permission=GROUP,block=True)
-cz = on_command('创造力量', permission=SUPERUSER, priority=15,block=True)
 
 @tz.handle(parameterless=[Cooldown(at_sender=True)])
 async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
@@ -95,61 +94,6 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await tz.finish()
     
-@cz.handle(parameterless=[Cooldown(at_sender=True)])
-async def cz_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
-    give_qq = None  # 艾特的时候存到这里
-    msg = args.extract_plain_text().split()
-    if not args:
-        msg = "请输入正确指令！例如：创造力量 物品 数量"
-        if XiuConfig().img:
-            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
-            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
-        else:
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-        await cz.finish()
-    goods_name = msg[0]
-    goods_id = -1
-    goods_type = None
-    for k, v in items.items.items():
-        if goods_name == v['name']:
-            goods_id = k
-            goods_type = v['type']
-            break
-        else:
-            continue
-    
-    
-    for arg in args:
-        if arg.type == "at":
-            give_qq = arg.data.get("qq", "")
-    if give_qq:
-        give_user = sql_message.get_user_message(give_qq)
-        if give_user:
-            sql_message.send_back(give_qq, goods_id, goods_name, goods_type, 1)# 增加用户道具
-            msg = "{}道友获得了系统赠送的{}！".format(give_user.user_name, goods_name)
-            if XiuConfig().img:
-                pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
-                await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
-            else:
-                await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-            await cz.finish()
-        else:
-            msg = "对方未踏入修仙界，不可赠送！"
-            if XiuConfig().img:
-                pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
-                await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
-            else:
-                await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-            await cz.finish()
-    else:
-        msg = f"请艾特目标用户！"
-        if XiuConfig().img:
-            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
-            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
-        else:
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-        await cz.finish()
-    
+
 
 

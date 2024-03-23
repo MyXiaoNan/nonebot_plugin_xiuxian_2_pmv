@@ -1,5 +1,6 @@
 import asyncio
 from nonebot import get_bot, on_command, require
+from ..lay_out import assign_bot, Cooldown, CommandObjectID, data_check, data_check_conf
 from nonebot.adapters.onebot.v11 import (
     PRIVATE_FRIEND,
     Bot,
@@ -15,7 +16,7 @@ from nonebot.adapters.onebot.v11 import (
 from nonebot.permission import SUPERUSER
 from nonebot.log import logger
 from nonebot.params import CommandArg, RegexGroup
-from ..utils import data_check_conf, check_user, send_forward_msg, pic_msg_format, get_msg_pic
+from ..utils import check_user, send_forward_msg, pic_msg_format, get_msg_pic
 from ..xiuxian2_handle import (
     XiuxianDateManage, OtherSet,
     get_weapon_info_msg, get_armor_info_msg, get_sec_msg, 
@@ -42,7 +43,11 @@ exercises_info = on_command("炼体查看", aliases={'查看炼体'}, priority=5
 exercises = on_command("炼体", priority=5)
 exercises_help = on_command("炼体帮助", priority=5)
 
-
+# 定时任务
+scheduler = require("nonebot_plugin_apscheduler").scheduler
+cache_help = {}
+cache_help_fk = {}
+cache_level_help = {}
 sql_message = XiuxianDateManage()  # sql类
 
 __exercises_help_help__ = f"""
@@ -55,22 +60,30 @@ __exercises_help_help__ = f"""
 
 
     
+@exercises_help.handle(parameterless=[Cooldown(at_sender=True)])
+async def help_in_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
+    """炼体帮助"""
+    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    if session_id in cache_help:
+        await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(cache_help[session_id]))
+        await exercises_help.finish()
+    else:
+        msg = __exercises_help_help__
+        if XiuConfig().img:
+            pic = await get_msg_pic(msg, scale=False)
+            cache_help[session_id] = pic
+            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+        else:
+            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await exercises_help.finish()
 
 
-@exercises_help.handle()
-async def _(bot: Bot, event: GroupMessageEvent):
-    await data_check_conf(bot, event)
-    msg = __exercises_help_help__
-    msg = await pic_msg_format(msg, event)
-    pic = await get_msg_pic(msg)#
-    await exercises_help.finish(MessageSegment.image(pic))
-
-
-@exercises_info.handle()
+@exercises_info.handle(parameterless=[Cooldown(at_sender=True)])
 async def exercises_info(bot: Bot, event: GroupMessageEvent):
     """坊市查看"""
     await data_check_conf(bot, event)
     print(event)
+    bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = check_user(event)
     if not isUser:
         if XiuConfig().img:
@@ -81,9 +94,7 @@ async def exercises_info(bot: Bot, event: GroupMessageEvent):
             await exercises_info.finish(msg, at_sender=True)
 
 
-
-
-@exercises.handle()
+@exercises.handle(parameter=[CommandArg(name='args', required=False)])
 async def exercises(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """突破"""
     """坊市查看"""
@@ -99,7 +110,6 @@ async def exercises(bot: Bot, event: GroupMessageEvent, args: Message = CommandA
             await exercises_info.finish(msg, at_sender=True)
 
     stone = user_msg.stone  # 灵石
-    # 这里你需要编写获取用户修为和灵石的逻辑，以下仅作示例
     cost_stone = XiuxianDateManage().get_level_cost(next_level_name)
 
     if can_breakthrough(exp, stone, cost_exp, cost_stone, user_backs):
@@ -158,7 +168,6 @@ async def exercises_end(bot: Bot, event: GroupMessageEvent, mode: str = EventPla
 
 
     if result == "失败":
-
 
         sql_message.update_ls(user_id, 100000,2)
 
