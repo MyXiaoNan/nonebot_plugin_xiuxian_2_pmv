@@ -59,7 +59,7 @@ async def xiuxian_message_(bot: Bot, event: GroupMessageEvent):
     list_all = len(OtherSet().level) - 1
     now_index = OtherSet().level.index(user_info.level)
     if list_all == now_index:
-        exp_meg = "位面至高"
+        exp_meg = "零"
     else:
         is_updata_level = OtherSet().level[now_index + 1]
         need_exp = sql_message.get_level_power(is_updata_level)
