@@ -63,8 +63,7 @@ USERRANK = {
     '仙帝境中期': 3,
     '仙帝境圆满': 2,
     '祭道之上': 1,
-    '零': 0,
-    '祭道之上中期':1,
+    '零': 0
 }
 
 
@@ -79,7 +78,7 @@ class XiuConfig:
                                  "sect_position", "hp", "mp", "atk",
                                  "atkpractice", "sect_task", "sect_contribution",
                                  "sect_elixir_get", "blessed_spot_flag",
-                                 "blessed_spot_name", "is_beg"]  # 数据库字段校验
+                                 "blessed_spot_name", "is_beg, is_ban"]  # 数据库字段校验
         self.sql_sects = ["sect_id", "sect_name", "sect_owner", "sect_scale", "sect_used_stone", "sect_fairyland",
                           "sect_materials", "mainbuff", "secbuff", "elixir_room_level"]
         self.sql_buff = ["id", "user_id", "main_buff", "sec_buff", "faqi_buff", "fabao_weapon", "armor_buff",
@@ -97,9 +96,7 @@ class XiuConfig:
         self.shield_group = []  # 屏蔽的群聊
         self.layout_bot_dict = {}
         # QQ所负责的群聊 #{群 ：bot}   其中 bot类型 []或str }
-        # "540462257":"447624215",
-        # "215177175":"208469464",
-        # "688393431":"447624215"
+        # "123456":"123456",
         self.sect_min_level = "铭纹境圆满"
         self.sect_create_cost = 5000000
         self.closing_exp_upper_limit = 1.5  # 闭关获取修为上限（例如：1.5 下个境界的修为数*1.5）
@@ -116,8 +113,8 @@ class XiuConfig:
         self.tou_lower_limit = 0.01  # 偷灵石下限(百分比)
         self.tou_upper_limit = 0.30  # 偷灵石上限(百分比)
         self.remake = 100000  # 重入仙途的消费
-        self.del_boss_id = ['1459785349', '593999604', '2197625089']  # 支持非管理员和超管天罚boss
-        self.gen_boss_id = ['2197625089', '593999604', '1459785349']
+        self.del_boss_id = []  # 支持非管理员和超管天罚boss
+        self.gen_boss_id = []  # 支持非管理员和超管生成boss
         self.version = "xiuxian_2.1"
 
 

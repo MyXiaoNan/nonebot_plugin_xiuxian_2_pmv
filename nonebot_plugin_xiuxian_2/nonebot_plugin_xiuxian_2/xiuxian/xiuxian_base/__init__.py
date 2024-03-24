@@ -4,12 +4,14 @@ import random
 import re
 import asyncio
 from datetime import datetime
-from ..lay_out import assign_bot, Cooldown
+from ..lay_out import assign_bot, Cooldown, data_check, data_check_conf, add_cd
 from nonebot import require
 from nonebot.adapters.onebot.v11 import (
     Bot,
     GROUP,
     Message,
+    GROUP_ADMIN,
+    GROUP_OWNER,
     GroupMessageEvent,
     MessageSegment,
     ActionFailed
@@ -55,11 +57,17 @@ level_up_drjd = on_command("渡厄金丹突破",aliases={"金丹突破"}, priori
 level_up_zj = on_command("直接突破",aliases={"给我破","破","给 我 破","给——我——破"},  priority=7, permission=GROUP, block=True)
 give_stone = on_command("送灵石", priority=5, permission=GROUP, block=True)
 steal_stone = on_command("偷灵石", aliases={"飞龙探云手"}, priority=4, permission=GROUP, block=True)
+# dufang = on_regex(
+#     r"(金银阁)\s?(\d+)\s?([大|小|奇|偶|猜])?\s?(\d+)?",
+#     flags=I,
+#     permission=PRIVATE_FRIEND | GROUP,
+# )
 gm_command = on_command("神秘力量", permission=SUPERUSER, priority=10, block=True)
+gmm_command = on_command("轮回力量", permission=SUPERUSER, priority=10, block=True)
 cz = on_command('创造力量', permission=SUPERUSER, priority=15,block=True)
 rob_stone = on_command("抢劫", aliases={"抢灵石","拿来吧你"}, priority=5, permission=GROUP, block=True)
 restate = on_command("重置状态", permission=SUPERUSER, priority=12, block=True)
-open_xiuxian = on_command("启用修仙功能", aliases={'禁用修仙功能'}, permission=SUPERUSER, priority=5, block=True)
+open_xiuxian = on_command("启用修仙功能", aliases={'禁用修仙功能'}, permission=SUPERUSER and (GROUP_ADMIN | GROUP_OWNER), priority=5, block=True)
 user_leveluprate = on_command('我的突破概率', aliases={'突破概率'}, priority=5, permission=GROUP, block=True)
 xiuxian_updata_level = on_fullmatch('修仙适配', priority=15, permission=GROUP, block=True)
 xiuxian_uodata_data = on_fullmatch('更新记录', priority=15, permission=GROUP, block=True)
@@ -99,8 +107,8 @@ __xiuxian_notes__ = f"""
 __warring_help__ = f"""
 散尽修为，轮回重修，将万世的道果凝聚为极致天赋
 修为、功法、神通将被清空！！
-进入千世轮回后获得轮回灵根，可定制极品仙器
-进入万世轮回后获得真轮回灵根，可定制无上仙器
+进入千世轮回后获得轮回灵根，可定制极品仙器(找少姜)
+进入万世轮回后获得真轮回灵根，可定制无上仙器(找少姜)
 """.strip()
 
 __xiuxian_updata_data__ = f"""
@@ -310,6 +318,127 @@ async def warring_help_(bot: Bot, event: GroupMessageEvent, session_id: int = Co
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await warring_help.finish()
 
+
+    msg = help.__xiuxian_notes__
+    await help_in.send(msg, at_sender=True)
+
+
+
+# @dufang.handle(parameterless=[Cooldown(at_sender=True)])
+# async def dufang_(bot: Bot, event: MessageEvent, args: Tuple[Any, ...] = RegexGroup()):
+#     await data_check_conf(bot, event)
+
+#     try:
+#         user_id, group_id, mess = await data_check(bot, event)
+#     except MsgError:
+#         return
+
+#     if cd := check_cd(event, '金银阁'):
+#         # 如果 CD 还没到 则直接结束
+#         await dufang.finish(cd_msg(cd), at_sender=True)
+
+#     user_message = sql_message.get_user_message(user_id)
+
+#     add_cd(event, XiuConfig().dufang_cd, '金银阁')
+
+#     if args[2] is None:
+#         msg = f"请输入正确的指令，例如金银阁10大、金银阁10奇、金银阁10猜3"
+#         if XiuConfig().img:
+#             pic = await get_msg_pic(msg)
+#             await dufang.finish(MessageSegment.image(pic), at_sender=True)
+#         else:
+#             await dufang.finish(msg, at_sender=True)
+        
+
+#     price = args[1]  # 300
+#     mode = args[2]  # 大、小、奇、偶、猜
+#     mode_num = 0
+#     if mode == '猜':
+#         mode_num = args[3]  # 猜的数值
+#         if str(mode_num) not in ['1', '2', '3', '4', '5', '6']:
+#             msg = f"请输入正确的指令，例如金银阁10大、、金银阁10奇、金银阁10猜3"
+#             if XiuConfig().img:
+#                 pic = await get_msg_pic(msg)
+#                 await dufang.finish(MessageSegment.image(pic), at_sender=True)
+#             else:
+#                 await dufang.finish(msg, at_sender=True)
+
+#     price_num = int(price)
+#     if int(user_message.stone) < price_num:
+#         msg = "道友的金额不足，请重新输入！"
+#         if XiuConfig().img:
+#             pic = await get_msg_pic(msg)
+#             await dufang.finish(MessageSegment.image(pic), at_sender=True)
+#         else:
+#             await dufang.finish(msg, at_sender=True)
+#     elif price_num == 0:
+#         msg = "走开走开，0块钱也赌！"
+#         if XiuConfig().img:
+#             pic = await get_msg_pic(msg)
+#             await dufang.finish(MessageSegment.image(pic), at_sender=True)
+#         else:
+#             await dufang.finish(msg, at_sender=True)
+
+#     value = random.randint(1, 6)
+#     msg = Message("[CQ:dice,value={}]".format(value))
+
+#     if value >= 4 and str(mode) == "大":
+#         sql_message.update_ls(user_id, price_num, 1)
+#         await dufang.send(msg)
+#         msg = "最终结果为{}，你猜对了，收获灵石{}块".format(value, price_num)
+#         if XiuConfig().img:
+#             pic = await get_msg_pic(msg)
+#             await dufang.finish(MessageSegment.image(pic), at_sender=True)
+#         else:
+#             await dufang.finish(msg, at_sender=True)
+        
+#     elif value <= 3 and str(mode) == "小":
+#         sql_message.update_ls(user_id, price_num, 1)
+#         await dufang.send(msg)
+#         msg = "最终结果为{}，你猜对了，收获灵石{}块".format(value, price_num)
+#         if XiuConfig().img:
+#             pic = await get_msg_pic(msg)
+#             await dufang.finish(MessageSegment.image(pic), at_sender=True)
+#         else:
+#             await dufang.finish(msg, at_sender=True)
+#     elif value %2==1 and str(mode) == "奇":
+#         sql_message.update_ls(user_id, price_num, 1)
+#         await dufang.send(msg)
+#         msg = "最终结果为{}，你猜对了，收获灵石{}块".format(value, price_num)
+#         if XiuConfig().img:
+#             pic = await get_msg_pic(msg)
+#             await dufang.finish(MessageSegment.image(pic), at_sender=True)
+#         else:
+#             await dufang.finish(msg, at_sender=True)
+#     elif value %2==0 and str(mode) == "偶":
+#         sql_message.update_ls(user_id, price_num, 1)
+#         await dufang.send(msg)
+#         msg = "最终结果为{}，你猜对了，收获灵石{}块".format(value, price_num)
+#         if XiuConfig().img:
+#             pic = await get_msg_pic(msg)
+#             await dufang.finish(MessageSegment.image(pic), at_sender=True)
+#         else:
+#             await dufang.finish(msg, at_sender=True)
+
+#     elif str(value) == str(mode_num) and str(mode) == "猜":
+#         sql_message.update_ls(user_id, price_num * 5, 1)
+#         await dufang.send(msg)
+#         msg = "最终结果为{}，你猜对了，收获灵石{}块".format(value, price_num * 5)
+#         if XiuConfig().img:
+#             pic = await get_msg_pic(msg)
+#             await dufang.finish(MessageSegment.image(pic), at_sender=True)
+#         else:
+#             await dufang.finish(msg, at_sender=True)
+
+#     else:
+#         sql_message.update_ls(user_id, price_num, 2)
+#         await dufang.send(msg)
+#         msg = "最终结果为{}，你猜错了，损失灵石{}块".format(value, price_num)
+#         if XiuConfig().img:
+#             pic = await get_msg_pic(msg)
+#             await dufang.finish(MessageSegment.image(pic), at_sender=True)
+#         else:
+#             await dufang.finish(msg, at_sender=True)
 
 @restart.handle(parameterless=[Cooldown(10, at_sender=True)])
 async def restart_(bot: Bot, event: GroupMessageEvent):
@@ -1209,7 +1338,47 @@ async def cz_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await cz.finish()
-    
+
+
+#GM改灵根
+@gmm_command.handle()
+async def gmm_command_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
+    await data_check_conf(bot, event)
+    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    give_qq = None  # 艾特的时候存到这里
+    msg = args.extract_plain_text().strip()
+    if not args:
+        msg = "请输入正确指令！例如：轮回力量 xx灵根"
+        if XiuConfig().img:
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
+            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+        else:
+            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await gm_command.finish()
+
+    for arg in args:
+        if arg.type == "at":
+            give_qq = arg.data.get("qq", "")
+
+    give_user = sql_message.get_user_message(give_qq)
+    if give_user:
+        sql_message.update_root(give_qq, msg)
+        sql_message.update_power2(give_qq)
+        msg = "{}道友的修仙境界已变更！".format(give_user.user_name)
+        if XiuConfig().img:
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
+            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+        else:
+            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+            await gmm_command.finish(MessageSegment.image(pic))
+    else:
+        msg = "对方未踏入修仙界，不可修改！"
+        if XiuConfig().img:
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
+            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+        else:
+            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+            await gmm_command.finish(MessageSegment.image(pic))
 
 
 @rob_stone.handle(parameterless=[Cooldown(cd_time=60 ,at_sender=True)])

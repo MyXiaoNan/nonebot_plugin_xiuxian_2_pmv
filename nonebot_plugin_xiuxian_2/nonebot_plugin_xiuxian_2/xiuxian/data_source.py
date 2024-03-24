@@ -19,6 +19,7 @@ class JsonDate:
         self.BACKGROUND_FILE = DATABASE / "image" / "background.png"
         self.BOSS_IMG = DATABASE / "boss_img" 
         self.BANNER_FILE = DATABASE / "image" / "banner.png"
+        self.exercises_level_jsonpath = DATABASE / "炼体境界.json"
         self.FONT_FILE = DATABASE / "font" / "sarasa-mono-sc-regular.ttf"
 
     def level_data(self):
@@ -45,6 +46,13 @@ class JsonDate:
     def level_rate_data(self):
         """获取境界突破概率"""
         with open(self.level_rate_jsonpath, 'r', encoding='utf-8') as e:
+            file_data = e.read()
+            data = json.loads(file_data)
+            return data
+        
+    def exercises_level_data(self):
+        """获取炼体境界数据"""
+        with open(self.exercises_level_jsonpath, 'r', encoding='utf-8') as e:
             file_data = e.read()
             data = json.loads(file_data)
             return data
