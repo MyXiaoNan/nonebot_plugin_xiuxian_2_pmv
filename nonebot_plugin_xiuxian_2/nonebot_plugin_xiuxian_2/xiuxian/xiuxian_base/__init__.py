@@ -4,7 +4,7 @@ import random
 import re
 import asyncio
 from datetime import datetime
-from ..lay_out import assign_bot, Cooldown, data_check, data_check_conf, add_cd
+from ..lay_out import assign_bot, Cooldown
 from nonebot import require
 from nonebot.adapters.onebot.v11 import (
     Bot,
@@ -1343,12 +1343,11 @@ async def cz_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
 #GM改灵根
 @gmm_command.handle()
 async def gmm_command_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
-    await data_check_conf(bot, event)
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     give_qq = None  # 艾特的时候存到这里
     msg = args.extract_plain_text().strip()
     if not args:
-        msg = "请输入正确指令！例如：轮回力量 xx灵根"
+        msg = "请输入正确指令！例如：轮回力量 x(1为混沌,2为融合,3为超,4为龙,5为天,6为千世,7为万世)"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))

@@ -13,7 +13,7 @@ from nonebot.adapters.onebot.v11 import (
 )
 from .old_rift_info import old_rift_info
 from .. import DRIVER
-from ..lay_out import assign_bot, assign_bot_group, put_bot, Cooldown, data_check, data_check_conf
+from ..lay_out import assign_bot, assign_bot_group, put_bot, Cooldown
 from nonebot.permission import SUPERUSER
 from nonebot.log import logger
 from ..xiuxian2_handle import XiuxianDateManage
@@ -449,8 +449,7 @@ async def set_group_rift_(bot: Bot, event: GroupMessageEvent, args: Message = Co
 #关闭秘境
 @close_rift.handle(parameterless=[Cooldown(at_sender=True)])
 async def _(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
-    await data_check_conf(bot=bot, event=event)
-    user_id, group_id, mess = await data_check(bot, event)
+    user_id, group_id, send_group_id = await assign_bot(bot=bot, event=event)
 
     if group_id not in groups:
         msg = '本群尚未开启秘境，请联系管理员开启群秘境'

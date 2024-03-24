@@ -449,7 +449,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
     player['exp'] = userinfo.exp
 
     bossinfo = group_boss[group_id][boss_num - 1]
-    if bossinfo['jj'] == '祭道之上':
+    if bossinfo['jj'] == '零':
         boss_rank = USERRANK[(bossinfo['jj'])]
     else:
         boss_rank = USERRANK[(bossinfo['jj'] + '中期')]

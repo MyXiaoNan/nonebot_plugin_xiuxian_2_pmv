@@ -24,7 +24,9 @@ JINGJIEEXP = {  # 数值为中期和圆满的平均值
     "仙王境": [15020246016, 21028344422, 27036442828],
     "准帝境": [54072885657, 75702039920, 97331194180],
     "仙帝境": [194662388360, 272527343704, 350392299048],
-    "祭道之上": [350392299048, 650392299048, 950392299048],
+    "祭道初期": [350392299048, 650392299048, 950392299048],
+    "祭道中期": [950392299048, 1250392299048, 1550392299048],
+    "祭道圆满": [1550392299048, 1850392299048, 2150392299048],
     "零": [99999999999999],
 }
 
@@ -44,8 +46,8 @@ def get_boss_jinjie_dict():
 def createboss():
     top_user_info = sql_message.get_top1_user()
     top_user_level = top_user_info.level
-    if top_user_level == "祭道之上":
-        level = top_user_level[:4]
+    if top_user_level in {"祭道初期", "祭道中期", "祭道圆满"}:
+        level = top_user_level
     else:
         level = top_user_level[:3]
     boss_jj = random.choice(jinjie_list[:jinjie_list.index(level) + 1])
