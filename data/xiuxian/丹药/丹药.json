@@ -12,7 +12,7 @@
     "quantity": 1,
     "day_num":10,
     "all_num":999999,
-    "rank":55
+    "rank":57
   },
   "1102":{
     "name": "化瘀丹",
@@ -27,7 +27,7 @@
     "quantity": 1,
     "day_num":10,
     "all_num":999999,
-    "rank":52
+    "rank":54
   },
   "1103":{
     "name": "培元丹",
@@ -42,7 +42,7 @@
     "quantity": 1,
     "day_num":10,
     "all_num":999999,
-    "rank":49
+    "rank":51
   },
   "1104":{
     "name": "固元丹",
@@ -57,7 +57,7 @@
     "quantity": 1,
     "day_num":10,
     "all_num":999999,
-    "rank":46
+    "rank":48
   },
   "1105":{
     "name": "黄龙丹",
@@ -72,7 +72,7 @@
     "quantity": 1,
     "day_num":10,
     "all_num":999999,
-    "rank":43
+    "rank":45
   },
   "1106":{
     "name": "回元丹",
@@ -87,7 +87,7 @@
     "quantity": 1,
     "day_num":10,
     "all_num":999999,
-    "rank":40
+    "rank":42
   },
   "1107":{
     "name": "回春丹",
@@ -102,7 +102,7 @@
     "quantity": 1,
     "day_num":10,
     "all_num":999999,
-    "rank":37
+    "rank":39
   },
   "1108":{
     "name": "养元丹",
@@ -117,7 +117,7 @@
     "quantity": 1,
     "day_num":10,
     "all_num":999999,
-    "rank":34
+    "rank":36
   },
   "1109":{
     "name": "太元真丹",
@@ -132,7 +132,7 @@
     "quantity": 1,
     "day_num":10,
     "all_num":999999,
-    "rank":31
+    "rank":33
   },
   "1110":{
     "name": "九阳真丹",
@@ -147,7 +147,7 @@
     "quantity": 1,
     "day_num":10,
     "all_num":999999,
-    "rank":28
+    "rank":30
   },
   "1111":{
     "name": "归藏灵丹",
@@ -162,7 +162,7 @@
     "quantity": 1,
     "day_num":10,
     "all_num":999999,
-    "rank":25
+    "rank":27
   },
   "1112":{
     "name": "天命血凝丹",
@@ -177,7 +177,7 @@
     "quantity": 1,
     "day_num":10,
     "all_num":999999,
-    "rank":22
+    "rank":24
   },
 
 
@@ -194,7 +194,7 @@
     "quantity": 1,
     "day_num":10,
     "all_num":100,
-    "rank":40
+    "rank":42
 },
  "1501":{
     "name": "明心丹",
@@ -209,7 +209,7 @@
     "quantity": 1,
     "day_num":10,
     "all_num":100,
-    "rank":37
+    "rank":39
 },
  "1502":{
     "name": "幻心玄丹",
@@ -224,7 +224,7 @@
     "quantity": 1,
     "day_num":10,
     "all_num":100,
-    "rank":34
+    "rank":36
 },
  "1503":{
     "name": "鬼面炼心丹",
@@ -239,7 +239,7 @@
     "quantity": 1,
     "day_num":10,
     "all_num":100,
-    "rank":31
+    "rank":33
 },
  "1504":{
     "name": "少阴清灵丹",
@@ -254,7 +254,7 @@
     "quantity": 1,
     "day_num":10,
     "all_num":100,
-    "rank":28
+    "rank":30
 },
  "1505":{
     "name": "天命炼心丹",
@@ -269,7 +269,7 @@
     "quantity": 1,
     "day_num":10,
     "all_num":100,
-    "rank":25
+    "rank":27
 },
   "1506":{
     "name": "斩我丹",
@@ -284,7 +284,7 @@
     "quantity": 1,
     "day_num":10,
     "all_num":100,
-    "rank":22
+    "rank":24
   },
   "1507":{
     "name": "苦茶子",
@@ -299,7 +299,7 @@
     "quantity": 1,
     "day_num":10,
     "all_num":100,
-    "rank":19
+    "rank":21
   },
 
   "1999":{
@@ -313,7 +313,7 @@
     "境界": "圣祭境",
     "status": 1,
     "quantity": 1,
-    "rank":50
+    "rank":52
 }
 
 
