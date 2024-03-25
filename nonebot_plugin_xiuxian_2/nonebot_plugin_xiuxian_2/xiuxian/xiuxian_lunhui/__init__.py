@@ -59,7 +59,7 @@ async def lunhui_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandO
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await lunhui.finish()
         
-    if user_rank <= 19:
+    if user_rank <= 21:
         exp = user_msg.exp
         now_exp = exp - 100
         sql_message.updata_level(user_id, '江湖好手') #重置用户境界
@@ -123,7 +123,7 @@ async def Twolun_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandO
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await Twolun.finish() 
     
-    if user_rank <= 25 and user_root == '轮回道果':
+    if user_rank <= 27 and user_root == '轮回道果':
         exp = user_msg.exp
         now_exp = exp - 100
         sql_message.updata_level(user_id, '江湖好手') #重置用户境界
