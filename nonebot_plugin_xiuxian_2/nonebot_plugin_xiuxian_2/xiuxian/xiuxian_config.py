@@ -92,7 +92,7 @@ class XiuConfig:
         self.level = list(USERRANK.keys())
         self.user_info_cd = 300  # 我的存档冷却时间
         self.level_up_cd = 30  # 突破CD(分钟)
-        self.closing_exp = 60  # 闭关每分钟获取的修为
+        self.closing_exp = 30  # 闭关每分钟获取的修为
         self.put_bot = []  # 接收消息qq,主qq，框架将只处理此qq的消息，
         self.main_bo = []  # 负责发送消息的qq
         self.shield_group = []  # 屏蔽的群聊
@@ -111,7 +111,7 @@ class XiuConfig:
         self.beg_lingshi_upper_limit = 500000000  # 今日奇缘灵石上限
         self.tou = 1000000  # 偷灵石惩罚
         self.tou_cd = 300  # 偷灵石cd/秒
-        self.battle_boss_cd = 300  # 讨伐bossCD
+        self.battle_boss_cd = 3600  # 讨伐bossCD
         self.tou_lower_limit = 0.01  # 偷灵石下限(百分比)
         self.tou_upper_limit = 0.30  # 偷灵石上限(百分比)
         self.remake = 100000  # 重入仙途的消费
