@@ -67,7 +67,7 @@ gmm_command = on_command("轮回力量", permission=SUPERUSER, priority=10, bloc
 cz = on_command('创造力量', permission=SUPERUSER, priority=15,block=True)
 rob_stone = on_command("抢劫", aliases={"抢灵石","拿来吧你"}, priority=5, permission=GROUP, block=True)
 restate = on_command("重置状态", permission=SUPERUSER, priority=12, block=True)
-open_xiuxian = on_command("启用修仙功能", aliases={'禁用修仙功能'}, permission=SUPERUSER and (GROUP_ADMIN | GROUP_OWNER), priority=5, block=True)
+open_xiuxian = on_command("启用修仙功能", aliases={'禁用修仙功能'}, permission=SUPERUSER, priority=5, block=True)
 user_leveluprate = on_command('我的突破概率', aliases={'突破概率'}, priority=5, permission=GROUP, block=True)
 xiuxian_updata_level = on_fullmatch('修仙适配', priority=15, permission=GROUP, block=True)
 xiuxian_uodata_data = on_fullmatch('更新记录', priority=15, permission=GROUP, block=True)
@@ -1398,6 +1398,14 @@ async def rob_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Command
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await give_stone.finish()
+    if user_info.level >= 55:
+        msg = "道友抢劫小辈实属可耻！"
+        if XiuConfig().img:
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
+            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+        else:
+            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await rob_stone.finish()
     if user_info.root == "器师":
         msg = "目前职业无法抢劫！"
         if XiuConfig().img:
@@ -1424,6 +1432,14 @@ async def rob_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Command
             await rob_stone.finish()
 
         user_2 = sql_message.get_user_message(give_qq)
+        if user_2.level >= 55:
+            msg = "道友抢劫小辈实属可耻！"
+            if XiuConfig().img:
+                pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
+                await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+            else:
+                await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+            await rob_stone.finish()
         if user_2.root == "器师":
             msg = "对方职业无法被抢劫！"
             if XiuConfig().img:
