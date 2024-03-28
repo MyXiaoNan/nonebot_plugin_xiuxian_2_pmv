@@ -19,6 +19,7 @@ from nonebot.adapters.onebot.v11 import (
 from nonebot import on_command, on_fullmatch
 from nonebot.permission import SUPERUSER
 from nonebot.log import logger
+from ..cd_manager import check_cd, add_cd, cd_msg
 from nonebot.params import CommandArg
 from ..data_source import jsondata
 from ..xiuxian2_handle import (

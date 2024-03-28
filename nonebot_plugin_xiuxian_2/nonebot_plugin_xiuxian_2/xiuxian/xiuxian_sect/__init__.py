@@ -1229,7 +1229,11 @@ async def create_sect_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
         msg = f"""创建宗门要求:
 (1)创建者境界最低要求为{XiuConfig().sect_min_level}
 (2)花费{XiuConfig().sect_create_cost}灵石费用
-(3)创建者当前处于无宗门状态。道友暂未满足所有条件，请逐一核实后，再来寻我。"""
+(3)创建者当前处于无宗门状态。
+道友暂未满足所有条件，请逐一核实后，再来寻我。"""
+        if XiuConfig().img:
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
+            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
     else:
         # 切割command获取宗门名称
         sect_name = args.extract_plain_text().strip()
