@@ -33,7 +33,8 @@ async def draw_user_info_img(user_id, DETAIL_MAP):
     based_h = 2450
     # 获取背景图
     try:
-        img = Image.open(BytesIO(await get_anime_pic())).convert("RGBA")
+        img_url = await get_anime_pic()
+        img = Image.open(BytesIO(await async_request(img_url))).convert("RGBA")
         # 居中裁剪背景
         img_w, img_h = img.size
         scale = based_w / img_w
@@ -207,6 +208,10 @@ async def async_request(url, *args, is_text=False, **kwargs):
 
 async def get_anime_pic():
     r: str = await async_request(
-        "https://api.gmit.vip/Api/DmImg?format=json", is_text=True
+        "https://imgapi.cn/api.php?zd=mobile&fl=dongman&gs=json", is_text=True
     )
-    return await async_request(json.loads(r)["data"]["url"])
+    response_json = json.loads(r)
+    if response_json["code"] == "200":
+        return response_json["imgurl"]
+    else:
+        logger.info("API 返回错误码：" + response_json["code"])
