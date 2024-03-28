@@ -26,21 +26,22 @@ cache_help = {}
 cache_help_fk = {}
 cache_level_help = {}
 sql_message = XiuxianDateManage()  # sql类
-# 重置每日签到
+# 重置奇缘
 @scheduler.scheduled_job("cron", hour=0, minute=0)
 async def xiuxian_beg_():
     sql_message.beg_remake()
-    logger.info("今日奇缘重置成功！")
+    logger.info("仙途奇缘重置成功！")
 
 __beg_help__ = f"""
 奇缘帮助信息:
-为了让初入仙途的道友们更顺利地踏上修炼之路，特别开辟了额外的机缘——发送“今日奇缘”，便可天降灵石，助君一臂之力。
+为了让初入仙途的道友们更顺利地踏上修炼之路，特别开辟了额外的机缘——发送“仙途奇缘”(先去看奇缘帮助)
+便可天降灵石，助君一臂之力。
 若有心人借此谋取不正之利，必将遭遇天道轮回，异象降临，后果自负。
 诸位道友，若不信此言，可自行一试，便知天机不可泄露，天道不容欺。
 """.strip()
 
-beg_stone = on_command("今日奇缘", permission=GROUP, priority=7, block=True)
-beg_help = on_command("奇缘帮助", aliases={"今日奇缘帮助", "帮助今日奇缘",}, permission=GROUP, priority=7, block=True)
+beg_stone = on_command("仙途奇缘", permission=GROUP, priority=7, block=True)
+beg_help = on_command("奇缘帮助", permission=GROUP, priority=7, block=True)
 
 @beg_help.handle(parameterless=[Cooldown(at_sender=True)])
 async def boss_help_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
@@ -96,7 +97,7 @@ async def beg_stone(bot: Bot, event: GroupMessageEvent):
         else:
             await bot.send_group_msg(group_id=event.group_id, message=msg)
 
-    elif user_info.is_ban == 0 and user_rank < 53:
+    elif user_info.is_ban == 0 and user_rank < 57:
         msg = f"道友已跻身于{user_info.level}层次的修行之人，可徜徉于四海八荒，自寻机缘与造化矣。"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
@@ -105,26 +106,16 @@ async def beg_stone(bot: Bot, event: GroupMessageEvent):
             await bot.send_group_msg(group_id=event.group_id, message=msg)
 
     
-    elif diff_days > 1 and user_rank > 53 and user_info.is_ban == 0 and user_root not in {"伪灵根", "轮回道果", "真·轮回道果"}:
-        msg = "道友妄图弄虚作假，天谴已至，废你修为，罚你从头来过！"
-        exp = user_msg.exp
-        now_exp = exp - 100
+    elif diff_days > 1 and user_rank > 57 and user_info.is_ban == 0 and user_root not in {"伪灵根", "轮回道果", "真·轮回道果"}:
+        msg = "道友妄图弄虚作假，天谴已至，废你修为(骗你的)，罚你从头来过！"
         sql_message.ban_user(user_id) # 小黑屋
-        sql_message.updata_level(user_id, '江湖好手') #重置用户境界
-        sql_message.update_levelrate(user_id, 0) #重置突破成功率
-        sql_message.update_j_exp(user_id, now_exp) #重置用户修为
-        sql_message.update_user_hp(user_id)  # 重置用户HP，mp，atk状态
-        sql_message.updata_user_main_buff(user_id, 0) #重置用户主功法
-        sql_message.updata_user_sub_buff(user_id, 0) #重置用户辅修功法
-        sql_message.updata_user_sec_buff(user_id, 0) #重置用户神通
-        sql_message.update_user_atkpractice(user_id, 0) #重置用户攻修等级
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=event.group_id, message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=event.group_id, message=msg)
     
-    elif user_info.is_ban == 1 and user_rank > 53:
+    elif user_info.is_ban == 1 and user_rank > 57:
         msg = "机缘已尽,望阁下好自为之！"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
@@ -132,7 +123,7 @@ async def beg_stone(bot: Bot, event: GroupMessageEvent):
         else:
             await bot.send_group_msg(group_id=event.group_id, message=msg)
 
-    elif user_info.is_ban == 1 and user_rank < 53:
+    elif user_info.is_ban == 1 and user_rank < 57:
         msg = "机缘已尽,望阁下好自为之！"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
