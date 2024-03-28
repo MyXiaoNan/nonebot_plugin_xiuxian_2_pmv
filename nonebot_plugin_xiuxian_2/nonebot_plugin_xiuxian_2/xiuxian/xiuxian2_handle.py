@@ -211,7 +211,7 @@ class XiuxianDateManage:
     def _create_user(self, user_id: str, root: str, type: str, power: str, create_time, user_name) -> None:
         """在数据库中创建用户并初始化"""
         c = self.conn.cursor()
-        sql = f"INSERT INTO user_xiuxian (user_id,stone,root,root_type,level,power,create_time,user_name,exp) VALUES (?,0,?,?,'江湖好手',?,?,?,100)"
+        sql = f"INSERT INTO user_xiuxian (user_id,stone,root,root_type,level,power,create_time,user_name,exp,is_beg,is_ban) VALUES (?,0,?,?,'江湖好手',?,?,?,100,0,0)"
         c.execute(sql, (user_id, root, type, power, create_time, user_name))
         self.conn.commit()
 
