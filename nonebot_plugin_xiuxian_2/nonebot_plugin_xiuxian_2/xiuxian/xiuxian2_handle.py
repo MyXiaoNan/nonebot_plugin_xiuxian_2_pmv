@@ -111,7 +111,7 @@ class XiuxianDateManage:
       "user_name" TEXT DEFAULT NULL,
       "level_up_cd" integer DEFAULT NULL,
       "level_up_rate" integer DEFAULT 0,
-      "is_beg" integer DEFAULT 0
+      "is_beg" integer DEFAULT 0,
       "is_ban" integer DEFAULT 0
     );""")
             elif i == "user_cd":
