@@ -373,7 +373,7 @@ async def shop_(bot: Bot, event: GroupMessageEvent):
             msg += f"系统出售\n"
             msg += f"数量：无限\n"
         data_list.append(msg)
-    await send_forward_ismg(bot, event, '坊市', bot.self_id, data_list)
+    await send_forward_img(bot, event, '坊市', bot.self_id, data_list)
     await shop.finish()
 
 
