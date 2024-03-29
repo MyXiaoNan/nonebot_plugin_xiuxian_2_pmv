@@ -28,10 +28,10 @@ from ..xiuxian2_handle import (
 )
 from ..xiuxian_config import XiuConfig, JsonConfig
 from ..utils import (
-    check_user, send_forward_msg,
+    check_user,
     get_msg_pic, number_to,
     CommandObjectID,
-    Txt2Img
+    Txt2Img, send_forward_img
 )
 from ..item_json import Items
 items = Items()
@@ -99,7 +99,7 @@ __xiuxian_notes__ = f"""
 20、修仙适配:将1的境界适配到2
 21、启用/禁用修仙功能：当前群开启或关闭修仙功能
 22、更新记录:获取插件最新内容
-23、今日奇缘:发送“奇缘帮助”获取
+23、仙途奇缘:发送“奇缘帮助”获取
 24、轮回重修:发送“轮回重修”获取
 25、境界帮助、灵根帮助、品阶帮助:获取对应帮助信息
 26、仙器合成:发送合成xx获取，目前开放合成的仙器为天罪
@@ -479,7 +479,7 @@ async def rank_(bot: Bot, event: GroupMessageEvent):
         message = message[0]
     if message == "排行榜" or message == "修仙排行榜" or message == "境界排行榜":
         p_rank = sql_message.realm_top()
-        msg = f"✨位面境界排行榜TOP10✨\n"
+        msg = f"✨位面境界排行榜TOP100✨\n"
         num = 0
         for i in p_rank:
             num += 1
@@ -492,7 +492,7 @@ async def rank_(bot: Bot, event: GroupMessageEvent):
         await rank.finish()
     elif message == "灵石排行榜":
         a_rank = sql_message.stone_top()
-        msg = f"✨位面灵石排行榜TOP10✨\n"
+        msg = f"✨位面灵石排行榜TOP100✨\n"
         num = 0
         for i in a_rank:
             num += 1
@@ -505,7 +505,7 @@ async def rank_(bot: Bot, event: GroupMessageEvent):
         await rank.finish()
     elif message == "战力排行榜":
         c_rank = sql_message.power_top()
-        msg = f"✨位面战力排行榜TOP10✨\n"
+        msg = f"✨位面战力排行榜TOP100✨\n"
         num = 0
         for i in c_rank:
             num += 1
@@ -518,12 +518,12 @@ async def rank_(bot: Bot, event: GroupMessageEvent):
         await rank.finish()
     elif message in ["宗门排行榜", "宗门建设度排行榜"]:
         s_rank = sql_message.scale_top()
-        msg = f"✨位面宗门建设排行榜TOP10✨\n"
+        msg = f"✨位面宗门建设排行榜TOP100✨\n"
         num = 0
         for i in s_rank:
             num += 1
             msg += f"第{num}位  {i[1]}  建设度：{number_to(i[2])}\n"
-            if num == 10:
+            if num == 100:
                 break
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
@@ -1381,7 +1381,7 @@ async def gmm_command_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
             await gmm_command.finish(MessageSegment.image(pic))
 
 
-@rob_stone.handle(parameterless=[Cooldown(cd_time=60 ,at_sender=True)])
+@rob_stone.handle(parameterless=[Cooldown(cd_time=0 ,at_sender=True)])
 async def rob_stone_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """抢灵石
             player1 = {
@@ -1399,14 +1399,7 @@ async def rob_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Command
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await give_stone.finish()
-    if user_info.level >= 55:
-        msg = "道友抢劫小辈实属可耻！"
-        if XiuConfig().img:
-            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
-            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
-        else:
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-        await rob_stone.finish()
+
     if user_info.root == "器师":
         msg = "目前职业无法抢劫！"
         if XiuConfig().img:
@@ -1433,14 +1426,6 @@ async def rob_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Command
             await rob_stone.finish()
 
         user_2 = sql_message.get_user_message(give_qq)
-        if user_2.level >= 55:
-            msg = "道友抢劫小辈实属可耻！"
-            if XiuConfig().img:
-                pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
-                await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
-            else:
-                await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-            await rob_stone.finish()
         if user_2.root == "器师":
             msg = "对方职业无法被抢劫！"
             if XiuConfig().img:
@@ -1514,7 +1499,7 @@ async def rob_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Command
             player2['防御'] = def_buff
 
             result, victor = OtherSet().player_fight(player1, player2)
-            await send_forward_msg(bot, event, '决斗场', bot.self_id, result)
+            await send_forward_img(bot, event, '决斗场', bot.self_id, result)
             if victor == player1['道号']:
                 foe_stone = user_2.stone
                 if foe_stone > 0:

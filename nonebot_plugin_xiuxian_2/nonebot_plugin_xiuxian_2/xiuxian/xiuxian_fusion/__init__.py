@@ -12,7 +12,7 @@ from nonebot.adapters.onebot.v11 import (
     ActionFailed
 )
 from ..utils import (
-    check_user, send_forward_msg,
+    check_user, send_forward_img,
     get_msg_pic, number_to,
     CommandObjectID,
     Txt2Img

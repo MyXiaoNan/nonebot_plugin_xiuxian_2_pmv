@@ -614,7 +614,7 @@ class XiuxianDateManage:
         self.conn.commit()
 
     def realm_top(self):
-        """境界排行榜"""
+        """境界排行榜前百"""
         sql = f"""SELECT user_name,level,exp FROM user_xiuxian 
         WHERE user_name is NOT NULL
         ORDER BY CASE
@@ -677,14 +677,15 @@ class XiuxianDateManage:
         WHEN level = '搬血境中期' THEN '56'
         WHEN level = '搬血境初期' THEN '57'
         WHEN level = '江湖好手' THEN '58'
-        ELSE level END ASC,exp DESC LIMIT 15"""
+        ELSE level END ASC,exp DESC LIMIT 100"""
         cur = self.conn.cursor()
         cur.execute(sql, )
         result = cur.fetchall()
         return result
 
     def stone_top(self):
-        sql = f"SELECT user_name,stone FROM user_xiuxian WHERE user_name is NOT NULL ORDER BY stone DESC LIMIT 15"
+        """这也是灵石排行榜"""
+        sql = f"SELECT user_name,stone FROM user_xiuxian WHERE user_name is NOT NULL ORDER BY stone DESC LIMIT 100"
         cur = self.conn.cursor()
         cur.execute(sql, )
         result = cur.fetchall()
@@ -692,7 +693,7 @@ class XiuxianDateManage:
 
     def power_top(self):
         """战力排行榜"""
-        sql = f"SELECT user_name,power FROM user_xiuxian WHERE user_name is NOT NULL ORDER BY power DESC LIMIT 15"
+        sql = f"SELECT user_name,power FROM user_xiuxian WHERE user_name is NOT NULL ORDER BY power DESC LIMIT 100"
         cur = self.conn.cursor()
         cur.execute(sql, )
         result = cur.fetchall()

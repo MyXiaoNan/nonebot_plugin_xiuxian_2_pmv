@@ -46,7 +46,7 @@ def get_boss_jinjie_dict():
 def createboss():
     top_user_info = sql_message.get_top1_user()
     top_user_level = top_user_info.level
-    if top_user_level in {"祭道初期", "祭道中期", "祭道圆满"}:
+    if top_user_level is "零":
         level = top_user_level
     else:
         level = top_user_level[:3]

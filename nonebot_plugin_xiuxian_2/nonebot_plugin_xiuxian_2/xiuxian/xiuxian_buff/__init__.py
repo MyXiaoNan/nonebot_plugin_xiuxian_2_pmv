@@ -17,12 +17,11 @@ from ..xiuxian2_handle import (
     XIUXIAN_IMPART_BUFF
 )
 from ..xiuxian_config import XiuConfig
-from ..utils import check_user
 from ..data_source import jsondata
 from nonebot.params import CommandArg
 from ..player_fight import Player_fight
 from ..utils import (
-    send_forward_msg_list, number_to,
+    number_to, send_forward_img_list, check_user,
     check_user_type, get_msg_pic, CommandObjectID
 )
 from ..lay_out import assign_bot, Cooldown
@@ -363,7 +362,7 @@ async def qc_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
         player2['exp'] = user2.exp
 
         result, victor = Player_fight(player1, player2, 1, bot.self_id)
-        await send_forward_msg_list(bot, event, result)
+        await send_forward_img_list(bot, event, result)
         msg = f"获胜的是{victor}"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)

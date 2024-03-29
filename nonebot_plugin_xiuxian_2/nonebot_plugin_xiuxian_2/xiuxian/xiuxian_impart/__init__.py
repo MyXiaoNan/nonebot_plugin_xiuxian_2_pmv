@@ -14,7 +14,7 @@ from nonebot.adapters.onebot.v11 import (
 from ..lay_out import assign_bot, Cooldown
 from ..utils import (
     check_user,
-    get_msg_pic, send_forward_msg_list,
+    get_msg_pic, send_forward_img_list,
     CommandObjectID
 )
 from .impart_uitls import impart_check, get_rank, re_impart_data
@@ -36,7 +36,7 @@ impart_data = on_command("传承信息", aliases={"我的传承信息", "我的�
 impart_help = on_command("传承帮助", aliases={"虚神界帮助"}, priority=8, permission=GROUP, block=True)
 re_impart_load = on_fullmatch("加载传承数据", priority=45, permission=GROUP, block=True)
 impart_img = on_command("传承卡图", aliases={"传承卡片"}, priority=50, permission=GROUP, block=True)
-
+test = on_command("test", priority=50, permission=GROUP, block=True)
 __impart_help__ = f"""
 传承帮助信息:
 指令:
@@ -160,7 +160,7 @@ async def impart_draw_(bot: Bot, event: GroupMessageEvent):
                         {"type": "node", "data": {"name": f"道友{user_info.user_name}的传承抽卡", "uin": bot.self_id,
                                                   "content": img}})
                 try:
-                    await send_forward_msg_list(bot, event, list_tp)
+                    await send_forward_img_list(bot, event, list_tp)
                 except ActionFailed:
                     msg = "未知原因，抽卡失败!"
                     if XiuConfig().img:
@@ -193,7 +193,7 @@ async def impart_draw_(bot: Bot, event: GroupMessageEvent):
                         {"type": "node", "data": {"name": f"道友{user_info.user_name}的传承抽卡", "uin": bot.self_id,
                                                   "content": img}})
                 try:
-                    await send_forward_msg_list(bot, event, list_tp)
+                    await send_forward_img_list(bot, event, list_tp)
                 except ActionFailed:
                     msg = "消息发送失败，抽卡失败!"
                     if XiuConfig().img:
@@ -223,7 +223,7 @@ async def impart_draw_(bot: Bot, event: GroupMessageEvent):
                     {"type": "node", "data": {"name": f"道友{user_info.user_name}的传承抽卡", "uin": bot.self_id,
                                               "content": img}})
             try:
-                await send_forward_msg_list(bot, event, list_tp)
+                await send_forward_img_list(bot, event, list_tp)
             except ActionFailed:
                 msg = "未知原因，抽卡失败!"
                 if XiuConfig().img:
@@ -292,7 +292,7 @@ boss战攻击提升:{int(impart_data_draw.boss_atk * 100)}%
         {"type": "node", "data": {"name": f"道友{user_info.user_name}的传承背包", "uin": bot.self_id,
                                   "content": img}})
     try:
-        await send_forward_msg_list(bot, event, list_tp)
+        await send_forward_img_list(bot, event, list_tp)
     except ActionFailed:
         msg = "获取传承背包数据失败！"
         if XiuConfig().img:
