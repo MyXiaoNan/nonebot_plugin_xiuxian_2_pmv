@@ -619,9 +619,9 @@ class XiuxianDateManage:
         WHERE user_name is NOT NULL
         ORDER BY CASE
         WHEN level = '零' THEN '00'
-        WHEN level = '祭道圆满' THEN '01'
-        WHEN level = '祭道中期' THEN '02'
-        WHEN level = '祭道初期' THEN '03'
+        WHEN level = '祭道境圆满' THEN '01'
+        WHEN level = '祭道境中期' THEN '02'
+        WHEN level = '祭道境初期' THEN '03'
         WHEN level = '仙帝境圆满' THEN '04'
         WHEN level = '仙帝境中期' THEN '05'
         WHEN level = '仙帝境初期' THEN '06'
