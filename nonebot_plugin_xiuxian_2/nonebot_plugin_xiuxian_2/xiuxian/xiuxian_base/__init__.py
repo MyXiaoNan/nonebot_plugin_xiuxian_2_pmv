@@ -294,7 +294,7 @@ async def level_help_(bot: Bot, event: GroupMessageEvent, session_id: int = Comm
         msg = __level_help__
         img = Txt2Img(font_size)
         if XiuConfig().img:
-            pic = img.save(title,msg)
+            pic = await img.save(title,msg)
             cache_level_help[session_id] = pic
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:

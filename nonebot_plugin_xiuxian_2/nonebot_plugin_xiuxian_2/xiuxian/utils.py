@@ -290,7 +290,7 @@ class Txt2Img:
         return base64_str
 
 
-    def save(self, title, lrc):
+    async def save(self, title, lrc):
         """保存图片"""
         border_color = (220, 211, 196)
         text_color = (125, 101, 89)
@@ -399,7 +399,8 @@ class Txt2Img:
                 fill=text_color,
                 spacing=self.lrc_line_space,
             )
-        return self.img2b64(out_img)
+        base64_str = await self.img2b64(out_img)
+        return base64_str
     
 
     def sync_img2b64(self, out_img) -> str:
