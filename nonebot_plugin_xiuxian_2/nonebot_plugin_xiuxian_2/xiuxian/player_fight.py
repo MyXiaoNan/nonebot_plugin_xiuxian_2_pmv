@@ -698,7 +698,7 @@ async def Boss_fight(player1: dict, boss: dict, type_in=2, bot_id=0):
     global boss_jb 
     global boss_xl
     #try:
-    if boss["jj"] is "祭道境":
+    if boss["jj"] == "祭道境":
             #boss["减伤"] = random.randint(40,90)/100 # boss减伤率
             boss["减伤"] = 0.05 # boss减伤率
             boss_st1 = random.randint(0,100) #boss神通1
