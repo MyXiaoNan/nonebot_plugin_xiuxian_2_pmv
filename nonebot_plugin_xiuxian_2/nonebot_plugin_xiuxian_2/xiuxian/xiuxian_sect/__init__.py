@@ -130,7 +130,7 @@ async def sect_help_(bot: Bot, event: GroupMessageEvent, session_id: int = Comma
         font_size = 32
         img = Txt2Img(font_size)
         if XiuConfig().img:
-            pic = img.save(title,msg)
+            pic = await img.save(title,msg)
             cache_help[session_id] = pic
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:

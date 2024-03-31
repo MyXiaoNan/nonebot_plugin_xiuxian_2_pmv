@@ -206,7 +206,7 @@ async def run_xiuxian_(bot: Bot, event: GroupMessageEvent):
                 await bot.send_group_msg(group_id=int(send_group_id), message=msg)
             await asyncio.sleep(1)
             if XiuConfig().img:
-                pic = await get_msg_pic(f"此时你的耳边响起一个神秘人的声音：“不要忘记今日奇缘！”")
+                pic = await get_msg_pic(f"此时你的耳边响起一个神秘人的声音：“不要忘记仙途奇缘！”")
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
             else:
                 await bot.send_group_msg(group_id=int(send_group_id), message=msg)
