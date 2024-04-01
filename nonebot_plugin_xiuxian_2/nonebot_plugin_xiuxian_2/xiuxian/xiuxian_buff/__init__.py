@@ -22,8 +22,10 @@ from nonebot.params import CommandArg
 from ..player_fight import Player_fight
 from ..utils import (
     number_to, send_forward_img_list, check_user,
-    check_user_type, get_msg_pic, CommandObjectID
+    check_user_type, get_msg_pic, CommandObjectID,
+    send_forward_img
 )
+from ..xiuxian_back.back_util import get_user_skill_back_msg
 from ..lay_out import assign_bot, Cooldown
 from .two_exp_cd import two_exp_cd
 
@@ -929,8 +931,9 @@ async def buffinfo_(bot: Bot, event: GroupMessageEvent):
         await buffinfo.finish()
 
     user_id = user_info.user_id
+    skill_msg = get_user_skill_back_msg(user_id)  
     mainbuffdata = UserBuffDate(user_id).get_user_main_buff_data()
-    if mainbuffdata is not None:
+    if mainbuffdata != None:
         s, mainbuffmsg = get_main_info_msg(str(get_user_buff(user_id).main_buff))
     else:
         mainbuffmsg = ''
@@ -944,18 +947,21 @@ async def buffinfo_(bot: Bot, event: GroupMessageEvent):
     secbuffdata = UserBuffDate(user_id).get_user_sec_buff_data()
     secbuffmsg = get_sec_msg(secbuffdata) if get_sec_msg(secbuffdata) != '无' else ''
     msg = f"""
-道友的主功法：{mainbuffdata["name"] if mainbuffdata is not None else '无'}
+道友的主功法：{mainbuffdata["name"] if mainbuffdata != None else '无'}
 {mainbuffmsg}
 道友的辅修功法：{subbuffdata["name"] if subbuffdata != None else '无'}
 {subbuffmsg}
-道友的神通：{secbuffdata["name"] if secbuffdata is not None else '无'}
+道友的神通：{secbuffdata["name"] if secbuffdata != None else '无'}
 {secbuffmsg}
+道友背包内的功法，辅修功法，神通等信息将在下一条消息展示：
 """
+
     if XiuConfig().img:
         pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
         await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
     else:
         await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+    await send_forward_img(bot, event, '背包', bot.self_id, skill_msg)
     await buffinfo.finish()
 
 

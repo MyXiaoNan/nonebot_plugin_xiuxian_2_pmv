@@ -16,15 +16,12 @@ from ..utils import (
     check_user,
     get_msg_pic,
     CommandObjectID,
-    Txt2Img
 )
 
 
 # 定时任务
 scheduler = require("nonebot_plugin_apscheduler").scheduler
 cache_help = {}
-cache_help_fk = {}
-cache_level_help = {}
 sql_message = XiuxianDateManage()  # sql类
 # 重置奇缘
 @scheduler.scheduled_job("cron", hour=0, minute=0)
@@ -44,7 +41,7 @@ beg_stone = on_command("仙途奇缘", permission=GROUP, priority=7, block=True)
 beg_help = on_command("奇缘帮助", permission=GROUP, priority=7, block=True)
 
 @beg_help.handle(parameterless=[Cooldown(at_sender=True)])
-async def boss_help_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
+async def beg_help_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     if session_id in cache_help:
         await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(cache_help[session_id]))

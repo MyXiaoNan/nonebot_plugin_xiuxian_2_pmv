@@ -118,17 +118,13 @@ def check_equipment_use_msg(user_id, goods_id):
     return is_use
 
 
-def get_user_back_msg(user_id):
+def get_user_main_back_msg(user_id):
     """
     获取背包内的所有物品信息
     """
     l_equipment_msg = []
-    l_skill_msg = []
-    l_elixir_msg = []
     l_shenwu_msg = []
-    l_yaocai_msg = []
     l_xiulianitem_msg = []
-    l_ldl_msg = []
     l_msg = []
     user_backs = sql_message.get_back_msg(user_id)  # list(back)
     if user_backs is None:
@@ -136,49 +132,93 @@ def get_user_back_msg(user_id):
     for user_back in user_backs:
         if user_back.goods_type == "装备":
             l_equipment_msg = get_equipment_msg(l_equipment_msg, user_id, user_back.goods_id, user_back.goods_num)
-
-        elif user_back.goods_type == "技能":
-            l_skill_msg = get_skill_msg(l_skill_msg, user_id, user_back.goods_id, user_back.goods_num)
-
-        elif user_back.goods_type == "丹药":
-            l_elixir_msg = get_elixir_msg(l_elixir_msg, user_back.goods_id, user_back.goods_num)
-            
+ 
         elif user_back.goods_type == "神物":
             l_shenwu_msg = get_shenwu_msg(l_shenwu_msg, user_back.goods_id, user_back.goods_num)
 
         elif user_back.goods_type == "聚灵旗":
             l_xiulianitem_msg = get_jlq_msg(l_xiulianitem_msg, user_id, user_back.goods_id, user_back.goods_num)
 
-        elif user_back.goods_type == "炼丹炉":
-            l_ldl_msg = get_ldl_msg(l_ldl_msg, user_id, user_back.goods_id, user_back.goods_num)
     if l_equipment_msg:
         l_msg.append("☆------我的装备------☆")
         for msg in l_equipment_msg:
             l_msg.append(msg)
 
-    if l_skill_msg:
-        l_msg.append("☆------拥有技能书------☆")
-        for msg in l_skill_msg:
+    if l_shenwu_msg:
+        l_msg.append("☆------神物------☆")
+        for msg in l_shenwu_msg:
             l_msg.append(msg)
 
     if l_xiulianitem_msg:
         l_msg.append("☆------修炼物品------☆")
         for msg in l_xiulianitem_msg:
             l_msg.append(msg)
+    return l_msg
+
+
+def get_user_elixir_back_msg(user_id):
+    """
+    获取背包内的丹药信息
+    """
+    l_elixir_msg = []
+    l_ldl_msg = []
+    l_msg = []
+    user_backs = sql_message.get_back_msg(user_id)  # list(back)
+    if user_backs is None:
+        return l_msg
+    for user_back in user_backs:
+        if user_back.goods_type == "丹药":
+            l_elixir_msg = get_elixir_msg(l_elixir_msg, user_back.goods_id, user_back.goods_num)
+        elif user_back.goods_type == "炼丹炉":
+            l_ldl_msg = get_ldl_msg(l_ldl_msg, user_id, user_back.goods_id, user_back.goods_num)
 
     if l_ldl_msg:
         l_msg.append("☆------炼丹炉------☆")
-        for msg in l_ldl_msg:
-            l_msg.append(msg)
-    
-    if l_shenwu_msg:
-        l_msg.append("☆------神物------☆")
-        for msg in l_shenwu_msg:
-            l_msg.append(msg)
+    for msg in l_ldl_msg:
+        l_msg.append(msg)
 
     if l_elixir_msg:
         l_msg.append("☆------我的丹药------☆")
         for msg in l_elixir_msg:
+            l_msg.append(msg)
+    return l_msg
+
+
+def get_user_skill_back_msg(user_id):
+    """
+    获取背包内的技能信息
+    """
+    l_skill_msg = []
+    l_msg = []
+    user_backs = sql_message.get_back_msg(user_id)  # list(back)
+    if user_backs is None:
+        return l_msg
+    for user_back in user_backs:
+        if user_back.goods_type == "技能":
+            l_skill_msg = get_skill_msg(l_skill_msg, user_id, user_back.goods_id, user_back.goods_num)
+    if l_skill_msg:
+        l_msg.append("☆------拥有技能书------☆")
+        for msg in l_skill_msg:
+            l_msg.append(msg)
+    return l_msg
+
+
+def get_user_yaocai_back_msg(user_id):
+    """
+    获取背包内的药材信息
+    """
+    l_yaocai_msg = []
+    l_msg = []
+    user_backs = sql_message.get_back_msg(user_id)  # list(back)
+    if user_backs is None:
+        return l_msg
+    for user_back in user_backs:
+        if user_back.goods_type == "药材":
+            l_yaocai_msg = get_yaocai_msg(l_yaocai_msg, user_id, user_back.goods_id, user_back.goods_num)
+            
+    if l_yaocai_msg:
+        l_msg.append("☆------拥有药材------☆")
+        for msg in l_yaocai_msg:
             l_msg.append(msg)
     return l_msg
 
@@ -233,6 +273,9 @@ YAOCAIINFOMSG = {
 
 
 def get_yaocai_info(yaocai_info):
+    """
+    获取药材信息
+    """
     msg = f"主药 {YAOCAIINFOMSG[str(yaocai_info['主药']['h_a_c']['type'])]}"
     msg += f"{yaocai_info['主药']['h_a_c']['power']}"
     msg += f" {YAOCAIINFOMSG[str(yaocai_info['主药']['type'])]}"

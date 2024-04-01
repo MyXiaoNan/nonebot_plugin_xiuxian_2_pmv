@@ -5,7 +5,6 @@ from nonebot.params import RegexGroup
 from ..lay_out import assign_bot, Cooldown
 from nonebot.adapters.onebot.v11 import (
     Bot,
-    PRIVATE_FRIEND,
     GROUP,
     GroupMessageEvent,
     MessageSegment,
@@ -43,7 +42,7 @@ last_work = on_command("最后的悬赏令", priority=15, block=True)
 do_work = on_regex(
     r"^悬赏令(刷新|终止|结算|接取|帮助)?(\d+)?",
     priority=10,
-    permission=PRIVATE_FRIEND | GROUP,
+    permission=GROUP,
     block=True
 )
 __work_help__ = f"""

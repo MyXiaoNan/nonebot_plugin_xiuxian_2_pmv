@@ -18,7 +18,7 @@ from nonebot.log import logger
 from nonebot.params import CommandArg
 from nonebot.permission import SUPERUSER
 from .back_util import (
-    get_user_back_msg, check_equipment_can_use,
+    get_user_main_back_msg, check_equipment_can_use,
     get_use_equipment_sql, get_shop_data, save_shop,
     get_item_msg, get_item_msg_rank, check_use_elixir,
     get_use_jlq_msg, get_no_use_equipment_sql
@@ -59,7 +59,7 @@ shop_added = on_command("坊市上架", priority=10, permission=GROUP, block=Tru
 shop_added_by_admin = on_command("系统坊市展售", priority=5, permission=SUPERUSER, block=True)
 shop_off = on_command("坊市下架", priority=5, permission=GROUP, block=True)
 shop_off_all = on_fullmatch("清空坊市", priority=3, permission=SUPERUSER, block=True)
-mind_back = on_command('我的背包', aliases={'我的物品'}, priority=10, permission=GROUP, block=True)
+main_back = on_command('我的背包', aliases={'我的物品'}, priority=10, permission=GROUP, block=True)
 use = on_command("使用", priority=15, permission=GROUP, block=True)
 no_use_zb = on_command("换装", priority=5, permission=GROUP, block=True)
 buy = on_command("坊市购买", priority=5, block=True)
@@ -219,7 +219,7 @@ async def back_help_(bot: Bot, event: GroupMessageEvent, session_id: int = Comma
         font_size = 32
         img = Txt2Img(font_size)
         if XiuConfig().img:
-            pic = img.save(title,msg)
+            pic = await img.save(title,msg)
             cache_help[session_id] = pic
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
@@ -843,8 +843,8 @@ async def shop_off_(bot: Bot, event: GroupMessageEvent, args: Message = CommandA
         await shop_off.finish()
 
 
-@mind_back.handle(parameterless=[Cooldown(cd_time=XiuConfig().user_info_cd, at_sender=True)])
-async def mind_back_(bot: Bot, event: GroupMessageEvent):
+@main_back.handle(parameterless=[Cooldown(cd_time=XiuConfig().user_info_cd, at_sender=True)])
+async def main_back_(bot: Bot, event: GroupMessageEvent):
     """我的背包
     ["user_id", "goods_id", "goods_name", "goods_type", "goods_num", "create_time", "update_time",
     "remake", "day_num", "all_num", "action_time", "state"]
@@ -857,9 +857,9 @@ async def mind_back_(bot: Bot, event: GroupMessageEvent):
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-        await mind_back.finish()
+        await main_back.finish()
     user_id = user_info.user_id
-    msg = get_user_back_msg(user_id)
+    msg = get_user_main_back_msg(user_id)
 
     if len(msg) >= 98: #背包更新
         # 将第一条消息和第二条消息合并为一条消息
@@ -872,15 +872,15 @@ async def mind_back_(bot: Bot, event: GroupMessageEvent):
                 await asyncio.sleep(1)
                 await send_forward_img(bot, event, '背包', bot.self_id, msg2)
         except ActionFailed:
-            await mind_back.finish("查看背包失败!", reply_message=True)
+            await main_back.finish("查看背包失败!", reply_message=True)
     else:
         msg = [f"{user_info.user_name}的背包，持有灵石：{user_info.stone}枚"] + msg
         try:
             await send_forward_img(bot, event, '背包', bot.self_id, msg)
         except ActionFailed:
-            await mind_back.finish("查看背包失败!", reply_message=True)
+            await main_back.finish("查看背包失败!", reply_message=True)
 
-    await mind_back.finish()
+    await main_back.finish()
 
 
 
