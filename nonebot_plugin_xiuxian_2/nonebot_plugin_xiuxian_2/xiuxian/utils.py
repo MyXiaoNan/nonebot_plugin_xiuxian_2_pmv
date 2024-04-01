@@ -255,7 +255,7 @@ class Txt2Img:
             mi_banner.transpose(Image.FLIP_LEFT_RIGHT).transpose(Image.FLIP_TOP_BOTTOM),
             (img_width - out_padding - banner_size + 1, img_hight - out_padding - banner_size + 1),
         )
-
+        
         # # # # 
         draw.text(
             (left_size, upper_size),
