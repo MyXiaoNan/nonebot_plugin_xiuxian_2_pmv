@@ -330,6 +330,16 @@
         "type": "装备",
         "item_type": "防具"
     },
+    "15507": {
+        "name": "危险兔坦娘",
+        "def_buff": 0.55,
+        "atk_buff": 0,
+        "crit_buff": 0,
+        "rank": -5,
+        "level": "无上仙器",
+        "type": "装备",
+        "item_type": "防具"
+    },
     "6095": {
         "name": "伽域封界",
         "def_buff": 0.5,

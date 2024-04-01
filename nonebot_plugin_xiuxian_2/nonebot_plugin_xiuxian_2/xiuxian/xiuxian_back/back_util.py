@@ -151,9 +151,6 @@ def get_user_back_msg(user_id):
 
         elif user_back.goods_type == "炼丹炉":
             l_ldl_msg = get_ldl_msg(l_ldl_msg, user_id, user_back.goods_id, user_back.goods_num)
-
-        elif user_back.goods_type == "药材":
-            l_yaocai_msg = get_yaocai_msg(l_yaocai_msg, user_id, user_back.goods_id, user_back.goods_num)
     if l_equipment_msg:
         l_msg.append("☆------我的装备------☆")
         for msg in l_equipment_msg:
@@ -182,11 +179,6 @@ def get_user_back_msg(user_id):
     if l_elixir_msg:
         l_msg.append("☆------我的丹药------☆")
         for msg in l_elixir_msg:
-            l_msg.append(msg)
-
-    if l_yaocai_msg:
-        l_msg.append("☆------我的药材------☆")
-        for msg in l_yaocai_msg:
             l_msg.append(msg)
     return l_msg
 

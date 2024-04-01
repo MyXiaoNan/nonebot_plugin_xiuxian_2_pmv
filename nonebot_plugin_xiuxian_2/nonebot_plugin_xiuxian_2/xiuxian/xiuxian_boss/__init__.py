@@ -35,8 +35,8 @@ from ..player_fight import Boss_fight
 from ..item_json import Items
 items = Items()
 from ..utils import (
-    send_forward_msg_list, number_to,
-    check_user, send_forward_msg,
+    send_forward_img_list, number_to,
+    check_user, send_forward_img,
     get_msg_pic, CommandObjectID,
     pic_msg_format
 )
@@ -58,8 +58,9 @@ xiuxian_impart = XIUXIAN_IMPART_BUFF()
 
 
 create = on_command("生成世界boss", aliases={"生成世界Boss", "生成世界BOSS"}, priority=5,
-                    permission=GROUP and (SUPERUSER | GROUP_ADMIN | GROUP_OWNER), block=True)
-create_appoint = on_command("生成指定世界boss", aliases={"生成指定世界boss", "生成指定世界BOSS", "生成指定BOSS", "生成指定boss"}, priority=5,)
+                 permission=GROUP and (SUPERUSER), block=True)
+create_appoint = on_command("生成指定世界boss", aliases={"生成指定世界boss", "生成指定世界BOSS", "生成指定BOSS", "生成指定boss"}, priority=5,
+                            permission=GROUP and (SUPERUSER))
 boss_info = on_command("查询世界boss", aliases={"查询世界Boss", "查询世界BOSS"}, priority=6, permission=GROUP, block=True)
 set_group_boss = on_command("世界boss", aliases={"世界Boss", "世界BOSS"}, priority=13,
                             permission=GROUP and (SUPERUSER | GROUP_ADMIN | GROUP_OWNER), block=True)
@@ -453,7 +454,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
         msg = f"道友不敌{bossinfo['name']}，重伤逃遁，临逃前收获灵石{get_stone}枚，{more_msg}获得世界积分：{boss_integral}点{exp_msg} "
         battle_flag[group_id] = False
         try:
-            await send_forward_msg_list(bot, event, result)
+            await send_forward_img_list(bot, event, result)
         except ActionFailed:
             msg += "Boss战消息发送错误,可能被风控!"
         if XiuConfig().img:
@@ -499,7 +500,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
         save_user_boss_fight_info(user_id, user_boss_fight_info)
         msg = f"恭喜道友击败{bossinfo['name']}，收获灵石{get_stone}枚，{more_msg}获得世界积分：{boss_integral}点!{exp_msg} {drops_msg}"
         try:
-            await send_forward_msg_list(bot, event, result)
+            await send_forward_img_list(bot, event, result)
         except ActionFailed:
             msg += "Boss战消息发送错,可能被风控!"
         if XiuConfig().img:
@@ -806,7 +807,7 @@ async def boss_integral_info_(bot: Bot, event: GroupMessageEvent):
             l_msg.append(msg)
     else:
         l_msg.append(f"世界积分商店内空空如也！")
-    await send_forward_msg(bot, event, '世界积分商店', bot.self_id, l_msg)
+    await send_forward_img(bot, event, '世界积分商店', bot.self_id, l_msg)
     await boss_integral_info.finish()
 
 

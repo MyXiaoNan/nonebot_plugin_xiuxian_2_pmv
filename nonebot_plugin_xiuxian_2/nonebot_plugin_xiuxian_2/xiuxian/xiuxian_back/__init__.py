@@ -26,8 +26,8 @@ from .back_util import (
 from .backconfig import get_config, savef
 from ..item_json import Items
 from ..utils import (
-    check_user, send_forward_msg,
-    get_msg_pic, send_forward_msg_list, CommandObjectID,
+    check_user, send_forward_img,
+    get_msg_pic, send_forward_img_list, CommandObjectID,
     Txt2Img
 )
 from ..xiuxian2_handle import (
@@ -373,7 +373,7 @@ async def shop_(bot: Bot, event: GroupMessageEvent):
             msg += f"系统出售\n"
             msg += f"数量：无限\n"
         data_list.append(msg)
-    await send_forward_msg(bot, event, '坊市', bot.self_id, data_list)
+    await send_forward_img(bot, event, '坊市', bot.self_id, data_list)
     await shop.finish()
 
 
@@ -866,17 +866,17 @@ async def mind_back_(bot: Bot, event: GroupMessageEvent):
         msg1 = [f"{user_info.user_name}的背包，持有灵石：{user_info.stone}枚"] + msg[:98]
         msg2 = [f"{user_info.user_name}的背包，持有灵石：{user_info.stone}枚"] + msg[98:]
         try:
-            await send_forward_msg(bot, event, '背包', bot.self_id, msg1)
+            await send_forward_img(bot, event, '背包', bot.self_id, msg1)
             if msg2:
                 # 如果有第三条及以后的消息，需要等待一段时间再发送，避免触发限制
                 await asyncio.sleep(1)
-                await send_forward_msg(bot, event, '背包', bot.self_id, msg2)
+                await send_forward_img(bot, event, '背包', bot.self_id, msg2)
         except ActionFailed:
             await mind_back.finish("查看背包失败!", reply_message=True)
     else:
         msg = [f"{user_info.user_name}的背包，持有灵石：{user_info.stone}枚"] + msg
         try:
-            await send_forward_msg(bot, event, '背包', bot.self_id, msg)
+            await send_forward_img(bot, event, '背包', bot.self_id, msg)
         except ActionFailed:
             await mind_back.finish("查看背包失败!", reply_message=True)
 
@@ -1526,7 +1526,7 @@ async def chakan_wupin_(bot: Bot, event: GroupMessageEvent, args: Message = Comm
                     {"type": "node", "data": {"name": f"修仙界物品列表{args}", "uin": bot.self_id,
                                               "content": msg}})
         try:
-            await send_forward_msg_list(bot, event, list_tp)
+            await send_forward_img_list(bot, event, list_tp)
         except ActionFailed:
             msg = "未知原因，查看失败!"
             if XiuConfig().img:
@@ -1589,7 +1589,7 @@ async def shop_off_all_(bot: Bot, event: GroupMessageEvent):
                     {"type": "node", "data": {"name": f"执行清空坊市ing", "uin": bot.self_id,
                                               "content": msg}})
     try:
-        await send_forward_msg_list(bot, event, list_msg)
+        await send_forward_img_list(bot, event, list_msg)
     except ActionFailed:
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)

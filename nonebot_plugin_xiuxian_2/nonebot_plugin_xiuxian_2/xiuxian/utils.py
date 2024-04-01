@@ -2,19 +2,27 @@ from .xiuxian2_handle import XiuxianDateManage
 from nonebot.adapters.onebot.v11 import (
     Bot,
     MessageEvent,
-    GroupMessageEvent
+    GroupMessageEvent,
+    MessageSegment
 )
+import os
+import asyncio
+import aiofiles
+import base64
 import json
 import random
 import math
 import datetime
 import unicodedata
 from nonebot.params import Depends
+from nonebot.log import logger
 from base64 import b64encode
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 from wcwidth import wcwidth
-import os
+from tempfile import NamedTemporaryFile
+from nonebot.adapters import MessageSegment
+from concurrent.futures import ThreadPoolExecutor
 from .data_source import jsondata
 from pathlib import Path
 
@@ -181,7 +189,7 @@ class Txt2Img:
         line_num = line_num + text_new.count("\n")
         return text_new, line_num
 
-    def draw_to(self, text, boss_name="", scale = True):
+    def sync_draw_to(self, text, boss_name="", scale = True):
         font_size = self.font_size
         black_clor = self.black_clor
         upper_size = self.upper_size
@@ -270,33 +278,20 @@ class Txt2Img:
                     (int(img_width - boss_img_w), int(img_hight - boss_img_h)),
                     boss_img
                 )
-        return self.img2b64(out_img)
+        return out_img
 
 
-    def img2b64(self, out_img) -> str:
-        """ image to base64 """
-        buf = BytesIO()
-        out_img.save(buf, format="PNG")
-        base64_str = "base64://" + b64encode(buf.getvalue()).decode()
+    async def draw_to(self, text, boss_name="", scale=True):
+        loop = asyncio.get_running_loop()
+        # 异步执行 sync_draw_to 来创建图像对象
+        out_img = await loop.run_in_executor(None, self.sync_draw_to, text, boss_name, scale)
+        # 然后异步转换图像为base64字符串
+        base64_str = await self.img2b64(out_img)
         return base64_str
-    
-    def wrap(self, string):
-        max_width = int(1850 / self.lrc_font_size)
-        temp_len = 0
-        result = ''
-        for ch in string:
-            result += ch
-            temp_len += wcwidth(ch)
-            if ch == '\n':
-                temp_len = 0
-            if temp_len >= max_width:
-                temp_len = 0
-                result += '\n'
-        result = result.rstrip()
-        return result
 
-    def save(self, title, lrc):
-        """MI Note"""
+
+    async def save(self, title, lrc):
+        """保存图片"""
         border_color = (220, 211, 196)
         text_color = (125, 101, 89)
 
@@ -404,13 +399,76 @@ class Txt2Img:
                 fill=text_color,
                 spacing=self.lrc_line_space,
             )
-        return self.img2b64(out_img)
+        base64_str = await self.img2b64(out_img)
+        return base64_str
+    
+
+    def sync_img2b64(self, out_img) -> str:
+        """ 将图片转换为base64 """
+        buf = BytesIO()
+        out_img.save(buf, format="PNG")
+        base64_str = "base64://" + b64encode(buf.getvalue()).decode()
+        return base64_str
+    
+    async def img2b64(self, out_img):
+        loop = asyncio.get_running_loop()
+        with ThreadPoolExecutor() as pool:
+            base64_str = await loop.run_in_executor(pool, self.sync_img2b64, out_img)
+        return base64_str
+    
+    
+    def wrap(self, string):
+        max_width = int(1850 / self.lrc_font_size)
+        temp_len = 0
+        result = ''
+        for ch in string:
+            result += ch
+            temp_len += wcwidth(ch)
+            if ch == '\n':
+                temp_len = 0
+            if temp_len >= max_width:
+                temp_len = 0
+                result += '\n'
+        result = result.rstrip()
+        return result
+
+    
     
 
 async def get_msg_pic(msg, boss_name="", scale = True):
     img = Txt2Img()
-    pic = img.draw_to(msg, boss_name, scale)
+    pic = await img.draw_to(msg, boss_name, scale)
     return pic
+
+
+async def send_forward_img(bot, event, name, uin, msgs):
+    img = Txt2Img()
+    combined_msg = '\n'.join(msgs)
+    img_data = await img.draw_to(combined_msg)
+    base64_str = img_data.split("base64://")[1] if "base64://" in img_data else img_data
+
+    # 直接构造CQ码
+    message = f"[CQ:image,file=base64://{base64_str}]"
+    
+    if isinstance(event, GroupMessageEvent):
+        await bot.send_group_msg(group_id=event.group_id, message=message)
+    else:
+        await bot.send_private_msg(user_id=event.user_id, message=message)
+
+
+async def send_forward_img_list(bot, event, messages):
+    img = Txt2Img()
+    combined_msg = '\n'.join([str(msg['data']['content']) for msg in messages])
+    img_data = await img.draw_to(combined_msg)
+    base64_str = img_data.split("base64://")[1] if "base64://" in img_data else img_data
+
+    # 直接构造CQ码
+    message = f"[CQ:image,file=base64://{base64_str}]"
+    
+    if isinstance(event, GroupMessageEvent):
+        await bot.send_group_msg(group_id=event.group_id, message=message)
+    else:
+        await bot.send_private_msg(user_id=event.user_id, message=message)
 
 
 def CommandObjectID() -> int:

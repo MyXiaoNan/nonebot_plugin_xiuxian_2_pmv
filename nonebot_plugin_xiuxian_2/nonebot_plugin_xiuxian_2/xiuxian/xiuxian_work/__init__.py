@@ -291,7 +291,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
         freenum = count - usernums - 1
         if freenum < 0:
             freenum = 0
-            if int(user_info.stone) < lscost:
+            if int(user_info.stone) < int(lscost /USERRANK[user_level_sx]):
                 msg = f"道友的灵石不足以刷新，下次刷新消耗灵石：{int(lscost /USERRANK[user_level_sx])}枚"
                 if XiuConfig().img:
                     pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)

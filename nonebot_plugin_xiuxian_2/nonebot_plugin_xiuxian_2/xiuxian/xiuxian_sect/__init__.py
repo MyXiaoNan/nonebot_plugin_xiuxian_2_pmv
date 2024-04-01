@@ -20,8 +20,8 @@ from ..data_source import jsondata
 from ..xiuxian_config import XiuConfig, USERRANK
 from .sectconfig import get_config
 from ..utils import (
-    check_user, send_forward_msg, number_to,
-    get_msg_pic, send_forward_msg_list, CommandObjectID,
+    check_user, send_forward_img, number_to,
+    get_msg_pic, send_forward_img_list, CommandObjectID,
     Txt2Img
 )
 from ..item_json import Items
@@ -130,7 +130,7 @@ async def sect_help_(bot: Bot, event: GroupMessageEvent, session_id: int = Comma
         font_size = 32
         img = Txt2Img(font_size)
         if XiuConfig().img:
-            pic = img.save(title,msg)
+            pic = await img.save(title,msg)
             cache_help[session_id] = pic
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
@@ -396,7 +396,7 @@ async def sect_buff_info_(bot: Bot, event: GroupMessageEvent):
                     {"type": "node", "data": {"name": f"道友{user_info.user_name}的宗门神通信息", "uin": bot.self_id,
                                               "content": secmsg}})
         try:
-            await send_forward_msg_list(bot, event, list_tp)
+            await send_forward_img_list(bot, event, list_tp)
         except ActionFailed:
             if XiuConfig().img:
                 pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
@@ -921,7 +921,7 @@ async def sect_list_(bot: Bot, event: GroupMessageEvent):
         sect_id, sect_name, sect_scale, user_name, member_count = sect
         msg_list.append(f'编号{sect_id}：{sect_name}\n宗主：{user_name}\n宗门建设度：{sect_scale}\n成员数：{member_count}')
 
-    await send_forward_msg(bot, event, '宗门列表', bot.self_id, msg_list)
+    await send_forward_img(bot, event, '宗门列表', bot.self_id, msg_list)
     await sect_list.finish()
 
 
@@ -955,7 +955,7 @@ async def sect_users_(bot: Bot, event: GroupMessageEvent):
             msg_list.append("一介散修，莫要再问。")
     else:
         msg_list.append("未曾踏入修仙世界，输入【我要修仙】加入我们，看破这世间虚妄!")
-    await send_forward_msg(bot, event, '宗门成员', bot.self_id, msg_list)
+    await send_forward_img(bot, event, '宗门成员', bot.self_id, msg_list)
     await sect_users.finish()
 
 

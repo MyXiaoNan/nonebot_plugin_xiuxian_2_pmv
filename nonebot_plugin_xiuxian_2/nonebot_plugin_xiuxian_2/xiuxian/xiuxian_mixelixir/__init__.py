@@ -15,7 +15,7 @@ from ..xiuxian2_handle import (
 )
 from ..utils import (
     check_user,
-    send_forward_msg, get_msg_pic,
+    send_forward_img, get_msg_pic,
     CommandObjectID
 )
 from ..item_json import Items
@@ -267,7 +267,7 @@ async def my_mix_elixir_info_(bot: Bot, event: GroupMessageEvent):
             msg = f"编号：{i},{v['name']}，炼成次数：{v['num']}次"
             l_msg.append(msg)
             i += 1
-    await send_forward_msg(bot, event, '炼丹信息', bot.self_id, l_msg)
+    await send_forward_img(bot, event, '炼丹信息', bot.self_id, l_msg)
     await my_mix_elixir_info.finish()
 
 
@@ -382,7 +382,7 @@ async def mix_elixir_(bot: Bot, event: GroupMessageEvent):
             l_msg.append(msg)
         if len(l_msg) > 51:
             l_msg = l_msg[:50]
-        await send_forward_msg(bot, event, '配方', bot.self_id, l_msg)
+        await send_forward_img(bot, event, '配方', bot.self_id, l_msg)
         await mix_elixir.finish()
 
 
