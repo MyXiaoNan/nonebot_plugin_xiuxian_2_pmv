@@ -58,7 +58,7 @@ xiuxian_impart = XIUXIAN_IMPART_BUFF()
 
 
 create = on_command("生成世界boss", aliases={"生成世界Boss", "生成世界BOSS"}, priority=5,
-                    permission=GROUP and (SUPERUSER), block=True)
+                 permission=GROUP and (SUPERUSER), block=True)
 create_appoint = on_command("生成指定世界boss", aliases={"生成指定世界boss", "生成指定世界BOSS", "生成指定BOSS", "生成指定boss"}, priority=5,
                             permission=GROUP and (SUPERUSER))
 boss_info = on_command("查询世界boss", aliases={"查询世界Boss", "查询世界BOSS"}, priority=6, permission=GROUP, block=True)
