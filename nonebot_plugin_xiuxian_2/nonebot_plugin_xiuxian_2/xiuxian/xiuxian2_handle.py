@@ -436,7 +436,7 @@ class XiuxianDateManage:
         self.conn.commit()
 
     def beg_remake(self):
-        """重置今日奇缘"""
+        """重置仙途奇缘"""
         sql = f"UPDATE user_xiuxian SET is_beg=0"
         cur = self.conn.cursor()
         cur.execute(sql, )
