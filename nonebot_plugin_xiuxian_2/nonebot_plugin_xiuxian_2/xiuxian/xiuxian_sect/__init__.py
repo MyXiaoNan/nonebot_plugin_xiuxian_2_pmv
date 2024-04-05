@@ -913,7 +913,6 @@ async def sect_task_refresh_(bot: Bot, event: GroupMessageEvent):
 async def sect_list_(bot: Bot, event: GroupMessageEvent):
     """宗门列表：当前为返回转发内容"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
-    # 直接使用 XiuxianDateManage 类的 get_all_sects_with_member_count 方法
     sect_lists_with_members = sql_message.get_all_sects_with_member_count()
 
     msg_list = []
