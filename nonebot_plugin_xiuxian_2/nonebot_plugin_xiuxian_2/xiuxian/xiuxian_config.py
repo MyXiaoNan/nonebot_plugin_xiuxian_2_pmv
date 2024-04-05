@@ -156,3 +156,8 @@ class JsonConfig:
 
         with open(self.config_jsonpath, 'w', encoding='utf-8') as f:
             json.dump(json_data, f, ensure_ascii=False, indent=4)
+
+    def get_enabled_groups(self):
+        """获取开启修仙功能的群聊列表，去除重复项"""
+        data = self.read_data()
+        return list(set(data.get("group", [])))

@@ -1092,16 +1092,14 @@ async def steal_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
 async def gm_command_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     give_qq = None  # 艾特的时候存到这里
-    msg = args.extract_plain_text().strip()
-    stone_num = re.findall("\d+", msg)  ## 灵石数
-    nick_name = re.findall("\D+", msg)  ## 道号
-    give_stone_num = stone_num[0]
-    if XiuConfig().img:
-        pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
-        await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
-    else:
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-    await gm_command.finish()
+    msg_text = args.extract_plain_text().strip()
+    stone_num_match = re.findall(r"\d+", msg_text)  # 提取数字
+    nick_name = re.findall("\D+", msg_text)  ## 道号
+    give_stone_num = int(stone_num_match[0]) if stone_num_match else 0  # 默认灵石数为0，如果有提取到数字，则使用提取到的第一个数字
+    # 遍历Message对象，寻找艾特信息
+    for arg in args:
+        if arg.type == "at":
+            give_qq = arg.data["qq"]
     for arg in args:
         if arg.type == "at":
             give_qq = arg.data.get("qq", "")
@@ -1146,13 +1144,22 @@ async def gm_command_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
     else:
         sql_message.update_ls_all(give_stone_num)
         msg = f"全服通告：赠送所有用户{give_stone_num}灵石,请注意查收！"
-        if XiuConfig().img:
-            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
-            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
-        else:
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-        await gm_command.finish()
-
+        enabled_groups = JsonConfig().get_enabled_groups()
+        logger.info(f"将向以下群广播消息：{enabled_groups}")
+        
+        tasks = []
+        for group_id in enabled_groups:
+            if XiuConfig().img:
+                pic_msg = await get_msg_pic(f"@全体修仙者\n" + msg)
+                message = MessageSegment.image(pic_msg)
+            else:
+                message = MessageSegment.text(msg)
+            # 创建异步任务但不立即等待
+            task = bot.send_group_msg(group_id=int(group_id), message=message)
+            tasks.append(task)
+        # 并行执行所有发送任务
+        await asyncio.gather(*tasks)
+    await gm_command.finish()
 
 @cz.handle(parameterless=[Cooldown(at_sender=True)])
 async def cz_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
