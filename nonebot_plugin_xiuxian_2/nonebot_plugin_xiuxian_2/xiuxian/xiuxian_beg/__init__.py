@@ -64,11 +64,12 @@ async def beg_stone(bot: Bot, event: GroupMessageEvent):
     user_msg = sql_message.get_user_message(user_id)
     user_root = user_msg.root_type
     user_rank = USERRANK[user_info.level]
+    sect = user_info.sect_id
 
-    create_time = datetime.strptime(user_info.create_time, "%Y-%m-%d %H:%M:%S.%f")
-    now_time = datetime.now()
-    diff_time = now_time - create_time
-    diff_days = diff_time.days
+    # create_time = datetime.strptime(user_info.create_time, "%Y-%m-%d %H:%M:%S.%f")
+    # now_time = datetime.now()
+    # diff_time = now_time - create_time
+    # diff_days = diff_time.days
     
 
     
@@ -80,21 +81,21 @@ async def beg_stone(bot: Bot, event: GroupMessageEvent):
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await beg_stone.finish()
 
-    elif user_info.is_ban == 0 and diff_days >= 1 and user_root == "伪灵根":
+    elif sect != None and user_root == "伪灵根":
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + "道友已有宗门庇佑，又何必来此寻求机缘呢？")
             await bot.send_group_msg(group_id=event.group_id, message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=event.group_id, message=msg)
 
-    elif user_info.is_ban == 0 and diff_days > 1 and user_root in {"轮回道果", "真·轮回道果"}:
+    elif user_root in {"轮回道果", "真·轮回道果"}:
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + "道友已是转生大能，又何必来此寻求机缘呢？")
             await bot.send_group_msg(group_id=event.group_id, message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=event.group_id, message=msg)
 
-    elif user_info.is_ban == 0 and user_rank < 37:
+    elif user_rank < 37:
         msg = f"道友已跻身于{user_info.level}层次的修行之人，可徜徉于四海八荒，自寻机缘与造化矣。"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
