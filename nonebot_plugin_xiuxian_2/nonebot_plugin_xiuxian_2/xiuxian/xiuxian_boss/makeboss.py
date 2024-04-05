@@ -96,9 +96,9 @@ def get_boss_exp_root(boss_jj):#修仙2
     }
     return bossinfo
 
-def createboss_jj(boss_jj):
+def createboss_jj(boss_jj, boss_name=None):
     bossinfo = get_boss_exp_1(boss_jj)
-    bossinfo['name'] = random.choice(config["Boss名字"])
+    bossinfo['name'] = boss_name if boss_name else random.choice(config["Boss名字"])
     bossinfo['jj'] = boss_jj
     bossinfo['stone'] = random.choice(config["Boss灵石"][boss_jj])
     return bossinfo

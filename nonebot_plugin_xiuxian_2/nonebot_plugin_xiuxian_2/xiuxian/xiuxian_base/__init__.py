@@ -129,9 +129,11 @@ __xiuxian_updata_data__ = f"""
 #更新2024.3.18
 1.修复了三个模块循环导入的问题
 2.合并read_bfff,xn_xiuxian_impart到dandle中
-#更新2024.4.05
+#更新2024.4.05（中间的改动一次性加进来）
 1.增加了金银阁功能(调试中)
 2.坊市上架，购买可以自定义数量
+3.将除传承抽卡以外的合并转发部分改成长图发送
+4.生成指定境界boss可以指定boss名字了
 """.strip()
 
 __level_help__ = f"""
@@ -176,9 +178,14 @@ async def xiuxian_sing_():
 
 @xiuxian_uodata_data.handle(parameterless=[Cooldown(at_sender=True)])
 async def mix_elixir_help_(bot: Bot, event: GroupMessageEvent):
+    """更新记录"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     msg = __xiuxian_updata_data__
-    await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+    if XiuConfig().img:
+        pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
+        await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+    else:
+        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
     await xiuxian_uodata_data.finish()
 
 

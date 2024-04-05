@@ -79,14 +79,15 @@ __boss_help__ = f"""
 世界Boss帮助信息:
 指令：
 1、生成世界boss:生成一只随机大境界的世界Boss,超管权限
-2、查询世界boss:查询本群全部世界Boss,可加Boss编号查询对应Boss信息
-3、世界boss开启、关闭:开启后才可以生成世界Boss,管理员权限
-4、讨伐boss、讨伐世界boss:讨伐世界Boss,必须加Boss编号
-5、世界boss帮助、世界boss:获取世界Boss帮助信息
-6、天罚boss、天罚世界boss:删除世界Boss,必须加Boss编号,管理员权限
-7、天罚所有世界boss:删除所有世界Boss,,管理员权限
-8、世界积分查看:查看自己的世界积分,和世界积分兑换商品
-9、世界积分兑换+编号：兑换对应的商品
+2、生成指定世界boss:生成指定大境界与名称的世界Boss,超管权限
+3、查询世界boss:查询本群全部世界Boss,可加Boss编号查询对应Boss信息
+4、世界boss开启、关闭:开启后才可以生成世界Boss,管理员权限
+5、讨伐boss、讨伐世界boss:讨伐世界Boss,必须加Boss编号
+6、世界boss帮助、世界boss:获取世界Boss帮助信息
+7、天罚boss、天罚世界boss:删除世界Boss,必须加Boss编号,管理员权限
+8、天罚所有世界boss:删除所有世界Boss,,管理员权限
+9、世界积分查看:查看自己的世界积分,和世界积分兑换商品
+10、世界积分兑换+编号：兑换对应的商品
 """.strip()
 
 
@@ -693,18 +694,19 @@ async def _(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
             await create_appoint.finish(MessageSegment.image(pic))
         else:
             await create_appoint.finish(msg, at_sender=True)
-    arg = args.extract_plain_text().split()
-    try:
-        name = arg[0]
-    except IndexError:
-        msg = f"请输入正确的指令！"
+    arg_list = args.extract_plain_text().split()
+    if len(arg_list) < 1:
+        msg = "请输入正确的指令，例如：生成指定世界boss 祭道境 少姜"
         if XiuConfig().img:
             msg = await pic_msg_format(msg, event)
             pic = await get_msg_pic(msg)
             await create_appoint.finish(MessageSegment.image(pic))
         else:
             await create_appoint.finish(msg, at_sender=True)
-    bossinfo = createboss_jj(name)
+    boss_jj = arg_list[0]  # 用户指定的境界
+    boss_name = arg_list[1] if len(arg_list) > 1 else None  # 用户指定的Boss名称，如果有的话
+    # 使用提供的境界和名称生成boss信息
+    bossinfo = createboss_jj(boss_jj, boss_name)
     group_boss[group_id].append(bossinfo)
     msg = f"已生成{bossinfo['jj']}Boss:{bossinfo['name']}，诸位道友请击败Boss获得奖励吧！"
     if XiuConfig().img:
