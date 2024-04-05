@@ -76,30 +76,34 @@ def get_no_use_equipment_sql(user_id, goods_id):
     卸载装备
     返回sql,和法器或防具
     """
-    sql_str = []
     item_info = items.get_data_by_item_id(goods_id)
     user_buff_info = UserBuffDate(user_id).BuffInfo
     now_time = datetime.now()
+    sql_str = []
     item_type = ''
+
+    # 检查装备类型，并确定要卸载的是哪种buff
     if item_info['item_type'] == "法器":
         item_type = "法器"
         in_use_id = user_buff_info.faqi_buff
-        sql_str.append(
-            f"UPDATE back set update_time='{now_time}',action_time='{now_time}',state=0 WHERE user_id={user_id} and goods_id={goods_id}")  # 卸载装备
-        if in_use_id != 0:
-            sql_str.append(
-                f"UPDATE back set update_time='{now_time}',action_time='{now_time}',state=0 WHERE user_id={user_id} and goods_id={in_use_id}")  # 取下原有的
-
-    if item_info['item_type'] == "防具":
+    elif item_info['item_type'] == "防具":
         item_type = "防具"
         in_use_id = user_buff_info.armor_buff
+    else:
+        return sql_str, item_type
+
+    # 如果当前装备正被使用，或者存在需要卸载的其他装备
+    if goods_id == in_use_id or in_use_id != 0:
+        # 卸载当前装备
         sql_str.append(
-            f"UPDATE back set update_time='{now_time}',action_time='{now_time}',state=0 WHERE user_id={user_id} and goods_id={goods_id}")  # 卸载装备
-        if in_use_id != 0:
+            f"UPDATE back set update_time='{now_time}',action_time='{now_time}',state=0 WHERE user_id={user_id} and goods_id={goods_id}")
+        # 如果还有其他装备需要卸载（对于法器和防具的情况）
+        if in_use_id != 0 and goods_id != in_use_id:
             sql_str.append(
-                f"UPDATE back set update_time='{now_time}',action_time='{now_time}',state=0 WHERE user_id={user_id} and goods_id={in_use_id}")  # 取下原有的
+                f"UPDATE back set update_time='{now_time}',action_time='{now_time}',state=0 WHERE user_id={user_id} and goods_id={in_use_id}")
 
     return sql_str, item_type
+
 
 
 def check_equipment_use_msg(user_id, goods_id):

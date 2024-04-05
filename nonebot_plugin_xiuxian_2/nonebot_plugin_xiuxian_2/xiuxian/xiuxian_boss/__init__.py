@@ -120,7 +120,11 @@ async def set_boss_():
 async def send_bot(group_id:str):
     #初始化
     if not group_id in group_boss:
-        group_boss[group_id] = []     
+        group_boss[group_id] = []
+
+    # 如果当前群ID不在配置的开放列表中，直接返回
+    if group_id not in groups:
+        return     
 
     if len(group_boss[group_id]) >= config['Boss个数上限']:
         #到boss生成上限了，直接跳过
