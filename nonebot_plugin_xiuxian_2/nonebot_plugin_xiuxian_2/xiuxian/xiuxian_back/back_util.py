@@ -129,6 +129,7 @@ def get_user_main_back_msg(user_id):
     l_equipment_msg = []
     l_shenwu_msg = []
     l_xiulianitem_msg = []
+    l_libao_msg = []
     l_msg = []
     user_backs = sql_message.get_back_msg(user_id)  # list(back)
     if user_backs is None:
@@ -143,6 +144,9 @@ def get_user_main_back_msg(user_id):
         elif user_back.goods_type == "聚灵旗":
             l_xiulianitem_msg = get_jlq_msg(l_xiulianitem_msg, user_id, user_back.goods_id, user_back.goods_num)
 
+        elif user_back.goods_type == "礼包":
+            l_libao_msg = get_libao_msg(l_libao_msg, user_back.goods_id, user_back.goods_num)
+
     if l_equipment_msg:
         l_msg.append("☆------我的装备------☆")
         for msg in l_equipment_msg:
@@ -156,6 +160,11 @@ def get_user_main_back_msg(user_id):
     if l_xiulianitem_msg:
         l_msg.append("☆------修炼物品------☆")
         for msg in l_xiulianitem_msg:
+            l_msg.append(msg)
+
+    if l_libao_msg:
+        l_msg.append("☆------礼包------☆")
+        for msg in l_libao_msg:
             l_msg.append(msg)
     return l_msg
 
@@ -187,6 +196,15 @@ def get_user_elixir_back_msg(user_id):
             l_msg.append(msg)
     return l_msg
 
+def get_libao_msg(l_msg, goods_id, goods_num):
+    """
+    获取背包内的礼包信息
+    """
+    item_info = items.get_data_by_item_id(goods_id)
+    msg = f"名字：{item_info['name']}\n"
+    msg += f"拥有数量：{goods_num}"
+    l_msg.append(msg)
+    return l_msg
 
 def get_user_skill_back_msg(user_id):
     """

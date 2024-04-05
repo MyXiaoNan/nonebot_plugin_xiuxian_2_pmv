@@ -1106,11 +1106,22 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await use.finish()
     elif goods_type == "丹药":
-        num = None
+        num = 1  # 默认使用数量为1
         try:
-            if 1 <= int(args[1]) <= int(goods_num):
+             # 如果用户指定了数量，并且数量在合法范围内
+            if len(args) > 1 and 1 <= int(args[1]) <= int(goods_num):
                 num = int(args[1])
-        except:
+            elif len(args) > 1 and int(args[1]) > int(goods_num):
+                # 如果用户指定的数量大于背包中的数量，则返回数量不足的提示
+                msg = f"道友背包中的{arg}数量不足，当前仅有{goods_num}个！"
+                if XiuConfig().img:
+                    pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
+                    await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+                else:
+                    await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+                await use.finish()
+        except ValueError:
+            # 如果用户输入的数量不是一个合法的数字，则默认使用1个，并继续后续操作
             num = 1
         msg = check_use_elixir(user_id, goods_id, num)
         if XiuConfig().img:
@@ -1120,11 +1131,22 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await use.finish()
     elif goods_type =="神物":
-        num = None
+        num = 1  # 默认使用数量为1
         try:
-            if 1 <= int(args[1]) <= int(goods_num):
+             # 如果用户指定了数量，并且数量在合法范围内
+            if len(args) > 1 and 1 <= int(args[1]) <= int(goods_num):
                 num = int(args[1])
-        except:
+            elif len(args) > 1 and int(args[1]) > int(goods_num):
+                # 如果用户指定的数量大于背包中的数量，则返回数量不足的提示
+                msg = f"道友背包中的{arg}数量不足，当前仅有{goods_num}个！"
+                if XiuConfig().img:
+                    pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
+                    await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+                else:
+                    await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+                await use.finish()
+        except ValueError:
+            # 如果用户输入的数量不是一个合法的数字，则默认使用1个，并继续后续操作
             num = 1
         goods_info = items.get_data_by_item_id(goods_id)
         user_info = sql_message.get_user_message(user_id)
@@ -1151,11 +1173,22 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
         await use.finish()
         
     elif goods_type =="礼包":
-        num = None
+        num = 1  # 默认使用数量为1
         try:
-            if 1 <= int(args[1]) <= int(goods_num):
+             # 如果用户指定了数量，并且数量在合法范围内
+            if len(args) > 1 and 1 <= int(args[1]) <= int(goods_num):
                 num = int(args[1])
-        except:
+            elif len(args) > 1 and int(args[1]) > int(goods_num):
+                # 如果用户指定的数量大于背包中的数量，则返回数量不足的提示
+                msg = f"道友背包中的{arg}数量不足，当前仅有{goods_num}个！"
+                if XiuConfig().img:
+                    pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
+                    await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+                else:
+                    await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+                await use.finish()
+        except ValueError:
+            # 如果用户输入的数量不是一个合法的数字，则默认使用1个，并继续后续操作
             num = 1
         goods_info = items.get_data_by_item_id(goods_id)
         user_info = sql_message.get_user_message(user_id)
@@ -1171,11 +1204,11 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
         goods_type2 = goods_info['type_2']
         goods_type3 = goods_info['type_3']
         
-        sql_message.send_back(user_id, goods_id1, goods_name1, goods_type1, 1)# 增加用户道具
-        sql_message.send_back(user_id, goods_id2, goods_name2, goods_type2, 2)
-        sql_message.send_back(user_id, goods_id3, goods_name3, goods_type3, 2)
+        sql_message.send_back(user_id, goods_id1, goods_name1, goods_type1, 1 * num)# 增加用户道具
+        sql_message.send_back(user_id, goods_id2, goods_name2, goods_type2, 2 * num)
+        sql_message.send_back(user_id, goods_id3, goods_name3, goods_type3, 2 * num)
         sql_message.update_back_j(user_id, goods_id, num=num, use_key=0)
-        msg = "道友打开了{},里面居然是{}、{}、{}".format(goods_name,goods_name1,goods_name2,goods_name3)
+        msg = "道友打开了{}个{},里面居然是{}、{}、{}".format(num,goods_name,goods_name1,goods_name2,goods_name3)
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
