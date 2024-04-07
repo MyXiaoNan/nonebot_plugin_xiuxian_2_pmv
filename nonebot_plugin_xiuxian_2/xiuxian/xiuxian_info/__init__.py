@@ -5,12 +5,12 @@ from nonebot.adapters.onebot.v11 import (
     GroupMessageEvent,
     MessageSegment,
 )
-from ..lay_out import assign_bot, Cooldown
-from ..xiuxian2_handle import XiuxianDateManage, OtherSet, UserBuffDate
-from ..data_source import jsondata
+from ..xiuxian_utils.lay_out import assign_bot, Cooldown
+from ..xiuxian_utils.xiuxian2_handle import XiuxianDateManage, OtherSet, UserBuffDate
+from ..xiuxian_utils.data_source import jsondata
 from .draw_user_info import draw_user_info_img
-from ..utils import check_user, get_msg_pic, number_to
-from ..xiuxian_config import XiuConfig
+from ..xiuxian_utils.utils import check_user, get_msg_pic, number_to
+from ..xiuxian_utils.xiuxian_config import XiuConfig
 
 
 xiuxian_message = on_command("我的修仙信息", aliases={"我的存档"}, priority=23, permission=GROUP, block=True)

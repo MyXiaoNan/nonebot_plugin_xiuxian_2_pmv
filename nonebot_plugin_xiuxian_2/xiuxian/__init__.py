@@ -1,6 +1,6 @@
 #!usr/bin/env python3
 # -*- coding: utf-8 -*-
-from .download_xiuxian_data import download_xiuxian_data
+from .xiuxian_utils.download_xiuxian_data import download_xiuxian_data
 from nonebot.plugin import PluginMetadata
 from nonebot.log import logger
 from nonebot.message import event_preprocessor, IgnoredException
@@ -9,12 +9,12 @@ from nonebot.adapters.onebot.v11 import (
     GroupMessageEvent
 )
 from nonebot import get_driver
-from .xiuxian_config import XiuConfig
+from .xiuxian_utils.xiuxian_config import XiuConfig
 from pathlib import Path
 from pkgutil import iter_modules
 from nonebot.log import logger
 from nonebot import require, load_all_plugins, get_plugin_by_module_name
-from .config import config as _config
+from .xiuxian_utils.config import config as _config
 
 
 DRIVER = get_driver()

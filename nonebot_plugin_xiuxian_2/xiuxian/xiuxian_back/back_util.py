@@ -2,8 +2,8 @@ try:
     import ujson as json
 except ImportError:
     import json
-from ..item_json import Items
-from ..xiuxian2_handle import (
+from ..xiuxian_utils.item_json import Items
+from ..xiuxian_utils.xiuxian2_handle import (
     XiuxianDateManage, UserBuffDate, 
     get_weapon_info_msg, get_armor_info_msg,
     get_player_info, save_player_info, 
@@ -12,7 +12,7 @@ from ..xiuxian2_handle import (
 from datetime import datetime
 import os
 from pathlib import Path
-from ..xiuxian_config import USERRANK
+from ..xiuxian_utils.xiuxian_config import USERRANK
 
 items = Items()
 sql_message = XiuxianDateManage()

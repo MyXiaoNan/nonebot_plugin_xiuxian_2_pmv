@@ -4,7 +4,7 @@ except ImportError:
     import json
 import re
 from pathlib import Path
-from ..cd_manager import add_cd, check_cd, cd_msg
+from ..xiuxian_utils.cd_manager import add_cd, check_cd, cd_msg
 import random
 import os
 from nonebot.rule import Rule
@@ -20,21 +20,21 @@ from nonebot.adapters.onebot.v11 import (
     ActionFailed,
     MessageSegment
 )
-from ..lay_out import assign_bot, put_bot, layout_bot_dict, Cooldown
+from ..xiuxian_utils.lay_out import assign_bot, put_bot, layout_bot_dict, Cooldown
 from nonebot.permission import SUPERUSER
 from nonebot.log import logger
-from ..xiuxian2_handle import (
+from ..xiuxian_utils.xiuxian2_handle import (
     XiuxianDateManage ,OtherSet, UserBuffDate,
     XIUXIAN_IMPART_BUFF, leave_harm_time
 )
-from ..xiuxian_config import USERRANK, XiuConfig
+from ..xiuxian_utils.xiuxian_config import USERRANK, XiuConfig
 from .makeboss import createboss, createboss_root, createboss_jj
 from .bossconfig import get_config, savef
 from .old_boss_info import old_boss_info
-from ..player_fight import Boss_fight
-from ..item_json import Items
+from ..xiuxian_utils.player_fight import Boss_fight
+from ..xiuxian_utils.item_json import Items
 items = Items()
-from ..utils import (
+from ..xiuxian_utils.utils import (
     send_forward_img_list, number_to,
     check_user, send_forward_img,
     get_msg_pic, CommandObjectID,

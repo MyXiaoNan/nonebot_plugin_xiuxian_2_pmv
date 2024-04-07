@@ -1,6 +1,6 @@
 from typing import List
 import random
-from ..xiuxian2_handle import XIUXIAN_IMPART_BUFF
+from ..xiuxian_utils.xiuxian2_handle import XIUXIAN_IMPART_BUFF
 
 xiuxian_impart = XIUXIAN_IMPART_BUFF()
 

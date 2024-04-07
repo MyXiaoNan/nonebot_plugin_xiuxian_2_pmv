@@ -1,6 +1,6 @@
-from ..xiuxian2_handle import *
+from ..xiuxian_utils.xiuxian2_handle import *
 from .workmake import *
-from ..item_json import Items
+from ..xiuxian_utils.item_json import Items
 
 
 class workhandle(XiuxianJsonDate):

@@ -1,5 +1,5 @@
 import numpy
-from ..xiuxian2_handle import XIUXIAN_IMPART_BUFF
+from ..xiuxian_utils.xiuxian2_handle import XIUXIAN_IMPART_BUFF
 from .impart_data import impart_data_json
 
 xiuxian_impart = XIUXIAN_IMPART_BUFF()

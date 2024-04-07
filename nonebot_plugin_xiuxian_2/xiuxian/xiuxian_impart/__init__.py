@@ -11,16 +11,16 @@ from nonebot.adapters.onebot.v11 import (
     MessageSegment,
     ActionFailed
 )
-from ..lay_out import assign_bot, Cooldown
-from ..utils import (
+from ..xiuxian_utils.lay_out import assign_bot, Cooldown
+from ..xiuxian_utils.utils import (
     check_user,
     get_msg_pic, send_forward_msg_list,
     CommandObjectID
 )
 from .impart_uitls import impart_check, get_rank, re_impart_data
 from .impart_data import impart_data_json
-from ..xiuxian_config import XiuConfig
-from ..xiuxian2_handle import XIUXIAN_IMPART_BUFF
+from ..xiuxian_utils.xiuxian_config import XiuConfig
+from ..xiuxian_utils.xiuxian2_handle import XIUXIAN_IMPART_BUFF
 from .. import NICKNAME
 
 xiuxian_impart = XIUXIAN_IMPART_BUFF()
