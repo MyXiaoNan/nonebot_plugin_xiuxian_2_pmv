@@ -1,318 +1,318 @@
 {
-  "6001": {
-    "name": "修士道袍",
-    "def_buff": 0.08,
-    "atk_buff": 0,
-    "crit_buff": 0,
-    "rank": 55,
-    "level": "下品符器",
-    "type": "装备",
-    "desc": "随处可见的长袍，能略微抵挡真元冲击"
-  },
-  "6011": {
-    "name": "化尘道袍",
-    "def_buff": 0.1,
-    "atk_buff": 0,
-    "crit_buff": 0,
-    "rank": 52,
-    "level": "上品符器",
-    "type": "装备"
-  },
-  "6021": {
-    "name": "阴磷甲",
-    "def_buff": 0.12,
-    "atk_buff": 0,
-    "crit_buff": 0,
-    "rank": 49,
-    "level": "下品玄器",
-    "type": "装备"
-  },
-  "6031": {
-    "name": "御灵盾",
-    "def_buff": 0.14,
-    "atk_buff": 0,
-    "crit_buff": 0,
-    "rank": 46,
-    "level": "上品玄器",
-    "type": "装备"
-  },
-  "6041": {
-    "name": "凤血魔袍",
-    "def_buff": 0.16,
-    "atk_buff": 0,
-    "crit_buff": 0,
-    "rank": 43,
-    "level": "下品纯阳",
-    "type": "装备"
-  },
-  "6051": {
-    "name": "避水法袍",
-    "def_buff": 0.18,
-    "atk_buff": 0,
-    "crit_buff": 0,
-    "rank": 40,
-    "level": "上品纯阳",
-    "type": "装备"
-  },
-  "6061": {
-    "name": "青溪法袍",
-    "def_buff": 0.20,
-    "atk_buff": 0,
-    "crit_buff": 0,
-    "rank": 37,
-    "level": "下品通天",
-    "type": "装备"
-  },
-  "6071": {
-    "name": "驱厄灵袍",
-    "def_buff": 0.22,
-    "atk_buff": 0,
-    "crit_buff": 0,
-    "rank": 34,
-    "level": "上品通天",
-    "type": "装备"
-  },
-  "6081": {
-    "name": "三阳道袍",
-    "def_buff": 0.24,
-    "atk_buff": 0,
-    "crit_buff": 0,
-    "rank": 31,
-    "level": "下品仙器",
-    "type": "装备"
-  },
-  "6091": {
-    "name": "皇鳞甲",
-    "def_buff": 0.26,
-    "atk_buff": 0,
-    "crit_buff": 0,
-    "rank": 28,
-    "level": "上品仙器",
-    "type": "装备"
-  },
-  "6092": {
-    "name": "鱼鬣宝衣",
-    "def_buff": 0.3,
-    "atk_buff": 0.06,
-    "crit_buff": 0.06,
-    "rank": -5,
-    "level": "极品仙器",
-    "type": "装备"
-  },
-  "6093": {
-    "name": "天蚕战甲",
-    "def_buff": 0.28,
-    "atk_buff": 0.12,
-    "crit_buff": 0,
-    "rank": -5,
-    "level": "极品仙器",
-    "type": "装备"
-  },
-  "6094": {
-    "name": "血海魔铠",
-    "def_buff": 0.2,
-    "atk_buff": 0.2,
-    "crit_buff": 0.15,
-    "rank": 14,
-    "level": "极品仙器",
-    "type": "装备"
-  },
-  "11051": {
-    "name": "女武神的叹息之壁",
-    "def_buff": 0.32,
-    "atk_buff": 0,
-    "crit_buff": 0,
-    "rank": -5,
-    "level": "极品仙器",
-    "type": "装备"
-  },
-  "11052": {
-    "name": "黑太岁",
-    "def_buff": 0.4,
-    "atk_buff": 0,
-    "crit_buff": 0,
-    "rank": -5,
-    "level": "极品仙器",
-    "type": "装备"
-  },
-  "11053": {
-    "name": "海姆达尔",
-    "def_buff": 0.3,
-    "atk_buff": 0.15,
-    "crit_buff": 0.2,
-    "rank": -5,
-    "level": "极品仙器",
-    "type": "装备"
-  },
-  "11054": {
-    "name": "企鹅",
-    "def_buff": 0.4,
-    "atk_buff": 0,
-    "crit_buff": 0,
-    "rank": -5,
-    "level": "极品仙器",
-    "type": "装备"
-  },
-  "12001": {
-    "name": "父亲甲",
-    "def_buff": 0.35,
-    "atk_buff": 0.15,
-    "crit_buff": 0.15,
-    "rank": -5,
-    "level": "无上仙器",
-    "type": "装备"
-  },
-  "12002": {
-    "name": "轮回魔铠",
-    "def_buff": 0.35,
-    "atk_buff": 0.1,
-    "crit_buff": 0.2,
-    "rank": -5,
-    "level": "无上仙器",
-    "type": "装备"
-  },
-  "12003": {
-    "name": "归墟甲",
-    "def_buff": 0.35,
-    "atk_buff": 0.1,
-    "crit_buff": 0.2,
-    "rank": -5,
-    "level": "无上仙器",
-    "type": "装备"
-  },
-  "12004": {
-    "name": "爆杀龟龟甲",
-    "def_buff": 0.35,
-    "atk_buff": 0.1,
-    "crit_buff": 0.2,
-    "rank": -5,
-    "level": "无上仙器",
-    "type": "装备"
-  },
-  "12005": {
-    "name": "断仙",
-    "def_buff": 0.35,
-    "atk_buff": 0.15,
-    "crit_buff": 0.15,
-    "rank": -5,
-    "level": "无上仙器",
-    "type": "装备"
-  },
-  "12006": {
-    "name": "银月忘川之铠甲",
-    "def_buff": 0.35,
-    "atk_buff": 0,
-    "crit_buff": 0.3,
-    "rank": -5,
-    "level": "无上仙器",
-    "type": "装备"
-  },
-  "12007": {
-    "name": "破天之铠",
-    "def_buff": 0.15,
-    "atk_buff": 0.5,
-    "crit_buff": 0.1,
-    "rank": -5,
-    "level": "无上仙器",
-    "type": "装备"
-  },
-  "12008": {
-    "name": "龙皇天衍甲",
-    "def_buff": 0.15,
-    "atk_buff": 0.5,
-    "crit_buff": 0.1,
-    "rank": -5,
-    "level": "无上仙器",
-    "type": "装备"
-  },
-  "6099": {
-    "name": "炎魔焦热斗铠",
-    "def_buff": 0.35,
-    "atk_buff": 0.2,
-    "crit_buff": 0.1,
-    "rank": -5,
-    "level": "无上仙器",
-    "type": "装备"
-  },
-  "15500": {
-    "name": "霸王战铠",
-    "def_buff": 0.35,
-    "atk_buff": 0.2,
-    "crit_buff": 0.1,
-    "rank": -5,
-    "level": "无上仙器",
-    "type": "装备"
-  },
-  "15501": {
-    "name": "风神袍",
-    "def_buff": 0.35,
-    "atk_buff": 0.2,
-    "crit_buff": 0.1,
-    "rank": -5,
-    "level": "无上仙器",
-    "type": "装备"
-  },
-  "15502": {
-    "name": "踏云天衣",
-    "def_buff": 0.35,
-    "atk_buff": 0.2,
-    "crit_buff": 0.1,
-    "rank": -5,
-    "level": "无上仙器",
-    "type": "装备"
-  },
-  "15503": {
-    "name": "鹤羽宝衣",
-    "def_buff": 0.35,
-    "atk_buff": 0.2,
-    "crit_buff": 0.1,
-    "rank": -5,
-    "level": "无上仙器",
-    "type": "装备"
-  },
-  "15504": {
-    "name": "天师道袍",
-    "def_buff": 0.35,
-    "atk_buff": 0.2,
-    "crit_buff": 0.1,
-    "rank": -5,
-    "level": "无上仙器",
-    "type": "装备"
-  },
-  "15505": {
-    "name": "湮灭仙衣",
-    "def_buff": 0.35,
-    "atk_buff": 0.2,
-    "crit_buff": 0.1,
-    "rank": -5,
-    "level": "无上仙器",
-    "type": "装备"
-  },
-  "15506": {
-    "name": "遥远的理想乡",
-    "def_buff": 0.45,
-    "atk_buff": 0,
-    "crit_buff": 0.15,
-    "rank": -5,
-    "level": "无上仙器",
-    "type": "装备"
-  },
-  "15507": {
-    "name": "危险兔坦娘",
-    "def_buff": 0.55,
-    "atk_buff": 0,
-    "crit_buff": 0,
-    "rank": -5,
-    "level": "无上仙器",
-    "type": "装备"
-  },
-  "6095": {
-    "name": "伽域封界",
-    "def_buff": 0.5,
-    "atk_buff": -0.5,
-    "crit_buff": 0,
-    "rank": -5,
-    "level": "无上仙器",
-    "type": "装备"
-  }
+    "6001": {
+        "name": "修士道袍",
+        "def_buff": 0.08,
+        "atk_buff": 0,
+        "crit_buff": 0,
+        "rank": 57,
+        "level": "下品符器",
+        "type": "装备",
+        "desc": "随处可见的长袍，能略微抵挡真元冲击"
+    },
+    "6011": {
+        "name": "化尘道袍",
+        "def_buff": 0.1,
+        "atk_buff": 0,
+        "crit_buff": 0,
+        "rank": 54,
+        "level": "上品符器",
+        "type": "装备"
+    },
+    "6021": {
+        "name": "阴磷甲",
+        "def_buff": 0.12,
+        "atk_buff": 0,
+        "crit_buff": 0,
+        "rank": 51,
+        "level": "下品玄器",
+        "type": "装备"
+    },
+    "6031": {
+        "name": "御灵盾",
+        "def_buff": 0.14,
+        "atk_buff": 0,
+        "crit_buff": 0,
+        "rank": 48,
+        "level": "上品玄器",
+        "type": "装备"
+    },
+    "6041": {
+        "name": "凤血魔袍",
+        "def_buff": 0.16,
+        "atk_buff": 0,
+        "crit_buff": 0,
+        "rank": 45,
+        "level": "下品纯阳",
+        "type": "装备"
+    },
+    "6051": {
+        "name": "避水法袍",
+        "def_buff": 0.18,
+        "atk_buff": 0,
+        "crit_buff": 0,
+        "rank": 42,
+        "level": "上品纯阳",
+        "type": "装备"
+    },
+    "6061": {
+        "name": "青溪法袍",
+        "def_buff": 0.2,
+        "atk_buff": 0,
+        "crit_buff": 0,
+        "rank": 39,
+        "level": "下品通天",
+        "type": "装备"
+    },
+    "6071": {
+        "name": "驱厄灵袍",
+        "def_buff": 0.22,
+        "atk_buff": 0,
+        "crit_buff": 0,
+        "rank": 36,
+        "level": "上品通天",
+        "type": "装备"
+    },
+    "6081": {
+        "name": "三阳道袍",
+        "def_buff": 0.24,
+        "atk_buff": 0,
+        "crit_buff": 0,
+        "rank": 33,
+        "level": "下品仙器",
+        "type": "装备"
+    },
+    "6091": {
+        "name": "皇鳞甲",
+        "def_buff": 0.26,
+        "atk_buff": 0,
+        "crit_buff": 0,
+        "rank": 30,
+        "level": "上品仙器",
+        "type": "装备"
+    },
+    "6092": {
+        "name": "鱼鬣宝衣",
+        "def_buff": 0.3,
+        "atk_buff": 0.06,
+        "crit_buff": 0.06,
+        "rank": -5,
+        "level": "极品仙器",
+        "type": "装备"
+    },
+    "6093": {
+        "name": "天蚕战甲",
+        "def_buff": 0.28,
+        "atk_buff": 0.12,
+        "crit_buff": 0,
+        "rank": -5,
+        "level": "极品仙器",
+        "type": "装备"
+    },
+    "6094": {
+        "name": "血海魔铠",
+        "def_buff": 0.2,
+        "atk_buff": 0.2,
+        "crit_buff": 0.15,
+        "rank": 16,
+        "level": "极品仙器",
+        "type": "装备"
+    },
+    "11051": {
+        "name": "女武神的叹息之壁",
+        "def_buff": 0.32,
+        "atk_buff": 0,
+        "crit_buff": 0,
+        "rank": -5,
+        "level": "极品仙器",
+        "type": "装备"
+    },
+    "11052": {
+        "name": "黑太岁",
+        "def_buff": 0.4,
+        "atk_buff": 0,
+        "crit_buff": 0,
+        "rank": -5,
+        "level": "极品仙器",
+        "type": "装备"
+    },
+    "11053": {
+        "name": "海姆达尔",
+        "def_buff": 0.3,
+        "atk_buff": 0.15,
+        "crit_buff": 0.2,
+        "rank": -5,
+        "level": "极品仙器",
+        "type": "装备"
+    },
+    "11054": {
+        "name": "企鹅",
+        "def_buff": 0.4,
+        "atk_buff": 0,
+        "crit_buff": 0,
+        "rank": -5,
+        "level": "极品仙器",
+        "type": "装备"
+    },
+    "12001": {
+        "name": "父亲甲",
+        "def_buff": 0.35,
+        "atk_buff": 0.15,
+        "crit_buff": 0.15,
+        "rank": -5,
+        "level": "无上仙器",
+        "type": "装备"
+    },
+    "12002": {
+        "name": "轮回魔铠",
+        "def_buff": 0.35,
+        "atk_buff": 0.1,
+        "crit_buff": 0.2,
+        "rank": -5,
+        "level": "无上仙器",
+        "type": "装备"
+    },
+    "12003": {
+        "name": "归墟甲",
+        "def_buff": 0.35,
+        "atk_buff": 0.1,
+        "crit_buff": 0.2,
+        "rank": -5,
+        "level": "无上仙器",
+        "type": "装备"
+    },
+    "12004": {
+        "name": "爆杀龟龟甲",
+        "def_buff": 0.35,
+        "atk_buff": 0.1,
+        "crit_buff": 0.2,
+        "rank": -5,
+        "level": "无上仙器",
+        "type": "装备"
+    },
+    "12005": {
+        "name": "断仙",
+        "def_buff": 0.35,
+        "atk_buff": 0.15,
+        "crit_buff": 0.15,
+        "rank": -5,
+        "level": "无上仙器",
+        "type": "装备"
+    },
+    "12006": {
+        "name": "银月忘川之铠甲",
+        "def_buff": 0.35,
+        "atk_buff": 0,
+        "crit_buff": 0.3,
+        "rank": -5,
+        "level": "无上仙器",
+        "type": "装备"
+    },
+    "12007": {
+        "name": "破天之铠",
+        "def_buff": 0.15,
+        "atk_buff": 0.5,
+        "crit_buff": 0.1,
+        "rank": -5,
+        "level": "无上仙器",
+        "type": "装备"
+    },
+    "12008": {
+        "name": "龙皇天衍甲",
+        "def_buff": 0.15,
+        "atk_buff": 0.5,
+        "crit_buff": 0.1,
+        "rank": -5,
+        "level": "无上仙器",
+        "type": "装备"
+    },
+    "6099": {
+        "name": "炎魔焦热斗铠",
+        "def_buff": 0.35,
+        "atk_buff": 0.2,
+        "crit_buff": 0.1,
+        "rank": -5,
+        "level": "无上仙器",
+        "type": "装备"
+    },
+    "15500": {
+        "name": "霸王战铠",
+        "def_buff": 0.35,
+        "atk_buff": 0.2,
+        "crit_buff": 0.1,
+        "rank": -5,
+        "level": "无上仙器",
+        "type": "装备"
+    },
+    "15501": {
+        "name": "风神袍",
+        "def_buff": 0.35,
+        "atk_buff": 0.2,
+        "crit_buff": 0.1,
+        "rank": -5,
+        "level": "无上仙器",
+        "type": "装备"
+    },
+    "15502": {
+        "name": "踏云天衣",
+        "def_buff": 0.35,
+        "atk_buff": 0.2,
+        "crit_buff": 0.1,
+        "rank": -5,
+        "level": "无上仙器",
+        "type": "装备"
+    },
+    "15503": {
+        "name": "鹤羽宝衣",
+        "def_buff": 0.35,
+        "atk_buff": 0.2,
+        "crit_buff": 0.1,
+        "rank": -5,
+        "level": "无上仙器",
+        "type": "装备"
+    },
+    "15504": {
+        "name": "天师道袍",
+        "def_buff": 0.35,
+        "atk_buff": 0.2,
+        "crit_buff": 0.1,
+        "rank": -5,
+        "level": "无上仙器",
+        "type": "装备"
+    },
+    "15505": {
+        "name": "湮灭仙衣",
+        "def_buff": 0.35,
+        "atk_buff": 0.2,
+        "crit_buff": 0.1,
+        "rank": -5,
+        "level": "无上仙器",
+        "type": "装备"
+    },
+    "15506": {
+        "name": "遥远的理想乡",
+        "def_buff": 0.45,
+        "atk_buff": 0,
+        "crit_buff": 0.15,
+        "rank": -5,
+        "level": "无上仙器",
+        "type": "装备"
+    },
+    "15507": {
+        "name": "危险兔坦娘",
+        "def_buff": 0.55,
+        "atk_buff": 0,
+        "crit_buff": 0,
+        "rank": -5,
+        "level": "无上仙器",
+        "type": "装备"
+    },
+    "6095": {
+        "name": "伽域封界",
+        "def_buff": 0.5,
+        "atk_buff": -0.5,
+        "crit_buff": 0,
+        "rank": -5,
+        "level": "无上仙器",
+        "type": "装备"
+    }
 }
