@@ -198,8 +198,13 @@ async def img_author(img, bg):
 async def linewh(line, word):
     lw, lh = line.size
     gs_font_36 = font_origin(36)
-    w, h = gs_font_36.getsize(word)
+    left, top, right, bottom = gs_font_36.getbbox(word)
+    w = right - left  # 计算文本宽度
+    # 仅使用宽度信息计算水平居中位置
     return (lw - w) / 2, lh / 2
+
+
+
 
 async def async_request(url, *args, is_text=False, **kwargs):
     async with ClientSession() as c:
