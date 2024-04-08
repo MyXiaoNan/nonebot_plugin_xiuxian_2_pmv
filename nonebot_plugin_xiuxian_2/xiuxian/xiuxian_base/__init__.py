@@ -4,7 +4,7 @@ import random
 import re
 import asyncio
 from datetime import datetime
-from ..xiuxian_utils.lay_out import assign_bot, Cooldown
+from ..xiuxian_utils.lay_out import assign_bot, Cooldown, assign_bot_group
 from nonebot import require
 from nonebot.adapters.onebot.v11 import (
     Bot,
@@ -1145,20 +1145,18 @@ async def gm_command_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
         sql_message.update_ls_all(give_stone_num)
         msg = f"全服通告：赠送所有用户{give_stone_num}灵石,请注意查收！"
         enabled_groups = JsonConfig().get_enabled_groups()
-        logger.info(f"将向以下群广播消息：{enabled_groups}")
         
-        tasks = []
         for group_id in enabled_groups:
-            if XiuConfig().img:
-                pic_msg = await get_msg_pic(f"@全体修仙者\n" + msg)
-                message = MessageSegment.image(pic_msg)
-            else:
-                message = MessageSegment.text(msg)
-            # 创建异步任务但不立即等待
-            task = bot.send_group_msg(group_id=int(group_id), message=message)
-            tasks.append(task)
-        # 并行执行所有发送任务
-        await asyncio.gather(*tasks)
+            bot = await assign_bot_group(group_id=group_id)
+            try:
+                if XiuConfig().img:
+                    pic = await get_msg_pic(msg)
+                    await bot.send_group_msg(group_id=int(group_id), message=MessageSegment.image(pic))
+                else:
+                    await bot.send_group_msg(group_id=int(group_id), message=msg)
+            except ActionFailed:  # 发送群消息失败
+                continue
+
     await gm_command.finish()
 
 @cz.handle(parameterless=[Cooldown(at_sender=True)])

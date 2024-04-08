@@ -537,13 +537,8 @@ async def shop_added_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
         await shop_added.finish()
     elif len(args) == 1:
         # 只提供了物品名称
-        msg = "请输入正确指令！例如：坊市上架 物品 金额 数量"
-        if XiuConfig().img:
-            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
-            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
-        else:
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-        await shop_added_by_admin.finish()
+        goods_name, price_str = args[0], "500000"  # 默认价格
+        quantity_str = "1"  # 默认数量
     elif len(args) == 2:
         # 提供了物品名称和价格
         goods_name, price_str = args[0], args[1]
