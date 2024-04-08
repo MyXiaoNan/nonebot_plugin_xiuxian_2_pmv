@@ -95,7 +95,7 @@ __back_help__ = f"""
 @reset_day_num_scheduler.scheduled_job("cron", hour=0, minute=0, )
 async def reset_day_num_scheduler_():
     sql_message.day_num_reset()
-    logger.opt(colors=True).info("每日丹药使用次数重置成功！")
+    logger.opt(colors=True).info("<green>每日丹药使用次数重置成功！</green>")
 
 
 # 定时任务生成拍卖会
@@ -104,14 +104,13 @@ async def set_auction_by_scheduler_():
     if groups:
         global auction
         if auction != {}:  # 存在拍卖会
-            logger.opt(colors=True).info("本群已存在一场拍卖会，已清除！")
+            logger.opt(colors=True).info("<green>本群已存在一场拍卖会，已清除！</green>")
             auction = {}
         try:
             auction_id_list = get_auction_id_list()
             auction_id = random.choice(auction_id_list)
         except LookupError:
-            msg = "获取不到拍卖物品的信息，请检查配置文件！"
-            logger.opt(colors=True).info(msg)
+            logger.opt(colors=True).info("<red>获取不到拍卖物品的信息，请检查配置文件！</red>")
             return
         auction_info = items.get_data_by_item_id(auction_id)
         start_price = get_auction_price_by_id(auction_id)['start_price']
@@ -144,15 +143,15 @@ async def set_auction_by_scheduler_():
             if auction_offer_all_count == 0:
                 auction_offer_flag = False
                 break
-            logger.opt(colors=True).info(f"有人拍卖，本次等待时间：{auction_offer_all_count * AUCTIONOFFERSLEEPTIME}秒")
+            logger.opt(colors=True).info(f"<green>有人拍卖，本次等待时间：{auction_offer_all_count * AUCTIONOFFERSLEEPTIME}秒</green>")
             first_time = auction_offer_all_count * AUCTIONOFFERSLEEPTIME
             auction_offer_all_count = 0
             auction_offer_flag = False
             await asyncio.sleep(first_time)
             logger.opt(colors=True).info(
-                f"总计等待时间{auction_offer_time_count * AUCTIONOFFERSLEEPTIME}秒，当前拍卖标志：{auction_offer_flag}，本轮等待时间：{first_time}")
+                f"<green>总计等待时间{auction_offer_time_count * AUCTIONOFFERSLEEPTIME}秒，当前拍卖标志：{auction_offer_flag}，本轮等待时间：{first_time}</green>")
 
-        logger.opt(colors=True).info(f"等待时间结束，总计等待时间{auction_offer_time_count * AUCTIONOFFERSLEEPTIME}秒")
+        logger.opt(colors=True).info(f"<green>等待时间结束，总计等待时间{auction_offer_time_count * AUCTIONOFFERSLEEPTIME}秒</green>")
         if auction['user_id'] == 0:
             msg = "很可惜，本次拍卖会流拍了！"
             auction = {}
@@ -1297,13 +1296,13 @@ async def creat_auction_(bot: Bot, event: GroupMessageEvent):
         if auction_offer_all_count == 0:
             auction_offer_flag = False
             break
-        logger.opt(colors=True).info(f"有人拍卖，本次等待时间：{auction_offer_all_count * AUCTIONOFFERSLEEPTIME}秒")
+        logger.opt(colors=True).info(f"<green>有人拍卖，本次等待时间：{auction_offer_all_count * AUCTIONOFFERSLEEPTIME}秒</green>")
         first_time = auction_offer_all_count * AUCTIONOFFERSLEEPTIME
         auction_offer_all_count = 0
         auction_offer_flag = False
         await asyncio.sleep(first_time)
 
-    logger.opt(colors=True).info(f"等待时间结束，总计等待时间{auction_offer_time_count * AUCTIONOFFERSLEEPTIME}秒")
+    logger.opt(colors=True).info(f"<green>等待时间结束，总计等待时间{auction_offer_time_count * AUCTIONOFFERSLEEPTIME}秒</green>")
     if auction['user_id'] == 0:
         msg = "很可惜，本次拍卖会流拍了！"
         auction = {}
@@ -1440,7 +1439,7 @@ async def offer_auction_(bot: Bot, event: GroupMessageEvent, args: Message = Com
             error_msg = f"消息发送失败，可能被风控，当前拍卖物品金额为：{auction['now_price']}！"
             continue
     logger.opt(colors=True).info(
-        f"有人拍卖，拍卖标志：{auction_offer_flag}，当前等待时间：{auction_offer_all_count * AUCTIONOFFERSLEEPTIME}，总计拍卖次数：{auction_offer_time_count}")
+        f"<green>有人拍卖，拍卖标志：{auction_offer_flag}，当前等待时间：{auction_offer_all_count * AUCTIONOFFERSLEEPTIME}，总计拍卖次数：{auction_offer_time_count}</green>")
     if error_msg is None:
         await offer_auction.finish()
     else:

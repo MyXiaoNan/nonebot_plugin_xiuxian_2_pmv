@@ -34,7 +34,7 @@ impart_pk_exp = on_command("虚神界修炼", priority=8, permission=GROUP, bloc
 async def impart_re_():
     impart_pk.re_data()
     xu_world.re_data()
-    logger.opt(colors=True).info('已重置虚神界次数')
+    logger.opt(colors=True).info("<green>已重置虚神界次数</green>")
 
 
 @impart_pk_project.handle(parameterless=[Cooldown(at_sender=True)])

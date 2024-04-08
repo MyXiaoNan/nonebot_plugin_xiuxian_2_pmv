@@ -23,7 +23,7 @@ cache_help = {}
 sql_message = XiuxianDateManage()  # sql类
 
 __dufang_help__ = f"""
-赌你妹，封群的，不让你玩！
+封群的，不让你玩！
 超管可以调试，目前ll不支持骰子指定值
 """.strip()
 

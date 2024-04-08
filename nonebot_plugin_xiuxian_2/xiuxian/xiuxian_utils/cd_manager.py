@@ -34,7 +34,7 @@ def check_cd(event: MessageEvent, cdtype: str) -> int:
     # cd = 设置的到期时间 - 当前时间
     try:
         cd: int = cd_data[uid][cdtype] - event.time
-        logger.debug(f"{uid} 还剩: {cd}")
+        logger.opt(colors=True).debug(f"<red>{uid} 还剩: {cd}</red>")
     except KeyError:
         cd = -1
     if cd < 0:
@@ -57,7 +57,7 @@ def add_cd(event: MessageEvent, config_time, cdtype, times: int = 1):
         cd_data[event.get_user_id()] = {}
     
     cd_data[event.get_user_id()][cdtype] = event.time + times * config_time
-    logger.debug("查询CD: {}".format(cd_data))
+    logger.opt(colors=True).debug("<red>查询CD: {}</red>".format(cd_data))
     
     
 def cd_msg(time_last) -> str:

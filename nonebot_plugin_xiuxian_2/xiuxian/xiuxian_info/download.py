@@ -16,7 +16,7 @@ async def download_url(url: str) -> bytes:
                 resp.raise_for_status()
                 return resp.content
             except Exception as e:
-                logger.warning(f"Error downloading {url}, retry {i}/3: {e}")
+                logger.opt(colors=True).warning(f"<red>下载错误 {url}, 重试 {i}/3: {e}</red>")
                 await asyncio.sleep(3)
     raise Exception(f"{url} 下载失败！")
 
@@ -37,14 +37,14 @@ async def get_avatar_by_user_id_and_save(user_id):
     INIT_PATH = Path() / "data" / "xiuxian" / "info_img" / "init.png"
 
     try:
-        logger.opt(colors=True).info("开始下载用户头像！")
+        logger.opt(colors=True).info("<green>开始下载用户头像！</green>")
         image_bytes = await download_avatar(user_id)
         im = Image.open(io.BytesIO(image_bytes)).resize((280, 280)).convert("RGBA")
         if not os.path.exists(PLAYERSDATA / user_id):  # 用户文件夹不存在
             os.makedirs(PLAYERSDATA / user_id)
         im.save(USER_AVATAR_PATH, "PNG")
     except Exception as e:
-        logger.error(f"获取头像出错,{e}")
+        logger.opt(colors=True).error(f"<red>获取头像出错,{e}</red>")
         im = Image.open(INIT_PATH).resize((280, 280)).convert("RGBA")
     return im
 

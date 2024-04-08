@@ -64,14 +64,14 @@ __rift_help__ = f"""
 async def read_rift_():
     global group_rift
     group_rift.update(old_rift_info.read_rift_info())
-    logger.opt(colors=True).info("历史rift数据读取成功")
+    logger.opt(colors=True).info("<green>历史rift数据读取成功</green>")
 
 
 @DRIVER.on_shutdown
 async def save_rift_():
     global group_rift
     old_rift_info.save_rift(group_rift)
-    logger.opt(colors=True).info("rift数据已保存")
+    logger.opt(colors=True).info("<green>rift数据已保存</green>")
 
 
 # 定时任务生成群秘境
@@ -214,7 +214,7 @@ async def _(bot: Bot, event: GroupMessageEvent):
         sql_message.do_work(user_id, 3, rift_data["time"])
         if group_rift[group_id].count == 0:
             del group_rift[group_id]
-            logger.opt(colors=True).info('群{group_id}秘境已到上限次数！')
+            logger.opt(colors=True).info("<green>群{group_id}秘境已到上限次数！</green>")
             msg += "秘境随着道友的进入，已无法再维持更多的人，而关闭了！"
             if XiuConfig().img:
                 pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)

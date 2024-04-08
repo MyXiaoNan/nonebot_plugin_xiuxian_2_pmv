@@ -27,7 +27,7 @@ def limit_all():
     # 重置消息字典
     global limit_all_data
     limit_all_data  = {}
-    logger.success("已重置消息字典！")
+    logger.opt(colors=True).success("<green>已重置消息字典！</green>")
 
 def limit_all_run(user_id: str):
     global limit_all_data

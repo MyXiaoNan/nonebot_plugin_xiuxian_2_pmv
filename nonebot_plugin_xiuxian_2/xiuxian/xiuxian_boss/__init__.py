@@ -95,7 +95,7 @@ __boss_help__ = f"""
 async def read_boss_():
     global group_boss
     group_boss.update(old_boss_info.read_boss_info())
-    logger.opt(colors=True).info("历史boss数据读取成功")
+    logger.opt(colors=True).info("<green>历史boss数据读取成功</green>")
 
 
 @DRIVER.on_startup
@@ -112,9 +112,9 @@ async def set_boss_():
                 args=[group_id],
                 misfire_grace_time=10
             )
-            logger.success('开启群{}boss,每{}小时{}分钟刷新！'.format(group_id, groups[str(group_id)]["hours"], groups[str(group_id)]['minutes']))
+            logger.opt(colors=True).success("<green>开启群{}boss,每{}小时{}分钟刷新！</green>".format(group_id, groups[str(group_id)]["hours"], groups[str(group_id)]['minutes']))
     except Exception as e:
-        logger.success(f'警告,定时群boss加载失败!,{e}!')
+        logger.opt(colors=True).warning(f"<red>警告,定时群boss加载失败!,{e}!</red>")
 
 
 async def send_bot(group_id:str):
@@ -158,19 +158,19 @@ async def send_bot(group_id:str):
             
     except:
         if group_id not in bot.get_group_list():
-            logger.warning(f"群{group_id}不存在,请检查配置文件!")
+            logger.opt(colors=True).warning(f"<red>群{group_id}不存在,请检查配置文件!</red>")
             return
         else:
             await get_bot().call_api(api, **data)   
         
-    logger.opt(colors=True).info(f"群{group_id}_已生成世界boss")
+    logger.opt(colors=True).info(f"<green>群{group_id}_已生成世界boss</green>")
 
 
 @DRIVER.on_shutdown
 async def save_boss_():
     global group_boss
     old_boss_info.save_boss(group_boss)
-    logger.opt(colors=True).info("boss数据已保存")
+    logger.opt(colors=True).info("<green>boss数据已保存</green>")
 
 
 @boss_help.handle(parameterless=[Cooldown(at_sender=True)])

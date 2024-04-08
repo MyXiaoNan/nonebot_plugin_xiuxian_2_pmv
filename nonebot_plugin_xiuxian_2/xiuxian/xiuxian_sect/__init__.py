@@ -95,7 +95,7 @@ async def materialsupdate_():
     for s in all_sects:
         sql_message.update_sect_materials(sect_id=s[0], sect_materials=s[1] * config["发放宗门资材"]["倍率"], key=1)
 
-    logger.opt(colors=True).info('已更新所有宗门的资材')
+    logger.opt(colors=True).info("<green>已更新所有宗门的资材</green>")
 
 
 # 每日0点重置用户宗门任务次数、宗门丹药领取次数
@@ -110,11 +110,11 @@ async def resetusertask_():
             elixir_room_cost = config['宗门丹房参数']['elixir_room_level'][str(sect_info.elixir_room_level)]['level_up_cost'][
                 '建设度']
             if sect_info.sect_materials < elixir_room_cost:
-                logger.opt(colors=True).info("该宗门的资材无法维持丹房")
+                logger.opt(colors=True).info("<green>该宗门的资材无法维持丹房</green>")
                 continue
             else:
                 sql_message.update_sect_materials(sect_id=sect_info.sect_id, sect_materials=elixir_room_cost, key=2)
-    logger.opt(colors=True).info('已重置用户宗门任务次数、宗门丹药领取次数，已扣除丹房维护费')
+    logger.opt(colors=True).info("<green>已重置用户宗门任务次数、宗门丹药领取次数，已扣除丹房维护费</green>")
 
 
 @sect_help.handle(parameterless=[Cooldown(at_sender=True)])
