@@ -299,7 +299,7 @@ async def buy_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
                 if not goods_info:
                     raise ValueError("编号对应的商品不存在")
 
-                purchase_quantity = int(input_args[1]) if len(input_args) > 1 else 1  # 购买数量，默认为1
+                purchase_quantity = int(input_args[1]) if len(input_args) > 1 else 1  # 购买数量，没指定的话默认为1
                 if purchase_quantity <= 0:
                     raise ValueError("购买数量必须是正数")
     
@@ -308,7 +308,7 @@ async def buy_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
                     raise ValueError("购买数量超过库存限制")
     
             except ValueError as e:
-                msg = f"{str(e)}！请输入正确的格式！如：坊市购买 1 5"
+                msg = f"{str(e)}！"
                 if XiuConfig().img:
                     pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                     await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -353,7 +353,7 @@ async def buy_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
             if shop_user_id == 0:  # 0为系统
                 msg = f"道友成功购买{purchase_quantity}个{shop_goods_name}，消耗灵石{goods_price}枚！"
             else:
-                # 更新坊市物品库存（如果物品是有限的）
+                # 更新坊市物品库存
                 goods_info['stock'] -= purchase_quantity
                 if goods_info['stock'] <= 0:
                     del shop_data[group_id][str(arg)]  # 如果库存为0，则从坊市中移除该物品
@@ -528,7 +528,7 @@ async def shop_added_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
     quantity_str = args[2] if len(args) > 2 else "1"  # 如果未提供数量，默认为1
     if len(args) == 0:
         # 没有输入任何参数
-        msg = "请输入正确指令！例如：坊市上架 物品 金额 数量"
+        msg = "请输入正确指令！例如：坊市上架 物品 可选参数为(金额 数量)"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -537,12 +537,12 @@ async def shop_added_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
         await shop_added.finish()
     elif len(args) == 1:
         # 只提供了物品名称
-        goods_name, price_str = args[0], "500000"  # 默认价格
-        quantity_str = "1"  # 默认数量
+        goods_name, price_str = args[0], "500000"
+        quantity_str = "1"
     elif len(args) == 2:
         # 提供了物品名称和价格
         goods_name, price_str = args[0], args[1]
-        quantity_str = "1"  # 默认数量
+        quantity_str = "1"
     else:
         # 提供了物品名称、价格和数量
         goods_name, price_str, quantity_str = args[0], args[1], args[2]
@@ -647,7 +647,7 @@ async def shop_added_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
         else:
             pass
     if num >= 5 :
-        msg = f"每人只可上架两个物品！"
+        msg = f"每人只可上架五个物品！"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
