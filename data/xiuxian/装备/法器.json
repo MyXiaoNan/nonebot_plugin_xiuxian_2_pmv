@@ -790,5 +790,17 @@
         "rank": -5,
         "level": "无上仙器",
         "type": "装备"
+    },
+    "15462": {
+        "name": "呆毛",
+        "atk_buff": 0.7,
+        "crit_buff": 0.6,
+        "def_buff": 0,
+        "critatk": 0.6,
+        "zw": 0,
+        "mp_buff": 0,
+        "rank": -5,
+        "level": "无上仙器",
+        "type": "装备"
     }
 }
