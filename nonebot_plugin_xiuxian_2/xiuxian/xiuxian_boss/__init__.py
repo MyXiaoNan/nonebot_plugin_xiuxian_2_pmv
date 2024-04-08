@@ -95,7 +95,7 @@ __boss_help__ = f"""
 async def read_boss_():
     global group_boss
     group_boss.update(old_boss_info.read_boss_info())
-    logger.info("历史boss数据读取成功")
+    logger.opt(colors=True).info("历史boss数据读取成功")
 
 
 @DRIVER.on_startup
@@ -163,14 +163,14 @@ async def send_bot(group_id:str):
         else:
             await get_bot().call_api(api, **data)   
         
-    logger.info(f"群{group_id}_已生成世界boss")
+    logger.opt(colors=True).info(f"群{group_id}_已生成世界boss")
 
 
 @DRIVER.on_shutdown
 async def save_boss_():
     global group_boss
     old_boss_info.save_boss(group_boss)
-    logger.info("boss数据已保存")
+    logger.opt(colors=True).info("boss数据已保存")
 
 
 @boss_help.handle(parameterless=[Cooldown(at_sender=True)])

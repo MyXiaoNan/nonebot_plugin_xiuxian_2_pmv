@@ -70,7 +70,7 @@ __buff_help__ = f"""
 @two_exp_cd_up.scheduled_job("cron", hour=0, minute=0)
 async def two_exp_cd_up_():
     two_exp_cd.re_data()
-    logger.info('双修次数已更新！')
+    logger.opt(colors=True).info('双修次数已更新！')
 
 
 @buff_help.handle(parameterless=[Cooldown(at_sender=True)])

@@ -22,13 +22,13 @@ DRIVER = get_driver()
 try:
     NICKNAME: str = list(DRIVER.config.nickname)[0]
 except Exception as e:
-    logger.info(f"缺少超级用户配置文件，{e}!")
+    logger.opt(colors=True).info(f"缺少超级用户配置文件，{e}!")
     NICKNAME = 'bot'
 
 try:
     download_xiuxian_data()
 except Exception as e:
-    logger.info(f"下载配置文件失败，修仙插件无法加载，{e}!")
+    logger.opt(colors=True).info(f"下载配置文件失败，修仙插件无法加载，{e}!")
     raise ImportError
 
 put_bot = XiuConfig().put_bot
@@ -37,12 +37,12 @@ shield_group = XiuConfig().shield_group
 try:
     put_bot_ = put_bot[0]
 except:
-    logger.info(f"修仙插件没有配置put_bot,如果有多个qq和nb链接,请务必配置put_bot,具体介绍参考【风控帮助】！")
+    logger.opt(colors=True).info(f"修仙插件没有配置put_bot,如果有多个qq和nb链接,请务必配置put_bot,具体介绍参考【风控帮助】！")
 
 require('nonebot_plugin_apscheduler')
 
 if get_plugin_by_module_name("xiuxian"):
-    logger.info("推荐直接加载 xiuxian 仓库文件夹")
+    logger.opt(colors=True).info("推荐直接加载 xiuxian 仓库文件夹")
     load_all_plugins(
         [
             f"xiuxian.{module.name}"

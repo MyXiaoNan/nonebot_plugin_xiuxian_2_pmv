@@ -24,7 +24,7 @@ sql_message = XiuxianDateManage()  # sql类
 
 __dufang_help__ = f"""
 赌你妹，封群的，不让你玩！
-超管可以调试，目前ll不支持骰子
+超管可以调试，目前ll不支持骰子指定值
 """.strip()
 
 dufang_help = on_command("金银阁帮助", permission=GROUP, priority=7, block=True)
@@ -107,7 +107,7 @@ async def dufang_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Re
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
 
     value = random.randint(1, 6)
-    dice_msg = Message("[CQ:dice,value={}]".format(value))
+    dice_msg = Message("[CQ:dice]")
 
     if value >= 4 and str(mode) == "大":
         sql_message.update_ls(user_id, price_num, 1)

@@ -173,7 +173,7 @@ __level_help__ = f"""
 @scheduler.scheduled_job("cron", hour=0, minute=0)
 async def xiuxian_sing_():
     sql_message.sign_remake()
-    logger.info("每日修仙签到重置成功！")
+    logger.opt(colors=True).info("每日修仙签到重置成功！")
 
 
 @xiuxian_uodata_data.handle(parameterless=[Cooldown(at_sender=True)])

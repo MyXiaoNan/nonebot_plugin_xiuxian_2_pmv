@@ -14,7 +14,7 @@ class IMPART_DATA(object):
     def __init__(self):
         self.dir_path_person = PATH_PERSON
         if not os.path.exists(self.dir_path_person):
-            logger.info(f"目录不存在，创建目录{self.dir_path_person}")
+            logger.opt(colors=True).info(f"目录不存在，创建目录{self.dir_path_person}")
             os.makedirs(self.dir_path_person)
         self.data_path_person = os.path.join(self.dir_path_person, "impart_person.json")
         self.data_all = impart_all
@@ -38,7 +38,7 @@ class IMPART_DATA(object):
                 elif type(self.data_person[key]) is list:
                     pass
                 else:
-                    logger.info("传承数据有未知类型错误！请检查！")
+                    logger.opt(colors=True).info("传承数据有未知类型错误！请检查！")
         except:
             pass
         self.__save()

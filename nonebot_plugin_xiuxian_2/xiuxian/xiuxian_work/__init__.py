@@ -35,7 +35,7 @@ count = 3  # 免费次数
 async def resetrefreshnum_():
     global refreshnum
     refreshnum = {}
-    logger.info("用户悬赏令刷新次数重置成功")
+    logger.opt(colors=True).info("用户悬赏令刷新次数重置成功")
 
 
 last_work = on_command("最后的悬赏令", priority=15, block=True)

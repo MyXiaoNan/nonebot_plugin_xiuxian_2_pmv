@@ -242,7 +242,7 @@ def readf(user_id):
 def savef(user_id, data):
     user_id = str(user_id)
     if not os.path.exists(PLAYERSDATA / user_id):
-        logger.info("用户目录不存在，创建目录")
+        logger.opt(colors=True).info("用户目录不存在，创建目录")
         os.makedirs(PLAYERSDATA / user_id)
     FILEPATH = PLAYERSDATA / user_id / "bankinfo.json"
     data = json.dumps(data, ensure_ascii=False, indent=3)

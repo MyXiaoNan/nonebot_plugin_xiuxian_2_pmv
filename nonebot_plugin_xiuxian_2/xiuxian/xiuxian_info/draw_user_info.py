@@ -53,7 +53,7 @@ async def draw_user_info_img(user_id, DETAIL_MAP):
         # 贴一层黑色遮罩
         img.paste(i := Image.new("RGBA", (based_w, based_h), (0, 0, 0, 168)), mask=i)
     except:
-        logger.info("下载随机背景图失败，使用默认背景图")
+        logger.opt(colors=True).info("下载随机背景图失败，使用默认背景图")
         img = Image.open(TEXT_PATH / 'back.png').resize((based_w, based_h)).convert("RGBA")
     # 获取用户头像圆框
     user_status = Image.open(TEXT_PATH / 'user_state.png').resize((450, 450)).convert("RGBA")
@@ -214,4 +214,4 @@ async def get_anime_pic():
     if response_json["code"] == "200":
         return response_json["imgurl"]
     else:
-        logger.info("API 返回错误码：" + response_json["code"])
+        logger.opt(colors=True).info("API 返回错误码：" + response_json["code"])
