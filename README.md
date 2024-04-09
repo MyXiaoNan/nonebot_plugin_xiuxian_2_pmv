@@ -11,11 +11,6 @@ _✨ QQ群聊修仙文字游戏✨_
 🧬 主要是青木猫画饼3.0期间做的一些魔改！🎉 
 
 <p align="center">
-  <img src="https://img.shields.io/badge/python-3.8+-blue.svg" alt="Python">
-  <img src="https://img.shields.io/badge/nonebot-2.0.0r4+-red.svg" alt="NoneBot">
-  <a href="https://pypi.org/project/nonebot-plugin-xiuxian-2/">
-      <img src="https://img.shields.io/pypi/v/nonebot-plugin-xiuxian-2.svg" alt="pypi">
-  </a>
 </p>
 </div>
 
