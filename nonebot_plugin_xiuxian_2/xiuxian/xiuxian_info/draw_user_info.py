@@ -49,7 +49,7 @@ async def draw_user_info_img(user_id, DETAIL_MAP):
             img_h = scaled_h
             crop_t = round((img_h / 2) - (based_h / 2))
             img = img.resize((based_w, img_h)).crop((0, crop_t, based_w, crop_t + based_h))
-        img.resize((based_w, based_h), Image.ANTIALIAS)
+        img.resize((based_w, based_h), Image.Resampling.LANCZOS)
         # 贴一层黑色遮罩
         img.paste(i := Image.new("RGBA", (based_w, based_h), (0, 0, 0, 168)), mask=i)
     except:

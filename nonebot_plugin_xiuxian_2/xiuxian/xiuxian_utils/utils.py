@@ -272,7 +272,7 @@ class Txt2Img:
                 base_cc = boss_img.height / img_hight
                 boss_img_w = int(boss_img.width / base_cc)
                 boss_img_h = int(boss_img.height / base_cc)
-                boss_img = boss_img.resize((int(boss_img_w), int(boss_img_h)), Image.ANTIALIAS)
+                boss_img = boss_img.resize((int(boss_img_w), int(boss_img_h)), Image.Resampling.LANCZOS)
                 out_img.paste(
                     boss_img,
                     (int(img_width - boss_img_w), int(img_hight - boss_img_h)),
@@ -371,9 +371,13 @@ class Txt2Img:
         )
 
         if title:
-            user_w, user_h = ImageDraw.Draw(
-                Image.new(mode="RGB", size=(1, 1))
-            ).textsize(title, font=user_font, spacing=self.line_space)
+            # 替换textsize为textbbox
+            tmp_img = Image.new('RGB', (1, 1))
+            tmp_draw = ImageDraw.Draw(tmp_img)
+            user_bbox = tmp_draw.textbbox((0, 0), title, font=user_font, spacing=self.line_space)
+            # 四元组(left, top, right, bottom)
+            user_w = user_bbox[2] - user_bbox[0]  # 宽度 = right - left
+            user_h = user_bbox[3] - user_bbox[1]
             draw.text(
                 ((w - user_w) // 2, out_padding + padding),
                 title,
