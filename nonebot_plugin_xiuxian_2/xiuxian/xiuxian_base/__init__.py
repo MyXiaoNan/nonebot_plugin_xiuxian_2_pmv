@@ -1240,9 +1240,9 @@ async def gmm_command_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
 
     give_user = sql_message.get_user_message(give_qq)
     if give_user:
-        sql_message.update_root(give_qq, msg)
+        root_name = sql_message.update_root(give_qq, msg)
         sql_message.update_power2(give_qq)
-        msg = "{}道友的修仙境界已变更！".format(give_user.user_name)
+        msg = "{}道友的灵根已变更为{}！".format(give_user.user_name, root_name)
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))

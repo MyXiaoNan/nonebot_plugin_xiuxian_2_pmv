@@ -296,7 +296,7 @@ class XiuxianDateManage:
             return '贪心的人是不会有好运的！'
         
     def get_beg(self, user_id):
-        """获取今日奇缘信息"""
+        """获取仙途奇缘信息"""
         cur = self.conn.cursor()
         sql = f"select is_beg from user_xiuxian where user_id=?"
         cur.execute(sql, (user_id,))
@@ -374,29 +374,46 @@ class XiuxianDateManage:
         if int(key) == 1:
             sql = f"UPDATE user_xiuxian SET root=?,root_type=? WHERE user_id=?"
             cur.execute(sql, ("全属性灵根", "混沌灵根", user_id))
+            root_name = "混沌灵根"
             self.conn.commit()
+            
         elif int(key) == 2:
             sql = f"UPDATE user_xiuxian SET root=?,root_type=? WHERE user_id=?"
             cur.execute(sql, ("融合万物灵根", "融合灵根", user_id))
+            root_name = "融合灵根"
             self.conn.commit()
+            
         elif int(key) == 3:
             sql = f"UPDATE user_xiuxian SET root=?,root_type=? WHERE user_id=?"
             cur.execute(sql, ("月灵根", "超灵根", user_id))
+            root_name = "超灵根"
             self.conn.commit()
+            
         elif int(key) == 4:
             sql = f"UPDATE user_xiuxian SET root=?,root_type=? WHERE user_id=?"
             cur.execute(sql, ("言灵灵根", "龙灵根", user_id))
+            root_name = "龙灵根"
             self.conn.commit()
+            
         elif int(key) == 5:
             sql = f"UPDATE user_xiuxian SET root=?,root_type=? WHERE user_id=?"
             cur.execute(sql, ("金灵根", "天灵根", user_id))
+            root_name = "天灵根"
+            self.conn.commit()
+            
         elif int(key) == 6:
             sql = f"UPDATE user_xiuxian SET root=?,root_type=? WHERE user_id=?"
             cur.execute(sql, ("轮回千次不灭，只为臻至巅峰", "轮回道果", user_id))
+            root_name = "轮回道果"
+            self.conn.commit()
+            
         elif int(key) == 7:
             sql = f"UPDATE user_xiuxian SET root=?,root_type=? WHERE user_id=?"
             cur.execute(sql, ("轮回万次不灭，只为超越巅峰", "真·轮回道果", user_id))
+            root_name = "真·轮回道果"
             self.conn.commit()
+
+        return root_name  # 返回灵根名称
 
     def update_ls_all(self, price):
         """所有用户增加灵石"""
