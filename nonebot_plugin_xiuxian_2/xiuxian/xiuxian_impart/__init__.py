@@ -94,7 +94,7 @@ async def impart_img_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
 
 
 @impart_draw.handle(parameterless=[Cooldown(cd_time=3, at_sender=True)])
-async def impart_draw_(bot: Bot, event: GroupMessageEvent):
+async def impart_draw_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """传承抽卡"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = check_user(event)
@@ -108,6 +108,16 @@ async def impart_draw_(bot: Bot, event: GroupMessageEvent):
 
     user_id = user_info.user_id
     impart_data_draw = await impart_check(user_id)
+    draw_times = 1  # 默认1次10抽
+    stone_needed = 10 * draw_times # 10抽消耗思恋结晶数量
+    try:
+        draw_times_input = args.extract_plain_text().strip()
+        if draw_times_input.isdigit():
+            draw_times = int(draw_times_input)
+            if draw_times_input > 0:
+                draw_times = draw_times_input
+    except ValueError:
+            draw_times = 1
     if impart_data_draw is None:
         msg = "发生未知错误，多次尝试无果请找晓楠！"
         if XiuConfig().img:
@@ -116,8 +126,10 @@ async def impart_draw_(bot: Bot, event: GroupMessageEvent):
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await impart_draw.finish()
-    if impart_data_draw.stone_num < 10:
-        msg = "思恋结晶数量不足10个,无法抽卡!"
+
+    
+    if impart_data_draw.stone_num < stone_needed:
+        msg = "思恋结晶数量不足 {} 个,无法抽卡!".format(stone_needed)
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -138,6 +150,7 @@ async def impart_draw_(bot: Bot, event: GroupMessageEvent):
                 else:
                     await bot.send_group_msg(group_id=int(send_group_id), message=msg)
                 await impart_draw.finish()
+
             list_tp = []
             if impart_data_json.data_person_add(user_id, reap_img):
                 msg = ""
