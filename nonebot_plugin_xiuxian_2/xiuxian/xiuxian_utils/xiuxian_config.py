@@ -92,7 +92,7 @@ class XiuConfig:
         self.img = True
         self.user_info_image = True
         self.level = list(USERRANK.keys())
-        self.user_info_cd = 30  # 我的存档冷却时间
+        self.user_info_cd = 30  # 我的存档cd/秒
         self.level_up_cd = 0  # 突破CD(分钟)
         self.closing_exp = 90  # 闭关每分钟获取的修为
         self.put_bot = []  # 接收消息qq,主qq，框架将只处理此qq的消息，
@@ -109,12 +109,13 @@ class XiuConfig:
         self.level_up_probability = 0.3  # 突破失败增加当前境界突破概率的比例
         self.sign_in_lingshi_lower_limit = 1000000  # 每日签到灵石下限
         self.sign_in_lingshi_upper_limit = 5000000  # 每日签到灵石上限
+        self.beg_max_level = "铭纹境圆满" 
         self.beg_lingshi_lower_limit = 200000000  # 仙途奇缘灵石下限
         self.beg_lingshi_upper_limit = 500000000  # 仙途奇缘灵石上限
         self.tou = 1000000  # 偷灵石惩罚
         self.tou_cd = 30  # 偷灵石cd/秒
-        self.battle_boss_cd = 0  # 讨伐bossCD
-        self.dufang_cd = 10  # 金银阁cd
+        self.battle_boss_cd = 0  # 讨伐bosscd/秒
+        self.dufang_cd = 10  # 金银阁cd/秒
         self.tou_lower_limit = 0.01  # 偷灵石下限(百分比)
         self.tou_upper_limit = 0.30  # 偷灵石上限(百分比)
         self.remake = 100000  # 重入仙途的消费

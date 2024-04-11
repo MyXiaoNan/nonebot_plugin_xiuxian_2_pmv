@@ -9,20 +9,20 @@ from nonebot.adapters.onebot.v11 import (
     MessageSegment
 )
 from nonebot.log import logger
-from ..xiuxian_utils.xiuxian_config import USERRANK
 from ..xiuxian_utils.xiuxian2_handle import XiuxianDateManage
 from ..xiuxian_utils.xiuxian_config import XiuConfig
+from ..xiuxian_utils.data_source import jsondata
 from ..xiuxian_utils.utils import (
     check_user,
     get_msg_pic,
     CommandObjectID,
 )
 
-
 # 定时任务
 scheduler = require("nonebot_plugin_apscheduler").scheduler
 cache_help = {}
 sql_message = XiuxianDateManage()  # sql类
+
 # 重置奇缘
 @scheduler.scheduled_job("cron", hour=0, minute=0)
 async def xiuxian_beg_():
@@ -63,8 +63,9 @@ async def beg_stone(bot: Bot, event: GroupMessageEvent):
     isUser, user_info, _ = check_user(event)
     user_msg = sql_message.get_user_message(user_id)
     user_root = user_msg.root_type
-    user_rank = USERRANK[user_info.level]
     sect = user_info.sect_id
+    level = user_info.level
+    list_level_all = list(jsondata.level_data().keys())
 
     # create_time = datetime.strptime(user_info.create_time, "%Y-%m-%d %H:%M:%S.%f")
     # now_time = datetime.now()
@@ -94,14 +95,13 @@ async def beg_stone(bot: Bot, event: GroupMessageEvent):
             await bot.send_group_msg(group_id=event.group_id, message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=event.group_id, message=msg)
-
-    elif user_rank < 37:
+    
+        
+    elif list_level_all.index(level) >= list_level_all.index(XiuConfig().beg_max_level):
         msg = f"道友已跻身于{user_info.level}层次的修行之人，可徜徉于四海八荒，自寻机缘与造化矣。"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
-            await bot.send_group_msg(group_id=event.group_id, message=MessageSegment.image(pic))
-        else:
-            await bot.send_group_msg(group_id=event.group_id, message=msg)
+            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
 
     else:
         stone = XiuxianDateManage().get_beg(user_id)
