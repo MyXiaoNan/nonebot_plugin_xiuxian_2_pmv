@@ -2,6 +2,7 @@ from nonebot import on_command, on_fullmatch
 from ..xiuxian_utils.lay_out import assign_bot, Cooldown
 from ..xiuxian_utils.xiuxian_config import XiuConfig, JsonConfig, USERRANK
 from ..xiuxian_utils.xiuxian2_handle import XiuxianDateManage, XiuxianJsonDate, OtherSet
+from ..xiuxian_utils.data_source import jsondata
 from nonebot.adapters.onebot.v11 import (
     Bot,
     GROUP,
@@ -14,6 +15,7 @@ from ..xiuxian_utils.utils import (
     check_user, get_msg_pic,
     CommandObjectID,
 )
+
 sql_message = XiuxianDateManage()  # sql类
 
 
@@ -38,6 +40,8 @@ async def lunhui_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandO
     user_name = user_msg.user_name
     user_root = user_msg.root_type
     user_rank = USERRANK[user_info.level]
+    list_level_all = list(jsondata.level_data().keys())
+    level = user_info.level
     
     if user_root == '轮回道果' :
         msg = '道友已是千世轮回之身！'
@@ -57,7 +61,7 @@ async def lunhui_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandO
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await lunhui.finish()
         
-    if user_rank <= 21:
+    if list_level_all.index(level) >= list_level_all.index(XiuConfig().lunhui_min_level):
         exp = user_msg.exp
         now_exp = exp - 100
         sql_message.updata_level(user_id, '江湖好手') #重置用户境界
@@ -102,6 +106,8 @@ async def Twolun_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandO
     user_name = user_msg.user_name
     user_root = user_msg.root_type
     user_rank = USERRANK[user_info.level]
+    list_level_all = list(jsondata.level_data().keys())
+    level = user_info.level
     
     if user_root == '真·轮回道果':
         msg = '道友已是万世轮回之身！'
@@ -121,7 +127,7 @@ async def Twolun_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandO
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await Twolun.finish() 
     
-    if user_rank <= 27 and user_root == '轮回道果':
+    if list_level_all.index(level) >= list_level_all.index(XiuConfig().twolun_min_level) and user_root == '轮回道果':
         exp = user_msg.exp
         now_exp = exp - 100
         sql_message.updata_level(user_id, '江湖好手') #重置用户境界

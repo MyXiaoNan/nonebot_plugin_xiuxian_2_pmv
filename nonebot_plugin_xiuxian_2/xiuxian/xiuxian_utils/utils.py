@@ -441,7 +441,7 @@ async def send_msg_handler(bot, event, *args, msg_type=None):
             name, uin, msgs = args
             img = Txt2Img()
             combined_msg = '\n'.join(msgs)
-            img_data = await img.draw_to_img(combined_msg)
+            img_data = await img.draw_to(combined_msg)
             if isinstance(event, GroupMessageEvent):
                 await bot.send_group_msg(group_id=event.group_id, message=MessageSegment.image(img_data))
             else:
@@ -450,7 +450,7 @@ async def send_msg_handler(bot, event, *args, msg_type=None):
             messages = args[0]
             img = Txt2Img()
             combined_msg = '\n'.join([str(msg['data']['content']) for msg in messages])
-            img_data = await img.draw_to_img(combined_msg)
+            img_data = await img.draw_to(combined_msg)
             if isinstance(event, GroupMessageEvent):
                 await bot.send_group_msg(group_id=event.group_id, message=MessageSegment.image(img_data))
             else:
@@ -487,7 +487,7 @@ def number_to(num):
     递归实现，精确为最大单位值 + 小数点后一位
     '''
     def strofsize(num, level):
-        if level >= 6:  # 因为我们加到了秭，所以这里是6
+        if level >= 6:
             return num, level
         elif num >= 10000:
             num /= 10000
