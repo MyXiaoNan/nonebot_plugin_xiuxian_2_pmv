@@ -34,7 +34,10 @@ _✨ QQ群聊修仙文字游戏✨_
 git clone https://github.com/wsdtl/nonebot_plugin_xiuxian_2_pmv
 ```
 
-2、如果遇到问题，请先百度和查看下方的 【一些问题】
+2、安装依赖
+```
+pip install -r requirements.txt
+```
 
 3、如解决不了进交流群：[760517008](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=zIKrPPqNStgZnRtuLhiOv9woBQSMQurq&authKey=Nrqm0zDxYKP2Fon2MskbNRmZ588Rqm79lJvQyVYWtkh9vDFK1RGBK0UhqzehVyDw&noverify=0&group_code=760517008) 提问，提问请贴上完整的日志
 

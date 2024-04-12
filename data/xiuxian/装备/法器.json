@@ -551,6 +551,18 @@
         "level": "极品仙器",
         "type": "装备"
     },
+    "11014": {
+        "name": "灵魄玉",
+        "atk_buff": 0.7,
+        "crit_buff": 0.4,
+        "def_buff": 0,
+        "critatk": 0,
+        "zw": 0,
+        "mp_buff": 0,
+        "rank": -5,
+        "level": "极品仙器",
+        "type": "装备"
+    },
     "7098": {
         "name": "原罪（残缺）",
         "atk_buff": 0.3,

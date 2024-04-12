@@ -96,7 +96,7 @@ async def xiuxian_message_(bot: Bot, event: GroupMessageEvent):
         '道号': f'{user_name}',
         '境界': f'{user_info.level}',
         '修为': f'{number_to(user_info.exp)}',
-        '灵石': f'{user_info.stone}',
+        '灵石': f'{number_to(user_info.stone)}',
         '战力': f'{number_to(int(user_info.exp * level_rate * realm_rate))}',
         '灵根': f'{user_info.root}({user_info.root_type}+{int(level_rate * 100)}%)',
         '突破状态': f'{exp_meg}概率：{jsondata.level_rate_data()[user_info.level] + int(user_info.level_up_rate) + number }%',

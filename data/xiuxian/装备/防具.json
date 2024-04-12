@@ -308,9 +308,18 @@
     },
     "15507": {
         "name": "危险兔坦娘",
-        "def_buff": 0.55,
+        "def_buff": 0.5,
         "atk_buff": 0,
         "crit_buff": 0,
+        "rank": -5,
+        "level": "无上仙器",
+        "type": "装备"
+    },
+    "15508": {
+        "name": "虚灵衣",
+        "def_buff": 0.15,
+        "atk_buff": 0.2,
+        "crit_buff": 0.3,
         "rank": -5,
         "level": "无上仙器",
         "type": "装备"
