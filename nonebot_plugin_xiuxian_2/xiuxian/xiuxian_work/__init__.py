@@ -18,6 +18,7 @@ from nonebot.log import logger
 from .reward_data_source import PLAYERSDATA
 from ..xiuxian_utils.item_json import Items
 from ..xiuxian_utils.xiuxian_config import USERRANK, XiuConfig
+import sqlite3
 
 # 定时任务
 resetrefreshnum = require("nonebot_plugin_apscheduler").scheduler
@@ -33,10 +34,64 @@ count = 3  # 免费次数
 # 重置悬赏令刷新次数
 @resetrefreshnum.scheduled_job("cron", hour=8, minute=0)
 async def resetrefreshnum_():
-    global refreshnum
-    refreshnum = {}
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+
+    # 构建 SQL 命令来删除所有数据
+    sql_command = 'DELETE FROM {}'.format('refreshnum')
+    
+    # 执行 SQL 命令
+    cursor.execute(sql_command)
+    
+    # 提交事务
+    conn.commit()
+    
+    # 关闭连接
+    conn.close()
+
+    logger.info("用户悬赏令刷新次数重置成功")
     logger.opt(colors=True).info("<green>用户悬赏令刷新次数重置成功</green>")
 
+def get_or_create_usernum(user_id):
+    # 连接到 SQLite 数据库
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+
+    # 尝试查找指定 user_id 的 usernums
+    cursor.execute('SELECT usernums FROM refreshnum WHERE user_id = ?', (user_id,))
+    result = cursor.fetchone()
+
+    if result:
+        # 如果找到了，返回 usernums
+        usernums = result[0]
+    else:
+        # 如果没有找到，创建新条目，usernums 设置为 0
+        usernums = 0
+        cursor.execute('INSERT INTO refreshnum (user_id, usernums) VALUES (?, ?)', (user_id, usernums))
+        conn.commit()
+
+    # 关闭连接
+    conn.close()
+
+    return usernums
+
+def update_usernum(user_id, new_usernum):
+    # 连接到 SQLite 数据库
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+
+    # 更新指定 user_id 的 usernums 值
+    cursor.execute('UPDATE refreshnum SET usernums = ? WHERE user_id = ?', (new_usernum, user_id))
+
+    # 检查是否有行被更新，如果没有，则说明指定的 user_id 不存在
+    if cursor.rowcount == 0:
+        print(f"No entry found for user_id {user_id}. No update performed.")
+    else:
+        # 提交事务
+        conn.commit()
+
+    # 关闭连接
+    conn.close()
 
 last_work = on_command("最后的悬赏令", priority=15, block=True)
 do_work = on_regex(
@@ -272,11 +327,11 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
             else:
                 await bot.send_group_msg(group_id=int(send_group_id), message=msg)
             await do_work.finish()
-
-        try:
-            usernums = refreshnum[user_id]
-        except KeyError:
-            usernums = 0
+        usernums = get_or_create_usernum(user_id=user_id)
+        #try:
+        #    usernums = refreshnum[user_id]
+        #except KeyError:
+        #    usernums = 0
 
         isUser, user_info, msg = check_user(event)
         if not isUser:
@@ -316,8 +371,8 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
         work[user_id] = do_is_work(user_id)
         work[user_id].msg = work_msg_f
         work[user_id].world = work_list
-
-        refreshnum[user_id] = usernums + 1
+        update_usernum(user_id, usernums + 1)
+        #refreshnum[user_id] = usernums + 1
         msg = work[user_id].msg
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
