@@ -43,3 +43,4 @@ websockets==10.4
 wget==3.2
 win32-setctime==1.1.0
 yarl==1.9.2
+aiofiles
