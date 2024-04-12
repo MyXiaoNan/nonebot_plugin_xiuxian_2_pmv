@@ -119,6 +119,8 @@ class XiuConfig:
         self.tou_lower_limit = 0.01  # 偷灵石下限(百分比)
         self.tou_upper_limit = 0.30  # 偷灵石上限(百分比)
         self.remake = 100000  # 重入仙途的消费
+        self.lunhui_min_level = "遁一境初期"
+        self.twolun_min_level = "虚道境初期"
         self.del_boss_id = []  # 支持非管理员和超管天罚boss
         self.gen_boss_id = []  # 支持非管理员和超管生成boss
         self.send_msg_type = 2 # 消息转发类型,1是合并转发2是长图发送
