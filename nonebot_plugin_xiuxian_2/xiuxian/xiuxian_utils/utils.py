@@ -149,34 +149,6 @@ class Txt2Img:
         text_new = text_new.rstrip()
         line_num = line_num + text_new.count("\n")
         return text_new, line_num
-    
-    # def embed_imaprt_cards(self, text, images, scale=True):
-    #     """传承卡图"""
-    #     text_img = self.sync_draw_to(text, scale=scale)
-    #     image_heights = [text_img.height]
-    #     image_width = text_img.width
-
-    #     image_objs = []
-    #     for img_path in images:
-    #         img = Image.open(img_path)
-    #         aspect_ratio = img.width / img.height
-    #         new_height = int(image_width / aspect_ratio)
-    #         img = img.resize((image_width, new_height), Image.Resampling.LANCZOS)
-    #         image_objs.append(img)
-    #         image_heights.append(new_height)
-
-    #     total_height = sum(image_heights)
-    #     combined_img = Image.new('RGB', (image_width, total_height), (255, 255, 255))
-
-    #     current_height = 0
-    #     combined_img.paste(text_img, (0, current_height))
-    #     current_height += text_img.height
-
-    #     for img in image_objs:
-    #         combined_img.paste(img, (0, current_height))
-    #         current_height += img.height
-
-    #     return combined_img
 
     def sync_draw_to(self, text, boss_name="", scale = True):
         font_size = self.font_size
@@ -205,6 +177,7 @@ class Txt2Img:
                             color=black_clor)
         draw = ImageDraw.Draw(out_img, "RGBA")
 
+        # # # #
         banner_size = 12
         border_color = (220, 211, 196)
         out_padding = 15
@@ -213,11 +186,11 @@ class Txt2Img:
             (banner_size, banner_size), resample=3
         )
 
-        # 添加背景
+        # add background
         for x in range(int(math.ceil(img_hight / 100))):
             out_img.paste(mi_img, (0, x * 100))
 
-        # 添加边框
+        # add border
         def draw_rectangle(draw, rect, width):
             for i in range(width):
                 draw.rectangle(
@@ -229,7 +202,7 @@ class Txt2Img:
             draw, (out_padding, out_padding, img_width - out_padding, img_hight - out_padding), 2
         )
 
-        # 添加banner
+        # add banner
         out_img.paste(mi_banner, (out_padding, out_padding))
         out_img.paste(
             mi_banner.transpose(Image.FLIP_TOP_BOTTOM),
@@ -244,7 +217,7 @@ class Txt2Img:
             (img_width - out_padding - banner_size + 1, img_hight - out_padding - banner_size + 1),
         )
         
-        # 添加文字
+        # # # # 
         draw.text(
             (left_size, upper_size),
             text,
@@ -269,23 +242,14 @@ class Txt2Img:
         return out_img
 
 
-    async def draw_to_img(self, text, boss_name="", scale=True):
-        # 转图片
+    async def draw_to(self, text, boss_name="", scale=True):
         loop = asyncio.get_running_loop()
+        # 异步执行 sync_draw_to 来创建图像对象
         out_img = await loop.run_in_executor(None, self.sync_draw_to, text, boss_name, scale)
-        img_byte_arr = io.BytesIO()
-        out_img.save(img_byte_arr, format='PNG')
-        img_byte_arr.seek(0)
-        return img_byte_arr
-    
-    # async def draw_imaprt_cards(self, text, boss_name="", scale=True):
-    #     # 传承卡图
-    #     loop = asyncio.get_running_loop()
-    #     out_img = await loop.run_in_executor(None, self.embed_images, text, boss_name, scale)
-    #     img_byte_arr = io.BytesIO()
-    #     out_img.save(img_byte_arr, format='PNG')
-    #     img_byte_arr.seek(0)
-    #     return img_byte_arr
+        # 然后异步转换图像为base64字符串
+        base64_str = await self.img2b64(out_img)
+        return base64_str
+
 
     async def save(self, title, lrc):
         """保存图片"""
@@ -336,11 +300,11 @@ class Txt2Img:
             (banner_size, banner_size), resample=3
         )
 
-        # 添加背景
+        # add background
         for x in range(int(math.ceil(h / 100))):
             out_img.paste(mi_img, (0, x * 100))
 
-        # 添加边框
+        # add border
         def draw_rectangle(draw, rect, width):
             for i in range(width):
                 draw.rectangle(
@@ -352,7 +316,7 @@ class Txt2Img:
             draw, (out_padding, out_padding, w - out_padding, h - out_padding), 2
         )
 
-        # 添加banner
+        # add banner
         out_img.paste(mi_banner, (out_padding, out_padding))
         out_img.paste(
             mi_banner.transpose(Image.FLIP_TOP_BOTTOM),
@@ -403,6 +367,21 @@ class Txt2Img:
         base64_str = await self.img2b64(out_img)
         return base64_str
     
+
+    def sync_img2b64(self, out_img) -> str:
+        """ 将图片转换为base64 """
+        buf = BytesIO()
+        out_img.save(buf, format="PNG")
+        base64_str = "base64://" + b64encode(buf.getvalue()).decode()
+        return base64_str
+    
+    async def img2b64(self, out_img):
+        loop = asyncio.get_running_loop()
+        with ThreadPoolExecutor() as pool:
+            base64_str = await loop.run_in_executor(pool, self.sync_img2b64, out_img)
+        return base64_str
+    
+    
     def wrap(self, string):
         max_width = int(1850 / self.lrc_font_size)
         temp_len = 0
@@ -426,20 +405,6 @@ async def get_msg_pic(msg, boss_name="", scale = True):
     pic = await img.draw_to_img(msg, boss_name, scale)
     return pic
 
-
-# async def send_forward_impart_img(bot, event, text, image_paths):
-#     # 传承抽卡
-#     img_creator = Txt2Img(size=32)
-#     result_image = await asyncio.to_thread(img_creator.embed_imaprt_cards, text, image_paths)
-
-#     img_byte_arr = io.BytesIO()
-#     result_image.save(img_byte_arr, format='PNG')
-#     img_byte_arr.seek(0)
-
-#     if isinstance(event, GroupMessageEvent):
-#         await bot.send_group_msg(group_id=event.group_id, message=MessageSegment.image(img_byte_arr.getvalue()))
-#     else:
-#         await bot.send_private_msg(user_id=event.user_id, message=MessageSegment.image(img_byte_arr.getvalue()))
 
 async def send_msg_handler(bot, event, *args, msg_type=None):
     """
