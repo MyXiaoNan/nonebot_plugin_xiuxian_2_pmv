@@ -31,7 +31,7 @@ from ..xiuxian_utils.utils import (
     check_user,
     get_msg_pic, number_to,
     CommandObjectID,
-    Txt2Img, send_forward_img
+    Txt2Img, send_msg_handler
 )
 from ..xiuxian_utils.item_json import Items
 items = Items()
@@ -1377,7 +1377,7 @@ async def rob_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Command
             player2['防御'] = def_buff
 
             result, victor = OtherSet().player_fight(player1, player2)
-            await send_forward_img(bot, event, '决斗场', bot.self_id, result)
+            await send_msg_handler(bot, event, '决斗场', bot.self_id, result)
             if victor == player1['道号']:
                 foe_stone = user_2.stone
                 if foe_stone > 0:

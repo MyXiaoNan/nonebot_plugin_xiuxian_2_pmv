@@ -21,9 +21,8 @@ from ..xiuxian_utils.data_source import jsondata
 from nonebot.params import CommandArg
 from ..xiuxian_utils.player_fight import Player_fight
 from ..xiuxian_utils.utils import (
-    number_to, send_forward_img_list, check_user,
-    check_user_type, get_msg_pic, CommandObjectID,
-    send_forward_img
+    number_to, check_user, send_msg_handler,
+    check_user_type, get_msg_pic, CommandObjectID
 )
 from ..xiuxian_back.back_util import get_user_skill_back_msg
 from ..xiuxian_utils.lay_out import assign_bot, Cooldown
@@ -364,7 +363,7 @@ async def qc_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
         player2['exp'] = user2.exp
 
         result, victor = Player_fight(player1, player2, 1, bot.self_id)
-        await send_forward_img_list(bot, event, result)
+        await send_msg_handler(bot, event, result)
         msg = f"获胜的是{victor}"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
@@ -961,7 +960,7 @@ async def buffinfo_(bot: Bot, event: GroupMessageEvent):
         await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
     else:
         await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-    await send_forward_img(bot, event, '背包', bot.self_id, skill_msg)
+    await send_msg_handler(bot, event, '背包', bot.self_id, skill_msg)
     await buffinfo.finish()
 
 

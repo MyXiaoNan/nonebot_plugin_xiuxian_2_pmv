@@ -11,7 +11,7 @@ from nonebot.adapters.onebot.v11 import (
 from ..xiuxian_utils.lay_out import assign_bot, Cooldown
 from ..xiuxian_utils.data_source import jsondata
 from nonebot.log import logger
-from ..xiuxian_utils.utils import check_user, get_msg_pic, send_forward_img_list
+from ..xiuxian_utils.utils import check_user, get_msg_pic, send_msg_handler
 from .impart_pk_uitls import impart_pk_check
 from .xu_world import xu_world
 from .impart_pk import impart_pk
@@ -121,7 +121,7 @@ async def impart_pk_list_(bot: Bot, event: GroupMessageEvent):
             {"type": "node", "data": {"name": f"编号 {x}", "uin": bot.self_id,
                                       "content": msg}})
     try:
-        await send_forward_img_list(bot, event, list_msg)
+        await send_msg_handler(bot, event, list_msg)
     except ActionFailed:
         msg = "未知原因，查看失败!"
         if XiuConfig().img:
@@ -250,7 +250,7 @@ async def impart_pk_now_(bot: Bot, event: GroupMessageEvent, args: Message = Com
                                               "content": f"道友{player_2_name}次数耗尽，离开了虚神界！"}})
                 xu_world.del_xu_world(player_2)
             try:
-                await send_forward_img_list(bot, event, msg_list)
+                await send_msg_handler(bot, event, msg_list)
             except ActionFailed:
                 msg = "未知原因，对决显示失败!"
                 if XiuConfig().img:
@@ -275,7 +275,7 @@ async def impart_pk_now_(bot: Bot, event: GroupMessageEvent, args: Message = Com
                                               "content": f"道友{player_1_name}次数耗尽，离开了虚神界！"}})
                 xu_world.del_xu_world(player_1)
             try:
-                await send_forward_img_list(bot, event, msg_list)
+                await send_msg_handler(bot, event, msg_list)
             except ActionFailed:
                 msg = "未知原因，对决显示失败!"
                 if XiuConfig().img:

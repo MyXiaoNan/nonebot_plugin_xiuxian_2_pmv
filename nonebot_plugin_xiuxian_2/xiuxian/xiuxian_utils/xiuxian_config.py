@@ -109,7 +109,7 @@ class XiuConfig:
         self.level_up_probability = 0.3  # 突破失败增加当前境界突破概率的比例
         self.sign_in_lingshi_lower_limit = 1000000  # 每日签到灵石下限
         self.sign_in_lingshi_upper_limit = 5000000  # 每日签到灵石上限
-        self.beg_max_level = "铭纹境圆满" 
+        self.beg_max_level = "铭纹境圆满" # 仙途奇缘最高境界
         self.beg_lingshi_lower_limit = 200000000  # 仙途奇缘灵石下限
         self.beg_lingshi_upper_limit = 500000000  # 仙途奇缘灵石上限
         self.tou = 1000000  # 偷灵石惩罚
@@ -121,7 +121,8 @@ class XiuConfig:
         self.remake = 100000  # 重入仙途的消费
         self.del_boss_id = []  # 支持非管理员和超管天罚boss
         self.gen_boss_id = []  # 支持非管理员和超管生成boss
-        self.version = "xiuxian_2.1"
+        self.send_msg_type = 2 # 消息转发类型,1是合并转发2是长图发送
+        self.version = "xiuxian_2.2"
 
 
 class JsonConfig:

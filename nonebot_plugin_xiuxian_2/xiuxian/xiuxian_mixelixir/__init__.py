@@ -16,9 +16,8 @@ from ..xiuxian_utils.xiuxian2_handle import (
     UserBuffDate, XIUXIAN_IMPART_BUFF
 )
 from ..xiuxian_utils.utils import (
-    check_user,
-    send_forward_img, get_msg_pic,
-    CommandObjectID
+    check_user, send_msg_handler, 
+    get_msg_pic, CommandObjectID
 )
 from ..xiuxian_utils.item_json import Items
 from .mixelixirutil import get_mix_elixir_msg, tiaohe, check_mix, make_dict
@@ -274,7 +273,7 @@ async def my_mix_elixir_info_(bot: Bot, event: GroupMessageEvent):
             msg = f"编号：{i},{v['name']}，炼成次数：{v['num']}次"
             l_msg.append(msg)
             i += 1
-    await send_forward_img(bot, event, '炼丹信息', bot.self_id, l_msg)
+    await send_msg_handler(bot, event, '炼丹信息', bot.self_id, l_msg)
     await my_mix_elixir_info.finish()
 
 
@@ -389,7 +388,7 @@ async def mix_elixir_(bot: Bot, event: GroupMessageEvent):
             l_msg.append(msg)
         if len(l_msg) > 51:
             l_msg = l_msg[:50]
-        await send_forward_img(bot, event, '配方', bot.self_id, l_msg)
+        await send_msg_handler(bot, event, '配方', bot.self_id, l_msg)
         await mix_elixir.finish()
 
 
@@ -416,17 +415,17 @@ async def elixir_back_(bot: Bot, event: GroupMessageEvent):
         msg1 = [f"{user_info.user_name}的丹药背包"] + msg[:98]
         msg2 = [f"{user_info.user_name}的丹药背包"] + msg[98:]
         try:
-            await send_forward_img(bot, event, '背包', bot.self_id, msg1)
+            await send_msg_handler(bot, event, '背包', bot.self_id, msg1)
             if msg2:
                 # 如果有第三条及以后的消息，需要等待一段时间再发送，避免触发限制
                 await asyncio.sleep(1)
-                await send_forward_img(bot, event, '背包', bot.self_id, msg2)
+                await send_msg_handler(bot, event, '背包', bot.self_id, msg2)
         except ActionFailed:
             await elixir_back.finish("查看背包失败!", reply_message=True)
     else:
         msg = [f"{user_info.user_name}的丹药背包"] + msg
         try:
-            await send_forward_img(bot, event, '背包', bot.self_id, msg)
+            await send_msg_handler(bot, event, '背包', bot.self_id, msg)
         except ActionFailed:
             await elixir_back.finish("查看背包失败!", reply_message=True)
 
@@ -455,17 +454,17 @@ async def yaocai_back_(bot: Bot, event: GroupMessageEvent):
         msg1 = [f"{user_info.user_name}的药材背包"] + msg[:98]
         msg2 = [f"{user_info.user_name}的药材背包"] + msg[98:]
         try:
-            await send_forward_img(bot, event, '背包', bot.self_id, msg1)
+            await send_msg_handler(bot, event, '背包', bot.self_id, msg1)
             if msg2:
                 # 如果有第三条及以后的消息，需要等待一段时间再发送，避免触发限制
                 await asyncio.sleep(1)
-                await send_forward_img(bot, event, '背包', bot.self_id, msg2)
+                await send_msg_handler(bot, event, '背包', bot.self_id, msg2)
         except ActionFailed:
             await yaocai_back.finish("查看背包失败!", reply_message=True)
     else:
         msg = [f"{user_info.user_name}的药材背包"] + msg
         try:
-            await send_forward_img(bot, event, '背包', bot.self_id, msg)
+            await send_msg_handler(bot, event, '背包', bot.self_id, msg)
         except ActionFailed:
             await yaocai_back.finish("查看背包失败!", reply_message=True)
 

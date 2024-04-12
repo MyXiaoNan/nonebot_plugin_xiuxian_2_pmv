@@ -19,7 +19,7 @@ from nonebot.log import logger
 from ..xiuxian_utils.xiuxian2_handle import XiuxianDateManage
 from ..xiuxian_utils.utils import (
     check_user, check_user_type,
-    send_forward_img_list, get_msg_pic, CommandObjectID
+    send_msg_handler, get_msg_pic, CommandObjectID
 )
 from .riftconfig import get_config, savef
 from .jsondata import save_rift_data, read_rift_data
@@ -315,7 +315,7 @@ async def complete_rift_(bot: Bot, event: GroupMessageEvent):
                     await complete_rift.finish()
                 elif rift_type == "Boss战斗":
                     result, msg = await get_boss_battle_info(user_info, rift_rank, bot.self_id)
-                    await send_forward_img_list(bot, event, result)
+                    await send_msg_handler(bot, event, result)
                     if XiuConfig().img:
                         pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                         await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))

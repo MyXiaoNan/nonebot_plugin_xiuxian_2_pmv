@@ -296,7 +296,7 @@ class XiuxianDateManage:
             return '贪心的人是不会有好运的！'
         
     def get_beg(self, user_id):
-        """获取仙途奇缘信息"""
+        """获取今日奇缘信息"""
         cur = self.conn.cursor()
         sql = f"select is_beg from user_xiuxian where user_id=?"
         cur.execute(sql, (user_id,))

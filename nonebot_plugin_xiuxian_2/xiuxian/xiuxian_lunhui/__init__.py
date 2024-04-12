@@ -11,10 +11,8 @@ from nonebot.adapters.onebot.v11 import (
     ActionFailed
 )
 from ..xiuxian_utils.utils import (
-    check_user, send_forward_img,
-    get_msg_pic, number_to,
+    check_user, get_msg_pic,
     CommandObjectID,
-    Txt2Img
 )
 sql_message = XiuxianDateManage()  # sql类
 
