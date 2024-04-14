@@ -101,15 +101,15 @@ class XiuConfig:
         self.layout_bot_dict = {}
         # QQ所负责的群聊 #{群 ：bot}   其中 bot类型 []或str }
         # "123456":"123456",
-        self.sect_min_level = "铭纹境圆满"
-        self.sect_create_cost = 5000000
+        self.sect_min_level = "铭纹境圆满" # 创建宗门最低境界
+        self.sect_create_cost = 5000000 # 创建宗门消耗
         self.closing_exp_upper_limit = 3  # 闭关获取修为上限（例如：1.5 下个境界的修为数*1.5）
         self.level_punishment_floor = 1  # 突破失败扣除修为，惩罚下限（百分比）
         self.level_punishment_limit = 10  # 突破失败扣除修为，惩罚上限(百分比)
         self.level_up_probability = 0.3  # 突破失败增加当前境界突破概率的比例
         self.sign_in_lingshi_lower_limit = 1000000  # 每日签到灵石下限
         self.sign_in_lingshi_upper_limit = 5000000  # 每日签到灵石上限
-        self.beg_max_level = "铭纹境圆满" # 仙途奇缘最高境界
+        self.beg_max_level = "铭纹境圆满" # 仙途奇缘能领灵石最高境界
         self.beg_lingshi_lower_limit = 200000000  # 仙途奇缘灵石下限
         self.beg_lingshi_upper_limit = 500000000  # 仙途奇缘灵石上限
         self.tou = 1000000  # 偷灵石惩罚
@@ -119,12 +119,12 @@ class XiuConfig:
         self.tou_lower_limit = 0.01  # 偷灵石下限(百分比)
         self.tou_upper_limit = 0.30  # 偷灵石上限(百分比)
         self.remake = 100000  # 重入仙途的消费
-        self.lunhui_min_level = "遁一境初期"
-        self.twolun_min_level = "虚道境初期"
+        self.lunhui_min_level = "遁一境初期" # 千世轮回最低境界
+        self.twolun_min_level = "虚道境初期" # 万世轮回最低境界
         self.del_boss_id = []  # 支持非管理员和超管天罚boss
         self.gen_boss_id = []  # 支持非管理员和超管生成boss
         self.send_msg_type = 2 # 消息转发类型,1是合并转发2是长图发送
-        self.version = "xiuxian_2.2"
+        self.version = "xiuxian_2.2" # 修仙插件版本
 
 
 class JsonConfig:
