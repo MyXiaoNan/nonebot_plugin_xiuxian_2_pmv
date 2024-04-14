@@ -47,7 +47,7 @@ def init_db():
 init_db()
 
 # 重置悬赏令刷新次数
-@resetrefreshnum.scheduled_job("cron", hour=17, minute=27)
+@resetrefreshnum.scheduled_job("cron", hour=0, minute=0)
 async def resetrefreshnum_():
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
