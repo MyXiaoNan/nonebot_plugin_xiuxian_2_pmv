@@ -511,7 +511,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
         drops_id, drops_info =  boss_drops(user_rank, boss_rank, bossinfo, userinfo)
         if drops_id == None:
             drops_msg = " "
-        elif boss_rank < 20:           
+        elif boss_rank < 22:           
             drops_msg = f"boss的尸体上好像有什么东西， 凑近一看居然是{drops_info['name']}！ "
             sql_message.send_back(user_info.user_id, drops_info['id'],drops_info['name'], drops_info['type'], 1)
         else :
@@ -596,7 +596,7 @@ async def boss_info_(bot: Bot, event: GroupMessageEvent, args: Message = Command
 境界：{boss['jj']}
 剩余血量：{number_to(boss['气血'])}
 攻击：{number_to(boss['攻击'])}
-携带灵石：{boss['stone']}
+携带灵石：{number_to(boss['stone'])}
         '''
         msg = bossmsgs
         if int(boss["气血"] / boss["总血量"]) < 0.5:

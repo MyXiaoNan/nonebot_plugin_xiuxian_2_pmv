@@ -918,7 +918,7 @@ async def sect_list_(bot: Bot, event: GroupMessageEvent):
     msg_list = []
     for sect in sect_lists_with_members:
         sect_id, sect_name, sect_scale, user_name, member_count = sect
-        msg_list.append(f'编号{sect_id}：{sect_name}\n宗主：{user_name}\n宗门建设度：{sect_scale}\n成员数：{member_count}')
+        msg_list.append(f'编号{sect_id}：{sect_name}\n宗主：{user_name}\n宗门建设度：{number_to(sect_scale)}\n成员数：{member_count}')
 
     await send_msg_handler(bot, event, '宗门列表', bot.self_id, msg_list)
     await sect_list.finish()

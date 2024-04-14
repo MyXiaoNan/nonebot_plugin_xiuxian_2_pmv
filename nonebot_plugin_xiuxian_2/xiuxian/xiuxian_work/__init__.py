@@ -15,7 +15,7 @@ from datetime import datetime
 from ..xiuxian_utils.xiuxian_opertion import do_is_work
 from ..xiuxian_utils.utils import check_user, check_user_type, get_msg_pic
 from nonebot.log import logger
-from .reward_data_source import PLAYERSDATA
+from .reward_data_source import PLAYERSDATA, WORKDATA
 from ..xiuxian_utils.item_json import Items
 from ..xiuxian_utils.xiuxian_config import USERRANK, XiuConfig
 import sqlite3
@@ -29,10 +29,25 @@ sql_message = XiuxianDateManage()  # sql类
 items = Items()
 lscost = 1000000000 # 刷新灵石消耗
 count = 3  # 免费次数
+db_path = str(WORKDATA / "refreshnum.db")
 
+
+def init_db():
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS refreshnum (
+        user_id INTEGER PRIMARY KEY,
+        usernums INTEGER NOT NULL
+    )
+    ''')
+    conn.commit()
+    conn.close()
+
+init_db()
 
 # 重置悬赏令刷新次数
-@resetrefreshnum.scheduled_job("cron", hour=8, minute=0)
+@resetrefreshnum.scheduled_job("cron", hour=0, minute=0)
 async def resetrefreshnum_():
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
@@ -45,11 +60,10 @@ async def resetrefreshnum_():
     
     # 提交事务
     conn.commit()
-    
+
     # 关闭连接
     conn.close()
 
-    logger.info("用户悬赏令刷新次数重置成功")
     logger.opt(colors=True).info("<green>用户悬赏令刷新次数重置成功</green>")
 
 def get_or_create_usernum(user_id):
@@ -92,6 +106,7 @@ def update_usernum(user_id, new_usernum):
 
     # 关闭连接
     conn.close()
+
 
 last_work = on_command("最后的悬赏令", priority=15, block=True)
 do_work = on_regex(
@@ -241,16 +256,8 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await do_work.finish()
     mode = args[0]  # 刷新、终止、结算、接取
-    if USERRANK[user_info.level] <= 12:
+    if USERRANK[user_info.level] <= 14 or user_info.exp >= sql_message.get_level_power(user_level):
         msg = f"道友的境界已过创业初期，悬赏令已经不能满足道友了！"
-        if XiuConfig().img:
-            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
-            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
-        else:
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-        await do_work.finish()
-    if user_info.exp >= sql_message.get_level_power(user_level):
-        msg = f"道友的实力已过创业初期，悬赏令已经不能满足道友了！"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
