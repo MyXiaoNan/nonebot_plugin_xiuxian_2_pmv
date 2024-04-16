@@ -28,7 +28,7 @@ from ..xiuxian_utils.item_json import Items
 from ..xiuxian_utils.utils import (
     check_user, get_msg_pic, 
     send_msg_handler, CommandObjectID,
-    Txt2Img
+    Txt2Img, number_to
 )
 from ..xiuxian_utils.xiuxian2_handle import (
     XiuxianDateManage, OtherSet,
@@ -237,7 +237,7 @@ async def xiuxian_sone_(bot: Bot, event: GroupMessageEvent):
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await xiuxian_sone.finish()
-    msg = f"当前灵石：{user_info.stone}"
+    msg = f"当前灵石：{(user_info.stone)}"
     if XiuConfig().img:
         pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
         await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -894,8 +894,8 @@ async def main_back_(bot: Bot, event: GroupMessageEvent):
 
     if len(msg) >= 98: #背包更新
         # 将第一条消息和第二条消息合并为一条消息
-        msg1 = [f"{user_info.user_name}的背包，持有灵石：{user_info.stone}枚"] + msg[:98]
-        msg2 = [f"{user_info.user_name}的背包，持有灵石：{user_info.stone}枚"] + msg[98:]
+        msg1 = [f"{user_info.user_name}的背包，持有灵石：{number_to(user_info.stone)}枚"] + msg[:98]
+        msg2 = [f"{user_info.user_name}的背包，持有灵石：{number_to(user_info.stone)}枚"] + msg[98:]
         try:
             await send_msg_handler(bot, event, '背包', bot.self_id, msg1)
             if msg2:
@@ -905,7 +905,7 @@ async def main_back_(bot: Bot, event: GroupMessageEvent):
         except ActionFailed:
             await main_back.finish("查看背包失败!", reply_message=True)
     else:
-        msg = [f"{user_info.user_name}的背包，持有灵石：{user_info.stone}枚"] + msg
+        msg = [f"{user_info.user_name}的背包，持有灵石：{number_to(user_info.stone)}枚"] + msg
         try:
             await send_msg_handler(bot, event, '背包', bot.self_id, msg)
         except ActionFailed:
