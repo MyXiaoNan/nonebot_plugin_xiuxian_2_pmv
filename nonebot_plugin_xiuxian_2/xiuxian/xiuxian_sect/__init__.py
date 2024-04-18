@@ -14,10 +14,10 @@ from nonebot.adapters.onebot.v11 import (
     MessageSegment,
     ActionFailed
 )
-from ..xiuxian_utils.lay_out import assign_bot, Cooldown
+from ..xiuxian_utils.lay_out import assign_bot, Cooldown, assign_bot_group
 from nonebot.params import CommandArg
 from ..xiuxian_utils.data_source import jsondata
-from ..xiuxian_utils.xiuxian_config import XiuConfig, USERRANK
+from ..xiuxian_utils.xiuxian_config import XiuConfig, USERRANK, JsonConfig
 from .sectconfig import get_config
 from ..xiuxian_utils.utils import (
     check_user, number_to,
@@ -58,7 +58,7 @@ sect_buff_info = on_command("宗门功法查看", aliases={"查看宗门功法"}
 sect_users = on_command("宗门成员查看", aliases={"查看宗门成员"}, priority=8, permission=GROUP, block=True)
 sect_elixir_room_make = on_command("宗门丹房建设", aliases={"建设宗门丹房"}, priority=5, permission=GROUP, block=True)
 sect_elixir_get = on_command("宗门丹药领取", aliases={"领取宗门丹药领取"}, priority=5, permission=GROUP, block=True)
-
+sect_rename = on_command("宗门改名", priority=5,  permission=GROUP, block=True)
 __sect_help__ = f"""
 指令：
 1、我的宗门:查看当前所处宗门信息
@@ -66,20 +66,21 @@ __sect_help__ = f"""
 3、加入宗门:加入一个宗门
 4、宗门职位变更:宗主可以改变宗门成员的职位等级【0 1 2 3 4】分别对应【宗主 长老 亲传 内门 外门】外门弟子无法获得宗门修炼资源
 5、宗门捐献:建设宗门，提高宗门建设度，每{config["等级建设度"]}建设度会提高1级攻击修炼等级上限
-6、退出宗门:退出当前宗门
-7、踢出宗门:踢出对应宗门成员,需要输入正确的qq号或at对方
-8、宗主传位:宗主可以传位宗门成员
-9、升级攻击修炼:升级道友的攻击修炼等级,每级修炼等级提升4%攻击力
-10、宗门列表:查看所有宗门列表
-11、宗门任务接取、我的宗门任务:接取宗门任务，可以增加宗门建设度和资材，每日上限：{config["每日宗门任务次上限"]}次
-12、宗门任务完成:完成所接取的宗门任务，完成间隔时间：{config["宗门任务完成cd"]}秒
-13、宗门任务刷新:刷新当前所接取的宗门任务，刷新间隔时间：{config["宗门任务刷新cd"]}秒
-14、宗门功法、神通搜寻:宗主可消耗宗门资材和宗门灵石搜寻功法或者神通
-15、学习宗门功法、神通:宗门成员可消耗宗门资材来学习宗门功法或者神通，后接功法名称
-16、宗门功法查看:查看当前宗门已有的功法
-17、宗门成员查看、查看宗门成员:查看所在宗门的成员信息
-18、宗门丹房建设、建设宗门丹房:建设宗门丹房，可以让每个宗门成员每日领取丹药
-19、宗门丹药领取、领取宗门丹药领取:领取宗门丹药
+6、宗门改名:宗主可以改变宗门名称
+7、退出宗门:退出当前宗门
+8、踢出宗门:踢出对应宗门成员,需要输入正确的qq号或at对方
+9、宗主传位:宗主可以传位宗门成员
+10、升级攻击修炼:升级道友的攻击修炼等级,每级修炼等级提升4%攻击力
+11、宗门列表:查看所有宗门列表
+12、宗门任务接取、我的宗门任务:接取宗门任务，可以增加宗门建设度和资材，每日上限：{config["每日宗门任务次上限"]}次
+13、宗门任务完成:完成所接取的宗门任务，完成间隔时间：{config["宗门任务完成cd"]}秒
+14、宗门任务刷新:刷新当前所接取的宗门任务，刷新间隔时间：{config["宗门任务刷新cd"]}秒
+15、宗门功法、神通搜寻:宗主可消耗宗门资材和宗门灵石搜寻功法或者神通
+16、学习宗门功法、神通:宗门成员可消耗宗门资材来学习宗门功法或者神通，后接功法名称
+17、宗门功法查看:查看当前宗门已有的功法
+18、宗门成员查看、查看宗门成员:查看所在宗门的成员信息
+19、宗门丹房建设、建设宗门丹房:建设宗门丹房，可以让每个宗门成员每日领取丹药
+20、宗门丹药领取、领取宗门丹药领取:领取宗门丹药
 非指令：
 1、拥有定时任务:每日{config["发放宗门资材"]["时间"]}点发放{config["发放宗门资材"]["倍率"]}倍对应宗门建设度的资材
 2、道统传承: 宗主|长老|亲传弟子|内门弟子|外门弟子|散修 单次稳定获得百分比修为上限分别为 
@@ -1202,6 +1203,95 @@ async def sect_owner_change_(bot: Bot, event: GroupMessageEvent, args: Message =
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await sect_owner_change.finish()
+
+
+@sect_rename.handle(parameterless=[Cooldown(at_sender=True)])
+async def sect_rename_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
+    """宗门改名"""
+    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    isUser, user_info, msg = check_user(event)
+    if not isUser:
+        if XiuConfig().img:
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
+            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+        else:
+            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await sect_rename.finish()
+    user_id = user_info.user_id
+    if not user_info.sect_id:
+        msg = "道友还未加入一方宗门。"
+        if XiuConfig().img:
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
+            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+        else:
+            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await sect_rename.finish()
+    position_this = [k for k, v in jsondata.sect_config_data().items() if v.get("title", "") == "宗主"]
+    owner_position = int(position_this[0]) if len(position_this) == 1 else 0
+    if user_info.sect_position != owner_position:
+        msg = "只有宗主才能进行改名！"
+        if XiuConfig().img:
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
+            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+        else:
+            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await sect_rename.finish()
+
+    else:
+        # 获取新的宗门名称
+        update_sect_name = args.extract_plain_text().strip()
+        sect_id = user_info.sect_id
+        sect_info = sql_message.get_sect_info(sect_id)
+        enabled_groups = JsonConfig().get_enabled_groups()
+        len_sect_name = len(update_sect_name.encode('gbk'))
+
+        if len_sect_name > 20:
+            msg = f"道友输入的宗门名字过长,请重新输入！"
+            if XiuConfig().img:
+                pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
+                await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+            else:
+                await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+            await sect_rename.finish()
+        
+        elif sect_info.sect_used_stone < XiuConfig().sect_rename_cost:
+            msg = f"道友宗门灵石储备不足，还需{number_to(XiuConfig().sect_rename_cost - sect_info.sect_used_stone)}灵石!"
+            if XiuConfig().img:
+                pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
+                await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+            else:
+                await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+            await sect_rename.finish()
+
+        elif update_sect_name is None:
+            if XiuConfig().img:
+                pic = await get_msg_pic(f"@{event.sender.nickname}\n" + "道友确定要改名无名之宗门？还请三思。")
+                await bot.send_group_msg(group_id=event.group_id, message=MessageSegment.image(pic))
+            await sect_rename.finish()
+
+        elif sql_message.update_sect_name(sect_id, update_sect_name) is False:
+            if XiuConfig().img:
+                pic = await get_msg_pic(f"@{event.sender.nickname}\n" + "已存在同名宗门(自己宗门名字一样的就不要改了),请重新输入！")
+                await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+        
+        else:
+            sql_message.update_sect_name(sect_id, update_sect_name)
+            sql_message.update_sect_used_stone(sect_id, XiuConfig().sect_rename_cost, 2)
+            msg = f"传宗门：{sect_info.sect_name}宗主{user_info.user_name}法旨，宗门易名为{update_sect_name}！"
+            msg += f"\n星斗更迭，法器灵通，神光熠熠。新名乃天地之灵，愿同门共沐神光，共护宗门千世荣光！"
+            msg += f"\n青天无云，道韵长存，灵气飘然。新名承宇宙之韵，愿同门同心同德，共铸宗门万世辉煌！"
+            for group_id in enabled_groups:
+                bot = await assign_bot_group(group_id=group_id)
+                try:
+                    if XiuConfig().img:
+                        pic = await get_msg_pic(msg)
+                        await bot.send_group_msg(group_id=int(group_id), message=MessageSegment.image(pic))
+                    else:
+                        await bot.send_group_msg(group_id=int(group_id), message=msg)
+                except ActionFailed:  # 发送群消息失败
+                    continue
+            await sect_rename.finish()
+            
 
 
 @create_sect.handle(parameterless=[Cooldown(at_sender=True)])

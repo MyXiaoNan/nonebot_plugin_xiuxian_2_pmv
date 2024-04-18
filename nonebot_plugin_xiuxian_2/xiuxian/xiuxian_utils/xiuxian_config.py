@@ -103,6 +103,7 @@ class XiuConfig:
         # "123456":"123456",
         self.sect_min_level = "铭纹境圆满" # 创建宗门最低境界
         self.sect_create_cost = 5000000 # 创建宗门消耗
+        self.sect_rename_cost = 5000000000 # 宗门改名消耗
         self.closing_exp_upper_limit = 3  # 闭关获取修为上限（例如：1.5 下个境界的修为数*1.5）
         self.level_punishment_floor = 1  # 突破失败扣除修为，惩罚下限（百分比）
         self.level_punishment_limit = 10  # 突破失败扣除修为，惩罚上限(百分比)
@@ -110,6 +111,7 @@ class XiuConfig:
         self.sign_in_lingshi_lower_limit = 1000000  # 每日签到灵石下限
         self.sign_in_lingshi_upper_limit = 5000000  # 每日签到灵石上限
         self.beg_max_level = "铭纹境圆满" # 仙途奇缘能领灵石最高境界
+        self.beg_max_days = 7 # 仙途奇缘能领灵石最多天数
         self.beg_lingshi_lower_limit = 200000000  # 仙途奇缘灵石下限
         self.beg_lingshi_upper_limit = 500000000  # 仙途奇缘灵石上限
         self.tou = 1000000  # 偷灵石惩罚
@@ -144,25 +146,30 @@ class JsonConfig:
             key: 群聊 1 为开启， 2为关闭,默认关闭
         """
         json_data = self.read_data()
+        group_list = json_data.get('group', [])
         if key == 1:
-            try:
-                json_data['group'].append(group_id)
-            except ValueError:
-                print('加入数据失败')
-                return False
+            if group_id not in group_list:
+                try:
+                    group_list.append(group_id)
+                    json_data['group'] = group_list
+                except Exception as e:
+                    print(e)
+                    return False
         elif key == 2:
-            try:
-                json_data['group'].remove(group_id)
-            except ValueError:
-                print('删除数据失败')
-                return False
+            if group_id in group_list:
+                try:
+                    group_list.remove(group_id)
+                    json_data['group'] = group_list
+                except Exception as e:
+                    print(e)
+                    return False
         else:
             print('未知key')
             return False
 
         with open(self.config_jsonpath, 'w', encoding='utf-8') as f:
             json.dump(json_data, f, ensure_ascii=False, indent=4)
-
+            
     def get_enabled_groups(self):
         """获取开启修仙功能的群聊列表，去除重复项"""
         data = self.read_data()
