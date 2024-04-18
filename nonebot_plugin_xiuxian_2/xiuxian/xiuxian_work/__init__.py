@@ -22,7 +22,6 @@ import sqlite3
 
 # 定时任务
 resetrefreshnum = require("nonebot_plugin_apscheduler").scheduler
-
 work = {}  # 悬赏令信息记录
 refreshnum: Dict[str, int] = {}  # 用户悬赏令刷新次数记录
 sql_message = XiuxianDateManage()  # sql类

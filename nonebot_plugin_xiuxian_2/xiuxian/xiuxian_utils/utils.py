@@ -440,8 +440,8 @@ async def send_msg_handler(bot, event, *args, msg_type=None):
         if len(args) == 3:
             name, uin, msgs = args
             img = Txt2Img()
-            combined_msg = '\n'.join(msgs)
-            img_data = await img.draw_to(combined_msg)
+            messages = '\n'.join(msgs)
+            img_data = await img.draw_to(messages)
             if isinstance(event, GroupMessageEvent):
                 await bot.send_group_msg(group_id=event.group_id, message=MessageSegment.image(img_data))
             else:
@@ -449,8 +449,8 @@ async def send_msg_handler(bot, event, *args, msg_type=None):
         elif len(args) == 1 and isinstance(args[0], list):
             messages = args[0]
             img = Txt2Img()
-            combined_msg = '\n'.join([str(msg['data']['content']) for msg in messages])
-            img_data = await img.draw_to(combined_msg)
+            messages = '\n'.join([str(msg['data']['content']) for msg in messages])
+            img_data = await img.draw_to(messages)
             if isinstance(event, GroupMessageEvent):
                 await bot.send_group_msg(group_id=event.group_id, message=MessageSegment.image(img_data))
             else:

@@ -25,8 +25,8 @@ impart_buff = namedtuple("xiuxian_impart",
 
 SKILLPATHH = DATABASE / "功法"
 WEAPONPATH = DATABASE / "装备"
-num = '578043031'
-
+num = "578043031"
+impart_num = "123451234"
 items = Items()
 
 xiuxian_data = namedtuple("xiuxian_data", ["no", "user_id", "linggen", "level"])
@@ -212,7 +212,7 @@ class XiuxianDateManage:
     def _create_user(self, user_id: str, root: str, type: str, power: str, create_time, user_name) -> None:
         """在数据库中创建用户并初始化"""
         c = self.conn.cursor()
-        sql = f"INSERT INTO user_xiuxian (user_id,stone,root,root_type,level,power,create_time,user_name,exp,is_beg,is_ban) VALUES (?,0,?,?,'江湖好手',?,?,?,100,0,0)"
+        sql = f"INSERT INTO user_xiuxian (user_id,stone,root,root_type,level,power,create_time,user_name,exp,is_ban) VALUES (?,0,?,?,'江湖好手',?,?,?,100,0)"
         c.execute(sql, (user_id, root, type, power, create_time, user_name))
         self.conn.commit()
 
@@ -461,7 +461,7 @@ class XiuxianDateManage:
         self.conn.commit()
 
     def ban_user(self, user_id):
-        """小黑屋"""
+        """小黑屋，暂时没用"""
         sql = f"UPDATE user_xiuxian SET is_ban=1 where user_id=?"
         cur = self.conn.cursor()
         cur.execute(sql, (user_id,))
@@ -534,6 +534,26 @@ class XiuxianDateManage:
         cur = self.conn.cursor()
         cur.execute(sql, (sect_name, user_id))
         self.conn.commit()
+
+    def update_sect_name(self, sect_id, sect_name) -> None:
+        """
+        修改宗门名称
+        :param sect_id: 宗门id
+        :param sect_name: 宗门名称
+        :return: 返回是否更新成功的标志，True表示更新成功，False表示更新失败（已存在同名宗门）
+        """
+        cur = self.conn.cursor()
+        get_sect_name = f"select sect_name from sects where sect_name=?"
+        cur.execute(get_sect_name, (sect_name,))
+        result = cur.fetchone()
+        if result:
+            return False
+        else:
+            sql = f"UPDATE sects SET sect_name=? WHERE sect_id=?"
+            cur = self.conn.cursor()
+            cur.execute(sql, (sect_name, sect_id))
+            self.conn.commit()
+            return True
 
     def get_sect_info_by_qq(self, user_id):
         """
@@ -760,10 +780,10 @@ class XiuxianDateManage:
 
     def update_user_is_beg(self, user_id, is_beg):
         """
-        更新用户的最后乞讨时间
+        更新用户的最后奇缘时间
 
         :param user_id: 用户ID
-        :param is_beg: 最后乞讨的日期时间，格式为 'YYYY-MM-DD HH:MM:SS'
+        :param is_beg: 'YYYY-MM-DD HH:MM:SS'
         """
         cur = self.conn.cursor()
         sql = "UPDATE user_xiuxian SET is_beg=? WHERE user_id=?"
@@ -790,6 +810,19 @@ class XiuxianDateManage:
         cur = self.conn.cursor()
         cur.execute(sql, (stone_num, stone_num * 1, sect_id))
         self.conn.commit()
+
+    def update_sect_used_stone(self, sect_id, sect_used_stone, key):
+        """更新宗门灵石储备  1为增加,2为减少"""
+        cur = self.conn.cursor()
+
+        if key == 1:
+            sql = f"UPDATE sects SET sect_used_stone=sect_used_stone+? WHERE sect_id=?"
+            cur.execute(sql, (sect_used_stone, sect_id))
+            self.conn.commit()
+        elif key == 2:
+            sql = f"UPDATE sects SET sect_used_stone=sect_used_stone-? WHERE sect_id=?"
+            cur.execute(sql, (sect_used_stone, sect_id))
+            self.conn.commit()
 
     def update_sect_materials(self, sect_id, sect_materials, key):
         """更新资材  1为增加,2为减少"""
@@ -1464,18 +1497,18 @@ async def close_db():
 
 # 这里是虚神界部分
 class XIUXIAN_IMPART_BUFF:
-    global num
+    global impart_num
     _instance = {}
     _has_init = {}
 
     def __new__(cls):
-        if cls._instance.get(num) is None:
-            cls._instance[num] = super(XIUXIAN_IMPART_BUFF, cls).__new__(cls)
-        return cls._instance[num]
+        if cls._instance.get(impart_num) is None:
+            cls._instance[impart_num] = super(XIUXIAN_IMPART_BUFF, cls).__new__(cls)
+        return cls._instance[impart_num]
 
     def __init__(self):
-        if not self._has_init.get(num):
-            self._has_init[num] = True
+        if not self._has_init.get(impart_num):
+            self._has_init[impart_num] = True
             self.database_path = DATABASE_IMPARTBUFF
             if not self.database_path.exists():
                 self.database_path.mkdir(parents=True)

@@ -567,8 +567,7 @@ ST2 ={
 async def Boss_fight(player1: dict, boss: dict, type_in=2, bot_id=0):
     """
     回合制战斗
-    type_in : 1-切磋，不消耗气血、真元
-              2-战斗，消耗气血、真元
+    战斗，消耗气血、真元
     数据示例：
     {"user_id": None,"道号": None, "气血": None, "攻击": None, "真元": None, '会心':None, 'exp':None}
     """

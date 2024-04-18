@@ -63,7 +63,7 @@ gmm_command = on_command("轮回力量", permission=SUPERUSER, priority=10, bloc
 cz = on_command('创造力量', permission=SUPERUSER, priority=15,block=True)
 rob_stone = on_command("抢劫", aliases={"抢灵石","拿来吧你"}, priority=5, permission=GROUP, block=True)
 restate = on_command("重置状态", permission=SUPERUSER, priority=12, block=True)
-open_xiuxian = on_command("启用修仙功能", aliases={'禁用修仙功能'}, permission=SUPERUSER, priority=5, block=True)
+set_xiuxian = on_command("启用修仙功能", aliases={'禁用修仙功能'}, permission=GROUP and (SUPERUSER | GROUP_ADMIN | GROUP_OWNER), priority=5, block=True)
 user_leveluprate = on_command('我的突破概率', aliases={'突破概率'}, priority=5, permission=GROUP, block=True)
 xiuxian_updata_level = on_fullmatch('修仙适配', priority=15, permission=GROUP, block=True)
 xiuxian_uodata_data = on_fullmatch('更新记录', priority=15, permission=GROUP, block=True)
@@ -104,8 +104,8 @@ __xiuxian_notes__ = f"""
 __warring_help__ = f"""
 散尽修为，轮回重修，将万世的道果凝聚为极致天赋
 修为、功法、神通将被清空！！
-进入千世轮回后获得轮回灵根，可定制极品仙器(找少姜)
-进入万世轮回后获得真轮回灵根，可定制无上仙器(找少姜)
+进入千世轮回后获得轮回灵根，可定制极品仙器(找超管)
+进入万世轮回后获得真轮回灵根，可定制无上仙器(找超管)
 自废修为：字面意思，慎重选择
 """.strip()
 
@@ -429,8 +429,7 @@ async def remaname_(bot: Bot, event: GroupMessageEvent, args: Message = CommandA
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await remaname.finish()
-    mes = sql_message.update_user_name(user_id, user_name)
-    msg = mes
+    msg = sql_message.update_user_name(user_id, user_name)
     if XiuConfig().img:
         pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
         await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -1156,7 +1155,6 @@ async def gm_command_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
                     await bot.send_group_msg(group_id=int(group_id), message=msg)
             except ActionFailed:  # 发送群消息失败
                 continue
-
     await gm_command.finish()
 
 @cz.handle(parameterless=[Cooldown(at_sender=True)])
@@ -1490,7 +1488,7 @@ async def restate_(bot: Bot, event: GroupMessageEvent, args: Message = CommandAr
         await restate.finish()
 
 
-@open_xiuxian.handle()
+@set_xiuxian.handle()
 async def open_xiuxian_(bot: Bot, event: GroupMessageEvent):
     """群修仙开关配置"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -1504,7 +1502,7 @@ async def open_xiuxian_(bot: Bot, event: GroupMessageEvent):
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-        await open_xiuxian.finish()
+        await set_xiuxian.finish()
 
     elif "禁用" in group_msg:
         JsonConfig().write_data(2, group_id)  # 删除
@@ -1514,7 +1512,7 @@ async def open_xiuxian_(bot: Bot, event: GroupMessageEvent):
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-        await open_xiuxian.finish()
+        await set_xiuxian.finish()
     else:
         msg = "指令错误，请输入：启用修仙功能/禁用修仙功能"
         if XiuConfig().img:
@@ -1522,7 +1520,7 @@ async def open_xiuxian_(bot: Bot, event: GroupMessageEvent):
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-        await open_xiuxian.finish()
+        await set_xiuxian.finish()
 
 
 @xiuxian_updata_level.handle(parameterless=[Cooldown(at_sender=True)])

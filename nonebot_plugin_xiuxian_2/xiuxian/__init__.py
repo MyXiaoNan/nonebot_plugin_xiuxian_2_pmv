@@ -23,7 +23,7 @@ try:
     NICKNAME: str = list(DRIVER.config.nickname)[0]
 except Exception as e:
     logger.opt(colors=True).info(f"<red>缺少超级用户配置文件，{e}!</red>")
-    logger.opt(colors=True).info(f"<red>请去env文件中设置超级用户QQ号!</red>")
+    logger.opt(colors=True).info(f"<red>请去.env.dev文件中设置超级用户QQ号以及nickname!</red>")
     NICKNAME = 'bot'
 
 try:
