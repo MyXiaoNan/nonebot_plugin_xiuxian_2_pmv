@@ -55,21 +55,44 @@ sql_message = XiuxianDateManage()  # sql类
 xiuxian_impart = XIUXIAN_IMPART_BUFF()
 
 
+def check_rule_bot_boss() -> Rule:  # 对传入的消息检测，是主qq传入的消息就响应，其他的不响应
+    async def _check_bot_(bot: Bot, event: GroupMessageEvent) -> bool:
+        if (event.sender.role == "admin" or
+                event.sender.role == "owner" or
+                event.get_user_id() in bot.config.superusers or
+                event.get_user_id() in del_boss_id):
+            return True
+        else:
+            return False
+
+    return Rule(_check_bot_)
+
+def check_rule_bot_boss_s() -> Rule:  # 对传入的消息检测，是主qq传入的消息就响应，其他的不响应
+    async def _check_bot_(bot: Bot, event: GroupMessageEvent) -> bool:
+        if (event.get_user_id() in bot.config.superusers or
+                event.get_user_id() in gen_boss_id):
+            return True
+        else:
+            return False
+
+    return Rule(_check_bot_)
+
 
 create = on_command("生成世界boss", aliases={"生成世界Boss", "生成世界BOSS"}, priority=5,
-                    permission=GROUP and (SUPERUSER), block=True)
+                    rule=check_rule_bot_boss_s(), block=True)
 create_appoint = on_command("生成指定世界boss", aliases={"生成指定世界boss", "生成指定世界BOSS", "生成指定BOSS", "生成指定boss"}, priority=5,
-                            permission=GROUP and (SUPERUSER))
-boss_info = on_command("查询世界boss", aliases={"查询世界Boss", "查询世界BOSS"}, priority=6, permission=GROUP, block=True)
+                            rule=check_rule_bot_boss_s())
+boss_info = on_command("查询世界boss", aliases={"查询世界Boss", "查询世界BOSS", "查询boss"}, priority=6, permission=GROUP, block=True)
 set_group_boss = on_command("世界boss", aliases={"世界Boss", "世界BOSS"}, priority=13,
                             permission=GROUP and (SUPERUSER | GROUP_ADMIN | GROUP_OWNER), block=True)
 battle = on_command("讨伐boss", aliases={"讨伐世界boss", "讨伐Boss", "讨伐BOSS", "讨伐世界Boss", "讨伐世界BOSS"}, priority=6,
                     permission=GROUP, block=True)
 boss_help = on_command("世界boss帮助", aliases={"世界Boss帮助", "世界BOSS帮助"}, priority=5, block=True)
 boss_delete = on_command("天罚boss", aliases={"天罚世界boss", "天罚Boss", "天罚BOSS", "天罚世界Boss", "天罚世界BOSS"}, priority=7,
-                         permission=GROUP and (SUPERUSER | GROUP_ADMIN | GROUP_OWNER), block=True)
-boss_delete_all = on_command("天罚所有boss", aliases={"天罚所有世界boss", "天罚所有Boss", "天罚所有BOSS", "天罚所有世界Boss","天罚所有世界BOSS"}, priority=5,
-                             permission=GROUP and (SUPERUSER | GROUP_ADMIN | GROUP_OWNER), block=True)
+                         rule=check_rule_bot_boss(), block=True)
+boss_delete_all = on_command("天罚所有boss", aliases={"天罚所有世界boss", "天罚所有Boss", "天罚所有BOSS", "天罚所有世界Boss","天罚所有世界BOSS",
+                                                  "天罚全部boss", "天罚全部世界boss"}, priority=5,
+                             rule=check_rule_bot_boss(), block=True)
 boss_integral_info = on_command("世界积分查看",aliases={"查看世界积分", "查询世界积分", "世界积分查询"} ,priority=10, permission=GROUP, block=True)
 boss_integral_use = on_command("世界积分兑换", priority=6, permission=GROUP, block=True)
 
