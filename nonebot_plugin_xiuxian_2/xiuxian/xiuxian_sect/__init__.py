@@ -1277,9 +1277,10 @@ async def sect_rename_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
         else:
             sql_message.update_sect_name(sect_id, update_sect_name)
             sql_message.update_sect_used_stone(sect_id, XiuConfig().sect_rename_cost, 2)
-            msg = f"传宗门：{sect_info.sect_name}宗主{user_info.user_name}法旨，宗门易名为{update_sect_name}！"
-            msg += f"\n星斗更迭，法器灵通，神光熠熠。新名乃天地之灵，愿同门共沐神光，共护宗门千世荣光！"
-            msg += f"\n青天无云，道韵长存，灵气飘然。新名承宇宙之韵，愿同门同心同德，共铸宗门万世辉煌！"
+            msg = f"""传宗门：{sect_info.sect_name}宗主{user_info.user_name}法旨:
+宗门易名为{update_sect_name}！
+星斗更迭，法器灵通，神光熠熠。新名乃天地之灵，愿同门共沐神光，共护宗门千世荣光！
+青天无云，道韵长存，灵气飘然。新名承宇宙之韵，愿同门同心同德，共铸宗门万世辉煌！"""
             for group_id in enabled_groups:
                 bot = await assign_bot_group(group_id=group_id)
                 try:
@@ -1318,11 +1319,8 @@ async def create_sect_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
         msg = f"""创建宗门要求:
 (1)创建者境界最低要求为{XiuConfig().sect_min_level}
 (2)花费{XiuConfig().sect_create_cost}灵石费用
-(3)创建者当前处于无宗门状态。
-道友暂未满足所有条件，请逐一核实后，再来寻我。"""
-        if XiuConfig().img:
-            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
-            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+(3)创建者当前处于无宗门状态。道友暂未满足所有条件，请逐一核实后，再来寻我。"""
+        
     else:
         # 切割command获取宗门名称
         sect_name = args.extract_plain_text().strip()
@@ -1340,12 +1338,12 @@ async def create_sect_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
             msg = f"恭喜{user_info.user_name}道友创建宗门——{sect_name}，宗门编号为{new_sect.sect_id}。为道友贺！为仙道贺！"
         else:
             msg = f"道友确定要创建无名之宗门？还请三思。"
-        if XiuConfig().img:
-            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
-            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
-        else:
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-        await create_sect.finish()
+    if XiuConfig().img:
+        pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
+        await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+    else:
+        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+    await create_sect.finish()
 
 
 @sect_kick_out.handle(parameterless=[Cooldown(at_sender=True)])
