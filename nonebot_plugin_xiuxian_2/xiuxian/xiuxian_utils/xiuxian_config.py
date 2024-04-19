@@ -104,6 +104,7 @@ class XiuConfig:
         self.sect_min_level = "铭纹境圆满" # 创建宗门最低境界
         self.sect_create_cost = 5000000 # 创建宗门消耗
         self.sect_rename_cost = 5000000000 # 宗门改名消耗
+        self.sect_rename_cd = 86400 # 宗门改名cd/秒
         self.closing_exp_upper_limit = 3  # 闭关获取修为上限（例如：1.5 下个境界的修为数*1.5）
         self.level_punishment_floor = 1  # 突破失败扣除修为，惩罚下限（百分比）
         self.level_punishment_limit = 10  # 突破失败扣除修为，惩罚上限(百分比)

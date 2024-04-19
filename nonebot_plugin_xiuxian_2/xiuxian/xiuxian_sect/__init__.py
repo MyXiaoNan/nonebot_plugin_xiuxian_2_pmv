@@ -1205,7 +1205,7 @@ async def sect_owner_change_(bot: Bot, event: GroupMessageEvent, args: Message =
         await sect_owner_change.finish()
 
 
-@sect_rename.handle(parameterless=[Cooldown(at_sender=True)])
+@sect_rename.handle(parameterless=[Cooldown(cd_time=XiuConfig().sect_rename_cd,at_sender=True)])
 async def sect_rename_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """宗门改名"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -1277,10 +1277,15 @@ async def sect_rename_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
         else:
             sql_message.update_sect_name(sect_id, update_sect_name)
             sql_message.update_sect_used_stone(sect_id, XiuConfig().sect_rename_cost, 2)
-            msg = f"""传宗门：{sect_info.sect_name}宗主{user_info.user_name}法旨:
+            msg = f"""
+传宗门——{sect_info.sect_name}
+宗主{user_info.user_name}法旨:
 宗门易名为{update_sect_name}！
-星斗更迭，法器灵通，神光熠熠。新名乃天地之灵，愿同门共沐神光，共护宗门千世荣光！
-青天无云，道韵长存，灵气飘然。新名承宇宙之韵，愿同门同心同德，共铸宗门万世辉煌！"""
+
+            星斗更迭，法器灵通，神光熠熠。
+          愿同门共沐神光，共护宗门千世荣光！
+            青天无云，道韵长存，灵气飘然。
+          愿同门同心同德，共铸宗门万世辉煌！"""
             for group_id in enabled_groups:
                 bot = await assign_bot_group(group_id=group_id)
                 try:
