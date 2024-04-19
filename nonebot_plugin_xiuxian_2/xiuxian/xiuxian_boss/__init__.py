@@ -4,7 +4,6 @@ except ImportError:
     import json
 import re
 from pathlib import Path
-from ..xiuxian_utils.cd_manager import add_cd, check_cd, cd_msg
 import random
 import os
 from nonebot.rule import Rule
