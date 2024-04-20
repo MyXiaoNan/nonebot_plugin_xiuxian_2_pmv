@@ -20,6 +20,7 @@ from nonebot.params import Depends
 from nonebot.log import logger
 from base64 import b64encode
 from io import BytesIO
+from PIL import Image
 from PIL import Image, ImageDraw, ImageFont
 from wcwidth import wcwidth
 from tempfile import NamedTemporaryFile
@@ -125,6 +126,7 @@ class Txt2Img:
         self.share_img_width = 1080
         self.line_space = int(size)
         self.lrc_line_space = int(size / 2)
+        self.img_compression_limit = XiuConfig().img_compression_limit  # 压缩率
         
           
     def prepare(self, text, scale):
@@ -244,11 +246,8 @@ class Txt2Img:
 
     async def draw_to(self, text, boss_name="", scale=True):
         loop = asyncio.get_running_loop()
-        # 异步执行 sync_draw_to 来创建图像对象
         out_img = await loop.run_in_executor(None, self.sync_draw_to, text, boss_name, scale)
-        # 然后异步转换图像为base64字符串
-        base64_str = await self.img2b64(out_img)
-        return base64_str
+        return await loop.run_in_executor(None, self.save_image_with_compression, out_img)
 
 
     async def save(self, title, lrc):
@@ -364,24 +363,24 @@ class Txt2Img:
                 fill=text_color,
                 spacing=self.lrc_line_space,
             )
-        base64_str = await self.img2b64(out_img)
-        return base64_str
-    
-
-    def sync_img2b64(self, out_img) -> str:
-        """ 将图片转换为base64 """
         buf = BytesIO()
-        out_img.save(buf, format="PNG")
-        base64_str = "base64://" + b64encode(buf.getvalue()).decode()
-        return base64_str
+        out_img.save(buf, format="WebP")
+        buf.seek(0)
+        return buf
     
-    async def img2b64(self, out_img):
-        loop = asyncio.get_running_loop()
-        with ThreadPoolExecutor() as pool:
-            base64_str = await loop.run_in_executor(pool, self.sync_img2b64, out_img)
-        return base64_str
-    
-    
+    def save_image_with_compression(self, out_img):
+        img_byte_arr = io.BytesIO()
+        # WebP支持无损和有损压缩，可以通过quality参数设置压缩质量
+        compression_quality = 100 - self.img_compression_limit  # 质量从100到0
+        if self.img_compression_limit == 0:
+            out_img.save(img_byte_arr, format="WebP", lossless=True)
+        if self.img_compression_limit >= 100 or self.img_compression_limit < 0:
+            out_img.save(img_byte_arr, format="WebP", quality=compression_quality)
+        else:
+            out_img.save(img_byte_arr, format="WebP", quality=compression_quality)
+        img_byte_arr.seek(0)
+        return img_byte_arr
+
     def wrap(self, string):
         max_width = int(1850 / self.lrc_font_size)
         temp_len = 0
@@ -398,8 +397,6 @@ class Txt2Img:
         return result
 
     
-    
-
 async def get_msg_pic(msg, boss_name="", scale = True):
     img = Txt2Img()
     pic = await img.draw_to(msg, boss_name, scale)
