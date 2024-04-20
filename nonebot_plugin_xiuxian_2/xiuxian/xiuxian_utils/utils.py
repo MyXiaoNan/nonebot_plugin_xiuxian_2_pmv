@@ -1,8 +1,3 @@
-from .xiuxian2_handle import XiuxianDateManage
-from nonebot.adapters.onebot.v11 import (
-    GroupMessageEvent,
-    MessageSegment
-)
 from ..xiuxian_utils.xiuxian_config import XiuConfig
 import os
 import io
@@ -11,6 +6,11 @@ import json
 import math
 import datetime
 import unicodedata
+from .xiuxian2_handle import XiuxianDateManage
+from nonebot.adapters.onebot.v11 import (
+    GroupMessageEvent,
+    MessageSegment
+)
 from nonebot.params import Depends
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
@@ -404,9 +404,8 @@ async def send_msg_handler(bot, event, *args, msg_type=None):
     :param messages: 合并转发的消息列表（字典格式）
     :param msg_type: 关键字参数，可用于传递特定命名参数
     """
-    send_msg_type = msg_type or XiuConfig().send_msg_type
 
-    if send_msg_type == 1:
+    if XiuConfig().merge_forward_send:
         if len(args) == 3:
             name, uin, msgs = args
             messages = [{"type": "node", "data": {"name": name, "uin": uin, "content": msg}} for msg in msgs]
@@ -423,7 +422,7 @@ async def send_msg_handler(bot, event, *args, msg_type=None):
         else:
             raise ValueError("参数数量或类型不匹配")
 
-    elif send_msg_type == 2:
+    else:
         if len(args) == 3:
             name, uin, msgs = args
             img = Txt2Img()
@@ -444,8 +443,7 @@ async def send_msg_handler(bot, event, *args, msg_type=None):
                 await bot.send_private_msg(user_id=event.user_id, message=MessageSegment.image(img_data))
         else:
             raise ValueError("参数数量或类型不匹配")
-    else:
-        raise ValueError("不支持的消息类型")
+
 
 
 

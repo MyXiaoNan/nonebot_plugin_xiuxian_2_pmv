@@ -126,7 +126,7 @@ class XiuConfig:
         self.twolun_min_level = "虚道境初期" # 万世轮回最低境界
         self.del_boss_id = []  # 支持非管理员和超管天罚boss
         self.gen_boss_id = []  # 支持非管理员和超管生成boss
-        self.send_msg_type = 2 # 消息转发类型,1是合并转发2是长图发送
+        self.merge_forward_send = False # 消息转发类型,True是合并转发，False是长图发送
         self.img_compression_limit = 0 # 图片压缩率，0为不压缩，最高100
         self.version = "xiuxian_2.2" # 修仙插件版本
 
