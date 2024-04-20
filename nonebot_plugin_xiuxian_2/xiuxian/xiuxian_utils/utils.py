@@ -1,32 +1,22 @@
 from .xiuxian2_handle import XiuxianDateManage
 from nonebot.adapters.onebot.v11 import (
-    Bot,
-    MessageEvent,
     GroupMessageEvent,
     MessageSegment
 )
-from ..xiuxian_utils.xiuxian_config import USERRANK, XiuConfig
+from ..xiuxian_utils.xiuxian_config import XiuConfig
 import os
 import io
 import asyncio
-import aiofiles
-import base64
 import json
-import random
 import math
 import datetime
 import unicodedata
 from nonebot.params import Depends
-from nonebot.log import logger
-from base64 import b64encode
 from io import BytesIO
-from PIL import Image
 from PIL import Image, ImageDraw, ImageFont
 from wcwidth import wcwidth
-from tempfile import NamedTemporaryFile
 from nonebot.adapters import MessageSegment
 from nonebot.adapters.onebot.v11 import MessageSegment
-from concurrent.futures import ThreadPoolExecutor
 from .data_source import jsondata
 from pathlib import Path
 
@@ -130,7 +120,7 @@ class Txt2Img:
         
           
     def prepare(self, text, scale):
-        text = unicodedata.normalize('NFKC', text)
+        text = unicodedata.normalize("NFKC", text)
         if scale:
             max_text_len = self.img_width - self.left_size -self.right_size
         else:
@@ -142,11 +132,11 @@ class Txt2Img:
         for x in text:
             text_new += x
             text_len +=  use_font.getlength(x)
-            if x == '\n':
+            if x == "\n":
                 text_len = 0
             if text_len >= max_text_len:
                 text_len = 0
-                text_new += '\n'
+                text_new += "\n"
         text_new = text_new.replace("\n\n","\n")        
         text_new = text_new.rstrip()
         line_num = line_num + text_new.count("\n")
@@ -229,7 +219,7 @@ class Txt2Img:
         )
 
         if boss_name:
-            boss_img_path = jsondata.BOSS_IMG / f'{boss_name}.png'
+            boss_img_path = jsondata.BOSS_IMG / f"{boss_name}.png"
             if os.path.exists(boss_img_path):
                 boss_img = Image.open(boss_img_path)
                 base_cc = boss_img.height / img_hight
@@ -332,7 +322,7 @@ class Txt2Img:
 
         if title:
             # 替换textsize为textbbox
-            tmp_img = Image.new('RGB', (1, 1))
+            tmp_img = Image.new("RGB", (1, 1))
             tmp_draw = ImageDraw.Draw(tmp_img)
             user_bbox = tmp_draw.textbbox((0, 0), title, font=user_font, spacing=self.line_space)
             # 四元组(left, top, right, bottom)
