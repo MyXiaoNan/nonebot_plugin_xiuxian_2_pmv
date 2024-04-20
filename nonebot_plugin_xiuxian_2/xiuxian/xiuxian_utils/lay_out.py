@@ -55,11 +55,27 @@ def limit_all_run(user_id: str):
         limit_all_data[user_id]["num"] = num
         return None
 
-_chat_flmt_notice = random.choice(
-    ["慢...慢一..点❤，还有{}秒，让我在歇会！",
-     "冷静一下，还有{}秒，让我在歇会！",
-     "时间还没到，还有{}秒，歇会歇会~~"]
-)
+def format_time(seconds: int) -> str:
+    """将秒数转换为更大的时间单位"""
+    minutes, seconds = divmod(seconds, 60)
+    hours, minutes = divmod(minutes, 60)
+    days, hours = divmod(hours, 24)
+
+    if days > 0:
+        return f"{days}天{hours}小时{minutes}分钟{seconds}秒"
+    elif hours > 0:
+        return f"{hours}小时{minutes}分钟{seconds}秒"
+    elif minutes > 0:
+        return f"{minutes}分钟{seconds}秒"
+    else:
+        return f"{seconds}秒"
+def get_random_chat_notice():
+    return random.choice([
+        "慢...慢一..点❤，还有{}，让我在歇会！",
+        "冷静一下，还有{}，让我在歇会！",
+        "时间还没到，还有{}，歇会歇会~~"
+    ])
+
 bu_ji_notice = random.choice(["别急！","急也没有!","让我先急!"])
 
 class CooldownIsolateLevel(IntEnum):
@@ -161,14 +177,15 @@ def Cooldown(
                 time = int(cd_time - (loop.time() - time_sy[key]))
                 if time <= 1:
                     time = 1
+                formatted_time = format_time(time)
                 if XiuConfig().img:
-                    pic = await get_msg_pic(f"@{event.sender.nickname}\n" + _chat_flmt_notice.format(time))
+                    pic = await get_msg_pic(f"@{event.sender.nickname}\n" + get_random_chat_notice().format(formatted_time))
                     bot = await assign_bot_group(group_id=group_id)
                     await bot.send_group_msg(group_id=int(group_id), message=MessageSegment.image(pic))
                     await matcher.finish()
                 else:
                     bot = await assign_bot_group(group_id=group_id)
-                    await bot.send_group_msg(group_id=int(group_id), message=_chat_flmt_notice.format(time))
+                    await bot.send_group_msg(group_id=int(group_id), message=get_random_chat_notice().format(formatted_time))
                     await matcher.finish()
             else:
                 await matcher.finish()

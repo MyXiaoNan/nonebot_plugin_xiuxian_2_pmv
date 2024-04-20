@@ -54,30 +54,20 @@ NICKNAME = ["xx"]
 
 ## 风控配置
 ```
-配置地址:修仙插件下xiuxian_config.py<br>
-在只有一个qq链接的情况下风控配置应该全部为空，即不配置<br>
-self.put_bot = []  # 接收消息qq,主qq,框架将只处理此qq的消息，不配置将默认设置第一个链接的qq为主qq<br>
-self.main_bo = []  # 负责发送消息的qq,调用lay_out.py 下range_bot函数的情况下需要填写<br>
-self.shield_group = []  # 屏蔽的群聊<br>
-self.layout_bot_dict = {{}}  # QQ所负责的群聊{{群 :bot}}   其中 bot类型 []或str <br>
-示例： {<br>
-    "群123群号" : "对应发送消息的qq号"<br>
-    "群456群号" ： ["对应发送消息的qq号1","对应发送消息的qq号2"]<br>
+配置地址:修仙插件下xiuxian_config.py
+在只有一个qq链接的情况下风控配置应该全部为空，即不配置
+self.put_bot = []  # 接收消息qq,主qq,框架将只处理此qq的消息，不配置将默认设置第一个链接的qq为主qq
+self.main_bo = []  # 负责发送消息的qq,调用lay_out.py 下range_bot函数的情况下需要填写
+self.shield_group = []  # 屏蔽的群聊
+self.layout_bot_dict = {{}}  # QQ所负责的群聊{{群 :bot}}   其中 bot类型 []或str
+示例： {
+    "群123群号" : "对应发送消息的qq号"
+    "群456群号" ： ["对应发送消息的qq号1","对应发送消息的qq号2"]
 }
-当后面qq号为一个字符串时为一对一，为列表时为多对一<br>
+当后面qq号为一个字符串时为一对一，为列表时为多对一
 ```
 ## 一些问题
 
-- 填这个
-  ```
-    plugin_dirs = ["nonebot_plugin_xiuxian_2"]
-  ```
-  或
-    `bot.py`中添加
-- 填这个
-  ```
-    nonebot.load_plugins("src/plugins", "nonebot_plugin_xiuxian_2")
-  ```
 
 
 # 🎉 特别感谢

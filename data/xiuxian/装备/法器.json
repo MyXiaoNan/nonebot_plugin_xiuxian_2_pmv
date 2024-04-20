@@ -814,5 +814,29 @@
         "rank": -5,
         "level": "无上仙器",
         "type": "装备"
+    },
+    "15463": {
+        "name": "百辟",
+        "atk_buff": 1,
+        "crit_buff": 0,
+        "def_buff": 0,
+        "critatk": 0,
+        "zw": 0,
+        "mp_buff": 0,
+        "rank": -5,
+        "level": "无上仙器",
+        "type": "装备"
+    },
+    "15464": {
+        "name": "龙傲天",
+        "atk_buff": 1,
+        "crit_buff": 0,
+        "def_buff": 0,
+        "critatk": 0,
+        "zw": 0,
+        "mp_buff": 0,
+        "rank": -5,
+        "level": "无上仙器",
+        "type": "装备"
     }
 }
