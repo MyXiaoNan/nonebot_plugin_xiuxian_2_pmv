@@ -50,7 +50,51 @@ NICKNAME = ["xx"]
 ## 配置文件
 1、配置文件一般在data/xiuxian文件夹下，自行按照json格式修改即可，一些字段的含义可以进群交流<br>
 2、子插件的配置会在插件运行后在子插件文件中生成config.json文件，该文件字段含义在同级目录的xxxconfig.py有备注。注意：修改配置只需要修改json即可，修改.py文件的话需要删除json文件才会生效，任何修改都需要重启bot<br>
-3.将git下来的data文件夹中的xiuxian文件夹放置于data目录下<br>
+3、记得将git下来的data文件夹放置于bot根目录下<br>
+4、总的参数配置在xiuxian_utils/xiuxian_config.py中
+```
+        self.img = True # 是否使用图片发送，True是使用图片发送，False是使用文字发送
+        self.user_info_image = True # 是否使用图片发送个人信息，True是使用图片发送，False是使用文字发送
+        self.level = list(USERRANK.keys()) # 别动
+        self.user_info_cd = 30  # 我的存档cd/秒
+        self.level_up_cd = 0  # 突破CD(分钟)
+        self.closing_exp = 90  # 闭关每分钟获取的修为
+        self.put_bot = []  # 接收消息qq,主qq，框架将只处理此qq的消息，
+        self.main_bo = []  # 负责发送消息的qq
+        self.shield_group = []  # 屏蔽的群聊
+        self.layout_bot_dict = {}
+        # QQ所负责的群聊
+        # "123456":"123456",
+        self.sect_min_level = "铭纹境圆满" # 创建宗门最低境界
+        self.sect_create_cost = 5000000 # 创建宗门消耗
+        self.sect_rename_cost = 5000000000 # 宗门改名消耗
+        self.sect_rename_cd = 86400 # 宗门改名cd/秒
+        self.closing_exp_upper_limit = 3  # 闭关获取修为上限（例如：1.5 下个境界的修为数*1.5）
+        self.level_punishment_floor = 1  # 突破失败扣除修为，惩罚下限（百分比）
+        self.level_punishment_limit = 10  # 突破失败扣除修为，惩罚上限(百分比)
+        self.level_up_probability = 0.3  # 突破失败增加当前境界突破概率的比例
+        self.sign_in_lingshi_lower_limit = 1000000  # 每日签到灵石下限
+        self.sign_in_lingshi_upper_limit = 5000000  # 每日签到灵石上限
+        self.beg_max_level = "铭纹境圆满" # 仙途奇缘能领灵石最高境界
+        self.beg_max_days = 7 # 仙途奇缘能领灵石最多天数
+        self.beg_lingshi_lower_limit = 200000000  # 仙途奇缘灵石下限
+        self.beg_lingshi_upper_limit = 500000000  # 仙途奇缘灵石上限
+        self.tou = 1000000  # 偷灵石惩罚
+        self.tou_cd = 30  # 偷灵石cd/秒
+        self.battle_boss_cd = 0  # 讨伐bosscd/秒
+        self.dufang_cd = 10  # 金银阁cd/秒
+        self.tou_lower_limit = 0.01  # 偷灵石下限(百分比)
+        self.tou_upper_limit = 0.30  # 偷灵石上限(百分比)
+        self.remake = 100000  # 重入仙途的消费
+        self.lunhui_min_level = "遁一境初期" # 千世轮回最低境界
+        self.twolun_min_level = "虚道境初期" # 万世轮回最低境界
+        self.del_boss_id = []  # 支持非管理员和超管天罚boss
+        self.gen_boss_id = []  # 支持非管理员和超管生成boss
+        self.merge_forward_send = False # 消息转发类型,True是合并转发，False是长图发送
+        self.img_compression_limit = 100 # 图片压缩率，0为不压缩，最高100
+        self.version = "xiuxian_2.2" # 修仙插件版本，别动
+```
+
 
 ## 风控配置
 ```

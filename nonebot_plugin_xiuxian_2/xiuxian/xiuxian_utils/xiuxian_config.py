@@ -89,9 +89,9 @@ class XiuConfig:
                          "atk_buff", "blessed_spot"]
         self.sql_back = ["user_id", "goods_id", "goods_name", "goods_type", "goods_num", "create_time", "update_time",
                          "remake", "day_num", "all_num", "action_time", "state", "bind_num"]
-        self.img = True
-        self.user_info_image = True
-        self.level = list(USERRANK.keys())
+        self.img = True # 是否使用图片发送，True是使用图片发送，False是使用文字发送
+        self.user_info_image = True # 是否使用图片发送个人信息，True是使用图片发送，False是使用文字发送
+        self.level = list(USERRANK.keys()) # 别动
         self.user_info_cd = 30  # 我的存档cd/秒
         self.level_up_cd = 0  # 突破CD(分钟)
         self.closing_exp = 90  # 闭关每分钟获取的修为
@@ -128,7 +128,7 @@ class XiuConfig:
         self.gen_boss_id = []  # 支持非管理员和超管生成boss
         self.merge_forward_send = False # 消息转发类型,True是合并转发，False是长图发送
         self.img_compression_limit = 100 # 图片压缩率，0为不压缩，最高100
-        self.version = "xiuxian_2.2" # 修仙插件版本
+        self.version = "xiuxian_2.2" # 修仙插件版本，别动
 
 
 class JsonConfig:

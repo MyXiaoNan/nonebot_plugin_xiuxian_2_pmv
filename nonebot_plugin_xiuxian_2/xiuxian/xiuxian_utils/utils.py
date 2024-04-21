@@ -393,7 +393,7 @@ async def get_msg_pic(msg, boss_name="", scale = True):
     return pic
 
 
-async def send_msg_handler(bot, event, *args, msg_type=None):
+async def send_msg_handler(bot, event, *kwargs, msg_type=None):
     """
     统一消息发送处理器
     :param bot: 机器人实例
@@ -406,15 +406,15 @@ async def send_msg_handler(bot, event, *args, msg_type=None):
     """
 
     if XiuConfig().merge_forward_send:
-        if len(args) == 3:
-            name, uin, msgs = args
+        if len(kwargs) == 3:
+            name, uin, msgs = kwargs
             messages = [{"type": "node", "data": {"name": name, "uin": uin, "content": msg}} for msg in msgs]
             if isinstance(event, GroupMessageEvent):
                 await bot.call_api("send_group_forward_msg", group_id=event.group_id, messages=messages)
             else:
                 await bot.call_api("send_private_forward_msg", user_id=event.user_id, messages=messages)
-        elif len(args) == 1 and isinstance(args[0], list):
-            messages = args[0]
+        elif len(kwargs) == 1 and isinstance(kwargs[0], list):
+            messages = kwargs[0]
             if isinstance(event, GroupMessageEvent):
                 await bot.call_api("send_group_forward_msg", group_id=event.group_id, messages=messages)
             else:
@@ -423,8 +423,8 @@ async def send_msg_handler(bot, event, *args, msg_type=None):
             raise ValueError("参数数量或类型不匹配")
 
     else:
-        if len(args) == 3:
-            name, uin, msgs = args
+        if len(kwargs) == 3:
+            name, uin, msgs = kwargs
             img = Txt2Img()
             messages = '\n'.join(msgs)
             img_data = await img.draw_to(messages)
@@ -432,8 +432,8 @@ async def send_msg_handler(bot, event, *args, msg_type=None):
                 await bot.send_group_msg(group_id=event.group_id, message=MessageSegment.image(img_data))
             else:
                 await bot.send_private_msg(user_id=event.user_id, message=MessageSegment.image(img_data))
-        elif len(args) == 1 and isinstance(args[0], list):
-            messages = args[0]
+        elif len(kwargs) == 1 and isinstance(kwargs[0], list):
+            messages = kwargs[0]
             img = Txt2Img()
             messages = '\n'.join([str(msg['data']['content']) for msg in messages])
             img_data = await img.draw_to(messages)
