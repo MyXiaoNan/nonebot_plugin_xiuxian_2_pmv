@@ -1,8 +1,7 @@
 import asyncio
-import re
 import random
 from datetime import datetime
-from nonebot import on_command, require, get_bots, on_fullmatch
+from nonebot import on_command, require, on_fullmatch
 from nonebot.adapters.onebot.v11 import (
     Bot,
     GROUP,
