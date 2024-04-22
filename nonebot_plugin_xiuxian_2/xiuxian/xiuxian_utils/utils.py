@@ -1,4 +1,3 @@
-from ..xiuxian_utils.xiuxian_config import XiuConfig
 import os
 import io
 import asyncio
@@ -13,6 +12,7 @@ from nonebot.adapters.onebot.v11 import (
 )
 from nonebot.params import Depends
 from io import BytesIO
+from .xiuxian_config import XiuConfig
 from PIL import Image, ImageDraw, ImageFont
 from wcwidth import wcwidth
 from nonebot.adapters import MessageSegment
@@ -360,12 +360,9 @@ class Txt2Img:
     
     def save_image_with_compression(self, out_img):
         img_byte_arr = io.BytesIO()
-        # WebP支持无损和有损压缩，可以通过quality参数设置压缩质量
         compression_quality = 100 - self.img_compression_limit  # 质量从100到0
-        if self.img_compression_limit == 0:
+        if not (0 < self.img_compression_limit < 100):
             out_img.save(img_byte_arr, format="WebP", lossless=True)
-        if self.img_compression_limit >= 100 or self.img_compression_limit < 0:
-            out_img.save(img_byte_arr, format="WebP", quality=compression_quality)
         else:
             out_img.save(img_byte_arr, format="WebP", quality=compression_quality)
         img_byte_arr.seek(0)
