@@ -1,6 +1,6 @@
-from nonebot import on_command, on_fullmatch
 from ..xiuxian_utils.lay_out import assign_bot, Cooldown
 from nonebot.params import CommandArg
+from nonebot import on_command
 from ..xiuxian_utils.xiuxian_config import XiuConfig
 from ..xiuxian_utils.xiuxian2_handle import XiuxianDateManage
 from nonebot.adapters.onebot.v11 import (
@@ -8,17 +8,14 @@ from nonebot.adapters.onebot.v11 import (
     GROUP,
     Message,
     GroupMessageEvent,
-    MessageSegment,
-    ActionFailed
+    MessageSegment
 )
 from ..xiuxian_utils.utils import (
     check_user, get_msg_pic
 )
 sql_message = XiuxianDateManage()  # sql类
-import re
 from ..xiuxian_utils.item_json import Items
 items = Items()
-from nonebot.permission import SUPERUSER
 
 tz = on_command('合成天罪', priority=15, permission=GROUP,block=True)
 
