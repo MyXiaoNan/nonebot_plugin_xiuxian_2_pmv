@@ -116,7 +116,7 @@ class Txt2Img:
         self.share_img_width = 1080
         self.line_space = int(size)
         self.lrc_line_space = int(size / 2)
-        self.img_compression_limit = XiuConfig().img_compression_limit  # 压缩率
+        self.img_compression_limit = XiuConfig().img_compression_limit # 压缩率
         
           
     def prepare(self, text, scale):
@@ -361,7 +361,7 @@ class Txt2Img:
     def save_image_with_compression(self, out_img):
         img_byte_arr = io.BytesIO()
         compression_quality = 100 - self.img_compression_limit  # 质量从100到0
-        if not (0 < self.img_compression_limit < 100):
+        if not (0 <= self.img_compression_limit <= 100):
             out_img.save(img_byte_arr, format="WebP", lossless=True)
         else:
             out_img.save(img_byte_arr, format="WebP", quality=compression_quality)
