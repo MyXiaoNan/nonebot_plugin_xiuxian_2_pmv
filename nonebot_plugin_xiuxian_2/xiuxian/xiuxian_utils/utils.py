@@ -326,7 +326,7 @@ class Txt2Img:
             tmp_draw = ImageDraw.Draw(tmp_img)
             user_bbox = tmp_draw.textbbox((0, 0), title, font=user_font, spacing=self.line_space)
             # 四元组(left, top, right, bottom)
-            user_w = user_bbox[2] - user_bbox[0]  # 宽度 = right - left
+            user_w = user_bbox[2] - user_bbox[0] # 宽度 = right - left
             user_h = user_bbox[3] - user_bbox[1]
             draw.text(
                 ((w - user_w) // 2, out_padding + padding),

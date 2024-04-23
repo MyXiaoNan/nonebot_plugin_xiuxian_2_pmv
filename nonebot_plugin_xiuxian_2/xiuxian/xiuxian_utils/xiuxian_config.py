@@ -112,7 +112,7 @@ class XiuConfig:
         self.sign_in_lingshi_lower_limit = 1000000  # 每日签到灵石下限
         self.sign_in_lingshi_upper_limit = 5000000  # 每日签到灵石上限
         self.beg_max_level = "铭纹境圆满" # 仙途奇缘能领灵石最高境界
-        self.beg_max_days = 7 # 仙途奇缘能领灵石最多天数
+        self.beg_max_days = 3 # 仙途奇缘能领灵石最多天数
         self.beg_lingshi_lower_limit = 200000000  # 仙途奇缘灵石下限
         self.beg_lingshi_upper_limit = 500000000  # 仙途奇缘灵石上限
         self.tou = 1000000  # 偷灵石惩罚
