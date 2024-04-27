@@ -76,13 +76,14 @@ class XiuConfig:
         self.sql_table = ["user_xiuxian", "user_cd", "sects", "back", "BuffInfo"]  # 数据库表校验
         self.sql_user_xiuxian = ["id", "user_id", "stone", "root",
                                  "root_type", "level", "power",
-                                 "create_time", "is_sign", "exp",
-                                 "user_name", "level_up_cd",
+                                 "create_time", "is_sign", "is_beg", "is_ban", 
+                                 "exp", "user_name", "level_up_cd",
                                  "level_up_rate", "sect_id",
                                  "sect_position", "hp", "mp", "atk",
                                  "atkpractice", "sect_task", "sect_contribution",
                                  "sect_elixir_get", "blessed_spot_flag",
-                                 "blessed_spot_name", "is_beg, is_ban"]  # 数据库字段校验
+                                 "blessed_spot_name"]
+        self.sql_user_cd = ["user_id", "type", "create_time", "scheduled_time", "last_check_info_time"]
         self.sql_sects = ["sect_id", "sect_name", "sect_owner", "sect_scale", "sect_used_stone", "sect_fairyland",
                           "sect_materials", "mainbuff", "secbuff", "elixir_room_level"]
         self.sql_buff = ["id", "user_id", "main_buff", "sec_buff", "faqi_buff", "fabao_weapon", "armor_buff",
@@ -104,7 +105,8 @@ class XiuConfig:
         self.sect_min_level = "铭纹境圆满" # 创建宗门最低境界
         self.sect_create_cost = 5000000 # 创建宗门消耗
         self.sect_rename_cost = 5000000000 # 宗门改名消耗
-        self.sect_rename_cd = 86400 # 宗门改名cd/秒
+        self.sect_rename_cd = 1 # 宗门改名cd/天
+        self.auto_change_sect_owner_cd = 7 # 宗门自动换长时间不玩宗主cd/天
         self.closing_exp_upper_limit = 3  # 闭关获取修为上限（例如：1.5 下个境界的修为数*1.5）
         self.level_punishment_floor = 1  # 突破失败扣除修为，惩罚下限（百分比）
         self.level_punishment_limit = 10  # 突破失败扣除修为，惩罚上限(百分比)
