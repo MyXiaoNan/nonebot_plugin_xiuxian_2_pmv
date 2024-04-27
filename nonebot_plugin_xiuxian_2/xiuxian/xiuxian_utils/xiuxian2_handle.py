@@ -34,8 +34,8 @@ xiuxian_data = namedtuple("xiuxian_data", ["no", "user_id", "linggen", "level"])
 UserDate = namedtuple("UserDate",
                       ["id", "user_id", "stone", "root", "root_type", "level", "power", "create_time", "is_sign", "exp",
                        "user_name", "level_up_cd", "level_up_rate", "sect_id", "sect_position", "hp", "mp", "atk",
-                       "atkpractice",
-                       "sect_task", "sect_contribution", "sect_elixir_get", "blessed_spot_flag", "blessed_spot_name", "is_beg", "is_ban"])
+                       "atkpractice", "sect_task", "sect_contribution", "sect_elixir_get", 
+                       "blessed_spot_flag", "blessed_spot_name", "is_beg", "is_ban"])
 
 UserCd = namedtuple("UserCd", ["user_id", "type", "create_time", "scheduled_time", "last_check_info_time"])
 SectInfo = namedtuple("SectInfo",
@@ -242,6 +242,7 @@ class XiuxianDateManage:
         else:
             return None
 
+
     def get_user_real_info(self, user_id):
         """根据USER_ID获取用户信息,获取功法加成"""
         cur = self.conn.cursor()
@@ -251,7 +252,7 @@ class XiuxianDateManage:
         if not result:
             return None
         else:
-            return UserDate(*final_user_data(result))
+            return UserDate(*final_user_data(result, cur.description))
 
     def get_sect_info(self, sect_id):
         """
@@ -1534,46 +1535,45 @@ sql_message = XiuxianDateManage()  # sql类
 items = Items()
 
 
-
-def final_user_data(user_data):
+def final_user_data(user_data, columns):
     """传入用户当前信息、buff信息,返回最终信息"""
-    user_data = list(user_data)
-    #
-    impart_data = xiuxian_impart.get_user_message(user_data[1])
+    user_dict = dict(zip((col[0] for col in columns), user_data))
+    
+    # 通过字段名称获取相应的值
+    impart_data = xiuxian_impart.get_user_message(user_dict['user_id'])
     if impart_data:
         pass
     else:
-        xiuxian_impart._create_user(user_data[1])
-    impart_data = xiuxian_impart.get_user_message(user_data[1])
+        xiuxian_impart._create_user(user_dict['user_id'])
+    impart_data = xiuxian_impart.get_user_message(user_dict['user_id'])
     impart_hp_per = impart_data.impart_hp_per if impart_data is not None else 0
     impart_mp_per = impart_data.impart_mp_per if impart_data is not None else 0
     impart_atk_per = impart_data.impart_atk_per if impart_data is not None else 0
-    #
-    user_buff_data = UserBuffDate(user_data[1]).BuffInfo
-    #
-    if int(user_buff_data.armor_buff) == 0: #防具攻击
-        armor_atk_buff = 0
-    else:
-        armor_info = items.get_data_by_item_id(user_buff_data.armor_buff) #防具攻击
-        armor_atk_buff = armor_info['atk_buff'] 
-    #
-    if int(user_buff_data.faqi_buff) == 0:
-        weapon_atk_buff = 0
-    else:
+    
+    user_buff_data = UserBuffDate(user_dict['user_id']).BuffInfo
+    
+    armor_atk_buff = 0
+    if int(user_buff_data.armor_buff) != 0:
+        armor_info = items.get_data_by_item_id(user_buff_data.armor_buff)
+        armor_atk_buff = armor_info['atk_buff']
+        
+    weapon_atk_buff = 0
+    if int(user_buff_data.faqi_buff) != 0:
         weapon_info = items.get_data_by_item_id(user_buff_data.faqi_buff)
         weapon_atk_buff = weapon_info['atk_buff']
-    main_buff_data = UserBuffDate(user_data[1]).get_user_main_buff_data()
+    
+    main_buff_data = UserBuffDate(user_dict['user_id']).get_user_main_buff_data()
     main_hp_buff = main_buff_data['hpbuff'] if main_buff_data is not None else 0
     main_mp_buff = main_buff_data['mpbuff'] if main_buff_data is not None else 0
     main_atk_buff = main_buff_data['atkbuff'] if main_buff_data is not None else 0
-    user_data[15] = int(user_data[15] * (1 + main_hp_buff + impart_hp_per))  # hp
-    user_data[16] = int(user_data[16] * (1 + main_mp_buff + impart_mp_per))  # mp
-    user_data[17] = int((user_data[17] * (user_data[18] * 0.04 + 1) * (1 + main_atk_buff) * (
+    
+    # 改成字段名称来获取相应的值
+    user_dict['hp'] = int(user_dict['hp'] * (1 + main_hp_buff + impart_hp_per))
+    user_dict['mp'] = int(user_dict['mp'] * (1 + main_mp_buff + impart_mp_per))
+    user_dict['atk'] = int((user_dict['atk'] * (user_dict['atkpractice'] * 0.04 + 1) * (1 + main_atk_buff) * (
             1 + weapon_atk_buff) * (1 + armor_atk_buff)) * (1 + impart_atk_per)) + int(user_buff_data.atk_buff)
-    # 每级+4%攻击
-    user_data = tuple(user_data)
-    return user_data
-
+    
+    return tuple(user_dict.values())
 
 @DRIVER.on_shutdown
 async def close_db():

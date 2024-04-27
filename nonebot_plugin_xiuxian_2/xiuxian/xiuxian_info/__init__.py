@@ -58,6 +58,7 @@ async def xiuxian_message_(bot: Bot, event: GroupMessageEvent):
         sectmsg = '无宗门'
         sectzw = '无'
 
+    
     # 判断突破的修为
     list_all = len(OtherSet().level) - 1
     now_index = OtherSet().level.index(user_info.level)
@@ -96,6 +97,7 @@ async def xiuxian_message_(bot: Bot, event: GroupMessageEvent):
     main_rate_buff = UserBuffDate(user_id).get_user_main_buff_data() # 功法突破概率提升
     sql_message.update_last_check_info_time(user_id) # 更新查看修仙信息时间
     number =  main_rate_buff['number'] if main_rate_buff is not None else 0
+    print("user_info.level_up_rate:", user_info.level_up_rate)
     DETAIL_MAP = {
         '道号': f'{user_name}',
         '境界': f'{user_info.level}',
@@ -103,7 +105,7 @@ async def xiuxian_message_(bot: Bot, event: GroupMessageEvent):
         '灵石': f'{number_to(user_info.stone)}',
         '战力': f'{number_to(int(user_info.exp * level_rate * realm_rate))}',
         '灵根': f'{user_info.root}({user_info.root_type}+{int(level_rate * 100)}%)',
-        '突破状态': f'{exp_meg}概率：{jsondata.level_rate_data()[user_info.level] + int(user_info.level_up_rate) + number }%',
+        '突破状态': f'{exp_meg}概率：{jsondata.level_rate_data()[user_info.level] + int(user_info.atkpractice) + number}%',
         '攻击力': f'{number_to(user_info.atk)}，攻修等级{user_info.atkpractice}级',
         '所在宗门': sectmsg,
         '宗门职位': sectzw,
@@ -122,7 +124,6 @@ async def xiuxian_message_(bot: Bot, event: GroupMessageEvent):
     
     enabled_groups = JsonConfig().get_enabled_groups()
     all_sect_owners_id = sql_message.get_sect_owners()
-    logger.opt(colors=True).info("<yellow>宗主有这些{}</yellow>".format(all_sect_owners_id))
     all_active = all(sql_message.get_last_check_info_time(owner_id) is None or
                      datetime.now() - sql_message.get_last_check_info_time(owner_id) < timedelta(days=XiuConfig().auto_change_sect_owner_cd)
                      for owner_id in all_sect_owners_id)
