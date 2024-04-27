@@ -19,6 +19,7 @@ from nonebot.params import CommandArg
 from ..xiuxian_utils.data_source import jsondata
 from ..xiuxian_utils.xiuxian_config import XiuConfig, USERRANK, JsonConfig
 from .sectconfig import get_config
+from datetime import datetime, timedelta
 from ..xiuxian_utils.utils import (
     check_user, number_to,
     get_msg_pic, send_msg_handler, CommandObjectID,
@@ -111,7 +112,7 @@ async def resetusertask_():
             elixir_room_cost = config['宗门丹房参数']['elixir_room_level'][str(sect_info.elixir_room_level)]['level_up_cost'][
                 '建设度']
             if sect_info.sect_materials < elixir_room_cost:
-                logger.opt(colors=True).info("<green>该宗门的资材无法维持丹房</green>")
+                logger.opt(colors=True).warning("<red>该宗门的资材无法维持丹房</red>")
                 continue
             else:
                 sql_message.update_sect_materials(sect_id=sect_info.sect_id, sect_materials=elixir_room_cost, key=2)
@@ -1146,6 +1147,7 @@ async def sect_owner_change_(bot: Bot, event: GroupMessageEvent, args: Message =
     """宗主传位"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = check_user(event)
+    enabled_groups = JsonConfig().get_enabled_groups()
     if not isUser:
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
@@ -1192,12 +1194,18 @@ async def sect_owner_change_(bot: Bot, event: GroupMessageEvent, args: Message =
                 sql_message.update_usr_sect(give_user.user_id, give_user.sect_id, owner_position)
                 sql_message.update_usr_sect(user_info.user_id, user_info.sect_id, owner_position + 1)
                 sect_info = sql_message.get_sect_info_by_id(give_user.sect_id)
+                sql_message.update_sect_owner(give_user.user_id, sect_info.sect_id)
                 msg = f"传老宗主{user_info.user_name}法旨，即日起{give_user.user_name}继任{sect_info.sect_name}宗主"
-                if XiuConfig().img:
-                    pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
-                    await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
-                else:
-                    await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+                for group_id in enabled_groups:
+                    bot = await assign_bot_group(group_id=group_id)
+                    try:
+                        if XiuConfig().img:
+                            pic = await get_msg_pic(msg)
+                            await bot.send_group_msg(group_id=int(group_id), message=MessageSegment.image(pic))
+                        else:
+                            await bot.send_group_msg(group_id=int(group_id), message=msg)
+                    except ActionFailed:  # 发送群消息失败
+                        continue
                 await sect_owner_change.finish()
             else:
                 msg = f"{give_user.user_name}不在你管理的宗门内，请检查。"
@@ -1217,7 +1225,7 @@ async def sect_owner_change_(bot: Bot, event: GroupMessageEvent, args: Message =
         await sect_owner_change.finish()
 
 
-@sect_rename.handle(parameterless=[Cooldown(cd_time=XiuConfig().sect_rename_cd,at_sender=True)])
+@sect_rename.handle(parameterless=[Cooldown(cd_time=XiuConfig().sect_rename_cd * 86400,at_sender=True)])
 async def sect_rename_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """宗门改名"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -1229,7 +1237,6 @@ async def sect_rename_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await sect_rename.finish()
-    user_id = user_info.user_id
     if not user_info.sect_id:
         msg = "道友还未加入一方宗门。"
         if XiuConfig().img:

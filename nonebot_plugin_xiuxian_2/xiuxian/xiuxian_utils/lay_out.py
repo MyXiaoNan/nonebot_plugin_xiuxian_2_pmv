@@ -233,7 +233,7 @@ async def range_bot(bot: Bot, event: GroupMessageEvent):  # 随机一个qq发送
     return bot, group_id
 
 
-async def assign_bot(bot: Bot, event: GroupMessageEvent):  # 按字典分配对应qq发送消息
+async def assign_bot(bot=None, event=None):  # 按字典分配对应qq发送消息
     group_id = str(event.group_id)
     try:
         bot_id = layout_bot_dict[group_id]
