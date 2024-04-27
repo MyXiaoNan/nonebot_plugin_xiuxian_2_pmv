@@ -32,10 +32,10 @@ impart_buff = namedtuple("xiuxian_impart",
 
 xiuxian_data = namedtuple("xiuxian_data", ["no", "user_id", "linggen", "level"])
 UserDate = namedtuple("UserDate",
-                      ["id", "user_id", "stone", "root", "root_type", "level", "power", "create_time", "is_sign", "exp",
+                      ["id", "user_id", "stone", "root", "root_type", "level", "power", "create_time", "is_sign", "is_beg", "is_ban", "exp",
                        "user_name", "level_up_cd", "level_up_rate", "sect_id", "sect_position", "hp", "mp", "atk",
                        "atkpractice", "sect_task", "sect_contribution", "sect_elixir_get", 
-                       "blessed_spot_flag", "blessed_spot_name", "is_beg", "is_ban"])
+                       "blessed_spot_flag", "blessed_spot_name"])
 
 UserCd = namedtuple("UserCd", ["user_id", "type", "create_time", "scheduled_time", "last_check_info_time"])
 SectInfo = namedtuple("SectInfo",
