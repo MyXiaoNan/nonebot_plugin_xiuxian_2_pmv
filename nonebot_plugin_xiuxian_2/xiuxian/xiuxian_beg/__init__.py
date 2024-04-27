@@ -72,8 +72,6 @@ async def beg_stone(bot: Bot, event: GroupMessageEvent):
     diff_time = now_time - create_time
     diff_days = diff_time.days # 距离创建账号时间的天数
     
-
-    
     if not isUser:
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
