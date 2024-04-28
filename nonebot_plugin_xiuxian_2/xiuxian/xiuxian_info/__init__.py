@@ -143,7 +143,7 @@ async def xiuxian_message_(bot: Bot, event: GroupMessageEvent):
         sql_message.update_usr_sect(new_owner_id[0], sect_id, 0)
         sql_message.update_sect_owner(new_owner_id[0], sect_id)
         sect_info = sql_message.get_sect_info_by_id(sect_id)
-        msg = f"{user_info['user_name']}久违修行之途，经长老决议，由{new_owner_info['user_name']}继承{sect_info.sect_name}宗主之位，执掌门户，一方风云际会，长保宗门和平。"
+        msg = f"{user_info['user_name']}久违修行之途，经长老决议，由{new_owner_info['user_name']}继承{sect_info['sect_name']}宗主之位，执掌门户，一方风云际会，长保宗门和平。"
         for group_id in enabled_groups:
             bot = await assign_bot_group(group_id=group_id)
             try:

@@ -257,6 +257,7 @@ class XiuxianDateManage:
         else:
             return None
         
+
     def get_sect_owners(self):
         """获取所有宗主的 user_id"""
         cur = self.conn.cursor()
