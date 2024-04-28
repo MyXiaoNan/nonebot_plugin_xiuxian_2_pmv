@@ -1294,7 +1294,7 @@ async def rob_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Command
                 sql_message.update_user_hp(give_qq)
                 user_2 = sql_message.get_user_message(give_qq)
 
-            if user_2['hp'] <= user_2.exp / 10:
+            if user_2['hp'] <= user_2['exp'] / 10:
                 time_2 = leave_harm_time(give_qq)
                 msg = f"对方重伤藏匿了，无法抢劫！距离对方脱离生命危险还需要{time_2}分钟！"
                 if XiuConfig().img:
