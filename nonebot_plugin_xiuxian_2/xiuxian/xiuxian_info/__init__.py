@@ -52,7 +52,7 @@ async def xiuxian_message_(bot: Bot, event: GroupMessageEvent):
     sect_id = user_info['sect_id']
     if sect_id:
         sect_info = sql_message.get_sect_info(sect_id)
-        sectmsg = sect_info.sect_name
+        sectmsg = sect_info['sect_name']
         sectzw = jsondata.sect_config_data()[f"{user_info['sect_position']}"]["title"]
     else:
         sectmsg = "无宗门"

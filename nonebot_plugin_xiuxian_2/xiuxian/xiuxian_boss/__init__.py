@@ -431,7 +431,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
     user_weapon_data = UserBuffDate(userinfo['user_id']).get_user_weapon_data()
 
     impart_data = xiuxian_impart.get_user_message(user_id)
-    boss_atk = impart_data.boss_atk if impart_data.boss_atk is not None else 0
+    boss_atk = impart_data['boss_atk'] if impart_data['boss_atk'] is not None else 0
     user_armor_data = UserBuffDate(userinfo['user_id']).get_user_armor_buff_data() #boss战防具会心
     user_main_data = UserBuffDate(userinfo['user_id']).get_user_main_buff_data() #boss战功法会心
     user1_sub_buff_data = UserBuffDate(userinfo['user_id']).get_user_sub_buff_data() #boss战辅修功法信息

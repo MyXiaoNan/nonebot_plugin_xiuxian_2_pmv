@@ -1730,7 +1730,7 @@ async def join_sect_(bot: Bot, event: GroupMessageEvent, args: Message = Command
 # editer:zyp981204
 @my_sect.handle(parameterless=[Cooldown(at_sender=True)])
 async def my_sect_(bot: Bot, event: GroupMessageEvent):
-    """查看所在宗门信息"""
+    """我的宗门"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = check_user(event)
     if not isUser:

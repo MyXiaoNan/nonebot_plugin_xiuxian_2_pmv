@@ -170,7 +170,7 @@ async def get_boss_battle_info(user_info, rift_rank, bot_id):
         user_rank = 56 - USERRANK[user_info.level]  # 56-用户当前等级 原50
         success_info = STORY['战斗']['Boss战斗']["success"]
         msg = success_info['desc'].format(boss_info["name"])
-        give_exp = int(random.choice(success_info["give"]["exp"]) * user_info.exp)
+        give_exp = int(random.choice(success_info["give"]["exp"]) * user_info['exp'])
         give_stone = (rift_rank + user_rank) * success_info["give"]["stone"]
         sql_message.update_exp(user_info.user_id, give_exp)
         sql_message.update_ls(user_info.user_id, give_stone, 1)  # 负数也挺正常
@@ -188,20 +188,20 @@ def get_dxsj_info(rift_type, user_info):
     cost_type = get_dict_type_rate(battle_data[rift_type]['cost'])
     value = random.choice(battle_data[rift_type]['cost'][cost_type]['value'])
     if cost_type == "exp":
-        exp = int(user_info.exp * value)
+        exp = int(user_info['exp'] * value)
         sql_message.update_j_exp(user_info.user_id, exp)
 
-        nowhp = user_info.hp - (exp / 2) if (user_info.hp - (exp / 2)) > 0 else 1
-        nowmp = user_info.mp - exp if (user_info.mp - exp) > 0 else 1
+        nowhp = user_info['hp'] - (exp / 2) if (user_info['hp'] - (exp / 2)) > 0 else 1
+        nowmp = user_info['mp'] - exp if (user_info['mp'] - exp) > 0 else 1
         sql_message.update_user_hp_mp(user_info.user_id, nowhp, nowmp)  # 修为掉了，血量、真元也要掉
 
         msg = random.choice(battle_data[rift_type]['desc']).format(f"修为减少了：{exp}点！=")
     elif cost_type == "hp":
-        cost_hp = int((user_info.exp / 2) * value)
-        now_hp = user_info.hp - cost_hp
+        cost_hp = int((user_info['exp'] / 2) * value)
+        now_hp = user_info['hp'] - cost_hp
         if now_hp < 0:
             now_hp = 1
-        sql_message.update_user_hp_mp(user_info.user_id, now_hp, user_info.mp)
+        sql_message.update_user_hp_mp(user_info.user_id, now_hp, user_info['mp'])
         msg = random.choice(battle_data[rift_type]['desc']).format(f"气血减少了：{cost_hp}点！")
     elif cost_type == "stone":
         cost_stone = value

@@ -32,8 +32,8 @@ def Player_fight(player1: dict, player2: dict, type_in, bot_id):
         user_1_impart_data = xiuxian_impart.get_user_message(player1['user_id'])
     except:
         user_1_impart_data = None
-    user_1_impart_hp = user_1_impart_data.impart_hp_per if user_1_impart_data is not None else 0
-    user_1_impart_mp = user_1_impart_data.impart_mp_per if user_1_impart_data is not None else 0
+    user_1_impart_hp = user_1_impart_data['impart_hp_per'] if user_1_impart_data is not None else 0
+    user_1_impart_mp = user_1_impart_data['impart_mp_per'] if user_1_impart_data is not None else 0
     user1_hp_buff = user1_hp_buff + user_1_impart_hp
     user1_mp_buff = user1_mp_buff + user_1_impart_mp
 
@@ -582,8 +582,8 @@ async def Boss_fight(player1: dict, boss: dict, type_in=2, bot_id=0):
     integral_buff = user1_sub_buff_data['integral'] if user1_sub_buff_data is not None else 0
     sub_break = user1_sub_buff_data['break'] if user1_sub_buff_data is not None else 0
     impart_data = xiuxian_impart.get_user_message(player1['user_id'])
-    impart_hp_per = impart_data.impart_hp_per if impart_data is not None else 0
-    impart_mp_per = impart_data.impart_mp_per if impart_data is not None else 0
+    impart_hp_per = impart_data['impart_hp_per'] if impart_data is not None else 0
+    impart_mp_per = impart_data['impart_mp_per'] if impart_data is not None else 0
     user1_hp_buff = user1_hp_buff + impart_hp_per
     user1_mp_buff = user1_mp_buff + impart_mp_per
     global random_break
@@ -1508,8 +1508,8 @@ def get_turnatk(player, buff=0, user_battle_buff_date={}): #辅修功法14
         impart_data = None
         weapon_critatk_data = None
         main_critatk_data = None
-    impart_know_per = impart_data.impart_know_per if impart_data is not None else 0
-    impart_burst_per = impart_data.impart_burst_per if impart_data is not None else 0
+    impart_know_per = impart_data['impart_know_per'] if impart_data is not None else 0
+    impart_burst_per = impart_data['impart_burst_per'] if impart_data is not None else 0
     weapon_critatk = weapon_critatk_data['critatk'] if weapon_critatk_data is not None else 0 #武器会心伤害
     main_critatk = main_critatk_data['critatk'] if main_critatk_data is not None else 0 #功法会心伤害
     isCrit = False

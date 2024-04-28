@@ -142,8 +142,8 @@ async def last_work_(bot: Bot, event: GroupMessageEvent):
     user_level = user_info.level
     is_type, msg = check_user_type(user_id, 2)  # 需要在悬赏令中的用户
     if (is_type and USERRANK[user_info.level] <= 11) or (
-        is_type and user_info.exp >= sql_message.get_level_power("真仙境圆满")) or (
-        is_type and int(user_info.exp) >= int(OtherSet().set_closing_type(user_level)) * XiuConfig().closing_exp_upper_limit    
+        is_type and user_info['exp'] >= sql_message.get_level_power("真仙境圆满")) or (
+        is_type and int(user_info['exp']) >= int(OtherSet().set_closing_type(user_level)) * XiuConfig().closing_exp_upper_limit    
         ):
         user_cd_message = sql_message.get_user_cd(user_id)
         work_time = datetime.strptime(
@@ -152,7 +152,7 @@ async def last_work_(bot: Bot, event: GroupMessageEvent):
         exp_time = (datetime.now() - work_time).seconds // 60  # 时长计算
         time2 = workhandle().do_work(
             # key=1, name=user_cd_message.scheduled_time  修改点
-            key=1, name=user_cd_message.scheduled_time, level=user_level, exp=user_info.exp,
+            key=1, name=user_cd_message.scheduled_time, level=user_level, exp=user_info['exp'],
             user_id=user_info.user_id
         )
         if exp_time < time2:
@@ -168,7 +168,7 @@ async def last_work_(bot: Bot, event: GroupMessageEvent):
                 2,
                 work_list=user_cd_message.scheduled_time,
                 level=user_level,
-                exp=user_info.exp,
+                exp=user_info['exp'],
                 user_id=user_info.user_id
             )
             item_flag = False
