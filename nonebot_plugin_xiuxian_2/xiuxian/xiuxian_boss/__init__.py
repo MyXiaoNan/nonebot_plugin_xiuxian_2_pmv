@@ -1042,7 +1042,7 @@ def get_drops(user_info):
     :return 法器ID, 法器信息json
     """
     drops_data = items.get_data_by_item_type(['掉落物'])
-    drops_id = get_id(drops_data, user_info.level)
+    drops_id = get_id(drops_data, user_info['level'])
     drops_info = items.get_data_by_item_id(drops_id)
     return drops_id, drops_info
 

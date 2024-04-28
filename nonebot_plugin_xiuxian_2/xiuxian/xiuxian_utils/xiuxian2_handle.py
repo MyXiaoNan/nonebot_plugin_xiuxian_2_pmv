@@ -249,23 +249,11 @@ class XiuxianDateManage:
         cur.execute(sql, (user_id,))
         result = cur.fetchone()
         if result:
-            columns = cur.description  # 获取列名
+            columns = cur.description
             user_data_dict = final_user_data(result, columns)
             return user_data_dict
         else:
             return None
-        
-    # def get_user_real_info(self, user_id):
-    #     """根据USER_ID获取用户信息,获取功法加成"""
-    #     cur = self.conn.cursor()
-    #     sql = f"select * from user_xiuxian where user_id=?"
-    #     cur.execute(sql, (user_id,))
-    #     result = cur.fetchone()
-    #     if not result:
-    #         return None
-    #     else:
-    #         return UserDate(*final_user_data(result))
-
 
 
     def get_sect_info(self, sect_id):
@@ -1601,7 +1589,6 @@ def final_user_data(user_data, columns):
     user_dict['atk'] = int((user_dict['atk'] * (user_dict['atkpractice'] * 0.04 + 1) * (1 + main_atk_buff) * (
             1 + weapon_atk_buff) * (1 + armor_atk_buff)) * (1 + impart_atk_per)) + int(user_buff_data.atk_buff)
     
-    print("final_user_data的返回值", user_dict)
     return user_dict
 
     

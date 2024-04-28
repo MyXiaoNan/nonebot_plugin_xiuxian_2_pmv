@@ -591,7 +591,7 @@ def check_use_elixir(user_id, goods_id, num):
 
 def get_use_jlq_msg(user_id, goods_id):
     user_info = sql_message.get_user_message(user_id)
-    if user_info.blessed_spot_flag == 0:
+    if user_info['blessed_spot_flag'] == 0:
         msg = f"道友还未拥有洞天福地，无法使用该物品"
     else:
         item_info = items.get_data_by_item_id(goods_id)
