@@ -38,7 +38,7 @@ git clone https://github.com/wsdtl/nonebot_plugin_xiuxian_2_pmv
 ```
 pip install -r requirements.txt
 ```
-3、设置超管与机器人昵称
+3、在.env.*文件中设置超管与机器人昵称
 ```
 SUPERUSERS = ["xxxxx"]
 NICKNAME = ["xx"]
