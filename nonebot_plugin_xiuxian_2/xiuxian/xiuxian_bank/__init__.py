@@ -182,7 +182,12 @@ async def bank_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Rege
         sql_message.update_ls(user_id, stonecost, 2)
         bankinfo['banklevel'] = f"{int(userlevel) + 1}"
         savef(user_id, bankinfo)
-        msg = f"道友成功升级灵庄会员等级，消耗灵石{stonecost}枚，当前为：{BANKLEVEL[f"{int(userlevel) + 1}"]['level']}，灵庄可存有灵石上限{BANKLEVEL[f"{int(userlevel) + 1}"]['savemax']}枚"
+        msg = "道友成功升级灵庄会员等级，消耗灵石{}枚，当前为：{}，灵庄可存有灵石上限{}枚".format(
+        stonecost,
+        BANKLEVEL[str(int(userlevel) + 1)]['level'],
+        BANKLEVEL[str(int(userlevel) + 1)]['savemax']
+        )
+
         if XiuConfig().img:
             pic = await get_msg_pic(msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
