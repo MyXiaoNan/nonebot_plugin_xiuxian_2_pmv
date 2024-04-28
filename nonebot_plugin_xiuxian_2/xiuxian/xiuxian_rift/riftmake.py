@@ -127,7 +127,6 @@ async def get_boss_battle_info(user_info, rift_rank, bot_id):
     player = {"user_id": None, "道号": None, "气血": None, "攻击": None, "真元": None, '会心': None, '防御': 0}
     userinfo = sql_message.get_user_real_info(user_info['user_id'])
     user1_weapon_data = UserBuffDate(user_info['user_id']).get_user_weapon_data()
-    user_armor_data = UserBuffDate(user_info['user_id']).get_user_armor_buff_data()
     user_armor_data = UserBuffDate(user_info['user_id']).get_user_armor_buff_data()#秘境战斗防具会心
     user_main_crit_data = UserBuffDate(user_info['user_id']).get_user_main_buff_data() #秘境战斗功法会心
     

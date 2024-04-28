@@ -163,7 +163,7 @@ async def blessed_spot_info_(bot: Bot, event: GroupMessageEvent):
         blessed_spot_name = user_info['blessed_spot_name']
     mix_elixir_info = get_player_info(user_id, "mix_elixir_info")
     msg += f"名字：{blessed_spot_name}\n"
-    msg += f"修炼速度：增加{int(user_buff_data.blessed_spot) * 100}%\n"
+    msg += f"修炼速度：增加{int(user_buff_data['blessed_spot']) * 100}%\n"
     msg += f"灵田数量：{mix_elixir_info['灵田数量']}"
     if XiuConfig().img:
         pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
@@ -933,13 +933,13 @@ async def buffinfo_(bot: Bot, event: GroupMessageEvent):
     skill_msg = get_user_skill_back_msg(user_id)  
     mainbuffdata = UserBuffDate(user_id).get_user_main_buff_data()
     if mainbuffdata != None:
-        s, mainbuffmsg = get_main_info_msg(str(get_user_buff(user_id).main_buff))
+        s, mainbuffmsg = get_main_info_msg(str(get_user_buff(user_id)['main_buff']))
     else:
         mainbuffmsg = ''
         
     subbuffdata = UserBuffDate(user_id).get_user_sub_buff_data()#辅修功法13
     if subbuffdata != None:
-        sub, subbuffmsg = get_sub_info_msg(str(get_user_buff(user_id).sub_buff))
+        sub, subbuffmsg = get_sub_info_msg(str(get_user_buff(user_id)['sub_buff']))
     else:
         subbuffmsg = ''
         

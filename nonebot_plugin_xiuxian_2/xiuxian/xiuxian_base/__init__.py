@@ -483,9 +483,9 @@ async def level_up_(bot: Bot, event: GroupMessageEvent):
     elixir_desc = None
     if user_backs is not None:
         for back in user_backs:
-            if int(back.goods_id) == 1999:  # 检测到有对应丹药
+            if int(back['goods_id']) == 1999:  # 检测到有对应丹药
                 pause_flag = True
-                elixir_name = back.goods_name
+                elixir_name = back['goods_name']
                 elixir_desc = items.get_data_by_item_id(1999)['desc']
                 break
     main_rate_buff = UserBuffDate(user_id).get_user_main_buff_data()#功法突破概率提升，别忘了还有渡厄突破
@@ -643,9 +643,9 @@ async def level_up_dr_(bot: Bot, event: GroupMessageEvent):
     pause_flag = False
     if user_backs is not None:
         for back in user_backs:
-            if int(back.goods_id) == 1999:  # 检测到有对应丹药
+            if int(back['goods_id']) == 1999:  # 检测到有对应丹药
                 pause_flag = True
-                elixir_name = back.goods_name
+                elixir_name = back['goods_name']
                 break
 
     if le == "失败":
@@ -751,9 +751,9 @@ async def level_up_drjd_(bot: Bot, event: GroupMessageEvent):
     pause_flag = False
     if user_backs is not None:
         for back in user_backs:
-            if int(back.goods_id) == 1998:  # 检测到有对应丹药
+            if int(back['goods_id']) == 1998:  # 检测到有对应丹药
                 pause_flag = True
-                elixir_name = back.goods_name
+                elixir_name = back['goods_name']
                 break
 
     if le == "失败":

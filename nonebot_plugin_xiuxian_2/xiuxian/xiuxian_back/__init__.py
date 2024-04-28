@@ -562,13 +562,13 @@ async def shop_added_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
     goods_num = None
     goods_bind_num = None
     for back in back_msg:
-        if goods_name == back.goods_name:
+        if goods_name == back['goods_name']:
             in_flag = True
-            goods_id = back.goods_id
-            goods_type = back.goods_type
-            goods_state = back.state
-            goods_num = back.goods_num
-            goods_bind_num = back.bind_num
+            goods_id = back['goods_id']
+            goods_type = back['goods_type']
+            goods_state = back['state']
+            goods_num = back['goods_num']
+            goods_bind_num = back['bind_num']
             break
     if not in_flag:
         msg = f"请检查该道具 {goods_name} 是否在背包内！"
@@ -716,12 +716,12 @@ async def goods_re_root_(bot: Bot, event: GroupMessageEvent, args: Message = Com
     goods_state = None
     goods_num = None
     for back in back_msg:
-        if goods_name == back.goods_name:
+        if goods_name == back['goods_name']:
             in_flag = True
-            goods_id = back.goods_id
-            goods_type = back.goods_type
-            goods_state = back.state
-            goods_num = back.goods_num
+            goods_id = back['goods_id']
+            goods_type = back['goods_type']
+            goods_state = back['state']
+            goods_num = back['goods_num']
             break
     if not in_flag:
         msg = f"请检查该道具 {goods_name} 是否在背包内！"
@@ -946,10 +946,10 @@ async def no_use_zb_(bot: Bot, event: GroupMessageEvent, args: Message = Command
     goods_id = None
     goods_type = None
     for back in back_msg:
-        if arg == back.goods_name:
+        if arg == back['goods_name']:
             in_flag = True
-            goods_id = back.goods_id
-            goods_type = back.goods_type
+            goods_id = back['goods_id']
+            goods_type = back['goods_type']
             break
     if not in_flag:
         msg = f"请检查该道具 {arg} 是否在背包内！"
@@ -1026,11 +1026,11 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
     goods_type = None
     goods_num = None
     for back in back_msg:
-        if arg == back.goods_name:
+        if arg == back['goods_name']:
             in_flag = True
-            goods_id = back.goods_id
-            goods_type = back.goods_type
-            goods_num = back.goods_num
+            goods_id = back['goods_id']
+            goods_type = back['goods_type']
+            goods_num = back['goods_num']
             break
     if not in_flag:
         msg = f"请检查该道具 {arg} 是否在背包内！"
@@ -1070,21 +1070,21 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
         skill_info = items.get_data_by_item_id(goods_id)
         skill_type = skill_info['item_type']
         if skill_type == "神通":
-            if int(user_buff_info.sec_buff) == int(goods_id):
+            if int(user_buff_info['sec_buff']) == int(goods_id):
                 msg = f"道友已学会该神通：{skill_info['name']}，请勿重复学习！"
             else:  # 学习sql
                 sql_message.update_back_j(user_id, goods_id)
                 sql_message.updata_user_sec_buff(user_id, goods_id)
                 msg = f"恭喜道友学会神通：{skill_info['name']}！"
         elif skill_type == "功法":
-            if int(user_buff_info.main_buff) == int(goods_id):
+            if int(user_buff_info['main_buff']) == int(goods_id):
                 msg = f"道友已学会该功法：{skill_info['name']}，请勿重复学习！"
             else:  # 学习sql
                 sql_message.update_back_j(user_id, goods_id)
                 sql_message.updata_user_main_buff(user_id, goods_id)
                 msg = f"恭喜道友学会功法：{skill_info['name']}！"
         elif skill_type == "辅修功法": #辅修功法1
-            if int(user_buff_info.sub_buff) == int(goods_id):
+            if int(user_buff_info['sub_buff']) == int(goods_id):
                 msg = f"道友已学会该辅修功法：{skill_info['name']}，请勿重复学习！"
             else:#学习sql
                 sql_message.update_back_j(user_id, goods_id)

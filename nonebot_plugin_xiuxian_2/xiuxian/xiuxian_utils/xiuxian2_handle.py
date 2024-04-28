@@ -1255,10 +1255,10 @@ class XiuxianDateManage:
         if back:
             # 判断是否存在，存在则update
             if bind_flag == 1:
-                bind_num = back.bind_num + goods_num
+                bind_num = back['bind_num'] + goods_num
             else:
-                bind_num = back.bind_num
-            goods_nums = back.goods_num + goods_num
+                bind_num = back['bind_num']
+            goods_nums = back['goods_num'] + goods_num
             sql = f"UPDATE back set goods_num=?,update_time=?,bind_num={bind_num} WHERE user_id=? and goods_id=?"
             cur.execute(sql, (goods_nums, now_time, user_id, goods_id))
             self.conn.commit()
@@ -1303,18 +1303,18 @@ class XiuxianDateManage:
         :use_key 是否使用，丹药使用才传 默认0
         """
         back = self.get_item_by_good_id_and_user_id(user_id, goods_id)
-        if back.goods_type == "丹药" and use_key == 1:  # 丹药要判断耐药性、日使用上限
-            if back.bind_num >= 1:
-                bind_num = back.bind_num - num  # 优先使用绑定物品
+        if back['goods_type'] == "丹药" and use_key == 1:  # 丹药要判断耐药性、日使用上限
+            if back['bind_num'] >= 1:
+                bind_num = back['bind_num'] - num  # 优先使用绑定物品
             else:
-                bind_num = back.bind_num
-            day_num = back.day_num + num
-            all_num = back.all_num + num
+                bind_num = back['bind_num']
+            day_num = back['day_num'] + num
+            all_num = back['all_num'] + num
         else:
-            bind_num = back.bind_num
-            day_num = back.day_num
-            all_num = back.all_num
-        goods_num = back.goods_num - num
+            bind_num = back['bind_num']
+            day_num = back['day_num']
+            all_num = back['all_num']
+        goods_num = back['goods_num'] - num
         now_time = datetime.now()
         sql_str = f"UPDATE back set update_time='{now_time}',action_time='{now_time}',goods_num={goods_num},day_num={day_num},all_num={all_num},bind_num={bind_num} WHERE user_id={user_id} and goods_id={goods_id}"
         cur = self.conn.cursor()
@@ -2011,35 +2011,35 @@ class UserBuffDate:
 
     def get_user_main_buff_data(self):
         try:
-            main_buff_data = items.get_data_by_item_id(self.BuffInfo.main_buff)
+            main_buff_data = items.get_data_by_item_id(self.BuffInfo['main_buff'])
         except:
             main_buff_data = None
         return main_buff_data
     
     def get_user_sub_buff_data(self):# 辅修功法9
         try:
-            sub_buff_data = items.get_data_by_item_id(self.BuffInfo.sub_buff)
+            sub_buff_data = items.get_data_by_item_id(self.BuffInfo['sub_buff'])
         except:
             sub_buff_data = None
         return sub_buff_data
 
     def get_user_sec_buff_data(self):
         try:
-            sec_buff_data = items.get_data_by_item_id(self.BuffInfo.sec_buff)
+            sec_buff_data = items.get_data_by_item_id(self.BuffInfo['sec_buff'])
         except:
             sec_buff_data = None
         return sec_buff_data
 
     def get_user_weapon_data(self):
         try:
-            weapon_data = items.get_data_by_item_id(self.BuffInfo.faqi_buff)
+            weapon_data = items.get_data_by_item_id(self.BuffInfo['faqi_buff'])
         except:
             weapon_data = None
         return weapon_data
 
     def get_user_armor_buff_data(self):
         try:
-            armor_buff_data = items.get_data_by_item_id(self.BuffInfo.armor_buff)
+            armor_buff_data = items.get_data_by_item_id(self.BuffInfo['armor_buff'])
         except:
             armor_buff_data = None
         return armor_buff_data

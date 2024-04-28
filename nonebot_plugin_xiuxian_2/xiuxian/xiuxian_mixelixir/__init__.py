@@ -334,14 +334,14 @@ async def mix_elixir_(bot: Bot, event: GroupMessageEvent):
         await mix_elixir.finish()
     yaocai_dict = {}
     for back in user_back:
-        if back.goods_type == "药材":
-            yaocai_dict[back.goods_id] = items.get_data_by_item_id(back.goods_id)
-            yaocai_dict[back.goods_id]['num'] = back.goods_num
+        if back['goods_type'] == "药材":
+            yaocai_dict[back['goods_id']] = items.get_data_by_item_id(back['goods_id'])
+            yaocai_dict[back['goods_id']]['num'] = back['goods_num']
             continue
-        if back.goods_type == "炼丹炉":
+        if back['goods_type'] == "炼丹炉":
             user_ldl_dict[user_id] = {}
-            user_ldl_dict[user_id][back.goods_id] = back.goods_id
-            user_ldl_dict[user_id][back.goods_id] = back.goods_name
+            user_ldl_dict[user_id][back['goods_id']] = back['goods_id']
+            user_ldl_dict[user_id][back['goods_id']] = back['goods_name']
             user_ldl_flag[user_id] = True
             continue
         else:
@@ -644,11 +644,11 @@ async def check_yaocai_name_in_back(user_id, yaocai_name, yaocai_num):
     goods_id = 0
     user_back = sql_message.get_back_msg(user_id)
     for back in user_back:
-        if back.goods_type == '药材':
-            if Items().get_data_by_item_id(back.goods_id)['name'] == yaocai_name:
-                if int(back.goods_num) >= int(yaocai_num):
+        if back['goods_type'] == '药材':
+            if Items().get_data_by_item_id(back['goods_id'])['name'] == yaocai_name:
+                if int(back['goods_num']) >= int(yaocai_num):
                     flag = True
-                    goods_id = back.goods_id
+                    goods_id = back['goods_id']
                     break
             else:
                 continue
@@ -662,10 +662,10 @@ async def check_ldl_name_in_back(user_id, ldl_name):
     goods_info = {}
     user_back = sql_message.get_back_msg(user_id)
     for back in user_back:
-        if back.goods_type == '炼丹炉':
-            if back.goods_name == ldl_name:
+        if back['goods_type'] == '炼丹炉':
+            if back['goods_name'] == ldl_name:
                 flag = True
-                goods_info = Items().get_data_by_item_id(back.goods_id)
+                goods_info = Items().get_data_by_item_id(back['goods_id'])
                 break
             else:
                 continue

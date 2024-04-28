@@ -482,7 +482,7 @@ async def sect_mainbuff_learn_(bot: Bot, event: GroupMessageEvent, args: Message
 
             userbuffinfo = UserBuffDate(user_info['user_id']).BuffInfo
             mainbuffid = get_mainnameid(msg, sectmainbuffidlist)
-            if str(userbuffinfo.main_buff) == str(mainbuffid):
+            if str(userbuffinfo['main_buff']) == str(mainbuffid):
                 msg = f"道友请勿重复学习！"
                 if XiuConfig().img:
                     pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
@@ -745,7 +745,7 @@ async def sect_secbuff_learn_(bot: Bot, event: GroupMessageEvent, args: Message 
 
             userbuffinfo = UserBuffDate(user_info['user_id']).BuffInfo
             secbuffid = get_secnameid(msg, sectsecbuffidlist)
-            if str(userbuffinfo.sec_buff) == str(secbuffid):
+            if str(userbuffinfo['sec_buff']) == str(secbuffid):
                 msg = f"道友请勿重复学习！"
                 if XiuConfig().img:
                     pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)

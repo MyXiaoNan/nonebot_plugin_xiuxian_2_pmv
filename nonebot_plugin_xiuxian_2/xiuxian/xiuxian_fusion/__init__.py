@@ -41,9 +41,9 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
     in_flag_yz = False  # 判断原罪（残缺）是否在背包内
 
     for back in back_msg:
-        if wz == back.goods_name:
+        if wz == back['goods_name']:
             in_flag_wz = True
-        elif yz == back.goods_name:
+        elif yz == back['goods_name']:
             in_flag_yz = True
         if in_flag_wz and in_flag_yz:
             break

@@ -35,7 +35,7 @@ def check_equipment_can_use(user_id, goods_id):
     """
     flag = False
     back_equipment = sql_message.get_item_by_good_id_and_user_id(user_id, goods_id)
-    if back_equipment.state == 0:
+    if back_equipment['state'] == 0:
         flag = True
     return flag
 
@@ -52,7 +52,7 @@ def get_use_equipment_sql(user_id, goods_id):
     item_type = ''
     if item_info['item_type'] == "法器":
         item_type = "法器"
-        in_use_id = user_buff_info.faqi_buff
+        in_use_id = user_buff_info['faqi_buff']
         sql_str.append(
             f"UPDATE back set update_time='{now_time}',action_time='{now_time}',state=1 WHERE user_id={user_id} and goods_id={goods_id}")  # 装备
         if in_use_id != 0:
@@ -61,7 +61,7 @@ def get_use_equipment_sql(user_id, goods_id):
 
     if item_info['item_type'] == "防具":
         item_type = "防具"
-        in_use_id = user_buff_info.armor_buff
+        in_use_id = user_buff_info['armor_buff']
         sql_str.append(
             f"UPDATE back set update_time='{now_time}',action_time='{now_time}',state=1 WHERE user_id={user_id} and goods_id={goods_id}")  # 装备
         if in_use_id != 0:
@@ -85,10 +85,10 @@ def get_no_use_equipment_sql(user_id, goods_id):
     # 检查装备类型，并确定要卸载的是哪种buff
     if item_info['item_type'] == "法器":
         item_type = "法器"
-        in_use_id = user_buff_info.faqi_buff
+        in_use_id = user_buff_info['faqi_buff']
     elif item_info['item_type'] == "防具":
         item_type = "防具"
-        in_use_id = user_buff_info.armor_buff
+        in_use_id = user_buff_info['armor_buff']
     else:
         return sql_str, item_type
 
@@ -463,8 +463,8 @@ def check_use_elixir(user_id, goods_id, num):
     goods_rank = goods_info['rank']
     goods_name = goods_info['name']
     back = sql_message.get_item_by_good_id_and_user_id(user_id, goods_id)
-    # goods_day_num = back.day_num
-    goods_all_num = back.all_num
+    # goods_day_num = back['day_num']
+    goods_all_num = back['all_num']
     if goods_info['buff_type'] == "level_up_rate":  # 增加突破概率的丹药
         if goods_rank < user_rank:  # 最低使用限制
             msg = f"丹药：{goods_name}的最低使用境界为{goods_info['境界']}，道友不满足使用条件"
@@ -596,7 +596,7 @@ def get_use_jlq_msg(user_id, goods_id):
     else:
         item_info = items.get_data_by_item_id(goods_id)
         user_buff_data = UserBuffDate(user_id).BuffInfo
-        if int(user_buff_data.blessed_spot) >= item_info['修炼速度']:
+        if int(user_buff_data['blessed_spot']) >= item_info['修炼速度']:
             msg = f"该聚灵旗的等级不能满足道友的福地了，使用了也没效果"
         else:
             mix_elixir_info = get_player_info(user_id, "mix_elixir_info")
