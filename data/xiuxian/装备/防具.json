@@ -324,6 +324,15 @@
         "level": "无上仙器",
         "type": "装备"
     },
+    "15509": {
+        "name": "铁布衫",
+        "def_buff": 0.5,
+        "atk_buff": 0,
+        "crit_buff": 0,
+        "rank": -5,
+        "level": "无上仙器",
+        "type": "装备"
+    },
     "6095": {
         "name": "伽域封界",
         "def_buff": 0.5,

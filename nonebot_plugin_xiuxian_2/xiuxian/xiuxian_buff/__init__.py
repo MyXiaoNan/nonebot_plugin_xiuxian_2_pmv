@@ -851,9 +851,9 @@ async def mind_state_(bot: Bot, event: GroupMessageEvent):
     user_main_data = UserBuffDate(user_id).get_user_main_buff_data() #我的状态功法减伤
     
     if user_main_data is not None:
-        main_def =  user_main_data['def_buff'] * 100 #我的状态功法减伤
+        main_def = user_main_data['def_buff'] * 100 #我的状态功法减伤
     else:
-        main_def =0
+        main_def = 0
     
     if user_armor_crit_data is not None: #我的状态防具会心
         armor_crit_buff = ((user_armor_crit_data['crit_buff']) * 100)
@@ -874,9 +874,9 @@ async def mind_state_(bot: Bot, event: GroupMessageEvent):
     user_armor_data = user_buff_data.get_user_armor_buff_data()
     
     if user_weapon_data is not None:
-        weapon_def =  user_weapon_data['def_buff'] * 100 #我的状态武器减伤
+        weapon_def = user_weapon_data['def_buff'] * 100 #我的状态武器减伤
     else:
-        weapon_def =0
+        weapon_def = 0
 
     if user_main_crit_data is not None: #我的状态功法会心
         main_crit_buff = ((user_main_crit_data['crit_buff']) * 100)

@@ -249,10 +249,23 @@ class XiuxianDateManage:
         cur.execute(sql, (user_id,))
         result = cur.fetchone()
         if result:
-            user_data_dict = dict(zip((col[0] for col in cur.description), result))
+            columns = cur.description  # 获取列名
+            user_data_dict = final_user_data(result, columns)
             return user_data_dict
         else:
             return None
+        
+    # def get_user_real_info(self, user_id):
+    #     """根据USER_ID获取用户信息,获取功法加成"""
+    #     cur = self.conn.cursor()
+    #     sql = f"select * from user_xiuxian where user_id=?"
+    #     cur.execute(sql, (user_id,))
+    #     result = cur.fetchone()
+    #     if not result:
+    #         return None
+    #     else:
+    #         return UserDate(*final_user_data(result))
+
 
 
     def get_sect_info(self, sect_id):

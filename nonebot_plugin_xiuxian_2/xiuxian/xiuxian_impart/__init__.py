@@ -117,7 +117,7 @@ async def impart_draw_(bot: Bot, event: GroupMessageEvent):
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await impart_draw.finish()
-    if impart_data_draw.stone_num < 10:
+    if impart_data_draw['stone_num'] < 10:
         msg = "思恋结晶数量不足10个,无法抽卡!"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)

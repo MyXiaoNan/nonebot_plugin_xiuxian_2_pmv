@@ -248,7 +248,7 @@ async def sect_elixir_get_(bot: Bot, event: GroupMessageEvent):
             await sect_elixir_get.finish()
         else:
             sect_info = sql_message.get_sect_info(sect_id)
-            if int(sect_info.elixir_room_level) == 0:
+            if int(sect_info['elixir_room_level']) == 0:
                 msg = f"道友的宗门目前还未建设丹房！"
                 if XiuConfig().img:
                     pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
@@ -265,8 +265,8 @@ async def sect_elixir_get_(bot: Bot, event: GroupMessageEvent):
                     await bot.send_group_msg(group_id=int(send_group_id), message=msg)
                 await sect_elixir_get.finish()
             elixir_room_level_up_config = elixir_room_config['elixir_room_level']
-            elixir_room_cost = elixir_room_level_up_config[str(sect_info.elixir_room_level)]['level_up_cost']['建设度']
-            if sect_info.sect_materials < elixir_room_cost:
+            elixir_room_cost = elixir_room_level_up_config[str(sect_info['elixir_room_level'])]['level_up_cost']['建设度']
+            if sect_info['sect_materials'] < elixir_room_cost:
                 msg = f"当前宗门资材无法维护丹房，请等待{config['发放宗门资材']['时间']}点发放宗门资材后尝试领取！"
                 if XiuConfig().img:
                     pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
@@ -282,7 +282,7 @@ async def sect_elixir_get_(bot: Bot, event: GroupMessageEvent):
                 else:
                     await bot.send_group_msg(group_id=int(send_group_id), message=msg)
                 await sect_elixir_get.finish()
-            if int(sect_info.elixir_room_level) == 1:
+            if int(sect_info['elixir_room_level']) == 1:
                 msg = f"道友成功领取到丹药:渡厄丹！"
                 sql_message.send_back(user_info['user_id'], 1999, "渡厄丹", "丹药", 1, bind_flag=1)  # 1级丹房送1个渡厄丹
                 sql_message.update_user_sect_elixir_get_num(user_info['user_id'])
@@ -293,7 +293,7 @@ async def sect_elixir_get_(bot: Bot, event: GroupMessageEvent):
                     await bot.send_group_msg(group_id=int(send_group_id), message=msg)
                 await sect_elixir_get.finish()
             else:
-                sect_now_room_config = elixir_room_level_up_config[str(sect_info.elixir_room_level)]
+                sect_now_room_config = elixir_room_level_up_config[str(sect_info['elixir_room_level'])]
                 give_num = sect_now_room_config['give_level']['give_num'] - 1
                 rank_up = sect_now_room_config['give_level']['rank_up']
                 give_dict = {}
