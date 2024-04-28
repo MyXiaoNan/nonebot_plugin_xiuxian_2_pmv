@@ -129,11 +129,11 @@ async def set_boss_():
                 trigger='interval',
                 hours=groups[str(group_id)]["hours"],
                 minutes=groups[str(group_id)]['minutes'],
-                id="set_boss_{group_id}",
+                id="set_boss_{}".format(group_id),
                 args=[group_id],
                 misfire_grace_time=10
             )
-            logger.opt(colors=True).success("<green>开启群{}boss,每{}小时{}分钟刷新！</green>".format(group_id, groups[str(group_id)]["hours"], groups[str(group_id)]['minutes']))
+            logger.opt(colors=True).success("<green>开启群{}boss,每{}小时{}分钟刷新！</green>".format(group_id, groups[str(group_id)]['hours'], groups[str(group_id)]['minutes']))
     except Exception as e:
         logger.opt(colors=True).warning(f"<red>警告,定时群boss加载失败!,{e}!</red>")
 
