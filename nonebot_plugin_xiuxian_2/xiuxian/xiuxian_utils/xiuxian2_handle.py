@@ -901,10 +901,13 @@ class XiuxianDateManage:
         sql = f"select * from user_xiuxian ORDER BY exp DESC LIMIT 1"
         cur.execute(sql)
         result = cur.fetchone()
-        if not result:
-            return None
+        if result:
+            columns = [column[0] for column in cur.description]
+            top1_dict = dict(zip(columns, result))
+            return top1_dict
         else:
-            return UserDate(*result)
+            return None
+        
 
     def donate_update(self, sect_id, stone_num):
         """宗门捐献更新建设度及可用灵石"""
@@ -964,7 +967,9 @@ class XiuxianDateManage:
         result = cur.fetchall()
         results = []
         for user in result:
-            results.append(UserDate(*user))
+            columns = [column[0] for column in cur.description]
+            user_dict = dict(zip(columns, user))
+            results.append(user_dict)
         return results
 
     def do_work(self, user_id, the_type, sc_time=None):

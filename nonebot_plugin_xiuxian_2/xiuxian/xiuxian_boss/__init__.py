@@ -182,7 +182,7 @@ async def send_bot(group_id:str):
         else:
             await get_bot().call_api(api, **data)   
         
-    logger.opt(colors=True).info(f"<green>群{group_id}_已生成世界boss</green>")
+    logger.opt(colors=True).info(f"<green>群{group_id}已生成世界boss</green>")
 
 
 @DRIVER.on_shutdown

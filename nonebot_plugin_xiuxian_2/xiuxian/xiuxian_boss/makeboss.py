@@ -43,7 +43,7 @@ def get_boss_jinjie_dict():
 
 def createboss():
     top_user_info = sql_message.get_top1_user()
-    top_user_level = top_user_info.level
+    top_user_level = top_user_info['level']
     level = top_user_level[:3]
     boss_jj = random.choice(jinjie_list[:jinjie_list.index(level) + 1])
 
