@@ -195,8 +195,9 @@ class XiuxianDateManage:
         # 检查并更新 last_check_info_time 列的记录
         c.execute("""UPDATE user_cd
     SET last_check_info_time = ?
-    WHERE last_check_info_time = '0'
+    WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
   """, (current_time,))
+
 
         self.conn.commit()
 
