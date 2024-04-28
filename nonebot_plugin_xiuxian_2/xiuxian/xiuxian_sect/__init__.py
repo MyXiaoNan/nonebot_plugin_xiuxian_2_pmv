@@ -965,7 +965,7 @@ async def sect_users_(bot: Bot, event: GroupMessageEvent):
         if sect_id:
             sect_info = sql_message.get_sect_info(sect_id)
             userlist = sql_message.get_all_users_by_sect_id(sect_id)
-            msg = f'☆【{sect_info['sect_name']}】的成员信息☆\n'
+            msg = f"☆【{sect_info['sect_name']}】的成员信息☆\n"
             msg_list.append(msg)
             i = 1
             for user in userlist:
