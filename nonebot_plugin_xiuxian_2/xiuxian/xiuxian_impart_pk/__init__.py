@@ -322,7 +322,7 @@ async def impart_pk_exp_(bot: Bot, event: GroupMessageEvent, args: Message = Com
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await impart_pk_exp.finish()
-    if int(impaer_exp_time) > int(impart_data_draw.exp_day):
+    if int(impaer_exp_time) > int(impart_data_draw['exp_day']):
         msg = "累计时间不足，修炼失败!"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
