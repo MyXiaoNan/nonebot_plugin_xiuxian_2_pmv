@@ -49,7 +49,7 @@ async def impart_pk_project_(bot: Bot, event: GroupMessageEvent):
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await impart_pk_project.finish()
-    user_id = user_info.user_id
+    user_id = user_info['user_id']
     impart_data_draw = await impart_pk_check(user_id)
     if impart_data_draw is None:
         msg = "发生未知错误，多次尝试无果请找晓楠！"
@@ -89,7 +89,7 @@ async def impart_pk_list_(bot: Bot, event: GroupMessageEvent):
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await impart_pk_list.finish()
-    user_id = user_info.user_id
+    user_id = user_info['user_id']
     impart_data_draw = await impart_pk_check(user_id)
     if impart_data_draw is None:
         msg = "发生未知错误，多次尝试无果请找晓楠！"
@@ -112,7 +112,7 @@ async def impart_pk_list_(bot: Bot, event: GroupMessageEvent):
     win_num = "win_num"
     pk_num = "pk_num"
     for x in range(len(xu_list)):
-        name = XiuxianDateManage().get_user_message(xu_list[x]).user_name
+        name = XiuxianDateManage().get_user_message(xu_list[x])['user_name']
         msg = ""
         msg += f"道友：{name}\n"
         msg += f"胜场：{impart_pk.find_user_data(xu_list[x])[win_num]}\n"
@@ -145,7 +145,7 @@ async def impart_pk_now_(bot: Bot, event: GroupMessageEvent, args: Message = Com
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await impart_pk_now.finish()
-    user_id = user_info.user_id
+    user_id = user_info['user_id']
     impart_data_draw = await impart_pk_check(user_id)
     if impart_data_draw is None:
         msg = "发生未知错误，多次尝试无果请找晓楠！"
@@ -156,7 +156,7 @@ async def impart_pk_now_(bot: Bot, event: GroupMessageEvent, args: Message = Com
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await impart_pk_now.finish()
     num = args.extract_plain_text().strip()
-    if impart_pk.find_user_data(user_info.user_id)["pk_num"] <= 0:
+    if impart_pk.find_user_data(user_info['user_id'])["pk_num"] <= 0:
         msg = "道友今日次数耗尽，每天再来吧！"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
@@ -165,14 +165,14 @@ async def impart_pk_now_(bot: Bot, event: GroupMessageEvent, args: Message = Com
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await impart_pk_now.finish()
     if not num:
-        msg, win = await impart_pk_uitls.impart_pk_now_msg_to_bot(user_info.user_name, NICKNAME)
+        msg, win = await impart_pk_uitls.impart_pk_now_msg_to_bot(user_info['user_name'], NICKNAME)
         if win == 1:
-            msg += f"战报：道友{user_info.user_name}获胜,获得思恋结晶10颗\n"
-            impart_pk.update_user_data(user_info.user_id, True)
+            msg += f"战报：道友{user_info['user_name']}获胜,获得思恋结晶10颗\n"
+            impart_pk.update_user_data(user_info['user_id'], True)
             xiuxian_impart.update_stone_num(10, user_id, 1)
         if win == 2:
-            msg += f"战报：道友{user_info.user_name}败了,消耗一次次数,获得思恋结晶5颗\n"
-            impart_pk.update_user_data(user_info.user_id, False)
+            msg += f"战报：道友{user_info['user_name']}败了,消耗一次次数,获得思恋结晶5颗\n"
+            impart_pk.update_user_data(user_info['user_id'], False)
             xiuxian_impart.update_stone_num(5, user_id, 1)
             if impart_pk.find_user_data(user_id)["pk_num"] <= 0 and xu_world.check_xu_world_user_id(user_id) is True:
                 msg += "检测到道友次数已用尽，已帮助道友退出虚神界！"
@@ -211,7 +211,7 @@ async def impart_pk_now_(bot: Bot, event: GroupMessageEvent, args: Message = Com
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await impart_pk_now.finish()
     else:
-        player_1 = user_info.user_id
+        player_1 = user_info['user_id']
         player_2 = xu_world_list[num]
         if str(player_1) == str(player_2):
             msg = "道友不能挑战自己的投影!"
@@ -222,8 +222,8 @@ async def impart_pk_now_(bot: Bot, event: GroupMessageEvent, args: Message = Com
                 await bot.send_group_msg(group_id=int(send_group_id), message=msg)
             await impart_pk_now.finish()
 
-        player_1_name = user_info.user_name
-        player_2_name = XiuxianDateManage().get_user_message(player_2).user_name
+        player_1_name = user_info['user_name']
+        player_2_name = XiuxianDateManage().get_user_message(player_2)['user_name']
 
         msg_list, win = await impart_pk_uitls.impart_pk_now_msg(player_1, player_1_name, player_2, player_2_name)
         if win is None:
@@ -299,7 +299,7 @@ async def impart_pk_exp_(bot: Bot, event: GroupMessageEvent, args: Message = Com
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await impart_pk_exp.finish()
-    user_id = user_info.user_id
+    user_id = user_info['user_id']
     impart_data_draw = await impart_pk_check(user_id)
     if impart_data_draw is None:
         msg = "发生未知错误，多次尝试无果请找晓楠！"
@@ -309,7 +309,7 @@ async def impart_pk_exp_(bot: Bot, event: GroupMessageEvent, args: Message = Com
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await impart_pk_exp.finish()
-    level = user_info.level
+    level = user_info['level']
     hp_speed = 25
     mp_speed = 50
 
@@ -331,7 +331,7 @@ async def impart_pk_exp_(bot: Bot, event: GroupMessageEvent, args: Message = Com
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await impart_pk_exp.finish()
     # 闭关时长计算(分钟)
-    level_rate = XiuxianDateManage().get_root_rate(user_info.root_type)  # 灵根倍率
+    level_rate = XiuxianDateManage().get_root_rate(user_info['root_type'])  # 灵根倍率
     realm_rate = jsondata.level_data()[level]["spend"]  # 境界倍率
     user_buff_data = UserBuffDate(user_id)
     mainbuffdata = user_buff_data.get_user_main_buff_data()
@@ -339,8 +339,8 @@ async def impart_pk_exp_(bot: Bot, event: GroupMessageEvent, args: Message = Com
     mainbuffcloexp = mainbuffdata['clo_exp'] if mainbuffdata != None else 0  # 功法闭关经验
     mainbuffclors = mainbuffdata['clo_rs'] if mainbuffdata != None else 0  # 功法闭关回复
     exp = int((int(impaer_exp_time) * XiuConfig().closing_exp) * ((level_rate * realm_rate * (1 + mainbuffratebuff) * (1 + mainbuffcloexp))))  # 本次闭关获取的修为
-    max_exp = int((int(OtherSet().set_closing_type(user_info.level)) * XiuConfig().closing_exp_upper_limit))  # 获取下个境界需要的修为 * 1.5为闭关上限
-    if 0 < int(user_info.exp + exp) < max_exp:
+    max_exp = int((int(OtherSet().set_closing_type(user_info['level'])) * XiuConfig().closing_exp_upper_limit))  # 获取下个境界需要的修为 * 1.5为闭关上限
+    if 0 < int(user_info['exp'] + exp) < max_exp:
         xiuxian_impart.use_impart_exp_day(impaer_exp_time, user_id)
         XiuxianDateManage().update_exp(user_id, exp)
         XiuxianDateManage().update_power2(user_id)  # 更新战力

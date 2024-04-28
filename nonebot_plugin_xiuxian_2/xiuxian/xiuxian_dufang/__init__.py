@@ -57,7 +57,7 @@ async def dufang_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Re
     bot, send_group_id = await assign_bot(bot=bot, event=event)
 
     isUser, user_info, msg = check_user(event)
-    user_id = user_info.user_id
+    user_id = user_info['user_id']
     if not isUser:
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)

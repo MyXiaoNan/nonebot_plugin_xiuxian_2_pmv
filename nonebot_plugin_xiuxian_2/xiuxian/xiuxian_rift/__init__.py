@@ -96,6 +96,7 @@ async def set_rift_():
 
 @rift_help.handle(parameterless=[Cooldown(at_sender=True)])
 async def rift_help_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
+    """秘境帮助"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     if session_id in cache_help:
         await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(cache_help[session_id]))
@@ -111,9 +112,9 @@ async def rift_help_(bot: Bot, event: GroupMessageEvent, session_id: int = Comma
         await rift_help.finish()
 
 
-# 生成秘境
 @create_rift.handle(parameterless=[Cooldown(at_sender=True)])
 async def create_rift_(bot: Bot, event: GroupMessageEvent):
+    """生成秘境"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     group_id = str(event.group_id)
     if group_id not in groups:
@@ -150,9 +151,9 @@ async def create_rift_(bot: Bot, event: GroupMessageEvent):
         await create_rift.finish()
 
 
-# 探索秘境
 @explore_rift.handle(parameterless=[Cooldown(at_sender=True)])
 async def _(bot: Bot, event: GroupMessageEvent):
+    """探索秘境"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = check_user(event)
     if not isUser:
@@ -163,7 +164,7 @@ async def _(bot: Bot, event: GroupMessageEvent):
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await explore_rift.finish()
 
-    user_id = user_info.user_id
+    user_id = user_info['user_id']
     is_type, msg = check_user_type(user_id, 0)  # 需要无状态的用户
     if not is_type:
         if XiuConfig().img:
@@ -230,9 +231,9 @@ async def _(bot: Bot, event: GroupMessageEvent):
         await explore_rift.finish()
 
 
-# 结算秘境
 @complete_rift.handle(parameterless=[Cooldown(at_sender=True)])
 async def complete_rift_(bot: Bot, event: GroupMessageEvent):
+    """秘境结算"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = check_user(event)
     if not isUser:
@@ -243,7 +244,7 @@ async def complete_rift_(bot: Bot, event: GroupMessageEvent):
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await complete_rift.finish()
 
-    user_id = user_info.user_id
+    user_id = user_info['user_id']
 
     group_id = str(event.group_id)
     if group_id not in groups:
@@ -332,9 +333,9 @@ async def complete_rift_(bot: Bot, event: GroupMessageEvent):
                 await complete_rift.finish()
 
 
-# 终止探索秘境
 @break_rift.handle(parameterless=[Cooldown(at_sender=True)])
 async def break_rift_(bot: Bot, event: GroupMessageEvent):
+    """终止探索秘境"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = check_user(event)
     if not isUser:
@@ -344,7 +345,7 @@ async def break_rift_(bot: Bot, event: GroupMessageEvent):
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await break_rift.finish()
-    user_id = user_info.user_id
+    user_id = user_info['user_id']
     group_id = str(event.group_id)
     if group_id not in groups:
         msg = '本群尚未开启秘境，请联系管理员开启群秘境'
@@ -364,7 +365,7 @@ async def break_rift_(bot: Bot, event: GroupMessageEvent):
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await break_rift.finish()
     else:
-        user_id = user_info.user_id
+        user_id = user_info['user_id']
         rift_info = None
         try:
             rift_info = read_rift_data(user_id)
@@ -390,6 +391,7 @@ async def break_rift_(bot: Bot, event: GroupMessageEvent):
 
 @set_group_rift.handle(parameterless=[Cooldown(at_sender=True)])
 async def set_group_rift_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
+    """群秘境开启、关闭"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     mode = args.extract_plain_text().strip()
     group_id = str(event.group_id)
@@ -446,9 +448,9 @@ async def set_group_rift_(bot: Bot, event: GroupMessageEvent, args: Message = Co
         await set_group_rift.finish()
 
 
-#关闭秘境
 @close_rift.handle(parameterless=[Cooldown(at_sender=True)])
 async def _(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
+    """关闭秘境"""
     user_id, group_id, send_group_id = await assign_bot(bot=bot, event=event)
 
     if group_id not in groups:

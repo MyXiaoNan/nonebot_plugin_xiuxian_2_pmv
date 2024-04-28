@@ -235,7 +235,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     user_level = "仙王境初期"
     isUser, user_info, msg = check_user(event)
-    user_level_sx = user_info.level
+    user_level_sx = user_info['level']
     if not isUser:
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
@@ -243,7 +243,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await do_work.finish()
-    user_id = user_info.user_id
+    user_id = user_info['user_id']
     user_cd_message = sql_message.get_user_cd(user_id)
     if not os.path.exists(PLAYERSDATA / str(user_id) / "workinfo.json") and user_cd_message.type == 2:
         sql_message.do_work(user_id, 0)
@@ -255,7 +255,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await do_work.finish()
     mode = args[0]  # 刷新、终止、结算、接取
-    if USERRANK[user_info.level] <= 14 or user_info.exp >= sql_message.get_level_power(user_level):
+    if USERRANK[user_info['level']] <= 14 or user_info['exp'] >= sql_message.get_level_power(user_level):
         msg = f"道友的境界已过创业初期，悬赏令已经不能满足道友了！"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
@@ -263,8 +263,8 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await do_work.finish()
-    user_level = user_info.level
-    if int(user_info.exp) >= int(OtherSet().set_closing_type(user_level)) * XiuConfig().closing_exp_upper_limit:
+    user_level = user_info['level']
+    if int(user_info['exp']) >= int(OtherSet().set_closing_type(user_level)) * XiuConfig().closing_exp_upper_limit:
         # 获取下个境界需要的修为 * 1.5为闭关上限
         msg = f"道友的修为已经到达上限，悬赏令已无法再获得经验！"
         if XiuConfig().img:
@@ -301,7 +301,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
                 user_cd_message.create_time, "%Y-%m-%d %H:%M:%S.%f"
             )
             exp_time = (datetime.now() - work_time).seconds // 60  # 时长计算
-            time2 = workhandle().do_work(key=1, name=user_cd_message.scheduled_time, user_id=user_info.user_id)
+            time2 = workhandle().do_work(key=1, name=user_cd_message.scheduled_time, user_id=user_info['user_id'])
             if exp_time < time2:
                 msg = f"进行中的悬赏令【{user_cd_message.scheduled_time}】，预计{time2 - exp_time}分钟后可结束"
             else:
@@ -351,7 +351,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
         freenum = count - usernums - 1
         if freenum < 0:
             freenum = 0
-            if int(user_info.stone) < int(lscost /USERRANK[user_level_sx]):
+            if int(user_info['stone']) < int(lscost /USERRANK[user_level_sx]):
                 msg = f"道友的灵石不足以刷新，下次刷新消耗灵石：{int(lscost /USERRANK[user_level_sx])}枚"
                 if XiuConfig().img:
                     pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
@@ -363,7 +363,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
                 sql_message.update_ls(user_id, int(lscost/USERRANK[user_level_sx]) , 2)
                 stone_use = 1
 
-        work_msg = workhandle().do_work(0, level=user_level, exp=user_info.exp, user_id=user_id)
+        work_msg = workhandle().do_work(0, level=user_level, exp=user_info['exp'], user_id=user_id)
         n = 1
         work_list = []
         work_msg_f = f"☆------道友的个人悬赏令------☆\n"
@@ -419,8 +419,8 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
             exp_time = (datetime.now() - work_time).seconds // 60  # 时长计算
             time2 = workhandle().do_work(
                 # key=1, name=user_cd_message.scheduled_time  修改点
-                key=1, name=user_cd_message.scheduled_time, level=user_level, exp=user_info.exp,
-                user_id=user_info.user_id
+                key=1, name=user_cd_message.scheduled_time, level=user_level, exp=user_info['exp'],
+                user_id=user_info['user_id']
             )
             if exp_time < time2:
                 msg = f"进行中的悬赏令【{user_cd_message.scheduled_time}】，预计{time2 - exp_time}分钟后可结束"
@@ -434,8 +434,8 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
                 msg, give_exp, s_o_f, item_id, big_suc = workhandle().do_work(2,
                                                                               work_list=user_cd_message.scheduled_time,
                                                                               level=user_level,
-                                                                              exp=user_info.exp,
-                                                                              user_id=user_info.user_id)
+                                                                              exp=user_info['exp'],
+                                                                              user_id=user_info['user_id'])
                 item_flag = False
                 item_info = None
                 item_msg = None

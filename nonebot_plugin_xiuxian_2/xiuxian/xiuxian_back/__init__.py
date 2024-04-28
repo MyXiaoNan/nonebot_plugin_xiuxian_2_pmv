@@ -206,6 +206,7 @@ async def set_auction_by_scheduler_():
 
 @back_help.handle(parameterless=[Cooldown(at_sender=True)])
 async def back_help_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
+    """背包帮助"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     if session_id in cache_help:
         await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(cache_help[session_id]))
@@ -236,7 +237,7 @@ async def xiuxian_sone_(bot: Bot, event: GroupMessageEvent):
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await xiuxian_sone.finish()
-    msg = f"当前灵石：{(user_info.stone)}"
+    msg = f"当前灵石：{(user_info['stone'])}"
     if XiuConfig().img:
         pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
         await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -261,7 +262,7 @@ async def buy_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
             else:
                 await bot.send_group_msg(group_id=int(send_group_id), message=msg)
             await buy.finish()
-        user_id = user_info.user_id
+        user_id = user_info['user_id']
         group_id = str(event.group_id)
         shop_data = get_shop_data(group_id)
         
@@ -316,7 +317,7 @@ async def buy_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
         shop_user_id = shop_data[group_id][str(arg)]['user_id']
         goods_price = goods_info['price'] * purchase_quantity  # 总价格
         goods_stock = goods_info.get('stock', 1)  # 如果没有指定数量，默认为1
-        if user_info.stone < goods_price:
+        if user_info['stone'] < goods_price:
             msg = '没钱还敢来买东西！！'
             if XiuConfig().img:
                 pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
@@ -519,7 +520,7 @@ async def shop_added_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await shop_added.finish()
-    user_id = user_info.user_id
+    user_id = user_info['user_id']
     args = args.extract_plain_text().split()
     goods_name = args[0] if len(args) > 0 else None
     price_str = args[1] if len(args) > 1 else "500000"  # 如果未提供价格，默认为500000
@@ -624,7 +625,7 @@ async def shop_added_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await shop_added.finish()
     if goods_type == "聚灵旗" or goods_type == "炼丹炉":
-        if user_info.root == "器师" :
+        if user_info['root'] == "器师" :
             pass
         else:
             msg = f"道友职业无法上架！"
@@ -640,7 +641,7 @@ async def shop_added_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
 
     num = 0
     for k, v in shop_data[group_id].items():
-        if str(v['user_id']) == str(user_info.user_id):
+        if str(v['user_id']) == str(user_info['user_id']):
             num += 1
         else:
             pass
@@ -663,7 +664,7 @@ async def shop_added_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
         'goods_type': goods_type,
         'desc': get_item_msg(goods_id),
         'price': price,
-        'user_name': user_info.user_name,
+        'user_name': user_info['user_name'],
         'stock': quantity,  # 物品数量
     }
     sql_message.update_back_j(user_id, goods_id, num = quantity)
@@ -679,7 +680,7 @@ async def shop_added_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
 
 @goods_re_root.handle(parameterless=[Cooldown(at_sender=True)])
 async def goods_re_root_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
-    """物品回收"""
+    """炼金"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = check_user(event)
     if not isUser:
@@ -689,7 +690,7 @@ async def goods_re_root_(bot: Bot, event: GroupMessageEvent, args: Message = Com
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await goods_re_root.finish()
-    user_id = user_info.user_id
+    user_id = user_info['user_id']
     args = args.extract_plain_text().split()
     if args is None:
         msg = "请输入要炼化的物品！"
@@ -786,7 +787,7 @@ async def shop_off_(bot: Bot, event: GroupMessageEvent, args: Message = CommandA
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await shop_off.finish()
-    user_id = user_info.user_id
+    user_id = user_info['user_id']
     group_id = str(event.group_id)
     shop_data = get_shop_data(group_id)
     if shop_data[group_id] == {}:
@@ -850,7 +851,7 @@ async def shop_off_(bot: Bot, event: GroupMessageEvent, args: Message = CommandA
             sql_message.send_back(shop_data[group_id][str(arg)]['user_id'], shop_data[group_id][str(arg)]['goods_id'],
                                   shop_data[group_id][str(arg)]['goods_name'],
                                   shop_data[group_id][str(arg)]['goods_type'], 1)
-            msg1 = f"道友上架的{shop_data[group_id][str(arg)]['goods_name']}已被管理员{user_info.user_name}下架！"
+            msg1 = f"道友上架的{shop_data[group_id][str(arg)]['goods_name']}已被管理员{user_info['user_name']}下架！"
             del shop_data[group_id][str(arg)]
             shop_data[group_id] = reset_dict_num(shop_data[group_id])
             save_shop(shop_data)
@@ -888,13 +889,13 @@ async def main_back_(bot: Bot, event: GroupMessageEvent):
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await main_back.finish()
-    user_id = user_info.user_id
+    user_id = user_info['user_id']
     msg = get_user_main_back_msg(user_id)
 
     if len(msg) >= 98: #背包更新
         # 将第一条消息和第二条消息合并为一条消息
-        msg1 = [f"{user_info.user_name}的背包，持有灵石：{number_to(user_info.stone)}枚"] + msg[:98]
-        msg2 = [f"{user_info.user_name}的背包，持有灵石：{number_to(user_info.stone)}枚"] + msg[98:]
+        msg1 = [f"{user_info['user_name']}的背包，持有灵石：{number_to(user_info['stone'])}枚"] + msg[:98]
+        msg2 = [f"{user_info['user_name']}的背包，持有灵石：{number_to(user_info['stone'])}枚"] + msg[98:]
         try:
             await send_msg_handler(bot, event, '背包', bot.self_id, msg1)
             if msg2:
@@ -904,7 +905,7 @@ async def main_back_(bot: Bot, event: GroupMessageEvent):
         except ActionFailed:
             await main_back.finish("查看背包失败!", reply_message=True)
     else:
-        msg = [f"{user_info.user_name}的背包，持有灵石：{number_to(user_info.stone)}枚"] + msg
+        msg = [f"{user_info['user_name']}的背包，持有灵石：{number_to(user_info['stone'])}枚"] + msg
         try:
             await send_msg_handler(bot, event, '背包', bot.self_id, msg)
         except ActionFailed:
@@ -929,7 +930,7 @@ async def no_use_zb_(bot: Bot, event: GroupMessageEvent, args: Message = Command
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await no_use_zb.finish()
-    user_id = user_info.user_id
+    user_id = user_info['user_id']
     arg = args.extract_plain_text().strip()
 
     back_msg = sql_message.get_back_msg(user_id)  # 背包sql信息,list(back)
@@ -1008,7 +1009,7 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await use.finish()
-    user_id = user_info.user_id
+    user_id = user_info['user_id']
     args = args.extract_plain_text().split()
     arg = args[0]  # 
     back_msg = sql_message.get_back_msg(user_id)  # 背包sql信息,list(back)
@@ -1143,16 +1144,16 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
             num = 1
         goods_info = items.get_data_by_item_id(goods_id)
         user_info = sql_message.get_user_message(user_id)
-        user_rank = USERRANK[user_info.level]
+        user_rank = USERRANK[user_info['level']]
         goods_rank = goods_info['rank']
         goods_name = goods_info['name']
         if goods_rank < user_rank:  # 使用限制
                 msg = f"神物：{goods_name}的使用境界为{goods_info['境界']}以上，道友不满足使用条件！"
         else:
                 exp = goods_info['buff'] * num
-                user_hp = int(user_info.hp + (exp / 2))
-                user_mp = int(user_info.mp + exp)
-                user_atk = int(user_info.atk + (exp / 10))
+                user_hp = int(user_info['hp'] + (exp / 2))
+                user_mp = int(user_info['mp'] + exp)
+                user_atk = int(user_info['atk'] + (exp / 10))
                 sql_message.update_exp(user_id, exp)
                 sql_message.update_power2(user_id)  # 更新战力
                 sql_message.update_user_attribute(user_id, user_hp, user_mp, user_atk)  # 这种事情要放在update_exp方法里
@@ -1185,7 +1186,8 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
             num = 1
         goods_info = items.get_data_by_item_id(goods_id)
         user_info = sql_message.get_user_message(user_id)
-        user_rank = USERRANK[user_info.level]
+        user_rank = USERRANK[user_info['level']]
+        print("礼包使用", user_rank)
         goods_name = goods_info['name']
         goods_id1 = goods_info['buff_1']
         goods_id2 = goods_info['buff_2']
@@ -1319,7 +1321,7 @@ async def creat_auction_(bot: Bot, event: GroupMessageEvent):
 
     user_info = sql_message.get_user_message(auction['user_id'])
     now_price = int(auction['now_price'])
-    user_stone = user_info.stone
+    user_stone = user_info['stone']
     if user_stone < now_price:
         msg = f"拍卖会结算！竞拍者灵石小于拍卖，判定为捣乱，捣乱次数+1!"
         if XiuConfig().img:
@@ -1330,7 +1332,7 @@ async def creat_auction_(bot: Bot, event: GroupMessageEvent):
         await creat_auction.finish()
 
     msg = "本次拍卖会结束！"
-    msg += f"恭喜来自群{auction['group_id']}的{user_info.user_name}道友成功拍卖获得：{auction['type']}-{auction['name']}!"
+    msg += f"恭喜来自群{auction['group_id']}的{user_info['user_name']}道友成功拍卖获得：{auction['type']}-{auction['name']}!"
     for group_id in groups:
         bot = await assign_bot_group(group_id=group_id)
         try:
@@ -1342,8 +1344,8 @@ async def creat_auction_(bot: Bot, event: GroupMessageEvent):
         except ActionFailed:  # 发送群消息失败
             continue
 
-    sql_message.send_back(user_info.user_id, auction['id'], auction['name'], auction['type'], 1)
-    sql_message.update_ls(user_info.user_id, int(auction['now_price']), 2)
+    sql_message.send_back(user_info['user_id'], auction['id'], auction['name'], auction['type'], 1)
+    sql_message.update_ls(user_info['user_id'], int(auction['now_price']), 2)
     auction = {}
     auction_offer_time_count = 0
     await creat_auction.finish()
@@ -1395,7 +1397,7 @@ async def offer_auction_(bot: Bot, event: GroupMessageEvent, args: Message = Com
 
     now_price = auction['now_price']
     min_price = int(now_price * 0.05)  # 最低加价5%
-    if price <= 0 or price <= auction['now_price'] or price > user_info.stone:
+    if price <= 0 or price <= auction['now_price'] or price > user_info['stone']:
         msg = f"走开走开，别捣乱！小心清空你灵石捏！"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
@@ -1416,13 +1418,13 @@ async def offer_auction_(bot: Bot, event: GroupMessageEvent, args: Message = Com
     auction_offer_flag = True  # 有人拍卖
     auction_offer_time_count += 1
     auction_offer_all_count += 1
-    auction['user_id'] = user_info.user_id
+    auction['user_id'] = user_info['user_id']
     auction['now_price'] = price
     auction['group_id'] = group_id
     now_time = datetime.now()
     dif_time = OtherSet().date_diff(now_time, auction['start_time'])
     msg = (
-        f"来自群{group_id}的{user_info.user_name}道友拍卖：{price}枚灵石！"
+        f"来自群{group_id}的{user_info['user_name']}道友拍卖：{price}枚灵石！"
         f"竞拍时间增加：{AUCTIONOFFERSLEEPTIME}秒，竞拍剩余时间：{int(AUCTIONSLEEPTIME - dif_time + AUCTIONOFFERSLEEPTIME * auction_offer_time_count)}秒"
     )
     error_msg = None
@@ -1460,7 +1462,7 @@ async def set_auction_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
 
     if mode == '开启':
         if is_in_group:
-            msg = f'本群已开启群交流会，请勿重复开启!'
+            msg = f'本群已开启群拍卖会，请勿重复开启!'
             if XiuConfig().img:
                 pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -1470,7 +1472,7 @@ async def set_auction_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
         else:
             config['open'].append(group_id)
             savef(config)
-            msg = "已开启群交流会"
+            msg = "已开启群拍卖会"
             if XiuConfig().img:
                 pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -1482,7 +1484,7 @@ async def set_auction_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
         if is_in_group:
             config['open'].remove(group_id)
             savef(config)
-            msg = f'已关闭本群交流会!'
+            msg = f'已关闭本群拍卖会!'
             if XiuConfig().img:
                 pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -1490,7 +1492,7 @@ async def set_auction_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
                 await bot.send_group_msg(group_id=int(send_group_id), message=msg)
             await set_auction.finish()
         else:
-            msg = f'本群未开启群交流会!'
+            msg = f'本群未开启群拍卖会!'
             if XiuConfig().img:
                 pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))

@@ -23,7 +23,7 @@ tz = on_command('合成天罪', priority=15, permission=GROUP,block=True)
 async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = check_user(event)
-    user_id = user_info.user_id
+    user_id = user_info['user_id']
     back_msg = sql_message.get_back_msg(user_id)
     if back_msg is None:
         msg = "道友的背包空空如也！"

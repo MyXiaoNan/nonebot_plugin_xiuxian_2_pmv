@@ -35,13 +35,12 @@ async def lunhui_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandO
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await lunhui.finish()
         
-    user_id = user_info.user_id
+    user_id = user_info['user_id']
     user_msg = sql_message.get_user_message(user_id) 
-    user_name = user_msg.user_name
-    user_root = user_msg.root_type
-    user_rank = USERRANK[user_info.level]
+    user_name = user_msg['user_name']
+    user_root = user_msg['root_type']
     list_level_all = list(jsondata.level_data().keys())
-    level = user_info.level
+    level = user_info['level']
     
     if user_root == '轮回道果' :
         msg = '道友已是千世轮回之身！'
@@ -62,7 +61,7 @@ async def lunhui_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandO
         await lunhui.finish()
         
     if list_level_all.index(level) >= list_level_all.index(XiuConfig().lunhui_min_level):
-        exp = user_msg.exp
+        exp = user_msg['exp']
         now_exp = exp - 100
         sql_message.updata_level(user_id, '江湖好手') #重置用户境界
         sql_message.update_levelrate(user_id, 0) #重置突破成功率
@@ -101,13 +100,12 @@ async def Twolun_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandO
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await Twolun.finish()
         
-    user_id = user_info.user_id
+    user_id = user_info['user_id']
     user_msg = sql_message.get_user_message(user_id) 
-    user_name = user_msg.user_name
-    user_root = user_msg.root_type
-    user_rank = USERRANK[user_info.level]
+    user_name = user_msg['user_name']
+    user_root = user_msg['root_type']
     list_level_all = list(jsondata.level_data().keys())
-    level = user_info.level
+    level = user_info['level']
     
     if user_root == '真·轮回道果':
         msg = '道友已是万世轮回之身！'
@@ -128,7 +126,7 @@ async def Twolun_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandO
         await Twolun.finish() 
     
     if list_level_all.index(level) >= list_level_all.index(XiuConfig().twolun_min_level) and user_root == '轮回道果':
-        exp = user_msg.exp
+        exp = user_msg['exp']
         now_exp = exp - 100
         sql_message.updata_level(user_id, '江湖好手') #重置用户境界
         sql_message.update_levelrate(user_id, 0) #重置突破成功率
@@ -163,14 +161,13 @@ async def resetting_(bot: Bot, event: GroupMessageEvent, session_id: int = Comma
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await resetting.finish()
         
-    user_id = user_info.user_id
+    user_id = user_info['user_id']
     user_msg = sql_message.get_user_message(user_id) 
-    user_name = user_msg.user_name
-    user_root = user_msg.root_type
+    user_name = user_msg['user_name']
 
         
-    if  user_msg.level == '搬血境初期' or user_msg.level == '搬血境中期' or user_msg.level == '搬血境圆满' :
-        exp = user_msg.exp
+    if user_msg['level'] in ['搬血境初期', '搬血境中期', '搬血境圆满']:
+        exp = user_msg['exp']
         now_exp = exp
         sql_message.updata_level(user_id, '江湖好手') #重置用户境界
         sql_message.update_levelrate(user_id, 0) #重置突破成功率

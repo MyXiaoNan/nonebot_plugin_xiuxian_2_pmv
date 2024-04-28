@@ -86,7 +86,7 @@ async def bank_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Rege
             else:
                 await bot.send_group_msg(group_id=int(send_group_id), message=msg)
             await bank.finish()
-    user_id = user_info.user_id
+    user_id = user_info['user_id']
     try:
         bankinfo = readf(user_id)
     except:
@@ -97,8 +97,8 @@ async def bank_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Rege
         }
 
     if mode == '存灵石':  # 存灵石逻辑
-        if int(user_info.stone) < num:
-            msg = f"道友所拥有的灵石为{user_info.stone}枚，金额不足，请重新输入！"
+        if int(user_info['stone']) < num:
+            msg = f"道友所拥有的灵石为{user_info['stone']}枚，金额不足，请重新输入！"
             if XiuConfig().img:
                 pic = await get_msg_pic(msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -119,7 +119,7 @@ async def bank_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Rege
             await bank.finish()
 
         bankinfo, give_stone, timedeff = get_give_stone(bankinfo)
-        userinfonowstone = int(user_info.stone) - num
+        userinfonowstone = int(user_info['stone']) - num
         bankinfo['savestone'] += num
         sql_message.update_ls(user_id, num, 2)
         sql_message.update_ls(user_id, give_stone, 1)
@@ -146,7 +146,7 @@ async def bank_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Rege
         # 先结算利息
         bankinfo, give_stone, timedeff = get_give_stone(bankinfo)
 
-        userinfonowstone = int(user_info.stone) + num + give_stone
+        userinfonowstone = int(user_info['stone']) + num + give_stone
         bankinfo['savestone'] -= num
         sql_message.update_ls(user_id, num + give_stone, 1)
         savef(user_id, bankinfo)
@@ -170,8 +170,8 @@ async def bank_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Rege
             await bank.finish()
 
         stonecost = BANKLEVEL[f'{int(userlevel)}']['levelup']
-        if int(user_info.stone) < stonecost:
-            msg = f"道友所拥有的灵石为{user_info.stone}枚，当前升级会员等级需求灵石{stonecost}枚金额不足，请重新输入！"
+        if int(user_info['stone']) < stonecost:
+            msg = f"道友所拥有的灵石为{user_info['stone']}枚，当前升级会员等级需求灵石{stonecost}枚金额不足，请重新输入！"
             if XiuConfig().img:
                 pic = await get_msg_pic(msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -195,7 +195,7 @@ async def bank_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Rege
 已存：{bankinfo['savestone']}灵石
 存入时间：{bankinfo['savetime']}
 灵庄会员等级：{BANKLEVEL[bankinfo['banklevel']]['level']}
-当前拥有灵石：{user_info.stone}
+当前拥有灵石：{user_info['stone']}
 当前等级存储灵石上限：{BANKLEVEL[bankinfo['banklevel']]['savemax']}枚
 '''
         if XiuConfig().img:
