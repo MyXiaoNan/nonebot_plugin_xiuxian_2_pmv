@@ -280,7 +280,7 @@ async def complete_rift_(bot: Bot, event: GroupMessageEvent):
 
         user_cd_message = sql_message.get_user_cd(user_id)
         work_time = datetime.strptime(
-            user_cd_message.create_time, "%Y-%m-%d %H:%M:%S.%f"
+            user_cd_message['create_time'], "%Y-%m-%d %H:%M:%S.%f"
         )
         exp_time = (datetime.now() - work_time).seconds // 60  # 时长计算
         time2 = rift_info["time"]

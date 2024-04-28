@@ -25,20 +25,7 @@ items = Items()
 # 获取当前时间并格式化
 current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
 
-impart_buff = namedtuple("xiuxian_impart",
-                         ["id", "user_id", "impart_hp_per", "impart_atk_per", "impart_mp_per", "impart_exp_up",
-                          "boss_atk", "impart_know_per", "impart_burst_per", "impart_mix_per", "impart_reap_per",
-                          "impart_two_exp", "stone_num", "exp_day", "wish"])
 
-xiuxian_data = namedtuple("xiuxian_data", ["no", "user_id", "linggen", "level"])
-
-UserCd = namedtuple("UserCd", ["user_id", "type", "create_time", "scheduled_time", "last_check_info_time"])
-SectInfo = namedtuple("SectInfo",
-                      ["sect_id", "sect_name", "sect_owner", "sect_scale", "sect_used_stone", "sect_fairyland",
-                       "sect_materials", "mainbuff", "secbuff", "elixir_room_level"])
-BuffInfo = namedtuple("BuffInfo",
-                      ["id", "user_id", "main_buff", "sec_buff", "faqi_buff", "fabao_weapon", "armor_buff", "atk_buff",
-                       "blessed_spot", "sub_buff"])#辅修功法2
 back = namedtuple("back", ["user_id", "goods_id", "goods_name", "goods_type", "goods_num", "create_time", "update_time",
                            "remake", "day_num", "all_num", "action_time", "state", "bind_num"])
 
@@ -555,19 +542,23 @@ class XiuxianDateManage:
         cur.execute(sql, (level_name, user_id))
         self.conn.commit()
 
+
     def get_user_cd(self, user_id):
         """
         获取用户操作CD
         :param user_id: QQ
+        :return: 用户CD信息的字典
         """
         sql = f"SELECT * FROM user_cd  WHERE user_id=?"
         cur = self.conn.cursor()
         cur.execute(sql, (user_id,))
         result = cur.fetchone()
         if result:
-            return UserCd(*result)
+            columns = [column[0] for column in cur.description]
+            user_cd_dict = dict(zip(columns, result))
+            return user_cd_dict
         else:
-            self.insert_user_cd(user_id, )
+            self.insert_user_cd(user_id)
             return None
 
     def insert_user_cd(self, user_id) -> None:
@@ -580,6 +571,7 @@ class XiuxianDateManage:
         cur = self.conn.cursor()
         cur.execute(sql, (user_id,))
         self.conn.commit()
+
 
     def create_sect(self, user_id, sect_name) -> None:
         """
@@ -848,18 +840,21 @@ class XiuxianDateManage:
         result = cur.fetchall()
         return result
 
+
     def get_all_sects(self):
         """
         获取所有宗门信息
-        :return:
+        :return: 宗门信息字典列表
         """
         sql = f"SELECT * FROM sects WHERE sect_owner is NOT NULL"
         cur = self.conn.cursor()
-        cur.execute(sql, )
+        cur.execute(sql)
         result = cur.fetchall()
         results = []
-        for r in result:
-            results.append(SectInfo(*r))
+        columns = [column[0] for column in cur.description]
+        for row in result:
+            sect_dict = dict(zip(columns, row))
+            results.append(sect_dict)
         return results
 
     def get_all_sects_with_member_count(self):
@@ -1040,6 +1035,7 @@ class XiuxianDateManage:
             cur.execute(sql, (user_id,))
             self.conn.commit()
 
+    
     def get_back_msg(self, user_id):
         """获取用户背包信息"""
         sql = f"SELECT * FROM back WHERE user_id=? and goods_num >= 1"
@@ -1049,12 +1045,16 @@ class XiuxianDateManage:
         # msg = f"你的背包\n"
         # for i in result:
         #     msg += f"{i},"
-        results = []
         if not result:
-            results = None
-        for r in result:
-            results.append(back(*r))
+            return None
+    
+        columns = [column[0] for column in cur.description]
+        results = []
+        for row in result:
+            back_dict = dict(zip(columns, row))
+            results.append(back_dict)
         return results
+
 
     def goods_num(self, user_id, goods_id):
         """
@@ -1156,11 +1156,13 @@ class XiuxianDateManage:
         cur = self.conn.cursor()
         cur.execute(sql, (user_id,))
         result = cur.fetchone()
-        if not result:
-            return None
+        if result:
+            columns = [column[0] for column in cur.description]
+            buff_dict = dict(zip(columns, result))
+            return buff_dict
         else:
-            return BuffInfo(*result)
-
+            return None
+        
     def updata_user_main_buff(self, user_id, id):
         """更新用户主功法信息"""
         sql = f"UPDATE BuffInfo SET main_buff = ? WHERE user_id = ?"
@@ -1275,6 +1277,7 @@ class XiuxianDateManage:
             cur.execute(sql, (user_id, goods_id, goods_name, goods_type, goods_num, now_time, now_time, bind_num))
             self.conn.commit()
 
+
     def get_item_by_good_id_and_user_id(self, user_id, goods_id):
         """根据物品id、用户id获取物品信息"""
         sql = f"select * from back WHERE user_id=? and goods_id=?"
@@ -1283,8 +1286,11 @@ class XiuxianDateManage:
         result = cur.fetchone()
         if not result:
             return None
-        else:
-            return back(*result)
+    
+        columns = [column[0] for column in cur.description]
+        item_dict = dict(zip(columns, result))
+        return item_dict
+
 
     def update_back_equipment(self, sql_str):
         """更新背包,传入sql"""
@@ -1569,13 +1575,13 @@ def final_user_data(user_data, columns):
     user_buff_data = UserBuffDate(user_dict['user_id']).BuffInfo
     
     armor_atk_buff = 0
-    if int(user_buff_data.armor_buff) != 0:
-        armor_info = items.get_data_by_item_id(user_buff_data.armor_buff)
+    if int(user_buff_data['armor_buff']) != 0:
+        armor_info = items.get_data_by_item_id(user_buff_data['armor_buff'])
         armor_atk_buff = armor_info['atk_buff']
         
     weapon_atk_buff = 0
-    if int(user_buff_data.faqi_buff) != 0:
-        weapon_info = items.get_data_by_item_id(user_buff_data.faqi_buff)
+    if int(user_buff_data['faqi_buff']) != 0:
+        weapon_info = items.get_data_by_item_id(user_buff_data['faqi_buff'])
         weapon_atk_buff = weapon_info['atk_buff']
     
     main_buff_data = UserBuffDate(user_dict['user_id']).get_user_main_buff_data()
@@ -1587,7 +1593,7 @@ def final_user_data(user_data, columns):
     user_dict['hp'] = int(user_dict['hp'] * (1 + main_hp_buff + impart_hp_per))
     user_dict['mp'] = int(user_dict['mp'] * (1 + main_mp_buff + impart_mp_per))
     user_dict['atk'] = int((user_dict['atk'] * (user_dict['atkpractice'] * 0.04 + 1) * (1 + main_atk_buff) * (
-            1 + weapon_atk_buff) * (1 + armor_atk_buff)) * (1 + impart_atk_per)) + int(user_buff_data.atk_buff)
+            1 + weapon_atk_buff) * (1 + armor_atk_buff)) * (1 + impart_atk_per)) + int(user_buff_data['atk_buff'])
     
     return user_dict
 

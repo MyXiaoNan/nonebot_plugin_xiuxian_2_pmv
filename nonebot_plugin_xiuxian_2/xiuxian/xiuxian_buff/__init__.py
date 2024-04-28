@@ -727,7 +727,7 @@ async def out_closing_(bot: Bot, event: GroupMessageEvent):
     else:
         # 用户状态为1
         in_closing_time = datetime.strptime(
-            user_cd_message.create_time, "%Y-%m-%d %H:%M:%S.%f"
+            user_cd_message['create_time'], "%Y-%m-%d %H:%M:%S.%f"
         )  # 进入闭关的时间
         exp_time = (
                 OtherSet().date_diff(now_time, in_closing_time) // 60

@@ -111,9 +111,9 @@ def check_equipment_use_msg(user_id, goods_id):
     检测装备是否已用
     """
     user_back = sql_message.get_item_by_good_id_and_user_id(user_id, goods_id)
-    now_num = user_back.goods_num
-    all_num = user_back.all_num
-    state = user_back.state
+    now_num = user_back['goods_num']
+    all_num = user_back['all_num']
+    state = user_back['state']
     is_use = False
     if state == 0:
         is_use = False
@@ -135,17 +135,17 @@ def get_user_main_back_msg(user_id):
     if user_backs is None:
         return l_msg
     for user_back in user_backs:
-        if user_back.goods_type == "装备":
-            l_equipment_msg = get_equipment_msg(l_equipment_msg, user_id, user_back.goods_id, user_back.goods_num)
+        if user_back['goods_type'] == "装备":
+            l_equipment_msg = get_equipment_msg(l_equipment_msg, user_id, user_back['goods_id'], user_back['goods_num'])
  
-        elif user_back.goods_type == "神物":
-            l_shenwu_msg = get_shenwu_msg(l_shenwu_msg, user_back.goods_id, user_back.goods_num)
+        elif user_back['goods_type'] == "神物":
+            l_shenwu_msg = get_shenwu_msg(l_shenwu_msg, user_back['goods_id'], user_back['goods_num'])
 
-        elif user_back.goods_type == "聚灵旗":
-            l_xiulianitem_msg = get_jlq_msg(l_xiulianitem_msg, user_id, user_back.goods_id, user_back.goods_num)
+        elif user_back['goods_type'] == "聚灵旗":
+            l_xiulianitem_msg = get_jlq_msg(l_xiulianitem_msg, user_id, user_back['goods_id'], user_back['goods_num'])
 
-        elif user_back.goods_type == "礼包":
-            l_libao_msg = get_libao_msg(l_libao_msg, user_back.goods_id, user_back.goods_num)
+        elif user_back['goods_type'] == "礼包":
+            l_libao_msg = get_libao_msg(l_libao_msg, user_back['goods_id'], user_back['goods_num'])
 
     if l_equipment_msg:
         l_msg.append("☆------我的装备------☆")
@@ -180,10 +180,10 @@ def get_user_elixir_back_msg(user_id):
     if user_backs is None:
         return l_msg
     for user_back in user_backs:
-        if user_back.goods_type == "丹药":
-            l_elixir_msg = get_elixir_msg(l_elixir_msg, user_back.goods_id, user_back.goods_num)
-        elif user_back.goods_type == "炼丹炉":
-            l_ldl_msg = get_ldl_msg(l_ldl_msg, user_id, user_back.goods_id, user_back.goods_num)
+        if user_back['goods_type'] == "丹药":
+            l_elixir_msg = get_elixir_msg(l_elixir_msg, user_back['goods_id'], user_back['goods_num'])
+        elif user_back['goods_type'] == "炼丹炉":
+            l_ldl_msg = get_ldl_msg(l_ldl_msg, user_id, user_back['goods_id'], user_back['goods_num'])
 
     if l_ldl_msg:
         l_msg.append("☆------炼丹炉------☆")
@@ -216,8 +216,8 @@ def get_user_skill_back_msg(user_id):
     if user_backs is None:
         return l_msg
     for user_back in user_backs:
-        if user_back.goods_type == "技能":
-            l_skill_msg = get_skill_msg(l_skill_msg, user_id, user_back.goods_id, user_back.goods_num)
+        if user_back['goods_type'] == "技能":
+            l_skill_msg = get_skill_msg(l_skill_msg, user_id, user_back['goods_id'], user_back['goods_num'])
     if l_skill_msg:
         l_msg.append("☆------拥有技能书------☆")
         for msg in l_skill_msg:
@@ -235,8 +235,8 @@ def get_user_yaocai_back_msg(user_id):
     if user_backs is None:
         return l_msg
     for user_back in user_backs:
-        if user_back.goods_type == "药材":
-            l_yaocai_msg = get_yaocai_msg(l_yaocai_msg, user_id, user_back.goods_id, user_back.goods_num)
+        if user_back['goods_type'] == "药材":
+            l_yaocai_msg = get_yaocai_msg(l_yaocai_msg, user_id, user_back['goods_id'], user_back['goods_num'])
             
     if l_yaocai_msg:
         l_msg.append("☆------拥有药材------☆")

@@ -52,7 +52,7 @@ def check_user_type(user_id, need_type):
     if user_cd_message is None:
         user_type = 0
     else:
-        user_type = user_cd_message.type
+        user_type = user_cd_message['type']
 
     if user_type == need_type:  # 状态一致
         isType = True

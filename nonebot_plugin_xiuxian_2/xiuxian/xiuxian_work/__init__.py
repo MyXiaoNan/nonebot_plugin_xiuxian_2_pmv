@@ -147,16 +147,16 @@ async def last_work_(bot: Bot, event: GroupMessageEvent):
         ):
         user_cd_message = sql_message.get_user_cd(user_id)
         work_time = datetime.strptime(
-            user_cd_message.create_time, "%Y-%m-%d %H:%M:%S.%f"
+            user_cd_message['create_time'], "%Y-%m-%d %H:%M:%S.%f"
         )
         exp_time = (datetime.now() - work_time).seconds // 60  # 时长计算
         time2 = workhandle().do_work(
             # key=1, name=user_cd_message.scheduled_time  修改点
-            key=1, name=user_cd_message.scheduled_time, level=user_level, exp=user_info['exp'],
+            key=1, name=user_cd_message['scheduled_time'], level=user_level, exp=user_info['exp'],
             user_id=user_info['user_id']
         )
         if exp_time < time2:
-            msg = f"进行中的悬赏令【{user_cd_message.scheduled_time}】，预计{time2 - exp_time}分钟后可结束"
+            msg = f"进行中的悬赏令【{user_cd_message['scheduled_time']}】，预计{time2 - exp_time}分钟后可结束"
             if XiuConfig().img:
                 pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -166,7 +166,7 @@ async def last_work_(bot: Bot, event: GroupMessageEvent):
         else:
             msg, give_stone, s_o_f, item_id, big_suc = workhandle().do_work(
                 2,
-                work_list=user_cd_message.scheduled_time,
+                work_list=user_cd_message['scheduled_time'],
                 level=user_level,
                 exp=user_info['exp'],
                 user_id=user_info['user_id']
@@ -245,7 +245,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
         await do_work.finish()
     user_id = user_info['user_id']
     user_cd_message = sql_message.get_user_cd(user_id)
-    if not os.path.exists(PLAYERSDATA / str(user_id) / "workinfo.json") and user_cd_message.type == 2:
+    if not os.path.exists(PLAYERSDATA / str(user_id) / "workinfo.json") and user_cd_message['type'] == 2:
         sql_message.do_work(user_id, 0)
         msg = f"悬赏令已更新，已重置道友的状态！"
         if XiuConfig().img:
@@ -273,7 +273,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await do_work.finish()
-    if user_cd_message.type == 1:
+    if user_cd_message['type'] == 1:
         msg = "已经在闭关中，请输入【出关】结束后才能获取悬赏令！"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
@@ -281,7 +281,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await do_work.finish()
-    if user_cd_message.type == 3:
+    if user_cd_message['type'] == 3:
         msg = "道友在秘境中，请等待结束后才能获取悬赏令！"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
@@ -291,21 +291,21 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
         await do_work.finish()
 
     if mode is None:  # 接取逻辑
-        if (user_cd_message.scheduled_time is None) or (user_cd_message.type == 0):
+        if (user_cd_message['scheduled_time'] is None) or (user_cd_message['type'] == 0):
             try:
                 msg = work[user_id].msg
             except KeyError:
                 msg = "没有查到你的悬赏令信息呢，请刷新！"
-        elif user_cd_message.type == 2:
+        elif user_cd_message['type'] == 2:
             work_time = datetime.strptime(
-                user_cd_message.create_time, "%Y-%m-%d %H:%M:%S.%f"
+                user_cd_message['create_time'], "%Y-%m-%d %H:%M:%S.%f"
             )
             exp_time = (datetime.now() - work_time).seconds // 60  # 时长计算
-            time2 = workhandle().do_work(key=1, name=user_cd_message.scheduled_time, user_id=user_info['user_id'])
+            time2 = workhandle().do_work(key=1, name=user_cd_message['scheduled_time'], user_id=user_info['user_id'])
             if exp_time < time2:
-                msg = f"进行中的悬赏令【{user_cd_message.scheduled_time}】，预计{time2 - exp_time}分钟后可结束"
+                msg = f"进行中的悬赏令【{user_cd_message['scheduled_time']}】，预计{time2 - exp_time}分钟后可结束"
             else:
-                msg = f"进行中的悬赏令【{user_cd_message.scheduled_time}】，已结束，请输入【悬赏令结算】结算任务信息！"
+                msg = f"进行中的悬赏令【{user_cd_message['scheduled_time']}】，已结束，请输入【悬赏令结算】结算任务信息！"
         else:
             msg = "状态未知错误！"
         if XiuConfig().img:
@@ -317,16 +317,16 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
 
     if mode == "刷新":  # 刷新逻辑
         stone_use = 0 #悬赏令刷新提示是否扣灵石
-        if user_cd_message.type == 2:
+        if user_cd_message['type'] == 2:
             work_time = datetime.strptime(
-                user_cd_message.create_time, "%Y-%m-%d %H:%M:%S.%f"
+                user_cd_message['create_time'], "%Y-%m-%d %H:%M:%S.%f"
             )
             exp_time = (datetime.now() - work_time).seconds // 60
-            time2 = workhandle().do_work(key=1, name=user_cd_message.scheduled_time, user_id=user_info['user_id'])
+            time2 = workhandle().do_work(key=1, name=user_cd_message['scheduled_time'], user_id=user_info['user_id'])
             if exp_time < time2:
-                msg = f"进行中的悬赏令【{user_cd_message.scheduled_time}】，预计{time2 - exp_time}分钟后可结束"
+                msg = f"进行中的悬赏令【{user_cd_message['scheduled_time']}】，预计{time2 - exp_time}分钟后可结束"
             else:
-                msg = f"进行中的悬赏令【{user_cd_message.scheduled_time}】，已结束，请输入【悬赏令结算】结算任务信息！"
+                msg = f"进行中的悬赏令【{user_cd_message['scheduled_time']}】，已结束，请输入【悬赏令结算】结算任务信息！"
             if XiuConfig().img:
                 pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -414,16 +414,16 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
         if is_type:
             user_cd_message = sql_message.get_user_cd(user_id)
             work_time = datetime.strptime(
-                user_cd_message.create_time, "%Y-%m-%d %H:%M:%S.%f"
+                user_cd_message['create_time'], "%Y-%m-%d %H:%M:%S.%f"
             )
             exp_time = (datetime.now() - work_time).seconds // 60  # 时长计算
             time2 = workhandle().do_work(
                 # key=1, name=user_cd_message.scheduled_time  修改点
-                key=1, name=user_cd_message.scheduled_time, level=user_level, exp=user_info['exp'],
+                key=1, name=user_cd_message['scheduled_time'], level=user_level, exp=user_info['exp'],
                 user_id=user_info['user_id']
             )
             if exp_time < time2:
-                msg = f"进行中的悬赏令【{user_cd_message.scheduled_time}】，预计{time2 - exp_time}分钟后可结束"
+                msg = f"进行中的悬赏令【{user_cd_message['scheduled_time']}】，预计{time2 - exp_time}分钟后可结束"
                 if XiuConfig().img:
                     pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                     await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -432,7 +432,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
                 await do_work.finish()
             else:
                 msg, give_exp, s_o_f, item_id, big_suc = workhandle().do_work(2,
-                                                                              work_list=user_cd_message.scheduled_time,
+                                                                              work_list=user_cd_message['scheduled_time'],
                                                                               level=user_level,
                                                                               exp=user_info['exp'],
                                                                               user_id=user_info['user_id'])
