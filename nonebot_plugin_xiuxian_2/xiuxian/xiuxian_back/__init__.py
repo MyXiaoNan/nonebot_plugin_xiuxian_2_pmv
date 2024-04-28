@@ -115,7 +115,7 @@ async def set_auction_by_scheduler_():
         start_price = get_auction_price_by_id(auction_id)['start_price']
         msg = '本次拍卖的物品为：\n'
         msg += get_auction_msg(auction_id)
-        msg += f"\n底价为{start_price}灵石"
+        msg += f"\n底价为{start_price}灵石，加价不少于{start_price * 0.05}灵石"
         msg += "\n请诸位道友发送 拍卖+金额 来进行拍卖吧！"
         msg += f"\n本次竞拍时间为:{AUCTIONSLEEPTIME}秒！"
         auction['id'] = auction_id
