@@ -91,7 +91,7 @@ async def beg_stone(bot: Bot, event: GroupMessageEvent):
             await bot.send_group_msg(group_id=event.group_id, message=MessageSegment.image(pic))
     
     elif list_level_all.index(level) >= list_level_all.index(XiuConfig().beg_max_level):
-        msg = f"道友已跻身于{user_info.level}层次的修行之人，可徜徉于四海八荒，自寻机缘与造化矣。"
+        msg = f"道友已跻身于{user_info['level']}层次的修行之人，可徜徉于四海八荒，自寻机缘与造化矣。"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=event.group_id, message=MessageSegment.image(pic))

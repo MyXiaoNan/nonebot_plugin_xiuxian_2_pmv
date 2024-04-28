@@ -852,7 +852,7 @@ async def upatkpractice_(bot: Bot, event: GroupMessageEvent, args: Message = Com
         total_materials_cost = int(total_stone_cost * 10)
 
         if int(user_info['stone']) < total_stone_cost:
-            msg = f"道友的灵石不够，升级到攻击修炼等级 {useratkpractice + level_up_count} 还需 {total_stone_cost - int(user_info.stone)} 灵石!"
+            msg = f"道友的灵石不够，升级到攻击修炼等级 {useratkpractice + level_up_count} 还需 {total_stone_cost - int(user_info['stone'])} 灵石!"
             if XiuConfig().img:
                 pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -1366,7 +1366,7 @@ async def create_sect_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
             owner_position = int(owner_idx[0]) if len(owner_idx) == 1 else 0
             sql_message.update_usr_sect(user_id, new_sect['sect_id'], owner_position)
             sql_message.update_ls(user_id, XiuConfig().sect_min_level, 2)
-            msg = f"恭喜{user_info.user_name}道友创建宗门——{sect_name}，宗门编号为{new_sect['sect_id']}。为道友贺！为仙道贺！"
+            msg = f"恭喜{user_info['user_name']}道友创建宗门——{sect_name}，宗门编号为{new_sect['sect_id']}。为道友贺！为仙道贺！"
         else:
             msg = f"道友确定要创建无名之宗门？还请三思。"
     if XiuConfig().img:

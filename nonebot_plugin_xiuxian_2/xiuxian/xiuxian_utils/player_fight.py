@@ -45,8 +45,8 @@ def Player_fight(player1: dict, player2: dict, type_in, bot_id):
         user_2_impart_data = xiuxian_impart.get_user_message(player2['user_id'])
     except:
         user_2_impart_data = None
-    user_2_impart_hp = user_1_impart_data.impart_hp_per if user_2_impart_data is not None else 0
-    user_2_impart_mp = user_1_impart_data.impart_mp_per if user_2_impart_data is not None else 0
+    user_2_impart_hp = user_1_impart_data['impart_hp_per'] if user_2_impart_data is not None else 0
+    user_2_impart_mp = user_1_impart_data['impart_mp_per'] if user_2_impart_data is not None else 0
     user1_hp_buff = user1_hp_buff + user_2_impart_hp
     user1_mp_buff = user1_mp_buff + user_2_impart_mp
 

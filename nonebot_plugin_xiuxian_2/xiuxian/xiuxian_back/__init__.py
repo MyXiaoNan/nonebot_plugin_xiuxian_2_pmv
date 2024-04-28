@@ -167,10 +167,10 @@ async def set_auction_by_scheduler_():
             return
         now_price = int(auction['now_price'])
         user_info = sql_message.get_user_message(auction['user_id'])
-        user_stone = user_info.stone
+        user_stone = user_info['stone']
         punish_stone = now_price * 0.1
         if user_stone < now_price:
-            sql_message.update_ls(user_info.user_id, punish_stone, 2)  # 扣除用户灵石
+            sql_message.update_ls(user_info['user_id'], punish_stone, 2)  # 扣除用户灵石
             msg = f"拍卖会结算！竞拍者灵石小于拍卖物品要求之数量，判定为捣乱，捣乱次数+1!\n"
             msg += "扣除道友{}枚灵石作为惩罚，望道友莫要再捣乱！".format(punish_stone)
             for group_id in groups:
@@ -185,7 +185,7 @@ async def set_auction_by_scheduler_():
                     continue
             return
         msg = "本次拍卖会结束！"
-        msg += f"恭喜来自群{auction['group_id']}的{user_info.user_name}道友成功拍卖获得：{auction['type']}-{auction['name']}!"
+        msg += f"恭喜来自群{auction['group_id']}的{user_info['user_name']}道友成功拍卖获得：{auction['type']}-{auction['name']}!"
         for group_id in groups:
             bot = await assign_bot_group(group_id=group_id)
             try:
@@ -197,8 +197,8 @@ async def set_auction_by_scheduler_():
             except ActionFailed:  # 发送群消息失败
                 continue
 
-        sql_message.send_back(user_info.user_id, auction['id'], auction['name'], auction['type'], 1)
-        sql_message.update_ls(user_info.user_id, int(auction['now_price']), 2)
+        sql_message.send_back(user_info['user_id'], auction['id'], auction['name'], auction['type'], 1)
+        sql_message.update_ls(user_info['user_id'], int(auction['now_price']), 2)
         auction = {}
         auction_offer_time_count = 0
         return

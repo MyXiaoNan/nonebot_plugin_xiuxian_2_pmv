@@ -578,7 +578,7 @@ def check_use_elixir(user_id, goods_id, num):
             exp = goods_info['buff'] * num
             user_hp = int(user_info['hp'] + (exp / 2))
             user_mp = int(user_info['mp'] + exp)
-            user_atk = int(user_info.atk + (exp / 10))
+            user_atk = int(user_info['atk'] + (exp / 10))
             sql_message.update_exp(user_id, exp)
             sql_message.update_power2(user_id)  # 更新战力
             sql_message.update_user_attribute(user_id, user_hp, user_mp, user_atk)  # 这种事情要放在update_exp方法里

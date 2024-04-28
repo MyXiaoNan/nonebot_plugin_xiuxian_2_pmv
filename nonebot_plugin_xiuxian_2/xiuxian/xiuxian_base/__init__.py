@@ -833,8 +833,8 @@ async def user_leveluprate_(bot: Bot, event: GroupMessageEvent):
         await user_leveluprate.finish()
     user_id = user_info['user_id']
     user_msg = sql_message.get_user_message(user_id)  # 用户信息
-    leveluprate = int(user_msg.level_up_rate)  # 用户失败次数加成
-    level_name = user_msg.level  # 用户境界
+    leveluprate = int(user_msg['level_up_rate'])  # 用户失败次数加成
+    level_name = user_msg['level']  # 用户境界
     level_rate = jsondata.level_rate_data()[level_name]  # 
     main_rate_buff = UserBuffDate(user_id).get_user_main_buff_data()#功法突破概率提升
     number =  main_rate_buff['number'] if main_rate_buff is not None else 0

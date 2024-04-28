@@ -198,7 +198,7 @@ async def yaocai_get_(bot: Bot, event: GroupMessageEvent):
                                                                                               '%Y-%m-%d %H:%M:%S')).total_seconds() / 3600,
                          2)
         if timedeff >= round(GETCONFIG['time_cost'] * (1 - (GETCONFIG['加速基数'] * mix_elixir_info['药材速度'])), 2):
-            yaocai_id_list = items.get_random_id_list_by_rank_and_item_type(USERRANK[user_info.level], ['药材'])
+            yaocai_id_list = items.get_random_id_list_by_rank_and_item_type(USERRANK[user_info['level']], ['药材'])
             # 加入传承
             impart_data = xiuxian_impart.get_user_message(user_id)
             impart_reap_per = impart_data['impart_reap_per'] if impart_data is not None else 0
@@ -212,7 +212,7 @@ async def yaocai_get_(bot: Bot, event: GroupMessageEvent):
             num = mix_elixir_info['灵田数量'] + mix_elixir_info['收取等级'] + impart_reap_per + reap_buff
             msg = ''
             if not yaocai_id_list:
-                sql_message.send_back(user_info.user_id, 3001, '恒心草', '药材', num)  # 没有合适的，保底
+                sql_message.send_back(user_info['user_id'], 3001, '恒心草', '药材', num)  # 没有合适的，保底
                 msg += f"道友成功收获药材：恒心草 {num} 个！\n"
             else:
                 i = 1
@@ -228,7 +228,7 @@ async def yaocai_get_(bot: Bot, event: GroupMessageEvent):
                 for k, v in give_dict.items():
                     goods_info = items.get_data_by_item_id(k)
                     msg += f"道友成功收获药材：{goods_info['name']} {v} 个！\n"
-                    sql_message.send_back(user_info.user_id, k, goods_info['name'], '药材', v)
+                    sql_message.send_back(user_info['user_id'], k, goods_info['name'], '药材', v)
             mix_elixir_info['收取时间'] = nowtime
             save_player_info(user_id, mix_elixir_info, "mix_elixir_info")
             if XiuConfig().img:
@@ -578,7 +578,7 @@ async def mix_elixir_(bot: Bot, event: GroupMessageEvent, mode: str = EventPlain
                 goods_info = Items().get_data_by_item_id(id)
                 # 加入传承
                 impart_data = xiuxian_impart.get_user_message(user_id)
-                impart_mix_per = impart_data.impart_mix_per if impart_data is not None else 0
+                impart_mix_per = impart_data['impart_mix_per'] if impart_data is not None else 0
                 
                 #功法炼丹数加成
                 main_dan_data = UserBuffDate(user_id).get_user_main_buff_data()
