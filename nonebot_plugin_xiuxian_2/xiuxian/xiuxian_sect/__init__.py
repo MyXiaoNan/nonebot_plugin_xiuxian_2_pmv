@@ -1187,7 +1187,6 @@ async def sect_owner_change_(bot: Bot, event: GroupMessageEvent, args: Message =
         await sect_owner_change.finish()
     give_qq = None  # 艾特的时候存到这里
     for arg in args:
-        # print(args)
         if arg.type == "at":
             give_qq = arg.data.get("qq", "")
     if give_qq:

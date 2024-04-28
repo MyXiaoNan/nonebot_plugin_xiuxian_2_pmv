@@ -85,8 +85,7 @@ async def get_mix_elixir_msg(yaocai):
                                 zhuyao_type = str(v['主药']['type'])
                                 zhuyao_power = v['主药']['power'] * i
                                 elixir_config[zhuyao_type] = zhuyao_power
-                                elixir_config[fuyao_type] = fuyao_power
-                                # print(elixir_config)         
+                                elixir_config[fuyao_type] = fuyao_power     
                                 is_mix, id_ = await check_mix(elixir_config)
                                 if is_mix:  # 有可以合成的
                                     if i + o + p <= Llandudno_info["max_num"]:

@@ -462,9 +462,7 @@ async def _(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
             await create_rift.finish(msg)
     if group_id in group_rift:
         qun_info = group_rift[group_id]
-        print(qun_info)
         del group_rift[group_id]
-        print(qun_info)
         msg = f"秘境入口因受到一股强大力量影响，无法维持而关闭了"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}" + msg)

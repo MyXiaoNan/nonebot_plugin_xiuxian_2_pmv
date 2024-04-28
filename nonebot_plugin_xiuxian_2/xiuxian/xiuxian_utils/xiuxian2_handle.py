@@ -2110,7 +2110,6 @@ def get_main_info_msg(id):
 
 def get_sub_info_msg(id): #辅修功法8
     subbuff = items.get_data_by_item_id(id)
-    print(subbuff)
     submsg = ""
     if subbuff['buff_type'] == '1':
         submsg = "提升" + subbuff['buff'] + "%攻击力"

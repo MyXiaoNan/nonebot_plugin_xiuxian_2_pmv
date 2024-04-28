@@ -1187,7 +1187,6 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
         goods_info = items.get_data_by_item_id(goods_id)
         user_info = sql_message.get_user_message(user_id)
         user_rank = USERRANK[user_info['level']]
-        print("礼包使用", user_rank)
         goods_name = goods_info['name']
         goods_id1 = goods_info['buff_1']
         goods_id2 = goods_info['buff_2']
