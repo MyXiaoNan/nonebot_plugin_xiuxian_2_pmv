@@ -1243,7 +1243,7 @@ async def creat_auction_(bot: Bot, event: GroupMessageEvent):
 
     global auction
     if auction != {}:
-        msg = f'本群已存在一场拍卖会，请等待拍卖会结束！'
+        msg = f"本群已存在一场拍卖会，请等待拍卖会结束！"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(group_id), message=MessageSegment.image(pic))
@@ -1374,7 +1374,7 @@ async def offer_auction_(bot: Bot, event: GroupMessageEvent, args: Message = Com
 
     global auction
     if auction == {}:
-        msg = f'本群不存在拍卖会，请等待拍卖会开启！'
+        msg = f"本群不存在拍卖会，请等待拍卖会开启！"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(group_id), message=MessageSegment.image(pic))
@@ -1461,7 +1461,7 @@ async def set_auction_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
 
     if mode == '开启':
         if is_in_group:
-            msg = f'本群已开启群拍卖会，请勿重复开启!'
+            msg = f"本群已开启群拍卖会，请勿重复开启!"
             if XiuConfig().img:
                 pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -1483,7 +1483,7 @@ async def set_auction_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
         if is_in_group:
             config['open'].remove(group_id)
             savef(config)
-            msg = f'已关闭本群拍卖会!'
+            msg = f"已关闭本群拍卖会!"
             if XiuConfig().img:
                 pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -1491,7 +1491,7 @@ async def set_auction_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
                 await bot.send_group_msg(group_id=int(send_group_id), message=msg)
             await set_auction.finish()
         else:
-            msg = f'本群未开启群拍卖会!'
+            msg = f"本群未开启群拍卖会!"
             if XiuConfig().img:
                 pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))

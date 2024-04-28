@@ -239,7 +239,7 @@ async def sect_elixir_get_(bot: Bot, event: GroupMessageEvent):
         sect_position = user_info['sect_position']
         elixir_room_config = config['宗门丹房参数']
         if sect_position == 4:
-            msg = f"道友所在宗门的职位为：{jsondata.sect_config_data()[f'{sect_position}']['title']}，不满足学习!"
+            msg = f"道友所在宗门的职位为：{jsondata.sect_config_data()[f"{sect_position}"]['title']}，不满足学习!"
             if XiuConfig().img:
                 pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -451,7 +451,7 @@ async def sect_mainbuff_learn_(bot: Bot, event: GroupMessageEvent, args: Message
     if sect_id:
         sect_position = user_info['sect_position']
         if sect_position == 4:
-            msg = f"道友所在宗门的职位为：{jsondata.sect_config_data()[f'{sect_position}']['title']}，不满足学习!"
+            msg = f"道友所在宗门的职位为：{jsondata.sect_config_data()[f"{sect_position}"]['title']}，不满足学习!"
             if XiuConfig().img:
                 pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -713,7 +713,7 @@ async def sect_secbuff_learn_(bot: Bot, event: GroupMessageEvent, args: Message 
     if sect_id:
         sect_position = user_info['sect_position']
         if sect_position == 4:
-            msg = f"道友所在宗门的职位为：{jsondata.sect_config_data()[f'{sect_position}']['title']}，不满足学习!"
+            msg = f"道友所在宗门的职位为：{jsondata.sect_config_data()[f"{sect_position}"]['title']}，不满足学习!"
             if XiuConfig().img:
                 pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -831,7 +831,7 @@ async def upatkpractice_(bot: Bot, event: GroupMessageEvent, args: Message = Com
         # 确保用户不会尝试升级超过宗门等级的上限
         level_up_count = min(level_up_count, sect_level - useratkpractice)
         if sect_position == 4:
-            msg = f"道友所在宗门的职位为：{jsondata.sect_config_data()[f'{sect_position}']['title']}，不满足使用资材的条件!"
+            msg = f"道友所在宗门的职位为：{jsondata.sect_config_data()[f"{sect_position}"]['title']}，不满足使用资材的条件!"
             if XiuConfig().img:
                 pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -941,7 +941,7 @@ async def sect_list_(bot: Bot, event: GroupMessageEvent):
     msg_list = []
     for sect in sect_lists_with_members:
         sect_id, sect_name, sect_scale, user_name, member_count = sect
-        msg_list.append(f'编号{sect_id}：{sect_name}\n宗主：{user_name}\n宗门建设度：{number_to(sect_scale)}\n成员数：{member_count}')
+        msg_list.append(f"编号{sect_id}：{sect_name}\n宗主：{user_name}\n宗门建设度：{number_to(sect_scale)}\n成员数：{member_count}")
 
     await send_msg_handler(bot, event, '宗门列表', bot.self_id, msg_list)
     await sect_list.finish()
@@ -969,7 +969,7 @@ async def sect_users_(bot: Bot, event: GroupMessageEvent):
             msg_list.append(msg)
             i = 1
             for user in userlist:
-                msg = f"编号{i}:{user['user_name']},{user['level']}，宗门职位：{jsondata.sect_config_data()[f'{user['sect_position']}']['title']}，宗门贡献度：{user['sect_contribution']}\n"
+                msg = f"编号{i}:{user['user_name']},{user['level']}，宗门职位：{jsondata.sect_config_data()[f"{user['sect_position']}"]['title']}，宗门贡献度：{user['sect_contribution']}\n"
                 msg += f"QQ号{user['user_id']}"
                 msg_list.append(msg)
                 i += 1
@@ -1428,7 +1428,7 @@ async def sect_kick_out_(bot: Bot, event: GroupMessageEvent, args: Message = Com
                 idx_position = int(position_zhanglao[0]) if len(position_zhanglao) == 1 else 1
                 if user_info['sect_position'] <= idx_position:
                     if give_user['sect_position'] <= user_info['sect_position']:
-                        msg = f"{give_user['user_name']}的宗门职务为{jsondata.sect_config_data()[f'{give_user['sect_position']}']['title']}，不在你之下，无权操作。"
+                        msg = f"{give_user['user_name']}的宗门职务为{jsondata.sect_config_data()[f"{give_user['sect_position']}"]['title']}，不在你之下，无权操作。"
                         if XiuConfig().img:
                             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -1439,7 +1439,7 @@ async def sect_kick_out_(bot: Bot, event: GroupMessageEvent, args: Message = Com
                         sect_info = sql_message.get_sect_info_by_id(give_user['sect_id'])
                         sql_message.update_usr_sect(give_user['user_id'], None, None)
                         sql_message.update_user_sect_contribution(give_user['user_id'], 0)
-                        msg = f"传{jsondata.sect_config_data()[f'{user_info['sect_position']}']['title']}{user_info['user_name']}法旨，即日起{give_user['user_name']}被{sect_info['sect_name']}除名"
+                        msg = f"传{jsondata.sect_config_data()[f"{user_info['sect_position']}"]['title']}{user_info['user_name']}法旨，即日起{give_user['user_name']}被{sect_info['sect_name']}除名"
                         if XiuConfig().img:
                             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -1447,7 +1447,7 @@ async def sect_kick_out_(bot: Bot, event: GroupMessageEvent, args: Message = Com
                             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
                         await sect_kick_out.finish()
                 else:
-                    msg = f"你的宗门职务为{jsondata.sect_config_data()[f'{user_info['sect_position']}']['title']}，只有长老及以上可执行踢出操作。"
+                    msg = f"你的宗门职务为{jsondata.sect_config_data()[f"{user_info['sect_position']}"]['title']}，只有长老及以上可执行踢出操作。"
                     if XiuConfig().img:
                         pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                         await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -1617,7 +1617,7 @@ async def sect_position_update_(bot: Bot, event: GroupMessageEvent, args: Messag
     position_zhanglao = [k for k, v in jsondata.sect_config_data().items() if v.get("title", "") == "长老"]
     idx_position = int(position_zhanglao[0]) if len(position_zhanglao) == 1 else 1
     if user_info['sect_position'] > idx_position:
-        msg = f"你的宗门职位为{jsondata.sect_config_data()[f'{user_info['sect_position']}']['title']}，无权进行职位管理"
+        msg = f"你的宗门职位为{jsondata.sect_config_data()[f"{user_info['sect_position']}"]['title']}，无权进行职位管理"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -1647,7 +1647,7 @@ async def sect_position_update_(bot: Bot, event: GroupMessageEvent, args: Messag
                 if give_user['sect_id'] == user_info['sect_id'] and give_user['sect_position'] > user_info['sect_position']:
                     if int(position_num[0]) > user_info['sect_position']:
                         sql_message.update_usr_sect(give_user['user_id'], give_user['sect_id'], int(position_num[0]))
-                        msg = f"""传{jsondata.sect_config_data()[f'{user_info['sect_position']}']['title']}{user_info['user_name']}法旨:即日起{give_user['user_name']}为本宗{jsondata.sect_config_data()[f'{int(position_num[0])}']['title']}"""
+                        msg = f"""传{jsondata.sect_config_data()[f"{user_info['sect_position']}"]['title']}{user_info['user_name']}法旨:即日起{give_user['user_name']}为本宗{jsondata.sect_config_data()[f'{int(position_num[0])}']['title']}"""
                         if XiuConfig().img:
                             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))

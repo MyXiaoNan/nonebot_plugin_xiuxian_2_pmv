@@ -399,7 +399,7 @@ async def set_group_rift_(bot: Bot, event: GroupMessageEvent, args: Message = Co
 
     if mode == '开启':
         if is_in_group:
-            msg = f'本群已开启群秘境，请勿重复开启!'
+            msg = f"本群已开启群秘境，请勿重复开启!"
             if XiuConfig().img:
                 pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -410,7 +410,7 @@ async def set_group_rift_(bot: Bot, event: GroupMessageEvent, args: Message = Co
         else:
             config['open'].append(group_id)
             savef(config)
-            msg = f'已开启本群秘境!'
+            msg = f"已开启本群秘境!"
             if XiuConfig().img:
                 pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -422,7 +422,7 @@ async def set_group_rift_(bot: Bot, event: GroupMessageEvent, args: Message = Co
         if is_in_group:
             config['open'].remove(group_id)
             savef(config)
-            msg = f'已关闭本群秘境!'
+            msg = f"已关闭本群秘境!"
             if XiuConfig().img:
                 pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -430,7 +430,7 @@ async def set_group_rift_(bot: Bot, event: GroupMessageEvent, args: Message = Co
                 await bot.send_group_msg(group_id=int(send_group_id), message=msg)
             await set_group_rift.finish()
         else:
-            msg = f'本群未开启群秘境!'
+            msg = f"本群未开启群秘境!"
             if XiuConfig().img:
                 pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))

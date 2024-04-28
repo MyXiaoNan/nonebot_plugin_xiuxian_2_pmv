@@ -129,7 +129,7 @@ async def set_boss_():
                 trigger='interval',
                 hours=groups[str(group_id)]["hours"],
                 minutes=groups[str(group_id)]['minutes'],
-                id=f'set_boss_{group_id}',
+                id="set_boss_{group_id}",
                 args=[group_id],
                 misfire_grace_time=10
             )
@@ -223,7 +223,7 @@ async def boss_delete_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
     boss_num = re.findall("\d+", msg)  # boss编号
     isInGroup = isInGroups(event)
     if not isInGroup:  # 不在配置表内
-        msg = f'本群尚未开启世界Boss,请联系管理员开启!'
+        msg = f"本群尚未开启世界Boss,请联系管理员开启!"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -234,7 +234,7 @@ async def boss_delete_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
     if boss_num:
         boss_num = int(boss_num[0])
     else:
-        msg = f'请输入正确的世界Boss编号!'
+        msg = f"请输入正确的世界Boss编号!"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -245,7 +245,7 @@ async def boss_delete_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
     try:
         bosss = group_boss[group_id]
     except:
-        msg = f'本群尚未生成世界Boss,请等待世界boss刷新!'
+        msg = f"本群尚未生成世界Boss,请等待世界boss刷新!"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -254,7 +254,7 @@ async def boss_delete_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
         await boss_delete.finish()
 
     if not bosss:
-        msg = f'本群尚未生成世界Boss,请等待世界boss刷新!'
+        msg = f"本群尚未生成世界Boss,请等待世界boss刷新!"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -265,7 +265,7 @@ async def boss_delete_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
     index = len(group_boss[group_id])
 
     if not (0 < boss_num <= index):
-        msg = f'请输入正确的世界Boss编号!'
+        msg = f"请输入正确的世界Boss编号!"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -290,7 +290,7 @@ async def boss_delete_all_(bot: Bot, event: GroupMessageEvent, args: Message = C
     group_id = str(event.group_id)
     isInGroup = isInGroups(event)
     if not isInGroup:  # 不在配置表内
-        msg = f'本群尚未开启世界Boss,请联系管理员开启!'
+        msg = f"本群尚未开启世界Boss,请联系管理员开启!"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -301,7 +301,7 @@ async def boss_delete_all_(bot: Bot, event: GroupMessageEvent, args: Message = C
     try:
         bosss = group_boss[group_id]
     except:
-        msg = f'本群尚未生成世界Boss,请等待世界boss刷新!'
+        msg = f"本群尚未生成世界Boss,请等待世界boss刷新!"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -310,7 +310,7 @@ async def boss_delete_all_(bot: Bot, event: GroupMessageEvent, args: Message = C
         await boss_delete_all.finish()
 
     if not bosss:
-        msg = f'本群尚未生成世界Boss,请等待世界boss刷新!'
+        msg = f"本群尚未生成世界Boss,请等待世界boss刷新!"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -348,7 +348,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
 
     isInGroup = isInGroups(event)
     if not isInGroup:  # 不在配置表内
-        msg = f'本群尚未开启世界Boss,请联系管理员开启!'
+        msg = f"本群尚未开启世界Boss,请联系管理员开启!"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -359,7 +359,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
     if boss_num:
         boss_num = int(boss_num[0])
     else:
-        msg = f'请输入正确的世界Boss编号!'
+        msg = f"请输入正确的世界Boss编号!"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -370,7 +370,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
     try:
         bosss = group_boss[group_id]
     except:
-        msg = f'本群尚未生成世界Boss,请等待世界boss刷新!'
+        msg = f"本群尚未生成世界Boss,请等待世界boss刷新!"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -379,7 +379,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
         await battle.finish()
 
     if not bosss:
-        msg = f'本群尚未生成世界Boss,请等待世界boss刷新!'
+        msg = f"本群尚未生成世界Boss,请等待世界boss刷新!"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -390,7 +390,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
     index = len(group_boss[group_id])
 
     if not (0 < boss_num <= index):
-        msg = f'请输入正确的世界Boss编号!'
+        msg = f"请输入正确的世界Boss编号!"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -564,7 +564,7 @@ async def boss_info_(bot: Bot, event: GroupMessageEvent, args: Message = Command
     group_id = str(event.group_id)
     isInGroup = isInGroups(event)
     if not isInGroup:  # 不在配置表内
-        msg = f'本群尚未开启世界Boss,请联系管理员开启!'
+        msg = f"本群尚未开启世界Boss,请联系管理员开启!"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -575,7 +575,7 @@ async def boss_info_(bot: Bot, event: GroupMessageEvent, args: Message = Command
     try:
         bosss = group_boss[group_id]
     except:
-        msg = f'本群尚未生成世界Boss,请等待世界boss刷新!'
+        msg = f"本群尚未生成世界Boss,请等待世界boss刷新!"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -587,7 +587,7 @@ async def boss_info_(bot: Bot, event: GroupMessageEvent, args: Message = Command
     boss_num = re.findall("\d+", msg)  # boss编号
 
     if not bosss:
-        msg = f'本群尚未生成世界Boss,请等待世界boss刷新!'
+        msg = f"本群尚未生成世界Boss,请等待世界boss刷新!"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -600,7 +600,7 @@ async def boss_info_(bot: Bot, event: GroupMessageEvent, args: Message = Command
         boss_num = int(boss_num[0])
         index = len(group_boss[group_id])
         if not (0 < boss_num <= index):
-            msg = f'请输入正确的世界Boss编号!'
+            msg = f"请输入正确的世界Boss编号!"
             if XiuConfig().img:
                 pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -653,7 +653,7 @@ async def create_(bot: Bot, event: GroupMessageEvent):
     group_id = str(event.group_id)
     isInGroup = isInGroups(event)
     if not isInGroup:  # 不在配置表内
-        msg = f'本群尚未开启世界Boss,请联系管理员开启!'
+        msg = f"本群尚未开启世界Boss,请联系管理员开启!"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -691,7 +691,7 @@ async def _(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     group_id = str(event.group_id)
     isInGroup = isInGroups(event)
     if not isInGroup:#不在配置表内
-        msg = f'本群尚未开启世界Boss，请联系管理员开启!'
+        msg = f"本群尚未开启世界Boss，请联系管理员开启!"
         if XiuConfig().img:
             msg = await pic_msg_format(msg, event)
             pic = await get_msg_pic(msg)
@@ -743,7 +743,7 @@ async def set_group_boss_(bot: Bot, event: GroupMessageEvent, args: Message = Co
 
     if mode == '开启':
         if isInGroup:
-            msg = f'本群已开启世界Boss,请勿重复开启!'
+            msg = f"本群已开启世界Boss,请勿重复开启!"
             if XiuConfig().img:
                 pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -759,7 +759,7 @@ async def set_group_boss_(bot: Bot, event: GroupMessageEvent, args: Message = Co
                             }
             config['open'].update(info)
             savef(config)
-            msg = f'已开启本群世界Boss!'
+            msg = f"已开启本群世界Boss!"
             if XiuConfig().img:
                 pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -774,7 +774,7 @@ async def set_group_boss_(bot: Bot, event: GroupMessageEvent, args: Message = Co
             except:
                 pass
             savef(config)
-            msg = f'已关闭本群世界Boss!'
+            msg = f"已关闭本群世界Boss!"
             if XiuConfig().img:
                 pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -782,7 +782,7 @@ async def set_group_boss_(bot: Bot, event: GroupMessageEvent, args: Message = Co
                 await bot.send_group_msg(group_id=int(send_group_id), message=msg)
             await set_group_boss.finish()
         else:
-            msg = f'本群未开启世界Boss!'
+            msg = f"本群未开启世界Boss!"
             if XiuConfig().img:
                 pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -804,7 +804,7 @@ async def set_group_boss_(bot: Bot, event: GroupMessageEvent, args: Message = Co
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await set_group_boss.finish()
     else:
-        msg = f'请输入正确的指令:世界boss开启或关闭!'
+        msg = f"请输入正确的指令:世界boss开启或关闭!"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -829,7 +829,7 @@ async def boss_integral_info_(bot: Bot, event: GroupMessageEvent):
     user_id = user_info['user_id']
     isInGroup = isInGroups(event)
     if not isInGroup:  # 不在配置表内
-        msg = f'本群尚未开启世界Boss,请联系管理员开启!'
+        msg = f"本群尚未开启世界Boss,请联系管理员开启!"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -871,7 +871,7 @@ async def boss_integral_use_(bot: Bot, event: GroupMessageEvent, args: Message =
 
     isInGroup = isInGroups(event)
     if not isInGroup:  # 不在配置表内
-        msg = f'本群尚未开启世界Boss,请联系管理员开启!'
+        msg = f"本群尚未开启世界Boss,请联系管理员开启!"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -882,7 +882,7 @@ async def boss_integral_use_(bot: Bot, event: GroupMessageEvent, args: Message =
     if shop_num:
         shop_num = int(shop_num[0])
     else:
-        msg = f'请输入正确的商品编号！'
+        msg = f"请输入正确的商品编号！"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))

@@ -72,7 +72,7 @@ async def lunhui_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandO
         sql_message.updata_user_sec_buff(user_id, 0) #重置用户神通
         sql_message.update_user_atkpractice(user_id, 0) #重置用户攻修等级
         sql_message.update_root(user_id, 6) #更换轮回灵根
-        msg = f'千世轮回磨不灭，重回绝颠谁能敌，恭喜大能{user_name}轮回成功！'
+        msg = f"千世轮回磨不灭，重回绝颠谁能敌，恭喜大能{user_name}轮回成功！"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -133,7 +133,7 @@ async def Twolun_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandO
         sql_message.update_j_exp(user_id, now_exp) #重置用户修为
         sql_message.update_user_hp(user_id)  # 重置用户HP，mp，atk状态
         sql_message.update_root(user_id, 7) #更换轮回灵根
-        msg = f'万世道果集一身，脱出凡道入仙道，恭喜大能{user_name}万世轮回成功！'
+        msg = "万世道果集一身，脱出凡道入仙道，恭喜大能{user_name}万世轮回成功！"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -173,7 +173,7 @@ async def resetting_(bot: Bot, event: GroupMessageEvent, session_id: int = Comma
         sql_message.update_levelrate(user_id, 0) #重置突破成功率
         sql_message.update_j_exp(user_id, now_exp) #重置用户修为
         sql_message.update_user_hp(user_id)  # 重置用户HP，mp，atk状态
-        msg = f'{user_name}现在是一介凡人了！！'
+        msg = f"{user_name}现在是一介凡人了！！"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
