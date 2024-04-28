@@ -19,15 +19,12 @@ DATABASE = Path() / "data" / "xiuxian"
 DATABASE_IMPARTBUFF = Path() / "data" / "xiuxian"
 SKILLPATHH = DATABASE / "功法"
 WEAPONPATH = DATABASE / "装备"
-num = "578043031"
+num = "578043031" # 这里其实是修仙1作者的QQ号
 impart_num = "123451234"
 items = Items()
 # 获取当前时间并格式化
 current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
 
-
-back = namedtuple("back", ["user_id", "goods_id", "goods_name", "goods_type", "goods_num", "create_time", "update_time",
-                           "remake", "day_num", "all_num", "action_time", "state", "bind_num"])
 
 class XiuxianDateManage:
     global num
