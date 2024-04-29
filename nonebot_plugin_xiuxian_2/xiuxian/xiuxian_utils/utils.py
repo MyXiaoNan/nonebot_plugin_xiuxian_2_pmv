@@ -469,7 +469,7 @@ def number_to(num):
     递归实现，精确为最大单位值 + 小数点后一位
     '''
     def strofsize(num, level):
-        if level >= 6:
+        if level >= 11:
             return num, level
         elif num >= 10000:
             num /= 10000
@@ -477,11 +477,11 @@ def number_to(num):
             return strofsize(num, level)
         else:
             return num, level
-    units = ['', '万', '亿', '兆', '京', '垓', '秭']
+    units = ['', '万', '亿', '兆', '京', '垓', '秭', '穰', '沟', '涧', '正', '载']
     num, level = strofsize(num, 0)
     if level >= len(units):
         level = len(units) - 1
-    return '{}{}'.format(round(num, 1), units[level])
+    return "{}{}".format(round(num, 1), units[level])
 
 async def pic_msg_format(msg, event):
     user_name = (
