@@ -109,6 +109,9 @@ class Items:
             self.items[k] = v
             self.items[k].update({'item_type': item_type})
 
+            if '境界' in v:
+                self.items[k]['境界'] = v['境界']
+
     def get_data_by_item_type(self, item_type):
         temp_dict = {}
         for k, v in self.items.items():

@@ -114,7 +114,7 @@ async def set_auction_by_scheduler_():
         auction_info = items.get_data_by_item_id(auction_id)
         start_price = get_auction_price_by_id(auction_id)['start_price']
         msg = "本次拍卖的物品为：{}\n".format(get_auction_msg(auction_id))
-        msg = "\n底价为 {} 灵石，加价不少于 {} 灵石".format(start_price, int(start_price * 0.05))
+        msg += "\n底价为 {} 灵石，加价不少于 {} 灵石".format(start_price, int(start_price * 0.05))
         msg += "\n请诸位道友发送 拍卖+金额 来进行拍卖吧！"
         msg += "\n本次竞拍时间为:{}秒！".format(AUCTIONSLEEPTIME)
         auction['id'] = auction_id
@@ -1011,7 +1011,7 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
     user_id = user_info['user_id']
     args = args.extract_plain_text().split()
     arg = args[0]  # 
-    back_msg = sql_message.get_back_msg(user_id)  # 背包sql信息,list(back)
+    back_msg = sql_message.get_back_msg(user_id)  # 背包sql信息,dict
     if back_msg is None:
         msg = "道友的背包空空如也！"
         if XiuConfig().img:
@@ -1147,7 +1147,7 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
         goods_rank = goods_info['rank']
         goods_name = goods_info['name']
         if goods_rank < user_rank:  # 使用限制
-                msg = "神物：{}的使用境界为{}以上，道友不满足使用条件！".format(goods_name, goods_info['境界'])
+                msg = "神物：{}的使用境界为{}以上，道友不满足使用条件！".format(goods_name,  [goods_info['境界']])
         else:
                 exp = goods_info['buff'] * num
                 user_hp = int(user_info['hp'] + (exp / 2))
@@ -1157,7 +1157,7 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
                 sql_message.update_power2(user_id)  # 更新战力
                 sql_message.update_user_attribute(user_id, user_hp, user_mp, user_atk)  # 这种事情要放在update_exp方法里
                 sql_message.update_back_j(user_id, goods_id, num=num, use_key=1)
-                msg = "道友成功使用神物：{} {} ,修为增加{}点！".format(goods_num, num, exp)
+                msg = "道友成功使用神物：{} {}个 ,修为增加{}点！".format(goods_name, num, exp)
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -1201,7 +1201,7 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
         sql_message.send_back(user_id, goods_id2, goods_name2, goods_type2, 2 * num)
         sql_message.send_back(user_id, goods_id3, goods_name3, goods_type3, 2 * num)
         sql_message.update_back_j(user_id, goods_id, num=num, use_key=0)
-        msg = "道友打开了{}个{},里面居然是{}、{}、{}".format(num,goods_name,goods_name1,goods_name2,goods_name3)
+        msg = "道友打开了{}个{},里面居然是{}{}个、{}{}个、{}{}个".format(num, goods_name, goods_name1, int(1 * num), goods_name2, int(2 * num), goods_name3, int(2 * num))
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))

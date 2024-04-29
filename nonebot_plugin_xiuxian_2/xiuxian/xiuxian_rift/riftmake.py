@@ -70,54 +70,54 @@ STORY = {
             "type_rate": 100,
             "stone": 500000
         }
-    },
-    "战斗": {
-        "type_rate": 70,
-        "Boss战斗": {
-            "type_rate": 200,
-            "Boss数据": {
-                "name": ["墨蛟", "婴鲤兽", "千目妖", "鸡冠蛟", "妖冠蛇", "铁火蚁", "天晶蚁", "银光鼠", "紫云鹰", "狗青"],
-                "hp": [1.2, 1.4, 1.6, 1.8, 2, 3, 5, 10],
-                "mp": 10,
-                "atk": [0.1, 0.12, 0.14, 0.16, 0.18, 0.5, 1, 2],
-            },
-            "success": {
-                "desc": "道友大战一番成功战胜{}!",
-                "give": {
-                    "exp": [0.01, 0.02, 0.03, 0.04, 0.05, 0.07, 0.09],
-                    "stone": 500000
-                }
-            },
-            "fail": {
-                "desc": "道友大战一番不敌{}，仓皇逃窜！",
-            }
-        },
-
-        "掉血事件": {
-            "type_rate": 100,
-            "desc": [
-                "秘境内竟然散布着浓烈的毒气，道友贸然闯入！{}!",
-                "秘境内竟然藏着一群未知势力，道友被打劫了！{}!"
-            ],
-            "cost": {
-                "exp": {
-                    "type_rate": 50,
-                    "value": [0.03, 0.04, 0.05]
-                },
-                "hp": {
-                    "type_rate": 100,
-                    "value": [0.3, 0.5, 0.7]
-                },
-                "stone": {
-                    "type_rate": 50,
-                    "value": [5000000, 10000000, 15000000]
-                },
-            }
-        },
-    },
-    "无事": {
-        "type_rate": 50,
     }
+    # "战斗": {
+    #     "type_rate": 70,
+    #     "Boss战斗": {
+    #         "type_rate": 200,
+    #         "Boss数据": {
+    #             "name": ["墨蛟", "婴鲤兽", "千目妖", "鸡冠蛟", "妖冠蛇", "铁火蚁", "天晶蚁", "银光鼠", "紫云鹰", "狗青"],
+    #             "hp": [1.2, 1.4, 1.6, 1.8, 2, 3, 5, 10],
+    #             "mp": 10,
+    #             "atk": [0.1, 0.12, 0.14, 0.16, 0.18, 0.5, 1, 2],
+    #         },
+    #         "success": {
+    #             "desc": "道友大战一番成功战胜{}!",
+    #             "give": {
+    #                 "exp": [0.01, 0.02, 0.03, 0.04, 0.05, 0.07, 0.09],
+    #                 "stone": 500000
+    #             }
+    #         },
+    #         "fail": {
+    #             "desc": "道友大战一番不敌{}，仓皇逃窜！",
+    #         }
+    #     },
+
+    #     "掉血事件": {
+    #         "type_rate": 100,
+    #         "desc": [
+    #             "秘境内竟然散布着浓烈的毒气，道友贸然闯入！{}!",
+    #             "秘境内竟然藏着一群未知势力，道友被打劫了！{}!"
+    #         ],
+    #         "cost": {
+    #             "exp": {
+    #                 "type_rate": 50,
+    #                 "value": [0.03, 0.04, 0.05]
+    #             },
+    #             "hp": {
+    #                 "type_rate": 100,
+    #                 "value": [0.3, 0.5, 0.7]
+    #             },
+    #             "stone": {
+    #                 "type_rate": 50,
+    #                 "value": [5000000, 10000000, 15000000]
+    #             },
+    #         }
+    #     },
+    # },
+    # "无事": {
+    #     "type_rate": 50,
+    # }
 }
 
 
@@ -342,7 +342,6 @@ def get_armor(user_info, rift_rank=0):
     :return 防具ID, 防具信息json
     """
     armor_data = items.get_data_by_item_type(['防具'])
-    print("这里是armor_data", armor_data)
     armor_id = get_id_by_rank(armor_data, user_info['level'], rift_rank)
     armor_info = items.get_data_by_item_id(armor_id)
     return armor_id, armor_info
@@ -383,7 +382,6 @@ def get_sec_info(user_level, rift_rank):
 
 def get_sub_info(user_level, rift_rank):
     """获取辅修功法的信息"""
-    user_rank = USERRANK[user_level]  # type=int，用户等级
     sub_buff_type = get_skill_by_rank(user_level, rift_rank)  # 天地玄黄
     sub_buff_id_list = skill_data[sub_buff_type]['fx_list']
     init_rate = 60  # 初始概率为60
