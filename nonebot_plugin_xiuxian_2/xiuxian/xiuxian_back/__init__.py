@@ -113,8 +113,7 @@ async def set_auction_by_scheduler_():
             return
         auction_info = items.get_data_by_item_id(auction_id)
         start_price = get_auction_price_by_id(auction_id)['start_price']
-        msg = "本次拍卖的物品为：\n"
-        msg += get_auction_msg(auction_id)
+        msg = "本次拍卖的物品为：{}\n".format(get_auction_msg(auction_id))
         msg = "\n底价为 {} 灵石，加价不少于 {} 灵石".format(start_price, start_price * 0.05)
         msg += "\n请诸位道友发送 拍卖+金额 来进行拍卖吧！"
         msg += "\n本次竞拍时间为:{}秒！".format(AUCTIONSLEEPTIME)
@@ -1265,8 +1264,7 @@ async def creat_auction_(bot: Bot, event: GroupMessageEvent):
 
     auction_info = items.get_data_by_item_id(auction_id)
     start_price = get_auction_price_by_id(auction_id)['start_price']
-    msg = "本次拍卖的物品为：\n"
-    msg += get_auction_msg(auction_id)
+    msg = "本次拍卖的物品为：{}\n".format(get_auction_msg(auction_id))
     msg += "\n底价为{}灵石，加价不少于{}".format(start_price, start_price * 0.05)
     msg += "\n请诸位道友发送 拍卖+金额 来进行拍卖吧！"
     msg += "\n本次竞拍时间为:{}秒！".format(AUCTIONSLEEPTIME)
