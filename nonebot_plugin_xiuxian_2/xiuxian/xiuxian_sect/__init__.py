@@ -449,7 +449,7 @@ async def sect_mainbuff_learn_(bot: Bot, event: GroupMessageEvent, args: Message
     msg = args.extract_plain_text().strip()
     sect_id = user_info['sect_id']
     if sect_id:
-        sect_position = user_info['sect_position']
+        sect_position = str(user_info['sect_position'])
         if sect_position == 4:
             msg = "道友所在宗门的职位为：{}，不满足学习要求!".format(jsondata.sect_config_data()[sect_position]['title'])
             if XiuConfig().img:
@@ -461,7 +461,7 @@ async def sect_mainbuff_learn_(bot: Bot, event: GroupMessageEvent, args: Message
         else:
             sect_info = sql_message.get_sect_info(sect_id)
             if sect_info['mainbuff'] == 0:
-                msg = f"本宗尚未获得宗门功法，请宗主发送宗门功法搜寻来获得宗门功法！"
+                msg = "本宗尚未获得宗门功法，请宗主发送宗门功法搜寻来获得宗门功法！"
                 if XiuConfig().img:
                     pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                     await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -472,7 +472,7 @@ async def sect_mainbuff_learn_(bot: Bot, event: GroupMessageEvent, args: Message
             sectmainbuffidlist = get_sect_mainbuff_id_list(sect_id)
 
             if msg not in get_mainname_list(sectmainbuffidlist):
-                msg = f"本宗还没有该功法，请发送本宗有的功法进行学习！"
+                msg = "本宗还没有该功法，请发送本宗有的功法进行学习！"
                 if XiuConfig().img:
                     pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                     await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -483,7 +483,7 @@ async def sect_mainbuff_learn_(bot: Bot, event: GroupMessageEvent, args: Message
             userbuffinfo = UserBuffDate(user_info['user_id']).BuffInfo
             mainbuffid = get_mainnameid(msg, sectmainbuffidlist)
             if str(userbuffinfo['main_buff']) == str(mainbuffid):
-                msg = f"道友请勿重复学习！"
+                msg = "道友请勿重复学习！"
                 if XiuConfig().img:
                     pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                     await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -711,9 +711,9 @@ async def sect_secbuff_learn_(bot: Bot, event: GroupMessageEvent, args: Message 
     msg = args.extract_plain_text().strip()
     sect_id = user_info['sect_id']
     if sect_id:
-        sect_position = user_info['sect_position']
+        sect_position = str(user_info['sect_position'])
         if sect_position == 4:
-            msg = f"道友所在宗门的职位为：{jsondata.sect_config_data()[f"{sect_position}"]['title']}，不满足学习!"
+            msg = "道友所在宗门的职位为：{}，不满足学习!".format(jsondata.sect_config_data()[sect_position]['title'])
             if XiuConfig().img:
                 pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -723,7 +723,7 @@ async def sect_secbuff_learn_(bot: Bot, event: GroupMessageEvent, args: Message 
         else:
             sect_info = sql_message.get_sect_info(sect_id)
             if sect_info['secbuff'] == 0:
-                msg = f"本宗尚未获得宗门神通，请宗主发送宗门神通搜寻来获得宗门神通！"
+                msg = "本宗尚未获得宗门神通，请宗主发送宗门神通搜寻来获得宗门神通！"
                 if XiuConfig().img:
                     pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                     await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -734,7 +734,7 @@ async def sect_secbuff_learn_(bot: Bot, event: GroupMessageEvent, args: Message 
             sectsecbuffidlist = get_sect_secbuff_id_list(sect_id)
 
             if msg not in get_secname_list(sectsecbuffidlist):
-                msg = f"本宗还没有该神通，请发送本宗有的神通进行学习！"
+                msg = "本宗还没有该神通，请发送本宗有的神通进行学习！"
 
                 if XiuConfig().img:
                     pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
@@ -746,7 +746,7 @@ async def sect_secbuff_learn_(bot: Bot, event: GroupMessageEvent, args: Message 
             userbuffinfo = UserBuffDate(user_info['user_id']).BuffInfo
             secbuffid = get_secnameid(msg, sectsecbuffidlist)
             if str(userbuffinfo['sec_buff']) == str(secbuffid):
-                msg = f"道友请勿重复学习！"
+                msg = "道友请勿重复学习！"
                 if XiuConfig().img:
                     pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                     await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -781,7 +781,7 @@ async def sect_secbuff_learn_(bot: Bot, event: GroupMessageEvent, args: Message 
                     await bot.send_group_msg(group_id=int(send_group_id), message=msg)
                 await sect_secbuff_learn.finish()
     else:
-        msg = f"道友尚未加入宗门！"
+        msg = "道友尚未加入宗门！"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
