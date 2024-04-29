@@ -145,14 +145,14 @@ async def get_boss_battle_info(user_info, rift_rank, bot_id):
     else:
         player['会心'] = (armor_crit_buff + main_crit_buff) * 100
 
-    player['user_id'] = userinfo.user_id
-    player['道号'] = userinfo.user_name
-    player['气血'] = userinfo.hp
-    player['攻击'] = userinfo.atk
-    player['真元'] = userinfo.mp
-    player['exp'] = userinfo.exp
+    player['user_id'] = userinfo['user_id']
+    player['道号'] = userinfo['user_name']
+    player['气血'] = userinfo['hp']
+    player['攻击'] = userinfo['atk']
+    player['真元'] = userinfo['mp']
+    player['exp'] = userinfo['exp']
 
-    base_exp = userinfo.exp
+    base_exp = userinfo['exp']
     boss_info = {
         "name": random.choice(boss_data["name"]),
         "气血": int(base_exp * random.choice(boss_data["hp"])),
@@ -342,6 +342,7 @@ def get_armor(user_info, rift_rank=0):
     :return 防具ID, 防具信息json
     """
     armor_data = items.get_data_by_item_type(['防具'])
+    print("这里是armor_data", armor_data)
     armor_id = get_id_by_rank(armor_data, user_info['level'], rift_rank)
     armor_info = items.get_data_by_item_id(armor_id)
     return armor_id, armor_info

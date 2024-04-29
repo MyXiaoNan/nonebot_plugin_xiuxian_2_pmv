@@ -220,7 +220,7 @@ async def boss_delete_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     msg = args.extract_plain_text().strip()
     group_id = str(event.group_id)
-    boss_num = re.findall("\d+", msg)  # boss编号
+    boss_num = re.findall(r"\d+", msg)  # boss编号
     isInGroup = isInGroups(event)
     if not isInGroup:  # 不在配置表内
         msg = f"本群尚未开启世界Boss,请联系管理员开启!"
@@ -344,7 +344,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
     user_id = user_info['user_id']
     msg = args.extract_plain_text().strip()
     group_id = str(event.group_id)
-    boss_num = re.findall("\d+", msg)  # boss编号
+    boss_num = re.findall(r"\d+", msg)  # boss编号
 
     isInGroup = isInGroups(event)
     if not isInGroup:  # 不在配置表内
@@ -584,7 +584,7 @@ async def boss_info_(bot: Bot, event: GroupMessageEvent, args: Message = Command
         await boss_info.finish()
 
     msg = args.extract_plain_text().strip()
-    boss_num = re.findall("\d+", msg)  # boss编号
+    boss_num = re.findall(r"\d+", msg)  # boss编号
 
     if not bosss:
         msg = f"本群尚未生成世界Boss,请等待世界boss刷新!"
@@ -867,7 +867,7 @@ async def boss_integral_use_(bot: Bot, event: GroupMessageEvent, args: Message =
 
     user_id = user_info['user_id']
     msg = args.extract_plain_text().strip()
-    shop_num = re.findall("\d+", msg)  # boss编号
+    shop_num = re.findall(r"\d+", msg)  # boss编号
 
     isInGroup = isInGroups(event)
     if not isInGroup:  # 不在配置表内

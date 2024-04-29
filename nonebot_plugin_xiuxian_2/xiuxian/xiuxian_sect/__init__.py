@@ -1,7 +1,7 @@
 import re
 import random
 from ..xiuxian_utils.xiuxian2_handle import (
-    XiuxianDateManage, OtherSet, BuffJsonDate, 
+    XiuxianDateManage, OtherSet, BuffJsonDate,
     get_main_info_msg, UserBuffDate, get_sec_msg
 )
 from nonebot import on_command, on_fullmatch, require
@@ -84,7 +84,7 @@ __sect_help__ = f"""
 20、宗门丹药领取、领取宗门丹药领取:领取宗门丹药
 非指令：
 1、拥有定时任务:每日{config["发放宗门资材"]["时间"]}点发放{config["发放宗门资材"]["倍率"]}倍对应宗门建设度的资材
-2、道统传承: 宗主|长老|亲传弟子|内门弟子|外门弟子|散修 单次稳定获得百分比修为上限分别为 
+2、道统传承: 宗主|长老|亲传弟子|内门弟子|外门弟子|散修 单次稳定获得百分比修为上限分别为
 {jsondata.sect_config_data()[str(0)]["max_exp"]}  {jsondata.sect_config_data()[str(1)]["max_exp"]}  {jsondata.sect_config_data()[str(2)]["max_exp"]}
 {jsondata.sect_config_data()[str(3)]["max_exp"]}  {jsondata.sect_config_data()[str(4)]["max_exp"]}  {jsondata.sect_config_data()[str(4)]["max_exp"]}
 """.strip()
@@ -806,14 +806,14 @@ async def upatkpractice_(bot: Bot, event: GroupMessageEvent, args: Message = Com
     sect_id = user_info['sect_id']
     level_up_count = 1
     config_max_level = max(int(key) for key in LEVLECOST.keys())
-    raw_args = args.extract_plain_text().strip() 
+    raw_args = args.extract_plain_text().strip()
     try:
         level_up_count = int(raw_args)
         level_up_count = min(max(1, level_up_count), config_max_level)
     except ValueError:
         level_up_count = 1
     if sect_id:
-        sect_materials = int(sql_message.get_sect_info(sect_id).sect_materials)  # 当前资材
+        sect_materials = int(sql_message.get_sect_info(sect_id)['sect_materials'])  # 当前资材
         useratkpractice = int(user_info['atkpractice'])  # 当前等级
         if useratkpractice == 50:
             msg = f"道友的攻击修炼等级已达到最高等级!"
@@ -1282,7 +1282,7 @@ async def sect_rename_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
             else:
                 await bot.send_group_msg(group_id=int(send_group_id), message=msg)
             await sect_rename.finish()
-        
+
         elif sect_info['sect_used_stone'] < XiuConfig().sect_rename_cost:
             msg = f"道友宗门灵石储备不足，还需{number_to(XiuConfig().sect_rename_cost - sect_info['sect_used_stone'])}灵石!"
             if XiuConfig().img:
@@ -1302,7 +1302,7 @@ async def sect_rename_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
             if XiuConfig().img:
                 pic = await get_msg_pic(f"@{event.sender.nickname}\n" + "已存在同名宗门(自己宗门名字一样的就不要改了),请重新输入！")
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
-        
+
         else:
             sql_message.update_sect_name(sect_id, update_sect_name)
             sql_message.update_sect_used_stone(sect_id, XiuConfig().sect_rename_cost, 2)
@@ -1326,7 +1326,7 @@ async def sect_rename_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
                 except ActionFailed:  # 发送群消息失败
                     continue
             await sect_rename.finish()
-            
+
 
 
 @create_sect.handle(parameterless=[Cooldown(at_sender=True)])
@@ -1354,7 +1354,7 @@ async def create_sect_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
 (1)创建者境界最低要求为{XiuConfig().sect_min_level}
 (2)花费{XiuConfig().sect_create_cost}灵石费用
 (3)创建者当前处于无宗门状态。道友暂未满足所有条件，请逐一核实后，再来寻我。"""
-        
+
     else:
         # 获取宗门名称
         sect_name = args.extract_plain_text().strip()
@@ -1403,7 +1403,7 @@ async def sect_kick_out_(bot: Bot, event: GroupMessageEvent, args: Message = Com
             give_qq = arg.data.get("qq", "")
     if bool(give_qq) is False:
         msg = args.extract_plain_text().strip()
-        give_qq = re.findall("\d+", msg)[0]  # QQ_ID
+        give_qq = re.findall(r"\d+", msg)[0]  # QQ_ID
     if sql_message.get_user_message(give_qq) is None:
         msg = "修仙界没有此人,请输入正确QQ_ID或正规at!"
         if XiuConfig().img:
@@ -1497,7 +1497,7 @@ async def sect_out_(bot: Bot, event: GroupMessageEvent, args: Message = CommandA
     owner_position = int(position_this[0]) if len(position_this) == 1 else 0
     if user_info['sect_position'] != owner_position:
         msg = args.extract_plain_text().strip()
-        sect_out_id = re.findall("\d+", msg)  # 退出宗门的宗门编号
+        sect_out_id = re.findall(r"\d+", msg)  # 退出宗门的宗门编号
         if len(sect_out_id) > 0:
             if int(sect_out_id[0]) == user_info['sect_id']:
                 sql_sects = sql_message.get_all_sect_id()
@@ -1569,7 +1569,7 @@ async def sect_donate_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await sect_donate.finish()
     msg = args.extract_plain_text().strip()
-    donate_num = re.findall("\d+", msg)  # 捐献灵石数
+    donate_num = re.findall(r"\d+", msg)  # 捐献灵石数
     if len(donate_num) > 0:
         if int(donate_num[0]) > user_info['stone']:
             msg = f"道友的灵石数量小于欲捐献数量{int(donate_num[0])}，请检查"
@@ -1627,7 +1627,7 @@ async def sect_position_update_(bot: Bot, event: GroupMessageEvent, args: Messag
 
     give_qq = None  # 艾特的时候存到这里
     msg = args.extract_plain_text().strip()
-    position_num = re.findall("\d+", msg)  # 职位品阶
+    position_num = re.findall(r"\d+", msg)  # 职位品阶
 
     for arg in args:
         if arg.type == "at":

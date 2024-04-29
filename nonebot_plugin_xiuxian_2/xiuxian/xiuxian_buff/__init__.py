@@ -604,7 +604,7 @@ async def stone_exp_(bot: Bot, event: GroupMessageEvent, args: Message = Command
         user_get_exp_max = 0
 
     msg = args.extract_plain_text().strip()
-    stone_num = re.findall("\d+", msg)  # 灵石数
+    stone_num = re.findall(r"\d+", msg)  # 灵石数
 
     if stone_num:
         pass

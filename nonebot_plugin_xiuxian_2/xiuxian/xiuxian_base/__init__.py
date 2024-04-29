@@ -863,8 +863,8 @@ async def give_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
     user_stone_num = user_info['stone']
     give_qq = None  # 艾特的时候存到这里
     msg = args.extract_plain_text().strip()
-    stone_num = re.findall("\d+", msg)  # 灵石数
-    nick_name = re.findall("\D+", msg)  # 道号
+    stone_num = re.findall(r"\d+", msg)  # 灵石数
+    nick_name = re.findall(r"\d+", msg)  # 道号
     if stone_num:
         pass
     else:
@@ -1067,7 +1067,7 @@ async def gm_command_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
     give_qq = None  # 艾特的时候存到这里
     msg_text = args.extract_plain_text().strip().strip()
     stone_num_match = re.findall(r"\d+", msg_text)  # 提取数字
-    nick_name = re.findall("\D+", msg_text)  ## 道号
+    nick_name = re.findall(r"\D+", msg_text)  ## 道号
     give_stone_num = int(stone_num_match[0]) if stone_num_match else 0  # 默认灵石数为0，如果有提取到数字，则使用提取到的第一个数字
     # 遍历Message对象，寻找艾特信息
     for arg in args:
