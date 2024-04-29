@@ -69,7 +69,7 @@ back_help = on_command("背包帮助", aliases={'坊市帮助'}, priority=8, per
 xiuxian_sone = on_fullmatch("灵石", priority=4, permission=GROUP, block=True)
 chakan_wupin = on_command("查看修仙界物品", priority=25, permission=GROUP, block=True)
 
-__back_help__ = f"""
+__back_help__ = """
 指令：
 1、我的背包、我的物品:查看自身背包前196个物品的信息
 2、使用+物品名字：使用物品,丹药可批量使用
@@ -86,8 +86,8 @@ __back_help__ = f"""
 13、查看修仙界物品:支持类型【功法|神通|丹药|合成丹药|法器|防具】
 14、清空坊市:清空本群坊市,管理员权限
 非指令：
-1、定时生成拍卖会,每天{auction_time_config['hours']}点每整点生成一场拍卖会
-""".strip()
+1、定时生成拍卖会,每天{}点每整点生成一场拍卖会
+""".format(auction_time_config['hours']).strip()
 
 
 # 重置丹药每日使用次数
@@ -114,7 +114,7 @@ async def set_auction_by_scheduler_():
         auction_info = items.get_data_by_item_id(auction_id)
         start_price = get_auction_price_by_id(auction_id)['start_price']
         msg = "本次拍卖的物品为：{}\n".format(get_auction_msg(auction_id))
-        msg += "\n底价为 {} 灵石，加价不少于 {} 灵石".format(start_price, int(start_price * 0.05))
+        msg += "\n底价为 {} 灵石，每次加价不少于 {} 灵石".format(start_price, int(start_price * 0.05))
         msg += "\n请诸位道友发送 拍卖+金额 来进行拍卖吧！"
         msg += "\n本次竞拍时间为:{}秒！".format(AUCTIONSLEEPTIME)
         auction['id'] = auction_id
@@ -184,7 +184,7 @@ async def set_auction_by_scheduler_():
                     continue
             return
         msg = "本次拍卖会结束！"
-        msg += f"恭喜来自群{auction['group_id']}的{user_info['user_name']}道友成功拍卖获得：{auction['type']}-{auction['name']}!"
+        msg += "恭喜来自群{}的{}道友成功拍卖获得：{}-{}!".format(auction['group_id'], user_info['user_name'], auction['type'], auction['name'])
         for group_id in groups:
             bot = await assign_bot_group(group_id=group_id)
             try:
@@ -295,18 +295,18 @@ async def buy_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
                 # 取出商品信息，检查库存
                 goods_info = shop_data[group_id].get(str(arg))
                 if not goods_info:
-                    raise ValueError("编号对应的商品不存在")
+                    raise ValueError("编号对应的商品不存在！")
 
                 purchase_quantity = int(input_args[1]) if len(input_args) > 1 else 1  # 购买数量，没指定的话默认为1
                 if purchase_quantity <= 0:
-                    raise ValueError("购买数量必须是正数")
+                    raise ValueError("购买数量必须是正数！")
     
                 if 'stock' in goods_info and purchase_quantity > goods_info['stock']:
                  # 如果商品有库存限制，且购买数量超过库存，则抛出错误
-                    raise ValueError("购买数量超过库存限制")
+                    raise ValueError("购买数量超过库存限制！")
     
             except ValueError as e:
-                msg = "报错：{}！".format(str(e))
+                msg = "{}！".format(str(e))
                 if XiuConfig().img:
                     pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                     await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -359,7 +359,7 @@ async def buy_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
                     shop_data[group_id][str(arg)] = goods_info # 更新库存
                 service_charge = int(goods_price * 0.1)  # 手续费10%
                 give_stone = goods_price - service_charge
-                msg = "道友成功购买{}个{}道友寄售的{}，消耗灵石{}枚,坊市收取手续费：{service_charge}枚灵石！".format(purchase_quantity, shop_user_name, shop_goods_name, goods_price, service_charge)
+                msg = "道友成功购买{}个{}道友寄售的{}，消耗灵石{}枚,坊市收取手续费：{}枚灵石！".format(purchase_quantity, shop_user_name, shop_goods_name, goods_price, service_charge)
                 sql_message.update_ls(shop_user_id, give_stone, 1)
             shop_data[group_id] = reset_dict_num(shop_data[group_id])
             save_shop(shop_data)
@@ -545,7 +545,7 @@ async def shop_added_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
         # 提供了物品名称、价格和数量
         goods_name, price_str, quantity_str = args[0], args[1], args[2]
 
-    back_msg = sql_message.get_back_msg(user_id)  # 背包sql信息,list(back)
+    back_msg = sql_message.get_back_msg(user_id)  # 背包sql信息,dict
     if back_msg is None:
         msg = "道友的背包空空如也！"
         if XiuConfig().img:
@@ -583,7 +583,7 @@ async def shop_added_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
     try:
         price = int(price_str)
         if price <= 0:
-            raise ValueError("价格必须为正数!")
+            raise ValueError("价格必须为正数！")
     except ValueError as e:
         msg = "请输入正确的金额: {}".format(str(e))
         if XiuConfig().img:
@@ -850,7 +850,7 @@ async def shop_off_(bot: Bot, event: GroupMessageEvent, args: Message = CommandA
             sql_message.send_back(shop_data[group_id][str(arg)]['user_id'], shop_data[group_id][str(arg)]['goods_id'],
                                   shop_data[group_id][str(arg)]['goods_name'],
                                   shop_data[group_id][str(arg)]['goods_type'], 1)
-            msg1 = f"道友上架的{shop_data[group_id][str(arg)]['goods_name']}已被管理员{user_info['user_name']}下架！"
+            msg1 = "道友上架的{}已被管理员{}下架！".format(shop_data[group_id][str(arg)]['goods_name'], user_info['user_name'])
             del shop_data[group_id][str(arg)]
             shop_data[group_id] = reset_dict_num(shop_data[group_id])
             save_shop(shop_data)
@@ -1101,11 +1101,10 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
     elif goods_type == "丹药":
         num = 1  # 默认使用数量为1
         try:
-             # 如果用户指定了数量，并且数量在合法范围内
+             # 如果指定了数量
             if len(args) > 1 and 1 <= int(args[1]) <= int(goods_num):
                 num = int(args[1])
             elif len(args) > 1 and int(args[1]) > int(goods_num):
-                # 如果用户指定的数量大于背包中的数量，则返回数量不足的提示
                 msg = "道友背包中的{}数量不足，当前仅有{}个！".format(arg, goods_num)
                 if XiuConfig().img:
                     pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
@@ -1114,7 +1113,7 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
                     await bot.send_group_msg(group_id=int(send_group_id), message=msg)
                 await use.finish()
         except ValueError:
-            # 如果用户输入的数量不是一个合法的数字，则默认使用1个，并继续后续操作
+            # 默认使用1个，并继续后续操作
             num = 1
         msg = check_use_elixir(user_id, goods_id, num)
         if XiuConfig().img:
@@ -1126,11 +1125,10 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
     elif goods_type =="神物":
         num = 1  # 默认使用数量为1
         try:
-             # 如果用户指定了数量，并且数量在合法范围内
+             # 如果指定了数量
             if len(args) > 1 and 1 <= int(args[1]) <= int(goods_num):
                 num = int(args[1])
             elif len(args) > 1 and int(args[1]) > int(goods_num):
-                # 如果用户指定的数量大于背包中的数量，则返回数量不足的提示
                 msg = "道友背包中的{}数量不足，当前仅有{}个！".format(arg, goods_num)
                 if XiuConfig().img:
                     pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
@@ -1139,7 +1137,7 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
                     await bot.send_group_msg(group_id=int(send_group_id), message=msg)
                 await use.finish()
         except ValueError:
-            # 如果用户输入的数量不是一个合法的数字，则默认使用1个，并继续后续操作
+            # 默认使用1个，并继续后续操作
             num = 1
         goods_info = items.get_data_by_item_id(goods_id)
         user_info = sql_message.get_user_message(user_id)
@@ -1265,7 +1263,7 @@ async def creat_auction_(bot: Bot, event: GroupMessageEvent):
     auction_info = items.get_data_by_item_id(auction_id)
     start_price = get_auction_price_by_id(auction_id)['start_price']
     msg = "本次拍卖的物品为：{}\n".format(get_auction_msg(auction_id))
-    msg += "\n底价为{}灵石，加价不少于{}".format(start_price, int(start_price * 0.05))
+    msg += "\n底价为{}灵石，每次加价不少于{}".format(start_price, int(start_price * 0.05))
     msg += "\n请诸位道友发送 拍卖+金额 来进行拍卖吧！"
     msg += "\n本次竞拍时间为:{}秒！".format(AUCTIONSLEEPTIME)
 
@@ -1319,8 +1317,11 @@ async def creat_auction_(bot: Bot, event: GroupMessageEvent):
     user_info = sql_message.get_user_message(auction['user_id'])
     now_price = int(auction['now_price'])
     user_stone = user_info['stone']
+    punish_stone = now_price * 0.1
     if user_stone < now_price:
-        msg = "拍卖会结算！竞拍者灵石小于拍卖，判定为捣乱，捣乱次数+1!"
+        sql_message.update_ls(user_info['user_id'], punish_stone, 2)  # 扣除用户灵石
+        msg = "拍卖会结算！竞拍者灵石小于拍卖物品要求之数量，判定为捣乱，捣乱次数+1!\n"
+        msg += "扣除道友{}枚灵石作为惩罚，望道友莫要再捣乱！".format(punish_stone)
         if XiuConfig().img:
             pic = await get_msg_pic(msg)
             await bot.send_group_msg(group_id=int(group_id), message=MessageSegment.image(pic))
@@ -1635,20 +1636,20 @@ async def shop_off_all_(bot: Bot, event: GroupMessageEvent):
     for x in range(num):
         x = num - x
         if shop_data[group_id][str(x)]['user_id'] == 0:  # 这么写为了防止bot.send发送失败，不结算
-            msg += f"成功下架物品：{shop_data[group_id][str(x)]['goods_name']}!\n"
+            msg += "成功下架物品：{}!\n".format(shop_data[group_id][str(x)]['goods_name'])
             del shop_data[group_id][str(x)]
             save_shop(shop_data)
         else:
             sql_message.send_back(shop_data[group_id][str(x)]['user_id'], shop_data[group_id][str(x)]['goods_id'],
                                   shop_data[group_id][str(x)]['goods_name'],
                                   shop_data[group_id][str(x)]['goods_type'], 1)
-            msg += f"成功下架{shop_data[group_id][str(x)]['user_name']}的物品：{shop_data[group_id][str(x)]['goods_name']}!\n"
+            msg += "成功下架{}的物品：{}!\n".format(shop_data[group_id][str(x)]['user_name'], shop_data[group_id][str(x)]['goods_name'])
             del shop_data[group_id][str(x)]
             save_shop(shop_data)
     shop_data[group_id] = reset_dict_num(shop_data[group_id])
     save_shop(shop_data)
     list_msg.append(
-                    {"type": "node", "data": {"name": f"执行清空坊市ing", "uin": bot.self_id,
+                    {"type": "node", "data": {"name": "执行清空坊市ing", "uin": bot.self_id,
                                               "content": msg}})
     try:
         await send_msg_handler(bot, event, list_msg)
