@@ -6,6 +6,7 @@ import re
 from pathlib import Path
 import random
 import os
+import math
 from nonebot.rule import Rule
 from nonebot import get_bots, get_bot ,on_command, on_fullmatch, require
 from nonebot.params import CommandArg
@@ -492,7 +493,8 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
         save_user_boss_fight_info(user_id, user_boss_fight_info)
         
         if exp_buff > 0:
-            now_exp = int(user_info['exp'] * exp_buff)
+            log_exp = math.log(user_info['exp'] + 1)
+            now_exp = int(math.exp(log_exp * exp_buff))
             sql_message.update_exp(user_id, now_exp)
             exp_msg = "，获得修为{}点！".format(now_exp)
         else:
@@ -523,7 +525,8 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
                 more_msg = "道友的境界超过boss太多了,不齿！"
                 
         if exp_buff > 0:
-            now_exp = int(user_info['exp'] * exp_buff)
+            log_exp = math.log(user_info['exp'] + 1)
+            now_exp = int(math.exp(log_exp * exp_buff))
             sql_message.update_exp(user_id, now_exp)
             exp_msg = f"获得修为{now_exp}点！"
         else:
@@ -1055,4 +1058,7 @@ def get_id(dict_data, user_level):
         if v["rank"] >= final_rank and (v["rank"] - final_rank) <= pass_rank:
             l_temp.append(k)
 
-    return random.choice(l_temp)
+    if len(l_temp) == 0:
+        return None
+    else:
+        return random.choice(l_temp)

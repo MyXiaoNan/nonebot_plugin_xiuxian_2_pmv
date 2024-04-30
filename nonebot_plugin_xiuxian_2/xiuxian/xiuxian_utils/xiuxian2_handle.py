@@ -2005,46 +2005,55 @@ class BuffJsonDate:
 
 
 class UserBuffDate:
-
     def __init__(self, user_id):
         """用户Buff数据"""
         self.user_id = user_id
-        self.BuffInfo = get_user_buff(self.user_id)
+
+    @property
+    def BuffInfo(self):
+        """获取最新的 Buff 信息"""
+        return get_user_buff(self.user_id)
 
     def get_user_main_buff_data(self):
-        try:
-            main_buff_data = items.get_data_by_item_id(self.BuffInfo['main_buff'])
-        except:
-            main_buff_data = None
+        main_buff_data = None
+        buff_info = self.BuffInfo
+        main_buff_id = buff_info.get('main_buff', 0)
+        if main_buff_id != 0:
+            main_buff_data = items.get_data_by_item_id(main_buff_id)
         return main_buff_data
     
-    def get_user_sub_buff_data(self):# 辅修功法9
-        try:
-            sub_buff_data = items.get_data_by_item_id(self.BuffInfo['sub_buff'])
-        except:
-            sub_buff_data = None
+    def get_user_sub_buff_data(self):
+        sub_buff_data = None
+        buff_info = self.BuffInfo
+        sub_buff_id = buff_info.get('sub_buff', 0)
+        if sub_buff_id != 0:
+            sub_buff_data = items.get_data_by_item_id(sub_buff_id)
         return sub_buff_data
 
     def get_user_sec_buff_data(self):
-        try:
-            sec_buff_data = items.get_data_by_item_id(self.BuffInfo['sec_buff'])
-        except:
-            sec_buff_data = None
+        sec_buff_data = None
+        buff_info = self.BuffInfo
+        sec_buff_id = buff_info.get('sec_buff', 0)
+        if sec_buff_id != 0:
+            sec_buff_data = items.get_data_by_item_id(sec_buff_id)
         return sec_buff_data
 
     def get_user_weapon_data(self):
-        try:
-            weapon_data = items.get_data_by_item_id(self.BuffInfo['faqi_buff'])
-        except:
-            weapon_data = None
+        weapon_data = None
+        buff_info = self.BuffInfo
+        weapon_id = buff_info.get('faqi_buff', 0)
+        if weapon_id != 0:
+            weapon_data = items.get_data_by_item_id(weapon_id)
         return weapon_data
 
     def get_user_armor_buff_data(self):
-        try:
-            armor_buff_data = items.get_data_by_item_id(self.BuffInfo['armor_buff'])
-        except:
-            armor_buff_data = None
+        armor_buff_data = None
+        buff_info = self.BuffInfo
+        armor_buff_id = buff_info.get('armor_buff', 0)
+        if armor_buff_id != 0:
+            armor_buff_data = items.get_data_by_item_id(armor_buff_id)
         return armor_buff_data
+
 
 
 def get_weapon_info_msg(weapon_id, weapon_info=None):

@@ -98,6 +98,8 @@ class Items:
         return self.readf(self.sw_jsonpath)
 
     def get_data_by_item_id(self, item_id):
+        if item_id is None:
+            return None
         return self.items[str(item_id)]
 
 

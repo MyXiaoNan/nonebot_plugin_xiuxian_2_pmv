@@ -572,15 +572,19 @@ async def Boss_fight(player1: dict, boss: dict, type_in=2, bot_id=0):
     {"user_id": None,"道号": None, "气血": None, "攻击": None, "真元": None, '会心':None, 'exp':None}
     """
     user1_buff_date = UserBuffDate(player1['user_id'])  # 1号的buff信息
-    user1_main_buff_data = user1_buff_date.get_user_main_buff_data()
-    user1_sub_buff_data = user1_buff_date.get_user_sub_buff_data() #获取玩家1的辅修功法
-    user1_hp_buff = user1_main_buff_data['hpbuff'] if user1_main_buff_data is not None else 0
-    user1_mp_buff = user1_main_buff_data['mpbuff'] if user1_main_buff_data is not None else 0
-    user1_random_buff = user1_main_buff_data['random_buff'] if user1_main_buff_data is not None else 0
-    fan_buff = user1_sub_buff_data['fan'] if user1_sub_buff_data is not None else 0
-    stone_buff = user1_sub_buff_data['stone'] if user1_sub_buff_data is not None else 0
-    integral_buff = user1_sub_buff_data['integral'] if user1_sub_buff_data is not None else 0
-    sub_break = user1_sub_buff_data['break'] if user1_sub_buff_data is not None else 0
+    if user1_buff_date is None: # 处理为空的情况
+        user1_main_buff_data = None
+        user1_sub_buff_data = None
+    else:
+        user1_main_buff_data = user1_buff_date.get_user_main_buff_data()
+        user1_sub_buff_data = user1_buff_date.get_user_sub_buff_data() #获取玩家1的辅修功法
+        user1_hp_buff = user1_main_buff_data['hpbuff'] if user1_main_buff_data is not None else 0
+        user1_mp_buff = user1_main_buff_data['mpbuff'] if user1_main_buff_data is not None else 0
+        user1_random_buff = user1_main_buff_data['random_buff'] if user1_main_buff_data is not None else 0
+        fan_buff = user1_sub_buff_data['fan'] if user1_sub_buff_data is not None else 0
+        stone_buff = user1_sub_buff_data['stone'] if user1_sub_buff_data is not None else 0
+        integral_buff = user1_sub_buff_data['integral'] if user1_sub_buff_data is not None else 0
+        sub_break = user1_sub_buff_data['break'] if user1_sub_buff_data is not None else 0
     impart_data = xiuxian_impart.get_user_message(player1['user_id'])
     impart_hp_per = impart_data['impart_hp_per'] if impart_data is not None else 0
     impart_mp_per = impart_data['impart_mp_per'] if impart_data is not None else 0
@@ -670,7 +674,7 @@ async def Boss_fight(player1: dict, boss: dict, type_in=2, bot_id=0):
 
     player1_sub_open = False #辅修功法14
     user1_sub_buff_date = {}
-    if user1_buff_date.get_user_sub_buff_data() != None:
+    if user1_buff_date.get_user_sub_buff_data() is not None:
         user1_sub_buff_date = user1_buff_date.get_user_sub_buff_data()
         player1_sub_open = True
 
@@ -1342,7 +1346,7 @@ async def Boss_fight(player1: dict, boss: dict, type_in=2, bot_id=0):
             play_list.append(get_msg_dict(player1, player_init_hp, boss_hp_msg))
             sh += player1_sh
             
-         ## 自己回合结束 处理 辅修功法14
+        ## 自己回合结束 处理 辅修功法14
         player1,boss,msg = after_atk_sub_buff_handle(player1_sub_open,player1,user1_main_buff_data,user1_sub_buff_date,player2_health_temp - boss['气血'],boss)
         play_list.append(get_msg_dict(player1, player_init_hp, msg))
         sh += player2_health_temp - boss['气血']
@@ -1666,7 +1670,7 @@ def before_atk_sub_buff_handle(player, subbuffdata):
 
 
 # 处理攻击后辅修功法效果
-def     after_atk_sub_buff_handle(player1_sub_open, player1, user1_main_buff_data, subbuffdata1, damage1, player2):
+def after_atk_sub_buff_handle(player1_sub_open, player1, user1_main_buff_data, subbuffdata1, damage1, player2):
     msg = ""
 
     if not player1_sub_open:
@@ -1676,8 +1680,8 @@ def     after_atk_sub_buff_handle(player1_sub_open, player1, user1_main_buff_dat
     buff_tow = int(subbuffdata1['buff2'])
     buff_type = subbuffdata1['buff_type']
     exp = int(player1['exp'])
-    max_hp = int(exp/2) * (1 + user1_main_buff_data['hpbuff'])
-    max_mp = exp * (1 + user1_main_buff_data['mpbuff'])
+    max_hp = int(exp / 2) * (1 + user1_main_buff_data.get('hpbuff', 0) if user1_main_buff_data is not None else 0)
+    max_mp = exp * (1 + user1_main_buff_data.get('mpbuff', 0) if user1_main_buff_data is not None else 0)
     
     if buff_type == '4':
         restore_health = int(exp/2) * (1 + user1_main_buff_data['hpbuff']) * buff_value // 100

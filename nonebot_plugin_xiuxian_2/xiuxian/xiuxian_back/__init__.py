@@ -265,7 +265,6 @@ async def buy_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
         group_id = str(event.group_id)
         shop_data = get_shop_data(group_id)
         
-        
         if shop_data[group_id] == {}:
             msg = "坊市目前空空如也！"
             if XiuConfig().img:
@@ -1229,6 +1228,15 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
 async def creat_auction_(bot: Bot, event: GroupMessageEvent):
     group_id = str(event.group_id)
     bot = await assign_bot_group(group_id=group_id)
+    isUser, user_info, msg = check_user(event)
+    if not isUser:
+        if XiuConfig().img:
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
+            await bot.send_group_msg(group_id=int(group_id), message=MessageSegment.image(pic))
+        else:
+            await bot.send_group_msg(group_id=int(group_id), message=msg)
+        await creat_auction.finish()
+        
     if group_id not in groups:
         msg = '本群尚未开启拍卖会功能，请联系管理员开启！'
         if XiuConfig().img:
@@ -1353,8 +1361,8 @@ async def creat_auction_(bot: Bot, event: GroupMessageEvent):
 async def offer_auction_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     group_id = str(event.group_id)
     bot = await assign_bot_group(group_id=group_id)
-    if group_id not in groups:
-        msg = '本群尚未开启拍卖会功能，请联系管理员开启！'
+    isUser, user_info, msg = check_user(event)
+    if not isUser:
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(group_id), message=MessageSegment.image(pic))
@@ -1362,8 +1370,8 @@ async def offer_auction_(bot: Bot, event: GroupMessageEvent, args: Message = Com
             await bot.send_group_msg(group_id=int(group_id), message=msg)
         await creat_auction.finish()
 
-    isUser, user_info, msg = check_user(event)
-    if not isUser:
+    if group_id not in groups:
+        msg = '本群尚未开启拍卖会功能，请联系管理员开启！'
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(group_id), message=MessageSegment.image(pic))
