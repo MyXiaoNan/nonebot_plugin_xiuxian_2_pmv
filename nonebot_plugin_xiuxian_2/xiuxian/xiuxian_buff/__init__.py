@@ -72,7 +72,7 @@ async def two_exp_cd_up_():
     logger.opt(colors=True).info("<green>双修次数已更新！</green>")
 
 
-@buff_help.handle(parameterless=[Cooldown(at_sender=True)])
+@buff_help.handle(parameterless=[Cooldown(at_sender=False)])
 async def buff_help_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
     """功法帮助"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -90,7 +90,7 @@ async def buff_help_(bot: Bot, event: GroupMessageEvent, session_id: int = Comma
         await buff_help.finish()
 
 
-@blessed_spot_creat.handle(parameterless=[Cooldown(at_sender=True)])
+@blessed_spot_creat.handle(parameterless=[Cooldown(at_sender=False)])
 async def blessed_spot_creat_(bot: Bot, event: GroupMessageEvent):
     """洞天福地开启"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -134,7 +134,7 @@ async def blessed_spot_creat_(bot: Bot, event: GroupMessageEvent):
         await blessed_spot_creat.finish()
 
 
-@blessed_spot_info.handle(parameterless=[Cooldown(at_sender=True)])
+@blessed_spot_info.handle(parameterless=[Cooldown(at_sender=False)])
 async def blessed_spot_info_(bot: Bot, event: GroupMessageEvent):
     """洞天福地信息"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -173,7 +173,7 @@ async def blessed_spot_info_(bot: Bot, event: GroupMessageEvent):
     await blessed_spot_info.finish()
 
 
-@ling_tian_up.handle(parameterless=[Cooldown(at_sender=True)])
+@ling_tian_up.handle(parameterless=[Cooldown(at_sender=False)])
 async def ling_tian_up_(bot: Bot, event: GroupMessageEvent):
     """洞天福地灵田升级"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -232,7 +232,7 @@ async def ling_tian_up_(bot: Bot, event: GroupMessageEvent):
     await ling_tian_up.finish()
 
 
-@blessed_spot_rename.handle(parameterless=[Cooldown(at_sender=True)])
+@blessed_spot_rename.handle(parameterless=[Cooldown(at_sender=False)])
 async def blessed_spot_rename_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """洞天福地改名"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -276,7 +276,7 @@ async def blessed_spot_rename_(bot: Bot, event: GroupMessageEvent, args: Message
     await blessed_spot_rename.finish()
 
 
-@qc.handle(parameterless=[Cooldown(cd_time=300, at_sender=True)])
+@qc.handle(parameterless=[Cooldown(cd_time=300, at_sender=False)])
 async def qc_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """切磋，不会掉血"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -383,7 +383,7 @@ async def qc_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
 
 two_exp_limit = 3 # 默认双修次数上限
 
-@two_exp.handle(parameterless=[Cooldown(at_sender=True)])
+@two_exp.handle(parameterless=[Cooldown(at_sender=False)])
 async def two_exp_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """双修"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -577,7 +577,7 @@ async def two_exp_(bot: Bot, event: GroupMessageEvent, args: Message = CommandAr
         await two_exp.finish()
 
 
-@stone_exp.handle(parameterless=[Cooldown(at_sender=True)])
+@stone_exp.handle(parameterless=[Cooldown(at_sender=False)])
 async def stone_exp_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """灵石修炼"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -652,7 +652,7 @@ async def stone_exp_(bot: Bot, event: GroupMessageEvent, args: Message = Command
         await stone_exp.finish()
 
 
-@in_closing.handle(parameterless=[Cooldown(at_sender=True)])
+@in_closing.handle(parameterless=[Cooldown(at_sender=False)])
 async def in_closing_(bot: Bot, event: GroupMessageEvent):
     """闭关"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -685,7 +685,7 @@ async def in_closing_(bot: Bot, event: GroupMessageEvent):
         await in_closing.finish()
 
 
-@out_closing.handle(parameterless=[Cooldown(at_sender=True)])
+@out_closing.handle(parameterless=[Cooldown(at_sender=False)])
 async def out_closing_(bot: Bot, event: GroupMessageEvent):
     """出关"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -822,7 +822,7 @@ async def out_closing_(bot: Bot, event: GroupMessageEvent):
                 await out_closing.finish()
 
 
-@mind_state.handle(parameterless=[Cooldown(at_sender=True)])
+@mind_state.handle(parameterless=[Cooldown(at_sender=False)])
 async def mind_state_(bot: Bot, event: GroupMessageEvent):
     """我的状态信息"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -916,7 +916,7 @@ boss战增益:{int(boss_atk * 100)}%
     await mind_state.finish()
 
 
-@buffinfo.handle(parameterless=[Cooldown(at_sender=True)])
+@buffinfo.handle(parameterless=[Cooldown(at_sender=False)])
 async def buffinfo_(bot: Bot, event: GroupMessageEvent):
     """我的功法"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -964,7 +964,7 @@ async def buffinfo_(bot: Bot, event: GroupMessageEvent):
     await buffinfo.finish()
 
 
-@del_exp_decimal.handle(parameterless=[Cooldown(at_sender=True)])
+@del_exp_decimal.handle(parameterless=[Cooldown(at_sender=False)])
 async def del_exp_decimal_(bot: Bot, event: GroupMessageEvent):
     """清除修为浮点数"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -988,7 +988,7 @@ async def del_exp_decimal_(bot: Bot, event: GroupMessageEvent):
     await del_exp_decimal.finish()
 
 
-@my_exp_num.handle(parameterless=[Cooldown(at_sender=True)])
+@my_exp_num.handle(parameterless=[Cooldown(at_sender=False)])
 async def my_exp_num_(bot: Bot, event: GroupMessageEvent):
     """我的双修次数"""
     global two_exp_limit

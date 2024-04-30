@@ -203,7 +203,7 @@ async def set_auction_by_scheduler_():
         return
 
 
-@back_help.handle(parameterless=[Cooldown(at_sender=True)])
+@back_help.handle(parameterless=[Cooldown(at_sender=False)])
 async def back_help_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
     """背包帮助"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -224,7 +224,7 @@ async def back_help_(bot: Bot, event: GroupMessageEvent, session_id: int = Comma
         await back_help.finish()
 
 
-@xiuxian_sone.handle(parameterless=[Cooldown(at_sender=True)])
+@xiuxian_sone.handle(parameterless=[Cooldown(at_sender=False)])
 async def xiuxian_sone_(bot: Bot, event: GroupMessageEvent):
     """我的灵石信息"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -371,7 +371,7 @@ async def buy_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
             await buy.finish()
 
 
-@shop.handle(parameterless=[Cooldown(at_sender=True)])
+@shop.handle(parameterless=[Cooldown(at_sender=False)])
 async def shop_(bot: Bot, event: GroupMessageEvent):
     """坊市查看"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -677,7 +677,7 @@ async def shop_added_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
     await shop_added.finish()
 
 
-@goods_re_root.handle(parameterless=[Cooldown(at_sender=True)])
+@goods_re_root.handle(parameterless=[Cooldown(at_sender=False)])
 async def goods_re_root_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """炼金"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -873,7 +873,7 @@ async def shop_off_(bot: Bot, event: GroupMessageEvent, args: Message = CommandA
         await shop_off.finish()
 
 
-@main_back.handle(parameterless=[Cooldown(cd_time=XiuConfig().user_info_cd, at_sender=True)])
+@main_back.handle(parameterless=[Cooldown(cd_time=XiuConfig().user_info_cd, at_sender=False)])
 async def main_back_(bot: Bot, event: GroupMessageEvent):
     """我的背包
     ["user_id", "goods_id", "goods_name", "goods_type", "goods_num", "create_time", "update_time",
@@ -914,7 +914,7 @@ async def main_back_(bot: Bot, event: GroupMessageEvent):
 
 
 
-@no_use_zb.handle(parameterless=[Cooldown(at_sender=True)])
+@no_use_zb.handle(parameterless=[Cooldown(at_sender=False)])
 async def no_use_zb_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """卸载物品（只支持装备）
     ["user_id", "goods_id", "goods_name", "goods_type", "goods_num", "create_time", "update_time",
@@ -993,7 +993,7 @@ async def no_use_zb_(bot: Bot, event: GroupMessageEvent, args: Message = Command
         await no_use_zb.finish()
 
 
-@use.handle(parameterless=[Cooldown(at_sender=True)])
+@use.handle(parameterless=[Cooldown(at_sender=False)])
 async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """使用物品
     ["user_id", "goods_id", "goods_name", "goods_type", "goods_num", "create_time", "update_time",
@@ -1034,7 +1034,7 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
     if not in_flag:
         msg = "请检查该道具 {} 是否在背包内！".format(arg)
         if XiuConfig().img:
-            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
+            pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
@@ -1225,7 +1225,7 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
         await use.finish()
 
 
-@creat_auction.handle(parameterless=[Cooldown(at_sender=True)])
+@creat_auction.handle(parameterless=[Cooldown(at_sender=False)])
 async def creat_auction_(bot: Bot, event: GroupMessageEvent):
     group_id = str(event.group_id)
     bot = await assign_bot_group(group_id=group_id)
@@ -1451,7 +1451,7 @@ async def offer_auction_(bot: Bot, event: GroupMessageEvent, args: Message = Com
         await creat_auction.finish()
 
 
-@set_auction.handle(parameterless=[Cooldown(at_sender=True)])
+@set_auction.handle(parameterless=[Cooldown(at_sender=False)])
 async def set_auction_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     mode = args.extract_plain_text().strip()
@@ -1508,7 +1508,7 @@ async def set_auction_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
         await set_auction.finish()
 
 
-@chakan_wupin.handle(parameterless=[Cooldown(at_sender=True)])
+@chakan_wupin.handle(parameterless=[Cooldown(at_sender=False)])
 async def chakan_wupin_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """查看修仙界所有物品列表"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)

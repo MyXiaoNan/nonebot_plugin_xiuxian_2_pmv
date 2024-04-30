@@ -37,7 +37,7 @@ async def impart_re_():
     logger.opt(colors=True).info("<green>已重置虚神界次数</green>")
 
 
-@impart_pk_project.handle(parameterless=[Cooldown(at_sender=True)])
+@impart_pk_project.handle(parameterless=[Cooldown(at_sender=False)])
 async def impart_pk_project_(bot: Bot, event: GroupMessageEvent):
     """投影虚神界"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -77,7 +77,7 @@ async def impart_pk_project_(bot: Bot, event: GroupMessageEvent):
     await impart_pk_project.finish()
 
 
-@impart_pk_list.handle(parameterless=[Cooldown(at_sender=True)])
+@impart_pk_list.handle(parameterless=[Cooldown(at_sender=False)])
 async def impart_pk_list_(bot: Bot, event: GroupMessageEvent):
     """虚神界列表"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -133,7 +133,7 @@ async def impart_pk_list_(bot: Bot, event: GroupMessageEvent):
     await impart_pk_list.finish()
 
 
-@impart_pk_now.handle(parameterless=[Cooldown(cd_time=3, at_sender=True)])
+@impart_pk_now.handle(parameterless=[Cooldown(cd_time=3, at_sender=False)])
 async def impart_pk_now_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """虚神界对决"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -287,7 +287,7 @@ async def impart_pk_now_(bot: Bot, event: GroupMessageEvent, args: Message = Com
             await impart_pk_now.finish()
 
 
-@impart_pk_exp.handle(parameterless=[Cooldown(at_sender=True)])
+@impart_pk_exp.handle(parameterless=[Cooldown(at_sender=False)])
 async def impart_pk_exp_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """虚神界修炼"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)

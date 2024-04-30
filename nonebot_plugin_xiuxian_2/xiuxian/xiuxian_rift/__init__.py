@@ -94,7 +94,7 @@ async def set_rift_():
             await bot.send_group_msg(group_id=int(group_id), message=MessageSegment.image(pic))
 
 
-@rift_help.handle(parameterless=[Cooldown(at_sender=True)])
+@rift_help.handle(parameterless=[Cooldown(at_sender=False)])
 async def rift_help_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
     """秘境帮助"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -112,7 +112,7 @@ async def rift_help_(bot: Bot, event: GroupMessageEvent, session_id: int = Comma
         await rift_help.finish()
 
 
-@create_rift.handle(parameterless=[Cooldown(at_sender=True)])
+@create_rift.handle(parameterless=[Cooldown(at_sender=False)])
 async def create_rift_(bot: Bot, event: GroupMessageEvent):
     """生成秘境"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -151,7 +151,7 @@ async def create_rift_(bot: Bot, event: GroupMessageEvent):
         await create_rift.finish()
 
 
-@explore_rift.handle(parameterless=[Cooldown(at_sender=True)])
+@explore_rift.handle(parameterless=[Cooldown(at_sender=False)])
 async def _(bot: Bot, event: GroupMessageEvent):
     """探索秘境"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -231,7 +231,7 @@ async def _(bot: Bot, event: GroupMessageEvent):
         await explore_rift.finish()
 
 
-@complete_rift.handle(parameterless=[Cooldown(at_sender=True)])
+@complete_rift.handle(parameterless=[Cooldown(at_sender=False)])
 async def complete_rift_(bot: Bot, event: GroupMessageEvent):
     """秘境结算"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -333,7 +333,7 @@ async def complete_rift_(bot: Bot, event: GroupMessageEvent):
                 await complete_rift.finish()
 
 
-@break_rift.handle(parameterless=[Cooldown(at_sender=True)])
+@break_rift.handle(parameterless=[Cooldown(at_sender=False)])
 async def break_rift_(bot: Bot, event: GroupMessageEvent):
     """终止探索秘境"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -389,7 +389,7 @@ async def break_rift_(bot: Bot, event: GroupMessageEvent):
         await break_rift.finish()
 
 
-@set_group_rift.handle(parameterless=[Cooldown(at_sender=True)])
+@set_group_rift.handle(parameterless=[Cooldown(at_sender=False)])
 async def set_group_rift_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """群秘境开启、关闭"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -448,7 +448,7 @@ async def set_group_rift_(bot: Bot, event: GroupMessageEvent, args: Message = Co
         await set_group_rift.finish()
 
 
-@close_rift.handle(parameterless=[Cooldown(at_sender=True)])
+@close_rift.handle(parameterless=[Cooldown(at_sender=False)])
 async def _(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """关闭秘境"""
     user_id, group_id, send_group_id = await assign_bot(bot=bot, event=event)

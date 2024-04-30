@@ -192,7 +192,7 @@ async def save_boss_():
     logger.opt(colors=True).info("<green>boss数据已保存</green>")
 
 
-@boss_help.handle(parameterless=[Cooldown(at_sender=True)])
+@boss_help.handle(parameterless=[Cooldown(at_sender=False)])
 async def boss_help_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     if session_id in cache_help:
@@ -214,7 +214,7 @@ async def boss_help_(bot: Bot, event: GroupMessageEvent, session_id: int = Comma
         await boss_help.finish()
 
 
-@boss_delete.handle(parameterless=[Cooldown(at_sender=True)])
+@boss_delete.handle(parameterless=[Cooldown(at_sender=False)])
 async def boss_delete_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """天罚世界boss"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -282,7 +282,7 @@ async def boss_delete_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
         await bot.send_group_msg(group_id=int(send_group_id), message=msg)
     await boss_delete.finish()
 
-@boss_delete_all.handle(parameterless=[Cooldown(at_sender=True)])
+@boss_delete_all.handle(parameterless=[Cooldown(at_sender=False)])
 async def boss_delete_all_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """天罚全部世界boss"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -328,7 +328,7 @@ async def boss_delete_all_(bot: Bot, event: GroupMessageEvent, args: Message = C
     await boss_delete_all.finish()
 
 
-@battle.handle(parameterless=[Cooldown(cd_time=XiuConfig().battle_boss_cd,at_sender=True)])
+@battle.handle(parameterless=[Cooldown(cd_time=XiuConfig().battle_boss_cd,at_sender=False)])
 async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """讨伐世界boss"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -557,7 +557,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
         await battle.finish()
 
 
-@boss_info.handle(parameterless=[Cooldown(at_sender=True)])
+@boss_info.handle(parameterless=[Cooldown(at_sender=False)])
 async def boss_info_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """查询世界boss"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -646,7 +646,7 @@ async def boss_info_(bot: Bot, event: GroupMessageEvent, args: Message = Command
         await boss_info.finish()
 
 
-@create.handle(parameterless=[Cooldown(at_sender=True)])
+@create.handle(parameterless=[Cooldown(at_sender=False)])
 async def create_(bot: Bot, event: GroupMessageEvent):
     """生成世界boss"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -697,7 +697,7 @@ async def _(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
             pic = await get_msg_pic(msg)
             await create_appoint.finish(MessageSegment.image(pic))
         else:
-            await create_appoint.finish(msg, at_sender=True)
+            await create_appoint.finish(msg, at_sender=False)
     try:
         group_boss[group_id]
     except:
@@ -709,7 +709,7 @@ async def _(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
             pic = await get_msg_pic(msg)
             await create_appoint.finish(MessageSegment.image(pic))
         else:
-            await create_appoint.finish(msg, at_sender=True)
+            await create_appoint.finish(msg, at_sender=False)
     arg_list = args.extract_plain_text().split()
     if len(arg_list) < 1:
         msg = "请输入正确的指令，例如：生成指定世界boss 祭道境 少姜"
@@ -718,7 +718,7 @@ async def _(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
             pic = await get_msg_pic(msg)
             await create_appoint.finish(MessageSegment.image(pic))
         else:
-            await create_appoint.finish(msg, at_sender=True)
+            await create_appoint.finish(msg, at_sender=False)
     boss_jj = arg_list[0]  # 用户指定的境界
     boss_name = arg_list[1] if len(arg_list) > 1 else None  # 用户指定的Boss名称，如果有的话
     # 使用提供的境界和名称生成boss信息
@@ -730,10 +730,10 @@ async def _(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
         pic = await get_msg_pic(msg)
         await create_appoint.finish(MessageSegment.image(pic))
     else:
-        await create_appoint.finish(msg, at_sender=True)
+        await create_appoint.finish(msg, at_sender=False)
 
 
-@set_group_boss.handle(parameterless=[Cooldown(at_sender=True)])
+@set_group_boss.handle(parameterless=[Cooldown(at_sender=False)])
 async def set_group_boss_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """设置群世界boss开关"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -813,7 +813,7 @@ async def set_group_boss_(bot: Bot, event: GroupMessageEvent, args: Message = Co
         await set_group_boss.finish()
 
 
-@boss_integral_info.handle(parameterless=[Cooldown(at_sender=True)])
+@boss_integral_info.handle(parameterless=[Cooldown(at_sender=False)])
 async def boss_integral_info_(bot: Bot, event: GroupMessageEvent):
     """世界积分商店"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -852,7 +852,7 @@ async def boss_integral_info_(bot: Bot, event: GroupMessageEvent):
     await boss_integral_info.finish()
 
 
-@boss_integral_use.handle(parameterless=[Cooldown(at_sender=True)])
+@boss_integral_use.handle(parameterless=[Cooldown(at_sender=False)])
 async def boss_integral_use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """世界积分商店兑换"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)

@@ -66,7 +66,7 @@ https://huggingface.co/spaces/chewing/liandan
 """
 
 
-@mix_elixir_sqdj_up.handle(parameterless=[Cooldown(at_sender=True)])
+@mix_elixir_sqdj_up.handle(parameterless=[Cooldown(at_sender=False)])
 async def mix_elixir_sqdj_up_(bot: Bot, event: GroupMessageEvent):
     """收取等级升级"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -119,7 +119,7 @@ async def mix_elixir_sqdj_up_(bot: Bot, event: GroupMessageEvent):
     await mix_elixir_sqdj_up.finish()
 
 
-@mix_elixir_dykh_up.handle(parameterless=[Cooldown(at_sender=True)])
+@mix_elixir_dykh_up.handle(parameterless=[Cooldown(at_sender=False)])
 async def mix_elixir_dykh_up_(bot: Bot, event: GroupMessageEvent):
     """丹药控火升级"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -164,7 +164,7 @@ async def mix_elixir_dykh_up_(bot: Bot, event: GroupMessageEvent):
     await mix_elixir_dykh_up.finish()
 
 
-@yaocai_get.handle(parameterless=[Cooldown(at_sender=True)])
+@yaocai_get.handle(parameterless=[Cooldown(at_sender=False)])
 async def yaocai_get_(bot: Bot, event: GroupMessageEvent):
     """灵田收取"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -247,7 +247,7 @@ async def yaocai_get_(bot: Bot, event: GroupMessageEvent):
             await yaocai_get.finish()
 
 
-@my_mix_elixir_info.handle(parameterless=[Cooldown(at_sender=True)])
+@my_mix_elixir_info.handle(parameterless=[Cooldown(at_sender=False)])
 async def my_mix_elixir_info_(bot: Bot, event: GroupMessageEvent):
     """我的炼丹信息"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -278,7 +278,7 @@ async def my_mix_elixir_info_(bot: Bot, event: GroupMessageEvent):
     await my_mix_elixir_info.finish()
 
 
-@elixir_help.handle(parameterless=[Cooldown(at_sender=True)])
+@elixir_help.handle(parameterless=[Cooldown(at_sender=False)])
 async def elixir_help_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
     """炼丹帮助"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -296,7 +296,7 @@ async def elixir_help_(bot: Bot, event: GroupMessageEvent, session_id: int = Com
         await elixir_help.finish()
 
 
-@mix_elixir_help.handle(parameterless=[Cooldown(at_sender=True)])
+@mix_elixir_help.handle(parameterless=[Cooldown(at_sender=False)])
 async def mix_elixir_help_(bot: Bot, event: GroupMessageEvent):
     """炼丹配方帮助"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -309,7 +309,7 @@ user_ldl_dict = {}
 user_ldl_flag = {}
 
 
-@mix_elixir.handle(parameterless=[Cooldown(cd_time=10, at_sender=True)])
+@mix_elixir.handle(parameterless=[Cooldown(cd_time=10, at_sender=False)])
 async def mix_elixir_(bot: Bot, event: GroupMessageEvent):
     """炼丹"""
     global user_ldl_dict, user_ldl_flag
@@ -396,7 +396,7 @@ async def mix_elixir_(bot: Bot, event: GroupMessageEvent):
         await mix_elixir.finish()
 
 
-@elixir_back.handle(parameterless=[Cooldown(at_sender=True)])
+@elixir_back.handle(parameterless=[Cooldown(at_sender=False)])
 async def elixir_back_(bot: Bot, event: GroupMessageEvent):
     """丹药背包
     ["user_id", "goods_id", "goods_name", "goods_type", "goods_num", "create_time", "update_time",
@@ -435,7 +435,7 @@ async def elixir_back_(bot: Bot, event: GroupMessageEvent):
 
     await elixir_back.finish()
 
-@yaocai_back.handle(parameterless=[Cooldown(at_sender=True)])
+@yaocai_back.handle(parameterless=[Cooldown(at_sender=False)])
 async def yaocai_back_(bot: Bot, event: GroupMessageEvent):
     """药材背包
     ["user_id", "goods_id", "goods_name", "goods_type", "goods_num", "create_time", "update_time",
@@ -475,7 +475,7 @@ async def yaocai_back_(bot: Bot, event: GroupMessageEvent):
     await yaocai_back.finish()
 
 # 配方
-@mix_make.handle(parameterless=[Cooldown(at_sender=True)])
+@mix_make.handle(parameterless=[Cooldown(at_sender=False)])
 async def mix_elixir_(bot: Bot, event: GroupMessageEvent, mode: str = EventPlainText()):
     """配方"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)

@@ -57,7 +57,7 @@ __impart_help__ = f"""
 """
 
 
-@impart_help.handle(parameterless=[Cooldown(at_sender=True)])
+@impart_help.handle(parameterless=[Cooldown(at_sender=False)])
 async def impart_help_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
     """传承帮助"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -75,7 +75,7 @@ async def impart_help_(bot: Bot, event: GroupMessageEvent, session_id: int = Com
         await impart_help.finish()
 
 
-@impart_img.handle(parameterless=[Cooldown(at_sender=True)])
+@impart_img.handle(parameterless=[Cooldown(at_sender=False)])
 async def impart_img_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """传承卡图"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -94,7 +94,7 @@ async def impart_img_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
         await impart_img.finish()
 
 
-@impart_draw.handle(parameterless=[Cooldown(cd_time=3, at_sender=True)])
+@impart_draw.handle(parameterless=[Cooldown(cd_time=3, at_sender=False)])
 async def impart_draw_(bot: Bot, event: GroupMessageEvent):
     """传承抽卡"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -238,7 +238,7 @@ async def impart_draw_(bot: Bot, event: GroupMessageEvent):
             xiuxian_impart.add_impart_wish(10, user_id)
             await impart_draw.finish()
 
-@impart_back.handle(parameterless=[Cooldown(at_sender=True)])
+@impart_back.handle(parameterless=[Cooldown(at_sender=False)])
 async def impart_back_(bot: Bot, event: GroupMessageEvent):
     """传承背包"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -304,7 +304,7 @@ boss战攻击提升:{int(impart_data_draw['boss_atk'] * 100)}%
     await impart_back.finish()
 
 
-@re_impart_load.handle(parameterless=[Cooldown(at_sender=True)])
+@re_impart_load.handle(parameterless=[Cooldown(at_sender=False)])
 async def re_impart_load_(bot: Bot, event: GroupMessageEvent):
     """加载传承数据"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -340,7 +340,7 @@ async def re_impart_load_(bot: Bot, event: GroupMessageEvent):
     await re_impart_load.finish()
 
 
-@impart_data.handle(parameterless=[Cooldown(at_sender=True)])
+@impart_data.handle(parameterless=[Cooldown(at_sender=False)])
 async def re_impart_load_(bot: Bot, event: GroupMessageEvent):
     """传承信息"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)

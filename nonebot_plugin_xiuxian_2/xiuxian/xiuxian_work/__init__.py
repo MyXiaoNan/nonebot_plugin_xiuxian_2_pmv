@@ -127,7 +127,7 @@ __work_help__ = f"""
 """.strip()
 
 
-@last_work.handle(parameterless=[Cooldown(cd_time=1.3,at_sender=True)])
+@last_work.handle(parameterless=[Cooldown(cd_time=1.3,at_sender=False)])
 async def last_work_(bot: Bot, event: GroupMessageEvent):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = check_user(event)
@@ -230,7 +230,7 @@ async def last_work_(bot: Bot, event: GroupMessageEvent):
         await last_work.finish()
 
 
-@do_work.handle(parameterless=[Cooldown(cd_time=1.3, at_sender=True)])
+@do_work.handle(parameterless=[Cooldown(cd_time=1.3, at_sender=False)])
 async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = RegexGroup()):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     user_level = "仙王境初期"

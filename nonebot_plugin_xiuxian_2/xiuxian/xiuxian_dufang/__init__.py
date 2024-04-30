@@ -35,7 +35,7 @@ dufang = on_regex(
     block=True
 )
 
-@dufang_help.handle(parameterless=[Cooldown(at_sender=True)])
+@dufang_help.handle(parameterless=[Cooldown(at_sender=False)])
 async def dufang_help_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     if session_id in cache_help:
@@ -52,7 +52,7 @@ async def dufang_help_(bot: Bot, event: GroupMessageEvent, session_id: int = Com
         await dufang_help.finish()
 
 
-@dufang.handle(parameterless=[Cooldown(cd_time=XiuConfig().dufang_cd, at_sender=True)])
+@dufang.handle(parameterless=[Cooldown(cd_time=XiuConfig().dufang_cd, at_sender=False)])
 async def dufang_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = RegexGroup()):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
 

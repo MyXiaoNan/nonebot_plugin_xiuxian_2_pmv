@@ -119,7 +119,7 @@ async def resetusertask_():
     logger.opt(colors=True).info("<green>已重置用户宗门任务次数、宗门丹药领取次数，已扣除丹房维护费</green>")
 
 
-@sect_help.handle(parameterless=[Cooldown(at_sender=True)])
+@sect_help.handle(parameterless=[Cooldown(at_sender=False)])
 async def sect_help_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
     """宗门帮助"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -140,7 +140,7 @@ async def sect_help_(bot: Bot, event: GroupMessageEvent, session_id: int = Comma
         await sect_help.finish()
 
 
-@sect_elixir_room_make.handle(parameterless=[Cooldown(at_sender=True)])
+@sect_elixir_room_make.handle(parameterless=[Cooldown(at_sender=False)])
 async def sect_elixir_room_make_(bot: Bot, event: GroupMessageEvent):
     """宗门丹房建设"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -221,7 +221,7 @@ async def sect_elixir_room_make_(bot: Bot, event: GroupMessageEvent):
         await sect_elixir_room_make.finish()
 
 
-@sect_elixir_get.handle(parameterless=[Cooldown(at_sender=True)])
+@sect_elixir_get.handle(parameterless=[Cooldown(at_sender=False)])
 async def sect_elixir_get_(bot: Bot, event: GroupMessageEvent):
     """宗门丹药领取"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -344,7 +344,7 @@ async def sect_elixir_get_(bot: Bot, event: GroupMessageEvent):
         await sect_elixir_get.finish()
 
 
-@sect_buff_info.handle(parameterless=[Cooldown(at_sender=True)])
+@sect_buff_info.handle(parameterless=[Cooldown(at_sender=False)])
 async def sect_buff_info_(bot: Bot, event: GroupMessageEvent):
     """宗门功法查看"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -434,7 +434,7 @@ buffrankkey = {
 }
 
 
-@sect_mainbuff_learn.handle(parameterless=[Cooldown(at_sender=True)])
+@sect_mainbuff_learn.handle(parameterless=[Cooldown(at_sender=False)])
 async def sect_mainbuff_learn_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """学习宗门功法"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -526,7 +526,7 @@ async def sect_mainbuff_learn_(bot: Bot, event: GroupMessageEvent, args: Message
         await sect_mainbuff_learn.finish()
 
 
-@sect_mainbuff_get.handle(parameterless=[Cooldown(at_sender=True)])
+@sect_mainbuff_get.handle(parameterless=[Cooldown(at_sender=False)])
 async def sect_mainbuff_get_(bot: Bot, event: GroupMessageEvent):
     """搜寻宗门功法"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -611,7 +611,7 @@ async def sect_mainbuff_get_(bot: Bot, event: GroupMessageEvent):
         await sect_mainbuff_get.finish()
 
 
-@sect_secbuff_get.handle(parameterless=[Cooldown(at_sender=True)])
+@sect_secbuff_get.handle(parameterless=[Cooldown(at_sender=False)])
 async def sect_secbuff_get_(bot: Bot, event: GroupMessageEvent):
     """搜寻宗门神通"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -696,7 +696,7 @@ async def sect_secbuff_get_(bot: Bot, event: GroupMessageEvent):
         await sect_secbuff_get.finish()
 
 
-@sect_secbuff_learn.handle(parameterless=[Cooldown(at_sender=True)])
+@sect_secbuff_learn.handle(parameterless=[Cooldown(at_sender=False)])
 async def sect_secbuff_learn_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """学习宗门神通"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -790,7 +790,7 @@ async def sect_secbuff_learn_(bot: Bot, event: GroupMessageEvent, args: Message 
         await sect_secbuff_learn.finish()
 
 
-@upatkpractice.handle(parameterless=[Cooldown(at_sender=True)])
+@upatkpractice.handle(parameterless=[Cooldown(at_sender=False)])
 async def upatkpractice_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """升级攻击修炼"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -889,7 +889,7 @@ async def upatkpractice_(bot: Bot, event: GroupMessageEvent, args: Message = Com
         await upatkpractice.finish()
 
 
-@sect_task_refresh.handle(parameterless=[Cooldown(cd_time=config['宗门任务刷新cd'], at_sender=True)])
+@sect_task_refresh.handle(parameterless=[Cooldown(cd_time=config['宗门任务刷新cd'], at_sender=False)])
 async def sect_task_refresh_(bot: Bot, event: GroupMessageEvent):
     """刷新宗门任务"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -932,7 +932,7 @@ async def sect_task_refresh_(bot: Bot, event: GroupMessageEvent):
         await sect_task_refresh.finish()
 
 
-@sect_list.handle(parameterless=[Cooldown(at_sender=True)])
+@sect_list.handle(parameterless=[Cooldown(at_sender=False)])
 async def sect_list_(bot: Bot, event: GroupMessageEvent):
     """宗门列表：当前为返回转发内容"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -947,7 +947,7 @@ async def sect_list_(bot: Bot, event: GroupMessageEvent):
     await sect_list.finish()
 
 
-@sect_users.handle(parameterless=[Cooldown(at_sender=True)])
+@sect_users.handle(parameterless=[Cooldown(at_sender=False)])
 async def sect_users_(bot: Bot, event: GroupMessageEvent):
     """查看所在宗门成员信息"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -981,7 +981,7 @@ async def sect_users_(bot: Bot, event: GroupMessageEvent):
     await sect_users.finish()
 
 
-@sect_task.handle(parameterless=[Cooldown(at_sender=True)])
+@sect_task.handle(parameterless=[Cooldown(at_sender=False)])
 async def sect_task_(bot: Bot, event: GroupMessageEvent):
     """获取宗门任务"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -1033,7 +1033,7 @@ async def sect_task_(bot: Bot, event: GroupMessageEvent):
         await sect_task.finish()
 
 
-@sect_task_complete.handle(parameterless=[Cooldown(config['宗门任务完成cd'], at_sender=True)])
+@sect_task_complete.handle(parameterless=[Cooldown(config['宗门任务完成cd'], at_sender=False)])
 async def sect_task_complete_(bot: Bot, event: GroupMessageEvent):
     """完成宗门任务"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -1153,7 +1153,7 @@ async def sect_task_complete_(bot: Bot, event: GroupMessageEvent):
         await sect_task_complete.finish()
 
 
-@sect_owner_change.handle(parameterless=[Cooldown(at_sender=True)])
+@sect_owner_change.handle(parameterless=[Cooldown(at_sender=False)])
 async def sect_owner_change_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """宗主传位"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -1235,7 +1235,7 @@ async def sect_owner_change_(bot: Bot, event: GroupMessageEvent, args: Message =
         await sect_owner_change.finish()
 
 
-@sect_rename.handle(parameterless=[Cooldown(cd_time=XiuConfig().sect_rename_cd * 86400,at_sender=True)])
+@sect_rename.handle(parameterless=[Cooldown(cd_time=XiuConfig().sect_rename_cd * 86400,at_sender=False)])
 async def sect_rename_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """宗门改名"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -1329,7 +1329,7 @@ async def sect_rename_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
 
 
 
-@create_sect.handle(parameterless=[Cooldown(at_sender=True)])
+@create_sect.handle(parameterless=[Cooldown(at_sender=False)])
 async def create_sect_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """创建宗门，对灵石、修为等级有要求，且需要当前状态无宗门"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -1376,7 +1376,7 @@ async def create_sect_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
     await create_sect.finish()
 
 
-@sect_kick_out.handle(parameterless=[Cooldown(at_sender=True)])
+@sect_kick_out.handle(parameterless=[Cooldown(at_sender=False)])
 async def sect_kick_out_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """踢出宗门"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -1472,7 +1472,7 @@ async def sect_kick_out_(bot: Bot, event: GroupMessageEvent, args: Message = Com
         await sect_kick_out.finish()
 
 
-@sect_out.handle(parameterless=[Cooldown(at_sender=True)])
+@sect_out.handle(parameterless=[Cooldown(at_sender=False)])
 async def sect_out_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """退出宗门"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -1547,7 +1547,7 @@ async def sect_out_(bot: Bot, event: GroupMessageEvent, args: Message = CommandA
         await sect_out.finish()
 
 
-@sect_donate.handle(parameterless=[Cooldown(at_sender=True)])
+@sect_donate.handle(parameterless=[Cooldown(at_sender=False)])
 async def sect_donate_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """宗门捐献"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -1600,7 +1600,7 @@ async def sect_donate_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
         await sect_donate.finish()
 
 
-@sect_position_update.handle(parameterless=[Cooldown(at_sender=True)])
+@sect_position_update.handle(parameterless=[Cooldown(at_sender=False)])
 async def sect_position_update_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """宗门职位变更，首先确认操作者的职位是长老及以上（宗主可以变更宗主及以下，长老可以变更长老以下），然后读取变更等级及艾特目标"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -1688,7 +1688,7 @@ async def sect_position_update_(bot: Bot, event: GroupMessageEvent, args: Messag
         await sect_position_update.finish()
 
 
-@join_sect.handle(parameterless=[Cooldown(at_sender=True)])
+@join_sect.handle(parameterless=[Cooldown(at_sender=False)])
 async def join_sect_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """加入宗门,后跟宗门ID,要求加入者当前状态无宗门,入门默认为外门弟子"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -1727,7 +1727,7 @@ async def join_sect_(bot: Bot, event: GroupMessageEvent, args: Message = Command
 
 
 # editer:zyp981204
-@my_sect.handle(parameterless=[Cooldown(at_sender=True)])
+@my_sect.handle(parameterless=[Cooldown(at_sender=False)])
 async def my_sect_(bot: Bot, event: GroupMessageEvent):
     """我的宗门"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)

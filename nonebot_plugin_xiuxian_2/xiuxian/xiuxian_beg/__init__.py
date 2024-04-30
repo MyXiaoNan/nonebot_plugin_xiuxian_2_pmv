@@ -40,7 +40,7 @@ __beg_help__ = f"""
 beg_stone = on_command("仙途奇缘", permission=GROUP, priority=7, block=True)
 beg_help = on_command("奇缘帮助", permission=GROUP, priority=7, block=True)
 
-@beg_help.handle(parameterless=[Cooldown(at_sender=True)])
+@beg_help.handle(parameterless=[Cooldown(at_sender=False)])
 async def beg_help_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     if session_id in cache_help:
@@ -56,7 +56,7 @@ async def beg_help_(bot: Bot, event: GroupMessageEvent, session_id: int = Comman
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await beg_help.finish()
 
-@beg_stone.handle(parameterless=[Cooldown(at_sender=True)])
+@beg_stone.handle(parameterless=[Cooldown(at_sender=False)])
 async def beg_stone(bot: Bot, event: GroupMessageEvent):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     user_id = event.get_user_id()

@@ -23,7 +23,7 @@ lunhui = on_command('进入千世轮回', priority=15, permission=GROUP,block=Tr
 Twolun = on_command('进入万世轮回', priority=15, permission=GROUP,block=True)
 resetting = on_command('自废修为', priority=15, permission=GROUP,block=True)
 
-@lunhui.handle(parameterless=[Cooldown(at_sender=True)])
+@lunhui.handle(parameterless=[Cooldown(at_sender=False)])
 async def lunhui_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = check_user(event)
@@ -88,7 +88,7 @@ async def lunhui_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandO
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await lunhui.finish()
         
-@Twolun.handle(parameterless=[Cooldown(at_sender=True)])
+@Twolun.handle(parameterless=[Cooldown(at_sender=False)])
 async def Twolun_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = check_user(event)
@@ -149,7 +149,7 @@ async def Twolun_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandO
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await Twolun.finish()
         
-@resetting.handle(parameterless=[Cooldown(at_sender=True)])
+@resetting.handle(parameterless=[Cooldown(at_sender=False)])
 async def resetting_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = check_user(event)
