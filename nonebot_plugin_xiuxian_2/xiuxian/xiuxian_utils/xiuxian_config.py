@@ -147,7 +147,7 @@ class JsonConfig:
         """
         说明：设置修仙开启或关闭
         参数：
-            key: 群聊 1 为开启， 2为关闭,默认关闭
+        key: 群聊 1 为开启， 2为关闭,默认关闭
         """
         json_data = self.read_data()
         group_list = json_data.get('group', [])
@@ -171,8 +171,12 @@ class JsonConfig:
             print('未知key')
             return False
 
+        # 去重
+        json_data['group'] = list(set(json_data['group']))
+
         with open(self.config_jsonpath, 'w', encoding='utf-8') as f:
             json.dump(json_data, f, ensure_ascii=False, indent=4)
+
             
     def get_enabled_groups(self):
         """获取开启修仙功能的群聊列表，去除重复项"""
