@@ -8,7 +8,7 @@ import random
 import os
 import math
 from nonebot.rule import Rule
-from nonebot import get_bots, get_bot ,on_command, on_fullmatch, require
+from nonebot import get_bots, get_bot ,on_command, require
 from nonebot.params import CommandArg
 from nonebot.adapters.onebot.v11 import (
     Bot,

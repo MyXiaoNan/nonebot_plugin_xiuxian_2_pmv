@@ -1265,7 +1265,6 @@ async def sect_rename_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await sect_rename.finish()
-
     else:
         # 获取新的宗门名称
         update_sect_name = args.extract_plain_text().strip()
@@ -1306,15 +1305,15 @@ async def sect_rename_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
         else:
             sql_message.update_sect_name(sect_id, update_sect_name)
             sql_message.update_sect_used_stone(sect_id, XiuConfig().sect_rename_cost, 2)
-            msg = f"""
-传宗门——{sect_info['sect_name']}
-宗主{user_info['user_name']}法旨:
-宗门易名为{update_sect_name}！
-
-            星斗更迭，法器灵通，神光熠熠。
-          愿同门共沐神光，共护宗门千世荣光！
-            青天无云，道韵长存，灵气飘然。
-          愿同门同心同德，共铸宗门万世辉煌！"""
+            msg = """
+传宗门——{}
+宗主{}法旨:
+宗门改名为{}！
+星斗更迭，法器灵通，神光熠熠。
+愿同门共沐神光，共护宗门千世荣光！
+青天无云，道韵长存，灵气飘然。
+愿同门同心同德，共铸宗门万世辉煌！""".format(sect_info['sect_name'], 
+                            user_info['user_name'], update_sect_name)
             for group_id in enabled_groups:
                 bot = await assign_bot_group(group_id=group_id)
                 try:
