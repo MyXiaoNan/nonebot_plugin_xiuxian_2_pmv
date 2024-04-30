@@ -235,7 +235,6 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     user_level = "仙王境初期"
     isUser, user_info, msg = check_user(event)
-    user_level_sx = user_info['level']
     if not isUser:
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
@@ -243,6 +242,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await do_work.finish()
+    user_level_sx = user_info['level']
     user_id = user_info['user_id']
     user_cd_message = sql_message.get_user_cd(user_id)
     if not os.path.exists(PLAYERSDATA / str(user_id) / "workinfo.json") and user_cd_message['type'] == 2:

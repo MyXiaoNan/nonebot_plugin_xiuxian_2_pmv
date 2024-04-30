@@ -44,7 +44,10 @@ def get_boss_jinjie_dict():
 def createboss():
     top_user_info = sql_message.get_top1_user()
     top_user_level = top_user_info['level']
-    level = top_user_level[:3]
+    if len(top_user_level) == 5:
+        level = top_user_level[:3] 
+    elif len(top_user_level) == 4: # 对江湖好手判断
+        level = "搬血境"
     boss_jj = random.choice(jinjie_list[:jinjie_list.index(level) + 1])
 
     bossinfo = get_boss_exp(boss_jj)
