@@ -398,19 +398,19 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await battle.finish()
 
-   # try:
-       # battle_flag[group_id]
-   # except:
-       # battle_flag[group_id] = False
+    try:
+       battle_flag[group_id]
+    except:
+       battle_flag[group_id] = False
 
-   # if battle_flag[group_id]:
-    #    msg = f'当前有道友正在Boss战斗!'
-    #    if XiuConfig().img:
-     #       pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
-    #        await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
-     #   else:
-     #       await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-     #   await battle.finish()
+    if battle_flag[group_id]:
+        msg = f'当前有道友正在Boss战斗!'
+        if XiuConfig().img:
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
+            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+        else:
+            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await battle.finish()
 
     if user_info['hp'] is None or user_info['hp'] == 0:
         # 判断用户气血是否为空
@@ -494,7 +494,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
         if exp_buff > 0:
             now_exp = int(user_info['exp'] * exp_buff)
             sql_message.update_exp(user_id, now_exp)
-            exp_msg = f"，获得修为{now_exp}点！"
+            exp_msg = "，获得修为{}点！".format(now_exp)
         else:
             exp_msg =" "
         msg = f"道友不敌{bossinfo['name']}，重伤逃遁，临逃前收获灵石{get_stone}枚，{more_msg}获得世界积分：{boss_integral}点{exp_msg} "
