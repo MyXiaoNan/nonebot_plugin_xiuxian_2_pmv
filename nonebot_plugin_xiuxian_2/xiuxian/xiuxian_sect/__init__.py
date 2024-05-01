@@ -449,9 +449,9 @@ async def sect_mainbuff_learn_(bot: Bot, event: GroupMessageEvent, args: Message
     msg = args.extract_plain_text().strip()
     sect_id = user_info['sect_id']
     if sect_id:
-        sect_position = str(user_info['sect_position'])
+        sect_position = user_info['sect_position']
         if sect_position == 4:
-            msg = "道友所在宗门的职位为：{}，不满足学习要求!".format(jsondata.sect_config_data()[sect_position]['title'])
+            msg = "道友所在宗门的职位为：{}，不满足学习!".format(jsondata.sect_config_data()[f"{sect_position}"]["title"])
             if XiuConfig().img:
                 pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -711,9 +711,9 @@ async def sect_secbuff_learn_(bot: Bot, event: GroupMessageEvent, args: Message 
     msg = args.extract_plain_text().strip()
     sect_id = user_info['sect_id']
     if sect_id:
-        sect_position = str(user_info['sect_position'])
+        sect_position = user_info['sect_position']
         if sect_position == 4:
-            msg = "道友所在宗门的职位为：{}，不满足学习!".format(jsondata.sect_config_data()[sect_position]['title'])
+            msg = "道友所在宗门的职位为：{}，不满足学习!".format(jsondata.sect_config_data()[f"{sect_position}"]["title"])
             if XiuConfig().img:
                 pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
