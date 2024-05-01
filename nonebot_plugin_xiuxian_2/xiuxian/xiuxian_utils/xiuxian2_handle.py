@@ -6,7 +6,6 @@ import os
 import random
 import sqlite3
 from datetime import datetime
-from collections import namedtuple
 from pathlib import Path
 from nonebot.log import logger
 from .data_source import jsondata

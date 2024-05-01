@@ -839,6 +839,7 @@ async def mind_state_(bot: Bot, event: GroupMessageEvent):
     if user_msg['hp'] is None or user_msg['hp'] == 0 or user_msg['hp'] == 0:
         sql_message.update_user_hp(user_id)
     user_msg = sql_message.get_user_real_info(user_id)
+    sql_message.update_last_check_info_time(user_id)
 
     level_rate = sql_message.get_root_rate(user_msg['root_type'])  # 灵根倍率
     realm_rate = jsondata.level_data()[user_msg['level']]["spend"]  # 境界倍率
@@ -897,7 +898,8 @@ async def mind_state_(bot: Bot, event: GroupMessageEvent):
     user_main_critatk = UserBuffDate(user_id).get_user_main_buff_data() #我的状态功法会心伤害
     main_critatk =  user_main_critatk['critatk'] if  user_main_critatk is not None else 0 #我的状态功法会心伤害
     
-    msg = f"""道号：{user_msg['user_name']}
+    msg = f"""
+道号：{user_msg['user_name']}
 气血:{number_to(user_msg['hp'])}/{number_to(int((user_msg['exp'] / 2) * (1 + main_hp_buff + impart_hp_per)))}
 真元:{int((user_msg['mp'] / user_msg['exp']) * 100)}%
 攻击:{number_to(user_msg['atk'])}
