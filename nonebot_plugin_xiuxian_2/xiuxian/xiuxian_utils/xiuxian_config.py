@@ -136,12 +136,19 @@ class XiuConfig:
 class JsonConfig:
     def __init__(self):
         self.config_jsonpath = DATABASE / "config.json"
+        self.create_default_config()
     
     def read_data(self):
         """配置数据"""
         with open(self.config_jsonpath, 'r', encoding='utf-8') as e:
             data = json.load(e)
             return data
+        
+    def create_default_config(self):
+        if not self.config_jsonpath.exists():
+            default_data = {"group": []}
+            with open(self.config_jsonpath, 'w', encoding='utf-8') as f:
+                json.dump(default_data, f)
 
     def write_data(self, key, group_id=None):
         """

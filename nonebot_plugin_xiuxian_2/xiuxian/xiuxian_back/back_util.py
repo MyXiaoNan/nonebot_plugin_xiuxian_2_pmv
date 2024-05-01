@@ -80,7 +80,7 @@ def get_no_use_equipment_sql(user_id, goods_id):
     user_buff_info = UserBuffDate(user_id).BuffInfo
     now_time = datetime.now()
     sql_str = []
-    item_type = ''
+    item_type = ""
 
     # 检查装备类型，并确定要卸载的是哪种buff
     if item_info['item_type'] == "法器":
