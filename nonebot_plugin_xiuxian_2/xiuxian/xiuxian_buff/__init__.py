@@ -835,11 +835,9 @@ async def mind_state_(bot: Bot, event: GroupMessageEvent):
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await mind_state.finish()
     user_id = user_msg['user_id']
-
-    if user_msg['hp'] is None or user_msg['hp'] == 0 or user_msg['hp'] == 0:
+    if user_msg['hp'] is None or user_msg['hp'] == 0:
         sql_message.update_user_hp(user_id)
     user_msg = sql_message.get_user_real_info(user_id)
-    sql_message.update_last_check_info_time(user_id)
 
     level_rate = sql_message.get_root_rate(user_msg['root_type'])  # 灵根倍率
     realm_rate = jsondata.level_data()[user_msg['level']]["spend"]  # 境界倍率
@@ -910,6 +908,7 @@ async def mind_state_(bot: Bot, event: GroupMessageEvent):
 boss战增益:{int(boss_atk * 100)}%
 会心伤害增益:{int((1.5 + impart_burst_per + weapon_critatk + main_critatk) * 100)}%
 """
+    sql_message.update_last_check_info_time(user_id)
     if XiuConfig().img:
         pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
         await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
