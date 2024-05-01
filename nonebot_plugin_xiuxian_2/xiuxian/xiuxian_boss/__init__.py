@@ -399,19 +399,19 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await battle.finish()
 
-    try:
-       battle_flag[group_id]
-    except:
-       battle_flag[group_id] = False
+    # try:
+    #    battle_flag[group_id]
+    # except:
+    #    battle_flag[group_id] = False
 
-    if battle_flag[group_id]:
-        msg = f'当前有道友正在Boss战斗!'
-        if XiuConfig().img:
-            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
-            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
-        else:
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-        await battle.finish()
+    # if battle_flag[group_id]:
+    #     msg = f'当前有道友正在Boss战斗!'
+    #     if XiuConfig().img:
+    #         pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
+    #         await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+    #     else:
+    #         await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+    #     await battle.finish()
 
     if user_info['hp'] is None or user_info['hp'] == 0:
         # 判断用户气血是否为空
@@ -483,6 +483,8 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
             boss_integral = 0
         if user_info['root'] == "器师":
             boss_integral = int(boss_integral * (1 + (user_rank - boss_rank)))
+            if boss_integral <= 0:
+                boss_integral = 0
             more_msg = f"道友低boss境界{user_rank - boss_rank}层，获得{int(50 * (user_rank - boss_rank))}%积分加成！"
         else:
             if boss_rank - user_rank >= 6:  # 超过太多不给

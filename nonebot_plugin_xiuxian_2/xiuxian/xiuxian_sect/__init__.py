@@ -238,7 +238,7 @@ async def sect_elixir_get_(bot: Bot, event: GroupMessageEvent):
         sect_position = user_info['sect_position']
         elixir_room_config = config['宗门丹房参数']
         if sect_position == 4:
-            msg = "道友所在宗门的职位为：{}，不满足学习要求!".format(jsondata.sect_config_data()[sect_position]['title'])
+            msg = "道友所在宗门的职位为：{}，不满足领取要求!".format(jsondata.sect_config_data()[f"{sect_position}"]["title"])
             if XiuConfig().img:
                 pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -450,7 +450,7 @@ async def sect_mainbuff_learn_(bot: Bot, event: GroupMessageEvent, args: Message
     if sect_id:
         sect_position = user_info['sect_position']
         if sect_position == 4:
-            msg = "道友所在宗门的职位为：{}，不满足学习!".format(jsondata.sect_config_data()[f"{sect_position}"]["title"])
+            msg = "道友所在宗门的职位为：{}，不满足学习要求!".format(jsondata.sect_config_data()[f"{sect_position}"]["title"])
             if XiuConfig().img:
                 pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -712,7 +712,7 @@ async def sect_secbuff_learn_(bot: Bot, event: GroupMessageEvent, args: Message 
     if sect_id:
         sect_position = user_info['sect_position']
         if sect_position == 4:
-            msg = "道友所在宗门的职位为：{}，不满足学习!".format(jsondata.sect_config_data()[f"{sect_position}"]["title"])
+            msg = "道友所在宗门的职位为：{}，不满足学习要求!".format(jsondata.sect_config_data()[f"{sect_position}"]["title"])
             if XiuConfig().img:
                 pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -830,7 +830,7 @@ async def upatkpractice_(bot: Bot, event: GroupMessageEvent, args: Message = Com
         # 确保用户不会尝试升级超过宗门等级的上限
         level_up_count = min(level_up_count, sect_level - useratkpractice)
         if sect_position == 4:
-            msg = f"道友所在宗门的职位为：{jsondata.sect_config_data()[f"{sect_position}"]['title']}，不满足使用资材的条件!"
+            msg = "道友所在宗门的职位为：{}，不满足使用资材的条件!".format(jsondata.sect_config_data()[f"{sect_position}"]["title"])
             if XiuConfig().img:
                 pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
