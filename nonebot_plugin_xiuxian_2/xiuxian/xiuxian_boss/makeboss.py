@@ -48,12 +48,14 @@ def createboss():
         level = top_user_level[:3] 
     elif len(top_user_level) == 4: # 对江湖好手判断
         level = "搬血境"
-    boss_jj = random.choice(jinjie_list[:jinjie_list.index(level) + 1])
-
-    bossinfo = get_boss_exp(boss_jj)
-    bossinfo['name'] = random.choice(config["Boss名字"])
-    bossinfo['jj'] = boss_jj
-    bossinfo['stone'] = random.choice(config["Boss灵石"][boss_jj])
+    try:
+        boss_jj = random.choice(jinjie_list[:jinjie_list.index(level) + 1])
+        bossinfo = get_boss_exp(boss_jj)
+        bossinfo['name'] = random.choice(config["Boss名字"])
+        bossinfo['jj'] = boss_jj
+        bossinfo['stone'] = random.choice(config["Boss灵石"][boss_jj])
+    except KeyError as e:
+        raise Exception("生成boss失败: {}，如果是和境界有关的报错不用管".format(str(e)))
     return bossinfo
 
 

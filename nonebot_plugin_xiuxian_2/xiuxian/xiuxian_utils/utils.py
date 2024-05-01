@@ -1,6 +1,5 @@
 import os
 import io
-import re
 import asyncio
 import json
 import math
@@ -355,7 +354,12 @@ class Txt2Img:
                 spacing=self.lrc_line_space,
             )
         buf = BytesIO()
-        out_img.save(buf, format="WebP")
+        if XiuConfig().img_type == "webp":
+            out_img.save(buf, format="WebP")
+        elif XiuConfig().img_type == "jpeg":
+            out_img.save(buf, format="JPEG")
+        else:
+            out_img.save(buf, format="WebP")
         buf.seek(0)
         return buf
     
@@ -365,10 +369,10 @@ class Txt2Img:
         if not (0 <= XiuConfig().img_compression_limit <= 100):
             compression_quality = 0
 
-        if  XiuConfig().img_compression_type == "webp":
+        if XiuConfig().img_type == "webp":
             out_img.save(img_byte_arr, format = "WebP", quality = compression_quality)
 
-        elif XiuConfig().img_compression_type == "jpeg":
+        elif XiuConfig().img_type == "jpeg":
             out_img.save(img_byte_arr, format = "JPEG", quality = compression_quality)
 
         else:

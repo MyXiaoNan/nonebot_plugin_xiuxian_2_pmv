@@ -66,7 +66,7 @@ set_xiuxian = on_command("启用修仙功能", aliases={'禁用修仙功能'}, p
 user_leveluprate = on_command('我的突破概率', aliases={'突破概率'}, priority=5, permission=GROUP, block=True)
 xiuxian_updata_level = on_fullmatch('修仙适配', priority=15, permission=GROUP, block=True)
 xiuxian_uodata_data = on_fullmatch('更新记录', priority=15, permission=GROUP, block=True)
-lunhui = on_fullmatch('轮回重修', priority=15, permission=GROUP, block=True)
+lunhui = on_fullmatch('轮回重修帮助', priority=15, permission=GROUP, block=True)
 level_help = on_command('境界帮助', aliases={"灵根帮助", "品阶帮助"}, priority=15, permission=GROUP,block=True)
 
 __xiuxian_notes__ = f"""
