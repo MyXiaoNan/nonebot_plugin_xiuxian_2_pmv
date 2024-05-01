@@ -139,14 +139,17 @@ class JsonConfig:
         self.create_default_config()
     
     def read_data(self):
-        """配置数据"""
-        with open(self.config_jsonpath, 'r', encoding='utf-8') as e:
-            data = json.load(e)
+        """读取配置数据"""
+        with open(self.config_jsonpath, 'r', encoding='utf-8') as f:
+            data = json.load(f)
             if "group" not in data:
-                data["group"] = []
-            return data
+                data["group"] = [] 
+                with open(self.config_jsonpath, 'w', encoding='utf-8') as f:
+                    json.dump(data, f)
+        return data
         
     def create_default_config(self):
+        """创建默认配置文件"""
         if not self.config_jsonpath.exists():
             default_data = {"group": []}
             with open(self.config_jsonpath, 'w', encoding='utf-8') as f:
