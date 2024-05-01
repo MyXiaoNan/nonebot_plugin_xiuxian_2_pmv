@@ -140,6 +140,8 @@ class JsonConfig:
     
     def read_data(self):
         """配置数据"""
+        if not self.config_jsonpath.exists():
+            self.create_default_config()  # 创建默认配置
         with open(self.config_jsonpath, 'r', encoding='utf-8') as e:
             data = json.load(e)
             return data
