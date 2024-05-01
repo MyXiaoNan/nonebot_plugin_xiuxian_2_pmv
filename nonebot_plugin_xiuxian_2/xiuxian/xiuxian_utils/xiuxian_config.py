@@ -130,6 +130,7 @@ class XiuConfig:
         self.gen_boss_id = []  # 支持非管理员和超管生成boss
         self.merge_forward_send = False # 消息转发类型,True是合并转发，False是长图发送
         self.img_compression_limit = 80 # 图片压缩率，0为不压缩，最高100
+        self.img_compression_type = "webp" # 图片压缩类型，webp或者jpeg
         self.version = "xiuxian_2.2" # 修仙插件版本，别动
 
 

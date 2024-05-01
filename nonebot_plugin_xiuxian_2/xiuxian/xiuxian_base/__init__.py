@@ -210,13 +210,13 @@ async def run_xiuxian_(bot: Bot, event: GroupMessageEvent):
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
             else:
                 await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-            isUser, user_msg, msg = check_user(event) # 重置用户hp等信息
+            isUser, user_msg, msg = check_user(event)
             if user_msg['hp'] is None or user_msg['hp'] == 0 or user_msg['hp'] == 0:
                 sql_message.update_user_hp(user_id)
             await asyncio.sleep(1)
             if XiuConfig().img:
                 pic = await get_msg_pic(f"@{event.sender.nickname}\n"+ 
-                                        "你的耳边响起一个神秘人的声音：“不要忘记仙途奇缘！\n可以发送 修仙帮助 获取更多帮助！！\n这次就先帮你自动发送了嗷”")
+                                        "耳边响起一个神秘人的声音：“不要忘记仙途奇缘！\n可以发送 修仙帮助 获取更多帮助！！\n这次就先帮你自动发送了嗷”")
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
             else:
                 await bot.send_group_msg(group_id=int(send_group_id), message=msg)

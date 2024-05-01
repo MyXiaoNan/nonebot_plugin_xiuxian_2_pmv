@@ -19,7 +19,6 @@ from nonebot.params import CommandArg
 from ..xiuxian_utils.data_source import jsondata
 from ..xiuxian_utils.xiuxian_config import XiuConfig, USERRANK, JsonConfig
 from .sectconfig import get_config
-from datetime import datetime, timedelta
 from ..xiuxian_utils.utils import (
     check_user, number_to,
     get_msg_pic, send_msg_handler, CommandObjectID,
@@ -1334,7 +1333,7 @@ async def create_sect_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = check_user(event)
     if not isUser:
-        msg = f"区区凡人，也想创立万世仙门，大胆！"
+        msg = "区区凡人，也想创立万世仙门，大胆！"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))

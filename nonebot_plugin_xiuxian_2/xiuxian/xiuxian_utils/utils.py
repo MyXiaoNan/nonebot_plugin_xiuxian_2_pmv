@@ -116,7 +116,7 @@ class Txt2Img:
         self.share_img_width = 1080
         self.line_space = int(size)
         self.lrc_line_space = int(size / 2)
-        self.img_compression_limit = XiuConfig().img_compression_limit # 压缩率
+        
         
           
     def prepare(self, text, scale):
@@ -360,9 +360,16 @@ class Txt2Img:
     
     def save_image_with_compression(self, out_img):
         img_byte_arr = io.BytesIO()
-        compression_quality = 100 - self.img_compression_limit  # 质量从100到0
-        if not (0 <= self.img_compression_limit <= 100):
-            out_img.save(img_byte_arr, format="WebP", lossless=True)
+        compression_quality = 100 - XiuConfig().img_compression_limit # 质量从100到0
+        if not (0 <= XiuConfig().img_compression_limit <= 100):
+            compression_quality = 0
+
+        if  XiuConfig().img_compression_type ==  "webp":
+            out_img.save(img_byte_arr, format="WebP", quality=compression_quality)
+
+        elif XiuConfig().img_compression_type ==  "jpeg":
+            out_img.save(img_byte_arr, format="JPEG", quality=compression_quality)
+            
         else:
             out_img.save(img_byte_arr, format="WebP", quality=compression_quality)
         img_byte_arr.seek(0)
@@ -390,7 +397,7 @@ async def get_msg_pic(msg, boss_name="", scale = True):
     return pic
 
 
-async def send_msg_handler(bot, event, *kwargs, msg_type=None):
+async def send_msg_handler(bot, event, *kwargs):
     """
     统一消息发送处理器
     :param bot: 机器人实例
