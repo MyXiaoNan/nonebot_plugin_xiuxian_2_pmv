@@ -54,7 +54,7 @@ my_exp_num = on_fullmatch("我的双修次数", priority=9, permission=GROUP, bl
 __buff_help__ = f"""
 功法帮助信息:
 指令：
-1、我的功法:查看自身功法信息
+1、我的功法:查看自身功法以及背包内的所有功法信息
 2、切磋:at对应人员,不会消耗气血
 3、洞天福地购买:购买洞天福地
 4、洞天福地查看:查看自己的洞天福地
@@ -1008,6 +1008,7 @@ async def my_exp_num_(bot: Bot, event: GroupMessageEvent):
     
     main_two_data = UserBuffDate(user_id).get_user_main_buff_data()
     main_two = main_two_data['two_buff'] if main_two_data is not None else 0
+    print("这里是功法加成", main_two)
     
     num = (two_exp_limit + impart_two_exp + main_two) - limt
     if num <= 0:
