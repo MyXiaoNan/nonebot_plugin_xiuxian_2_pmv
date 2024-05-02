@@ -73,11 +73,11 @@ USERRANK = {
 
 class XiuConfig:
     def __init__(self):
-        self.sql_table = ["user_xiuxian", "user_cd", "sects", "back", "BuffInfo"]  # 数据库表校验
+        self.sql_table = ["user_xiuxian", "user_cd", "sects", "back", "BuffInfo"]  # 数据库表校验别动
         self.sql_user_xiuxian = ["id", "user_id", "stone", "root",
                                  "root_type", "level", "power",
                                  "create_time", "is_sign", "is_beg", "is_ban",
-                                 "exp", "user_name", "level_up_cd",
+                                 "exp", "user_name", "work_num", "level_up_cd",
                                  "level_up_rate", "sect_id",
                                  "sect_position", "hp", "mp", "atk",
                                  "atkpractice", "sect_task", "sect_contribution",

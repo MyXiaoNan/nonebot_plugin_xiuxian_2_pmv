@@ -14,11 +14,13 @@ from .. import DRIVER
 from .item_json import Items
 from .xn_xiuxian_impart_config import config_impart
 
+WORKDATA = Path() / "data" / "xiuxian" / "work"
+PLAYERSDATA = Path() / "data" / "xiuxian" / "players"
 DATABASE = Path() / "data" / "xiuxian"
 DATABASE_IMPARTBUFF = Path() / "data" / "xiuxian"
 SKILLPATHH = DATABASE / "功法"
 WEAPONPATH = DATABASE / "装备"
-num = "578043031" # 这里其实是修仙1作者的QQ号
+xiuxian_num = "578043031" # 这里其实是修仙1作者的QQ号
 impart_num = "123451234"
 items = Items()
 # 获取当前时间并格式化
@@ -26,24 +28,23 @@ current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
 
 
 class XiuxianDateManage:
-    global num
+    global xiuxian_num
     _instance = {}
     _has_init = {}
 
     def __new__(cls):
-        if cls._instance.get(num) is None:
-            cls._instance[num] = super(XiuxianDateManage, cls).__new__(cls)
-        return cls._instance[num]
+        if cls._instance.get(xiuxian_num) is None:
+            cls._instance[xiuxian_num] = super(XiuxianDateManage, cls).__new__(cls)
+        return cls._instance[xiuxian_num]
 
     def __init__(self):
-        if not self._has_init.get(num):
-            self._has_init[num] = True
+        if not self._has_init.get(xiuxian_num):
+            self._has_init[xiuxian_num] = True
             self.database_path = DATABASE
             if not self.database_path.exists():
                 self.database_path.mkdir(parents=True)
                 self.database_path /= "xiuxian.db"
                 self.conn = sqlite3.connect(self.database_path)
-                # self._create_file()
             else:
                 self.database_path /= "xiuxian.db"
                 self.conn = sqlite3.connect(self.database_path)
@@ -53,19 +54,6 @@ class XiuxianDateManage:
     def close(self):
         self.conn.close()
         logger.opt(colors=True).info(f"<green>修仙数据库关闭！</green>")
-
-    def _create_file(self) -> None:
-        """创建数据库文件"""
-        c = self.conn.cursor()
-        c.execute('''CREATE TABLE User_xiuxian
-                           (NO            INTEGER PRIMARY KEY UNIQUE,
-                           USERID         TEXT     ,
-                           level          INTEGER  ,
-                           root           INTEGER
-                           );''')
-        c.execute('''''')
-        c.execute('''''')
-        self.conn.commit()
 
     def _check_data(self):
         """检查数据完整性"""
@@ -155,6 +143,7 @@ class XiuxianDateManage:
             try:
                 c.execute(f"select {i} from user_xiuxian")
             except sqlite3.OperationalError:
+                logger.opt(colors=True).info("<yellow>有数据库字段不存在，开始创建\n</yellow>")
                 sql = f"ALTER TABLE user_xiuxian ADD COLUMN {i} INTEGER DEFAULT 0;"
                 logger.opt(colors=True).info("<green>{}</green>".format(sql))
                 c.execute(sql)
@@ -163,6 +152,7 @@ class XiuxianDateManage:
             try:
                 c.execute(f"select {d} from user_cd")
             except sqlite3.OperationalError:
+                logger.opt(colors=True).info("<yellow>有数据库字段不存在，开始创建</yellow>")
                 sql = f"ALTER TABLE user_cd ADD COLUMN {d} INTEGER DEFAULT 0;"
                 logger.opt(colors=True).info("<green>{}</green>".format(sql))
                 c.execute(sql)
@@ -171,6 +161,7 @@ class XiuxianDateManage:
             try:
                 c.execute(f"select {s} from sects")
             except sqlite3.OperationalError:
+                logger.opt(colors=True).info("<yellow>有数据库字段不存在，开始创建</yellow>")
                 sql = f"ALTER TABLE sects ADD COLUMN {s} INTEGER DEFAULT 0;"
                 logger.opt(colors=True).info("<green>{}</green>".format(sql))
                 c.execute(sql)
@@ -179,6 +170,7 @@ class XiuxianDateManage:
             try:
                 c.execute(f"select {m} from BuffInfo")
             except sqlite3.OperationalError:
+                logger.opt(colors=True).info("<yellow>有数据库字段不存在，开始创建</yellow>")
                 sql = f"ALTER TABLE BuffInfo ADD COLUMN {m} INTEGER DEFAULT 0;"
                 logger.opt(colors=True).info("<green>{}</green>".format(sql))
                 c.execute(sql)
@@ -187,6 +179,7 @@ class XiuxianDateManage:
             try:
                 c.execute(f"select {b} from back")
             except sqlite3.OperationalError:
+                logger.opt(colors=True).info("<yellow>有数据库字段不存在，开始创建</yellow>")
                 sql = f"ALTER TABLE back ADD COLUMN {b} INTEGER DEFAULT 0;"
                 logger.opt(colors=True).info("<green>{}</green>".format(sql))
                 c.execute(sql)
@@ -195,7 +188,7 @@ class XiuxianDateManage:
         c.execute("""UPDATE user_cd
     SET last_check_info_time = ?
     WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
-  """, (current_time,))
+    """, (current_time,))
 
 
         self.conn.commit()
@@ -1238,6 +1231,30 @@ class XiuxianDateManage:
         cur.execute(sql, )
         self.conn.commit()
 
+    def reset_work_num(self):
+        """重置用户悬赏令刷新次数"""
+        sql = "UPDATE user_xiuxian SET work_num=0"
+        cur = self.conn.cursor()
+        cur.execute(sql, )
+        self.conn.commit()
+
+    def get_work_num(self, user_id):
+        """获取用户悬赏令刷新次数"""
+        sql = "SELECT work_num FROM user_xiuxian WHERE user_id=?"
+        cur = self.conn.cursor()
+        cur.execute(sql, (user_id,))
+        result = cur.fetchone()
+        if result:
+            work_num = result[0]
+        return work_num
+    
+    def update_work_num(self, user_id, work_num):
+        sql = "UPDATE user_xiuxian SET work_num=? WHERE user_id=?"
+        cur = self.conn.cursor()
+        cur.execute(sql, (work_num, user_id,))
+        self.conn.commit()
+
+
     def send_back(self, user_id, goods_id, goods_name, goods_type, goods_num, bind_flag=0):
         """
         插入物品至背包
@@ -1551,7 +1568,6 @@ class OtherSet(XiuConfig):
 
 
 sql_message = XiuxianDateManage()  # sql类
-
 items = Items()
 
 
@@ -2197,9 +2213,6 @@ def get_sec_msg(secbuffdata):
         msg = f"封印对手{hpmsg}{mpmsg}，持续{secbuffdata['turncost']}回合，释放概率：{secbuffdata['rate']}%，命中成功率{secbuffdata['success']}%"
 
     return msg
-
-
-PLAYERSDATA = Path() / "data" / "xiuxian" / "players"
 
 
 def get_player_info(user_id, info_name):
