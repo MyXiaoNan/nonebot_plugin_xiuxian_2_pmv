@@ -95,7 +95,7 @@ class XiuConfig:
         self.twolun_min_level = "祭道境圆满" # 万世轮回最低境界
         self.del_boss_id = []  # 支持非管理员和超管天罚boss
         self.gen_boss_id = []  # 支持非管理员和超管生成boss
-        self.merge_forward_send = False # 消息转发类型,True是合并转发，False是长图发送
+        self.merge_forward_send = True # 消息转发类型,True是合并转发，False是长图发送
         self.img_compression_limit = 80 # 图片压缩率，0为不压缩，最高100
         self.img_type = "webp" # 图片类型，webp或者jpeg，如果机器人的图片消息不显示请使用jpeg
         self.version = "xiuxian_2.2" # 修仙插件版本，别动

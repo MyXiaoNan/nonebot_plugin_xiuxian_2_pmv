@@ -342,8 +342,9 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await battle.finish()
 
-    sql_message.update_last_check_info_time(user_id) # 更新查看修仙信息时间
+   
     user_id = user_info['user_id']
+    sql_message.update_last_check_info_time(user_id) # 更新查看修仙信息时间
     msg = args.extract_plain_text().strip()
     group_id = str(event.group_id)
     boss_num = re.findall(r"\d+", msg)  # boss编号
