@@ -1,6 +1,6 @@
 from nonebot import on_command
 from ..xiuxian_utils.lay_out import assign_bot, Cooldown
-from ..xiuxian_utils.xiuxian_config import XiuConfig
+from ..xiuxian_config import XiuConfig
 from ..xiuxian_utils.xiuxian2_handle import XiuxianDateManage
 from ..xiuxian_utils.data_source import jsondata
 from nonebot.adapters.onebot.v11 import (

@@ -5,7 +5,7 @@ from .jsondata import read_f
 from ..xiuxian_utils.xiuxian2_handle import XiuxianDateManage, UserBuffDate, XIUXIAN_IMPART_BUFF
 from ..xiuxian_utils.player_fight import Boss_fight
 from ..xiuxian_utils.item_json import Items
-from ..xiuxian_utils.xiuxian_config import USERRANK
+from ..xiuxian_config import get_user_rank
 
 sql_message = XiuxianDateManage()
 xiuxian_impart = XIUXIAN_IMPART_BUFF()
@@ -70,54 +70,53 @@ STORY = {
             "type_rate": 100,
             "stone": 500000
         }
+    },
+    "战斗": {
+        "type_rate": 70,
+        "Boss战斗": {
+            "type_rate": 200,
+            "Boss数据": {
+                "name": ["墨蛟", "婴鲤兽", "千目妖", "鸡冠蛟", "妖冠蛇", "铁火蚁", "天晶蚁", "银光鼠", "紫云鹰", "狗青"],
+                "hp": [1.2, 1.4, 1.6, 1.8, 2, 3, 5, 10],
+                "mp": 10,
+                "atk": [0.1, 0.12, 0.14, 0.16, 0.18, 0.5, 1, 2],
+            },
+            "success": {
+                "desc": "道友大战一番成功战胜{}!",
+                "give": {
+                    "exp": [0.01, 0.02, 0.03, 0.04, 0.05, 0.07, 0.09],
+                    "stone": 500000
+                }
+            },
+            "fail": {
+                "desc": "道友大战一番不敌{}，仓皇逃窜！",
+            }
+        },
+        "掉血事件": {
+            "type_rate": 100,
+            "desc": [
+                "秘境内竟然散布着浓烈的毒气，道友贸然闯入！{}!",
+                "秘境内竟然藏着一群未知势力，道友被打劫了！{}!"
+            ],
+            "cost": {
+                "exp": {
+                    "type_rate": 50,
+                    "value": [0.03, 0.04, 0.05]
+                },
+                "hp": {
+                    "type_rate": 100,
+                    "value": [0.3, 0.5, 0.7]
+                },
+                "stone": {
+                    "type_rate": 50,
+                    "value": [5000000, 10000000, 15000000]
+                },
+            }
+        },
+    },
+    "无事": {
+        "type_rate": 50,
     }
-    # "战斗": {
-    #     "type_rate": 70,
-    #     "Boss战斗": {
-    #         "type_rate": 200,
-    #         "Boss数据": {
-    #             "name": ["墨蛟", "婴鲤兽", "千目妖", "鸡冠蛟", "妖冠蛇", "铁火蚁", "天晶蚁", "银光鼠", "紫云鹰", "狗青"],
-    #             "hp": [1.2, 1.4, 1.6, 1.8, 2, 3, 5, 10],
-    #             "mp": 10,
-    #             "atk": [0.1, 0.12, 0.14, 0.16, 0.18, 0.5, 1, 2],
-    #         },
-    #         "success": {
-    #             "desc": "道友大战一番成功战胜{}!",
-    #             "give": {
-    #                 "exp": [0.01, 0.02, 0.03, 0.04, 0.05, 0.07, 0.09],
-    #                 "stone": 500000
-    #             }
-    #         },
-    #         "fail": {
-    #             "desc": "道友大战一番不敌{}，仓皇逃窜！",
-    #         }
-    #     },
-
-    #     "掉血事件": {
-    #         "type_rate": 100,
-    #         "desc": [
-    #             "秘境内竟然散布着浓烈的毒气，道友贸然闯入！{}!",
-    #             "秘境内竟然藏着一群未知势力，道友被打劫了！{}!"
-    #         ],
-    #         "cost": {
-    #             "exp": {
-    #                 "type_rate": 50,
-    #                 "value": [0.03, 0.04, 0.05]
-    #             },
-    #             "hp": {
-    #                 "type_rate": 100,
-    #                 "value": [0.3, 0.5, 0.7]
-    #             },
-    #             "stone": {
-    #                 "type_rate": 50,
-    #                 "value": [5000000, 10000000, 15000000]
-    #             },
-    #         }
-    #     },
-    # },
-    # "无事": {
-    #     "type_rate": 50,
-    # }
 }
 
 
@@ -166,7 +165,7 @@ async def get_boss_battle_info(user_info, rift_rank, bot_id):
     result, victor, bossinfo_new, stone = await Boss_fight(player, boss_info, bot_id=bot_id)  # 未开启，1不写入，2写入
 
     if victor == "群友赢了":  # 获胜
-        user_rank = 56 - USERRANK[user_info['level']]  # 56-用户当前等级 原50
+        user_rank = get_user_rank('洞天境圆满')[0] - get_user_rank(user_info['level'])[0] # 60-用户当前等级 原50
         success_info = STORY['战斗']['Boss战斗']["success"]
         msg = success_info['desc'].format(boss_info["name"])
         give_exp = int(random.choice(success_info["give"]["exp"]) * user_info['exp'])
@@ -312,7 +311,7 @@ def get_goods_type():
 def get_id_by_rank(dict_data, user_level, rift_rank=0):
     """根据字典的rank、用户等级、秘境等级随机获取key"""
     l_temp = []
-    final_rank = USERRANK[user_level] - rift_rank  # 秘境等级，会提高用户的等级
+    final_rank = get_user_rank(user_level)[0] - rift_rank  # 秘境等级，会提高用户的等级
     pass_rank = 30  # 最终等级超过次等级会抛弃
     for k, v in dict_data.items():
         if v["rank"] >= final_rank and (v["rank"] - final_rank) <= pass_rank:
@@ -349,7 +348,6 @@ def get_armor(user_info, rift_rank=0):
 
 def get_main_info(user_level, rift_rank):
     """获取功法的信息"""
-    user_rank = USERRANK[user_level]  # type=int，用户等级
     main_buff_type = get_skill_by_rank(user_level, rift_rank)  # 天地玄黄
     main_buff_id_list = skill_data[main_buff_type]['gf_list']
     init_rate = 60  # 初始概率为60
@@ -366,7 +364,6 @@ def get_main_info(user_level, rift_rank):
 
 def get_sec_info(user_level, rift_rank):
     """获取神通的信息"""
-    user_rank = USERRANK[user_level]  # type=int，用户等级
     sec_buff_type = get_skill_by_rank(user_level, rift_rank)  # 天地玄黄
     sec_buff_id_list = skill_data[sec_buff_type]['st_list']
     init_rate = 60  # 初始概率为60
@@ -399,7 +396,7 @@ def get_sub_info(user_level, rift_rank):
 
 def get_skill_by_rank(user_level, rift_rank):
     """根据用户等级、秘境等级随机获取一个技能"""
-    user_rank = USERRANK[user_level]  # type=int，用户等级
+    user_rank = get_user_rank(user_level)[0]  # type=int，用户等级
     temp_dict = []
     for k, v in skill_data.items():
         if user_rank - rift_rank <= v['rank']:  # 秘境等级会增幅用户等级

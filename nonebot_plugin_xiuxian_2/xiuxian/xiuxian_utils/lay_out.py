@@ -12,7 +12,7 @@ from nonebot.matcher import Matcher
 from nonebot.params import Depends
 from nonebot.adapters.onebot.v11.event import MessageEvent, GroupMessageEvent
 from nonebot.adapters.onebot.v11 import Bot, MessageSegment
-from .xiuxian_config import XiuConfig, JsonConfig
+from ..xiuxian_config import XiuConfig, JsonConfig
 from .utils import get_msg_pic
 
 

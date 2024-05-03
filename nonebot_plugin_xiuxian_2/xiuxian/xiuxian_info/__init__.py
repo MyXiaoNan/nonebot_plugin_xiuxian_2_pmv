@@ -13,7 +13,7 @@ from ..xiuxian_utils.data_source import jsondata
 from .draw_user_info import draw_user_info_img
 from datetime import datetime, timedelta
 from ..xiuxian_utils.utils import check_user, get_msg_pic, number_to
-from ..xiuxian_utils.xiuxian_config import XiuConfig, JsonConfig
+from ..xiuxian_config import XiuConfig, JsonConfig
 
 xiuxian_message = on_command("我的修仙信息", aliases={"我的存档"}, priority=23, permission=GROUP, block=True)
 sql_message = XiuxianDateManage()  # sql类
@@ -96,15 +96,16 @@ async def xiuxian_message_(bot: Bot, event: GroupMessageEvent):
         armor_name = f"{user_armor_data['name']}({user_armor_data['level']})"
     main_rate_buff = UserBuffDate(user_id).get_user_main_buff_data() # 功法突破概率提升
     sql_message.update_last_check_info_time(user_id) # 更新查看修仙信息时间
+    leveluprate = int(user_info['level_up_rate'])  # 用户失败次数加成
     number =  main_rate_buff["number"] if main_rate_buff is not None else 0
     DETAIL_MAP = {
         "道号": f"{user_name}",
         "境界": f"{user_info['level']}",
         "修为": f"{number_to(user_info['exp'])}",
         "灵石": f"{number_to(user_info['stone'])}",
-        "战力": f"{number_to(int(user_info['exp'] * level_rate * realm_rate))}",
+        "战力": f"{number_to(int(user_info['exp'] * 0.5 + level_rate * 0.3 + realm_rate * 0.2))}",
         "灵根": f"{user_info['root']}({user_info['root_type']}+{int(level_rate * 100)}%)",
-        "突破状态": f"{exp_meg}概率：{jsondata.level_rate_data()[user_info['level']] + int(user_info['atkpractice']) + number}%",
+        "突破状态": f"{exp_meg}概率：{jsondata.level_rate_data()[user_info['level']] + leveluprate + number}%",
         "攻击力": f"{number_to(user_info['atk'])}，攻修等级{user_info['atkpractice']}级",
         "所在宗门": sectmsg,
         "宗门职位": sectzw,

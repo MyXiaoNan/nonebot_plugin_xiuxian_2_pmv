@@ -15,7 +15,7 @@ from ..xiuxian_utils.utils import check_user, get_msg_pic, send_msg_handler
 from .impart_pk_uitls import impart_pk_check
 from .xu_world import xu_world
 from .impart_pk import impart_pk
-from ..xiuxian_utils.xiuxian_config import XiuConfig
+from ..xiuxian_config import XiuConfig
 from ..xiuxian_utils.xiuxian2_handle import XiuxianDateManage, OtherSet, UserBuffDate, XIUXIAN_IMPART_BUFF
 from .. import NICKNAME
 
@@ -146,6 +146,7 @@ async def impart_pk_now_(bot: Bot, event: GroupMessageEvent, args: Message = Com
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await impart_pk_now.finish()
     user_id = user_info['user_id']
+    sql_message.update_last_check_info_time(user_id) # 更新查看修仙信息时间
     impart_data_draw = await impart_pk_check(user_id)
     if impart_data_draw is None:
         msg = "发生未知错误，多次尝试无果请找晓楠！"

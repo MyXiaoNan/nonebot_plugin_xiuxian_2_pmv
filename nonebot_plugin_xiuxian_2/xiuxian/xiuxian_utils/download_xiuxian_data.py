@@ -3,7 +3,7 @@ import zipfile
 import wget
 from pathlib import Path
 from nonebot.log import logger
-from .xiuxian_config import XiuConfig
+from ..xiuxian_config import XiuConfig
 
 
 def download_xiuxian_data():

@@ -27,7 +27,7 @@ from ..xiuxian_utils.xiuxian2_handle import (
     XiuxianDateManage ,OtherSet, UserBuffDate,
     XIUXIAN_IMPART_BUFF, leave_harm_time
 )
-from ..xiuxian_utils.xiuxian_config import USERRANK, XiuConfig
+from ..xiuxian_config import get_user_rank, XiuConfig
 from .makeboss import createboss, createboss_root, createboss_jj
 from .bossconfig import get_config, savef
 from .old_boss_info import old_boss_info
@@ -342,6 +342,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await battle.finish()
 
+    sql_message.update_last_check_info_time(user_id) # 更新查看修仙信息时间
     user_id = user_info['user_id']
     msg = args.extract_plain_text().strip()
     group_id = str(event.group_id)
@@ -420,7 +421,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
     if user_info['hp'] <= user_info['exp'] / 10:
         time = leave_harm_time(user_id)
         msg = f"重伤未愈，动弹不得！距离脱离危险还需要{time}分钟！\n"
-        msg += f"请道友进行闭关回复，或者使用药品恢复气血！"
+        msg += f"请道友进行闭关，或者使用药品恢复气血，不要干等，没有自动回血！！！"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -465,10 +466,10 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
 
     bossinfo = group_boss[group_id][boss_num - 1]
     if bossinfo['jj'] == '零':
-        boss_rank = USERRANK[(bossinfo['jj'])]
+        boss_rank = get_user_rank((bossinfo['jj']))[0]
     else:
-        boss_rank = USERRANK[(bossinfo['jj'] + '中期')]
-    user_rank = USERRANK[userinfo['level']]
+        boss_rank = get_user_rank((bossinfo['jj'] + '中期'))[0]
+    user_rank = get_user_rank(userinfo['level'])[0]
     boss_old_hp = bossinfo['气血']  # 打之前的血量
     more_msg = ''
     battle_flag[group_id] = True
@@ -1055,7 +1056,7 @@ def get_drops(user_info):
 def get_id(dict_data, user_level):
     """根据字典的rank、用户等级、秘境等级随机获取key"""
     l_temp = []
-    final_rank = USERRANK[user_level]  # 秘境等级，会提高用户的等级
+    final_rank = get_user_rank(user_level)[0]  # 秘境等级，会提高用户的等级
     pass_rank = 55  # 最终等级超过次等级会抛弃
     for k, v in dict_data.items():
         if v["rank"] >= final_rank and (v["rank"] - final_rank) <= pass_rank:

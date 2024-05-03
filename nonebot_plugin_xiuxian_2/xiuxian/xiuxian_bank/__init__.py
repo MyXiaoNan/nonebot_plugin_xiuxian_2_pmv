@@ -19,7 +19,7 @@ from ..xiuxian_utils.xiuxian2_handle import XiuxianDateManage
 from datetime import datetime
 from .bankconfig import get_config
 from ..xiuxian_utils.utils import check_user, get_msg_pic
-from ..xiuxian_utils.xiuxian_config import XiuConfig
+from ..xiuxian_config import XiuConfig
 
 config = get_config()
 BANKLEVEL = config["BANKLEVEL"]

@@ -25,7 +25,7 @@ from ..xiuxian_utils.xiuxian2_handle import (
     XiuxianDateManage, XiuxianJsonDate, OtherSet, 
     UserBuffDate, XIUXIAN_IMPART_BUFF, leave_harm_time
 )
-from ..xiuxian_utils.xiuxian_config import XiuConfig, JsonConfig
+from ..xiuxian_config import XiuConfig, JsonConfig
 from ..xiuxian_utils.utils import (
     check_user,
     get_msg_pic, number_to,
@@ -516,7 +516,7 @@ async def level_up_(bot: Bot, event: GroupMessageEvent):
 
 @level_up_zj.handle(parameterless=[Cooldown(at_sender=False)])
 async def level_up_zj_(bot: Bot, event: GroupMessageEvent):
-    """直接 突破"""
+    """直接突破"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = check_user(event)
     if not isUser:
@@ -550,12 +550,12 @@ async def level_up_zj_(bot: Bot, event: GroupMessageEvent):
     level_name = user_msg['level']  # 用户境界
     exp = user_msg['exp']  # 用户修为
     level_rate = jsondata.level_rate_data()[level_name]  # 对应境界突破的概率
-    user_leveluprate = int(user_msg['level_up_rate'])  # 用户失败次数加成
+    leveluprate = int(user_msg['level_up_rate'])  # 用户失败次数加成
     main_rate_buff = UserBuffDate(user_id).get_user_main_buff_data()#功法突破概率提升，别忘了还有渡厄突破
     main_exp_buff = UserBuffDate(user_id).get_user_main_buff_data()#功法突破扣修为减少
     exp_buff = main_exp_buff['exp_buff'] if main_exp_buff is not None else 0
     number = main_rate_buff['number'] if main_rate_buff is not None else 0
-    le = OtherSet().get_type(exp, level_rate + user_leveluprate + number, level_name)
+    le = OtherSet().get_type(exp, level_rate + leveluprate + number, level_name)
     if le == "失败":
         # 突破失败
         sql_message.updata_level_cd(user_id)  # 更新突破CD
@@ -844,6 +844,7 @@ async def user_leveluprate_(bot: Bot, event: GroupMessageEvent):
     level_rate = jsondata.level_rate_data()[level_name]  # 
     main_rate_buff = UserBuffDate(user_id).get_user_main_buff_data()#功法突破概率提升
     number =  main_rate_buff['number'] if main_rate_buff is not None else 0
+    print(level_rate, leveluprate, number)
     msg = f"道友下一次突破成功概率为{level_rate + leveluprate + number}%"
     if XiuConfig().img:
         pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)

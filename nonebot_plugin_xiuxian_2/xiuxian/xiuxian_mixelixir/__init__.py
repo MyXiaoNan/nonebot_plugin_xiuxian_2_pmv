@@ -21,7 +21,7 @@ from ..xiuxian_utils.utils import (
 )
 from ..xiuxian_utils.item_json import Items
 from .mixelixirutil import get_mix_elixir_msg, tiaohe, check_mix, make_dict
-from ..xiuxian_utils.xiuxian_config import USERRANK, XiuConfig
+from ..xiuxian_config import get_user_rank, XiuConfig
 from datetime import datetime
 from .mix_elixir_config import MIXELIXIRCONFIG
 from ..xiuxian_back.back_util import get_user_elixir_back_msg, get_user_yaocai_back_msg
@@ -198,7 +198,7 @@ async def yaocai_get_(bot: Bot, event: GroupMessageEvent):
                                                                                               '%Y-%m-%d %H:%M:%S')).total_seconds() / 3600,
                          2)
         if timedeff >= round(GETCONFIG['time_cost'] * (1 - (GETCONFIG['加速基数'] * mix_elixir_info['药材速度'])), 2):
-            yaocai_id_list = items.get_random_id_list_by_rank_and_item_type(USERRANK[user_info['level']], ['药材'])
+            yaocai_id_list = items.get_random_id_list_by_rank_and_item_type(get_user_rank(user_info['level'])[0], ['药材'])
             # 加入传承
             impart_data = xiuxian_impart.get_user_message(user_id)
             impart_reap_per = impart_data['impart_reap_per'] if impart_data is not None else 0

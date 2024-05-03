@@ -8,12 +8,13 @@ from nonebot.adapters.onebot.v11 import (
     Bot,
     GROUP,
     Message,
+    MessageEvent,
     GroupMessageEvent,
-    MessageSegment,
+    MessageSegment
 )
 from nonebot.params import RegexGroup
 from ..xiuxian_utils.xiuxian2_handle import XiuxianDateManage
-from ..xiuxian_utils.xiuxian_config import XiuConfig
+from ..xiuxian_config import XiuConfig
 from ..xiuxian_utils.utils import (
     check_user,
     get_msg_pic,
@@ -23,10 +24,9 @@ cache_help = {}
 sql_message = XiuxianDateManage()  # sql类
 
 __dufang_help__ = f"""
-封群的，不让你玩！
-超管可以调试，目前ll不支持骰子指定值
+封群的，不建议玩！！！
+超管可以调试，如果你真想玩并且不介意封群风险，可以让超管修改代码
 """.strip()
-
 dufang_help = on_command("金银阁帮助", permission=GROUP, priority=7, block=True)
 dufang = on_regex(
     r"(金银阁)\s?(\d+)\s?([大|小|奇|偶|猜])?\s?(\d+)?",
@@ -91,7 +91,8 @@ async def dufang_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Re
                 await bot.send_group_msg(group_id=int(send_group_id), message=msg)
             await dufang.finish()
     price_num = int(price)
-    if int(user_message.stone) < price_num:
+
+    if int(user_message['stone']) < price_num:
         msg = "道友的金额不足，请重新输入！"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
@@ -107,11 +108,11 @@ async def dufang_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Re
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
 
     value = random.randint(1, 6)
-    dice_msg = Message("[CQ:dice]")
+    result = "[CQ:dice,value={}]".format(value)
 
     if value >= 4 and str(mode) == "大":
         sql_message.update_ls(user_id, price_num, 1)
-        await bot.send_group_msg(group_id=int(send_group_id), message=dice_msg)
+        await bot.send_group_msg(group_id=int(send_group_id), message=result)
         msg = "最终结果为{}，你猜对了，收获灵石{}块".format(value, price_num)
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
@@ -121,7 +122,7 @@ async def dufang_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Re
         
     elif value <= 3 and str(mode) == "小":
         sql_message.update_ls(user_id, price_num, 1)
-        await bot.send_group_msg(group_id=int(send_group_id), message=dice_msg)
+        await bot.send_group_msg(group_id=int(send_group_id), message=result)
         msg = "最终结果为{}，你猜对了，收获灵石{}块".format(value, price_num)
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
@@ -130,7 +131,7 @@ async def dufang_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Re
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
     elif value %2==1 and str(mode) == "奇":
         sql_message.update_ls(user_id, price_num, 1)
-        await bot.send_group_msg(group_id=int(send_group_id), message=dice_msg)
+        await bot.send_group_msg(group_id=int(send_group_id), message=result)
         msg = "最终结果为{}，你猜对了，收获灵石{}块".format(value, price_num)
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)

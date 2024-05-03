@@ -17,7 +17,7 @@ from nonebot.adapters.onebot.v11 import (
 from ..xiuxian_utils.lay_out import assign_bot, Cooldown, assign_bot_group
 from nonebot.params import CommandArg
 from ..xiuxian_utils.data_source import jsondata
-from ..xiuxian_utils.xiuxian_config import XiuConfig, USERRANK, JsonConfig
+from ..xiuxian_config import XiuConfig, get_user_rank, JsonConfig
 from .sectconfig import get_config
 from ..xiuxian_utils.utils import (
     check_user, number_to,
@@ -63,7 +63,7 @@ __sect_help__ = f"""
 指令：
 1、我的宗门:查看当前所处宗门信息
 2、创建宗门:创建宗门，需求：{XiuConfig().sect_create_cost}灵石，需求境界{XiuConfig().sect_min_level}
-3、加入宗门:加入一个宗门
+3、加入宗门:加入一个宗门,需要带上宗门id
 4、宗门职位变更:宗主可以改变宗门成员的职位等级【0 1 2 3 4】分别对应【宗主 长老 亲传 内门 外门】外门弟子无法获得宗门修炼资源
 5、宗门捐献:建设宗门，提高宗门建设度，每{config["等级建设度"]}建设度会提高1级攻击修炼等级上限
 6、宗门改名:宗主可以改变宗门名称
@@ -111,11 +111,11 @@ async def resetusertask_():
             elixir_room_cost = config['宗门丹房参数']['elixir_room_level'][str(sect_info['elixir_room_level'])]['level_up_cost'][
                 '建设度']
             if sect_info['sect_materials'] < elixir_room_cost:
-                logger.opt(colors=True).warning("<red>该宗门的资材无法维持丹房</red>")
+                logger.opt(colors=True).info("<red>宗门：{}的资材无法维持丹房</red>".format(sect_info['sect_name']))
                 continue
             else:
                 sql_message.update_sect_materials(sect_id=sect_info['sect_id'], sect_materials=elixir_room_cost, key=2)
-    logger.opt(colors=True).info("<green>已重置用户宗门任务次数、宗门丹药领取次数，已扣除丹房维护费</green>")
+    logger.opt(colors=True).info("<green>已重置所有宗门任务次数、宗门丹药领取次数，已扣除丹房维护费</green>")
 
 
 @sect_help.handle(parameterless=[Cooldown(at_sender=False)])
@@ -234,6 +234,7 @@ async def sect_elixir_get_(bot: Bot, event: GroupMessageEvent):
         await sect_elixir_get.finish()
 
     sect_id = user_info['sect_id']
+    sql_message.update_last_check_info_time(user_info) # 更新查看修仙信息时间
     if sect_id:
         sect_position = user_info['sect_position']
         elixir_room_config = config['宗门丹房参数']
@@ -297,7 +298,7 @@ async def sect_elixir_get_(bot: Bot, event: GroupMessageEvent):
                 rank_up = sect_now_room_config['give_level']['rank_up']
                 give_dict = {}
                 give_elixir_id_list = items.get_random_id_list_by_rank_and_item_type(
-                    fanil_rank=USERRANK[user_info['level']] - rank_up, item_type=['丹药'])
+                    fanil_rank=get_user_rank(user_info['level'])[0] - rank_up, item_type=['丹药'])
                 if not give_elixir_id_list:  # 没有合适的ID，全部给渡厄丹
                     msg = f"道友成功领取到丹药：渡厄丹 2 枚！"
                     sql_message.send_back(user_info['user_id'], 1999, "渡厄丹", "丹药", 2, bind_flag=1)  # 送1个渡厄丹

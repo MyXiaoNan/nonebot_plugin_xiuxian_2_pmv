@@ -23,7 +23,7 @@ from ..xiuxian_utils.utils import (
 )
 from .riftconfig import get_config, savef
 from .jsondata import save_rift_data, read_rift_data
-from ..xiuxian_utils.xiuxian_config import XiuConfig
+from ..xiuxian_config import XiuConfig
 from .riftmake import (
     Rift, get_rift_type, get_story_type, NONEMSG, get_battle_type,
     get_dxsj_info, get_boss_battle_info, get_treasure_info
@@ -56,7 +56,7 @@ __rift_help__ = f"""
 5、秘境探索终止、终止探索秘境:终止秘境事件
 6、秘境帮助:获取秘境帮助信息
 非指令：
-1、每日18点30分生成一个随机等级的秘境
+1、每天早八生成一个随机等级的秘境
 """.strip()
 
 
@@ -75,10 +75,9 @@ async def save_rift_():
 
 
 # 定时任务生成群秘境
-@set_rift.scheduled_job("cron", hour=10, minute=30)
+@set_rift.scheduled_job("cron", hour=8, minute=0)
 async def set_rift_():
     global group_rift
-    # bot = get_bots()[put_bot[0]]
     if groups:
         group_rift = {}
         for group_id in groups:

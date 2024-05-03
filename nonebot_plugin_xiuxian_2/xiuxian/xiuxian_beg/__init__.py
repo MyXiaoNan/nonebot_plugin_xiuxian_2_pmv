@@ -9,8 +9,8 @@ from nonebot.adapters.onebot.v11 import (
     MessageSegment
 )
 from nonebot.log import logger
-from ..xiuxian_utils.xiuxian2_handle import XiuxianDateManage
-from ..xiuxian_utils.xiuxian_config import XiuConfig
+from ..xiuxian_utils.xiuxian2_handle import XiuxianDateManage,OtherSet
+from ..xiuxian_config import XiuConfig
 from ..xiuxian_utils.data_source import jsondata
 from ..xiuxian_utils.utils import (
     check_user,
@@ -79,19 +79,26 @@ async def beg_stone(bot: Bot, event: GroupMessageEvent):
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await beg_stone.finish()
-
-    elif sect != None and user_root == "伪灵根":
+    
+    sql_message.update_last_check_info_time(user_id) # 更新查看修仙信息时间
+    if sect != None and user_root == "伪灵根":
         if XiuConfig().img:
-            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + "道友已有宗门庇佑，又何必来此寻求机缘呢？")
+            msg = "道友已有宗门庇佑，又何必来此寻求机缘呢？"
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=event.group_id, message=MessageSegment.image(pic))
+        else:
+            await bot.send_group_msg(group_id=event.group_id, message=msg)
 
     elif user_root in {"轮回道果", "真·轮回道果"}:
         if XiuConfig().img:
-            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + "道友已是转生大能，又何必来此寻求机缘呢？")
+            msg = "道友已是轮回大能，又何必来此寻求机缘呢？"
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=event.group_id, message=MessageSegment.image(pic))
+        else:
+            await bot.send_group_msg(group_id=event.group_id, message=msg)
     
     elif list_level_all.index(level) >= list_level_all.index(XiuConfig().beg_max_level):
-        msg = f"道友已跻身于{user_info['level']}层次的修行之人，可徜徉于四海八荒，自寻机缘与造化矣。"
+        msg = "道友已跻身于{}层次的修行之人，可徜徉于四海八荒，自寻机缘与造化矣。".format(user_info['level'])
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=event.group_id, message=MessageSegment.image(pic))
@@ -100,8 +107,11 @@ async def beg_stone(bot: Bot, event: GroupMessageEvent):
 
     elif diff_days > XiuConfig().beg_max_days:
         if XiuConfig().img:
-            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + "道友已经过了新手期,不能再来此寻求机缘了。")
+            msg = "道友已经过了新手期,不能再来此寻求机缘了。"
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=event.group_id, message=MessageSegment.image(pic))
+        else:
+            await bot.send_group_msg(group_id=event.group_id, message=msg)
 
     else:
         stone = XiuxianDateManage().get_beg(user_id)

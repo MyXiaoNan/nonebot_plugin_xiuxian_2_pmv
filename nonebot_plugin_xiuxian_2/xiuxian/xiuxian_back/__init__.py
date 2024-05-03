@@ -34,7 +34,7 @@ from ..xiuxian_utils.xiuxian2_handle import (
     get_weapon_info_msg, get_armor_info_msg,
     get_sec_msg, get_main_info_msg, get_sub_info_msg, UserBuffDate
 )
-from ..xiuxian_utils.xiuxian_config import XiuConfig, USERRANK
+from ..xiuxian_config import XiuConfig, get_user_rank
 
 items = Items()
 config = get_config()
@@ -1140,11 +1140,11 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
             num = 1
         goods_info = items.get_data_by_item_id(goods_id)
         user_info = sql_message.get_user_message(user_id)
-        user_rank = USERRANK[user_info['level']]
+        user_rank = get_user_rank(user_info['level'])[0]
         goods_rank = goods_info['rank']
         goods_name = goods_info['name']
         if goods_rank < user_rank:  # 使用限制
-                msg = "神物：{}的使用境界为{}以上，道友不满足使用条件！".format(goods_name,  [goods_info['境界']])
+                msg = "神物：{}的使用境界为{}以上，道友不满足使用条件！".format(goods_name, goods_info['境界'])
         else:
                 exp = goods_info['buff'] * num
                 user_hp = int(user_info['hp'] + (exp / 2))
@@ -1182,7 +1182,7 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
             num = 1
         goods_info = items.get_data_by_item_id(goods_id)
         user_info = sql_message.get_user_message(user_id)
-        user_rank = USERRANK[user_info['level']]
+        user_rank = get_user_rank(user_info['level'])[0]
         goods_name = goods_info['name']
         goods_id1 = goods_info['buff_1']
         goods_id2 = goods_info['buff_2']

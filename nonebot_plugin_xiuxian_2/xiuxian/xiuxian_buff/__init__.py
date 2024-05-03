@@ -16,7 +16,7 @@ from ..xiuxian_utils.xiuxian2_handle import (
     get_user_buff, get_sec_msg, get_sub_info_msg,
     XIUXIAN_IMPART_BUFF
 )
-from ..xiuxian_utils.xiuxian_config import XiuConfig
+from ..xiuxian_config import XiuConfig
 from ..xiuxian_utils.data_source import jsondata
 from nonebot.params import CommandArg
 from ..xiuxian_utils.player_fight import Player_fight
@@ -431,8 +431,10 @@ async def two_exp_(bot: Bot, event: GroupMessageEvent, args: Message = CommandAr
                 await bot.send_group_msg(group_id=int(send_group_id), message=msg)
             await two_exp.finish()
         else:
+            
             limt_1 = two_exp_cd.find_user(user_1['user_id'])
             limt_2 = two_exp_cd.find_user(user_2['user_id'])
+            sql_message.update_last_check_info_time(user_1['user_id']) # 更新查看修仙信息时间
             # 加入传承
             impart_data_1 = xiuxian_impart.get_user_message(user_1['user_id'])
             impart_data_2 = xiuxian_impart.get_user_message(user_2['user_id'])
@@ -835,6 +837,7 @@ async def mind_state_(bot: Bot, event: GroupMessageEvent):
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await mind_state.finish()
     user_id = user_msg['user_id']
+    sql_message.update_last_check_info_time(user_id) # 更新查看修仙信息时间
     if user_msg['hp'] is None or user_msg['hp'] == 0:
         sql_message.update_user_hp(user_id)
     user_msg = sql_message.get_user_real_info(user_id)
@@ -843,7 +846,6 @@ async def mind_state_(bot: Bot, event: GroupMessageEvent):
     realm_rate = jsondata.level_data()[user_msg['level']]["spend"]  # 境界倍率
     user_buff_data = UserBuffDate(user_id)
     main_buff_data = user_buff_data.get_user_main_buff_data()
-    user_weapon_data = user_buff_data.get_user_weapon_data()
     user_armor_crit_data = user_buff_data.get_user_armor_buff_data() #我的状态防具会心
     user_weapon_data = UserBuffDate(user_id).get_user_weapon_data() #我的状态武器减伤
     user_main_crit_data = UserBuffDate(user_id).get_user_main_buff_data() #我的状态功法会心
@@ -859,7 +861,7 @@ async def mind_state_(bot: Bot, event: GroupMessageEvent):
     else:
         armor_crit_buff = 0
         
-    if user_weapon_data  is not None:
+    if user_weapon_data is not None:
         crit_buff = ((user_weapon_data['crit_buff']) * 100)
     else:
         crit_buff = 0
@@ -899,7 +901,7 @@ async def mind_state_(bot: Bot, event: GroupMessageEvent):
     msg = f"""
 道号：{user_msg['user_name']}
 气血:{number_to(user_msg['hp'])}/{number_to(int((user_msg['exp'] / 2) * (1 + main_hp_buff + impart_hp_per)))}
-真元:{int((user_msg['mp'] / user_msg['exp']) * 100)}%
+真元:{number_to(user_msg['mp'])}/{number_to(user_msg['exp'])}({int((user_msg['mp'] / user_msg['exp']) * 100)}%)
 攻击:{number_to(user_msg['atk'])}
 攻击修炼:{user_msg['atkpractice']}级(提升攻击力{user_msg['atkpractice'] * 4}%)
 修炼效率:{int(((level_rate * realm_rate) * (1 + main_buff_rate_buff)) * 100)}%
@@ -1009,7 +1011,6 @@ async def my_exp_num_(bot: Bot, event: GroupMessageEvent):
     
     main_two_data = UserBuffDate(user_id).get_user_main_buff_data()
     main_two = main_two_data['two_buff'] if main_two_data is not None else 0
-    print("这里是功法加成", main_two)
     
     num = (two_exp_limit + impart_two_exp + main_two) - limt
     if num <= 0:

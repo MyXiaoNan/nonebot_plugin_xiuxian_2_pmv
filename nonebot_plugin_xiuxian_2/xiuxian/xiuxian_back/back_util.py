@@ -12,7 +12,7 @@ from ..xiuxian_utils.xiuxian2_handle import (
 from datetime import datetime
 import os
 from pathlib import Path
-from ..xiuxian_utils.xiuxian_config import USERRANK
+from ..xiuxian_config import get_user_rank
 
 items = Items()
 sql_message = XiuxianDateManage()
@@ -366,8 +366,13 @@ def get_shenwu_msg(l_msg, goods_id, goods_num):
     获取背包内的神物信息
     """
     item_info = items.get_data_by_item_id(goods_id)
+    try:
+        desc = item_info['desc']
+    except KeyError:
+        desc = "这个东西本来会报错让背包出不来，当你看到你背包有这个这个东西的时候请联系超管解决。"
+    
     msg = f"名字：{item_info['name']}\n"
-    msg += f"效果：{item_info['desc']}\n"
+    msg += f"效果：{desc}\n"
     msg += f"拥有数量：{goods_num}"
     l_msg.append(msg)
     return l_msg
@@ -458,7 +463,7 @@ def get_yaocai_info_msg(goods_id, item_info):
 
 def check_use_elixir(user_id, goods_id, num):
     user_info = sql_message.get_user_message(user_id)
-    user_rank = USERRANK[user_info['level']]
+    user_rank = get_user_rank(user_info['level'])[0]
     goods_info = items.get_data_by_item_id(goods_id)
     goods_rank = goods_info['rank']
     goods_name = goods_info['name']

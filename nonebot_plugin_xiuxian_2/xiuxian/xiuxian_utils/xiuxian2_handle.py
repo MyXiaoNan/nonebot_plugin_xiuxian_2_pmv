@@ -9,7 +9,7 @@ from datetime import datetime
 from pathlib import Path
 from nonebot.log import logger
 from .data_source import jsondata
-from .xiuxian_config import XiuConfig
+from ..xiuxian_config import XiuConfig
 from .. import DRIVER
 from .item_json import Items
 from .xn_xiuxian_impart_config import config_impart
@@ -1413,7 +1413,6 @@ class OtherSet(XiuConfig):
         success_rate = True if random.randint(0, 100) < rate else False
 
         if success_rate:
-
             return [self.level[now_index + 1]]
         else:
             return '失败'
@@ -1956,19 +1955,21 @@ class XIUXIAN_IMPART_BUFF:
 
 def leave_harm_time(user_id):
     hp_speed = 25
-    user_mes = sql_message.get_user_message(user_id)  # 获取用户信息
+    user_mes = sql_message.get_user_message(user_id)
     level = user_mes['level']
-    level_rate = sql_message.get_root_rate(user_mes['root_type'])  # 灵根倍率
-    realm_rate = jsondata.level_data()[level]["spend"]  # 境界倍率
-    user_buff_data = UserBuffDate(user_id)
-    mainbuffdata = UserBuffDate(user_id).get_user_main_buff_data()
-    mainbuffratebuff = mainbuffdata['ratebuff'] if mainbuffdata != None else 0  # 功法修炼倍率
+    level_rate = sql_message.get_root_rate(user_mes['root_type']) # 灵根倍率
+    realm_rate = jsondata.level_data()[level]["spend"] # 境界倍率
+    main_buff_data = UserBuffDate(user_id).get_user_main_buff_data() # 主功法数据
+    main_buff_rate_buff = main_buff_data['ratebuff'] if main_buff_data else 0 # 主功法修炼倍率
+    
     try:
-        time = int(((user_mes['exp'] / 10) - user_mes['hp']) / ((XiuConfig().closing_exp * level_rate * realm_rate * (
-                    1 + mainbuffratebuff)) * hp_speed))
-    except:
+       time = int(((user_mes['exp'] / 1.5) - user_mes['hp']) / ((XiuConfig().closing_exp * level_rate * realm_rate * (
+                    1 + main_buff_rate_buff)) * hp_speed))
+    except ZeroDivisionError:
         time = "无穷大"
-    return time
+    except OverflowError:
+        time = "溢出"
+    return max(0, time)
 
 
 async def impart_check(user_id):

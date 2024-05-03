@@ -12,7 +12,7 @@ from nonebot.adapters.onebot.v11 import (
 )
 from nonebot.params import Depends
 from io import BytesIO
-from .xiuxian_config import XiuConfig
+from ..xiuxian_config import XiuConfig
 from PIL import Image, ImageDraw, ImageFont
 from wcwidth import wcwidth
 from nonebot.adapters import MessageSegment

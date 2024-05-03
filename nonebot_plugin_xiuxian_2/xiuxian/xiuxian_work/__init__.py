@@ -17,8 +17,7 @@ from ..xiuxian_utils.utils import check_user, check_user_type, get_msg_pic
 from nonebot.log import logger
 from .reward_data_source import PLAYERSDATA, WORKDATA
 from ..xiuxian_utils.item_json import Items
-from ..xiuxian_utils.xiuxian_config import USERRANK, XiuConfig
-import sqlite3
+from ..xiuxian_config import get_user_rank, XiuConfig
 
 # 定时任务
 resetrefreshnum = require("nonebot_plugin_apscheduler").scheduler
@@ -71,8 +70,9 @@ async def last_work_(bot: Bot, event: GroupMessageEvent):
         await last_work.finish()
     user_id = user_info['user_id']
     user_level = user_info['level']
+    user_rank = get_user_rank(user_level)[0]
     is_type, msg = check_user_type(user_id, 2)  # 需要在悬赏令中的用户
-    if (is_type and USERRANK[user_info['level']] <= 11) or (
+    if (is_type and user_rank <= 11) or (
         is_type and user_info['exp'] >= sql_message.get_level_power("真仙境圆满")) or (
         is_type and int(user_info['exp']) >= int(OtherSet().set_closing_type(user_level)) * XiuConfig().closing_exp_upper_limit    
         ):
@@ -175,6 +175,8 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
         await do_work.finish()
     user_level_sx = user_info['level']
     user_id = user_info['user_id']
+    user_rank = get_user_rank(user_info['level'])[0]
+    sql_message.update_last_check_info_time(user_id) # 更新查看修仙信息时间
     user_cd_message = sql_message.get_user_cd(user_id)
     if not os.path.exists(PLAYERSDATA / str(user_id) / "workinfo.json") and user_cd_message['type'] == 2:
         sql_message.do_work(user_id, 0)
@@ -186,7 +188,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await do_work.finish()
     mode = args[0]  # 刷新、终止、结算、接取
-    if USERRANK[user_info['level']] <= 14 or user_info['exp'] >= sql_message.get_level_power(user_level):
+    if user_rank <= 14 or user_info['exp'] >= sql_message.get_level_power(user_level):
         msg = f"道友的境界已过创业初期，悬赏令已经不能满足道友了！"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
@@ -278,8 +280,8 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
         freenum = count - usernums - 1
         if freenum < 0:
             freenum = 0
-            if int(user_info['stone']) < int(lscost /USERRANK[user_level_sx]):
-                msg = f"道友的灵石不足以刷新，下次刷新消耗灵石：{int(lscost /USERRANK[user_level_sx])}枚"
+            if int(user_info['stone']) < int(lscost / get_user_rank(user_level_sx)[0]):
+                msg = f"道友的灵石不足以刷新，下次刷新消耗灵石：{int(lscost / get_user_rank(user_level_sx)[0])}枚"
                 if XiuConfig().img:
                     pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                     await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -287,7 +289,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
                     await bot.send_group_msg(group_id=int(send_group_id), message=msg)
                 await do_work.finish()
             else:
-                sql_message.update_ls(user_id, int(lscost/USERRANK[user_level_sx]) , 2)
+                sql_message.update_ls(user_id, int(lscost/ get_user_rank(user_level_sx)[0]) , 2)
                 stone_use = 1
 
         work_msg = workhandle().do_work(0, level=user_level, exp=user_info['exp'], user_id=user_id)
@@ -298,9 +300,9 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
             work_list.append([i[0], i[3]])
             work_msg_f += f"{n}、{get_work_msg(i)}"
             n += 1
-        work_msg_f += f"(悬赏令每日免费刷新次数：{count}，超过{count}次后，下次刷新消耗灵石{int(lscost /USERRANK[user_level_sx])},今日可免费刷新次数：{freenum}次)"
+        work_msg_f += f"(悬赏令每日免费刷新次数：{count}，超过{count}次后，下次刷新消耗灵石{int(lscost / get_user_rank(user_level_sx)[0])},今日可免费刷新次数：{freenum}次)"
         if int(stone_use) == 1:
-            work_msg_f += f"\n道友消耗灵石{int(lscost /USERRANK[user_level_sx])}枚，成功刷新悬赏令"
+            work_msg_f += f"\n道友消耗灵石{int(lscost / get_user_rank(user_level_sx)[0])}枚，成功刷新悬赏令"
         work[user_id] = do_is_work(user_id)
         work[user_id].msg = work_msg_f
         work[user_id].world = work_list
