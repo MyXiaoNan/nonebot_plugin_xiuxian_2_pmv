@@ -32,7 +32,7 @@ def get_user_rank(rank_name):
     
     if rank_name in ranks:
         rank_number = len(ranks) - ranks.index(rank_name) - 1
-        return rank_number, ranks
+        return rank_number, ranks # 返回境界等级和境界列表
     else:
         return None, ranks
 
@@ -56,6 +56,7 @@ class XiuConfig:
                          "atk_buff", "blessed_spot"]
         self.sql_back = ["user_id", "goods_id", "goods_name", "goods_type", "goods_num", "create_time", "update_time",
                          "remake", "day_num", "all_num", "action_time", "state", "bind_num"]
+        
         self.img = True # 是否使用图片发送，True是使用图片发送，False是使用文字发送
         self.user_info_image = True # 是否使用图片发送个人信息，True是使用图片发送，False是使用文字发送
         self.level = get_user_rank('江湖好手')[1] # 别动
