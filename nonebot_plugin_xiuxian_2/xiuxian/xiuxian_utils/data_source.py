@@ -19,7 +19,6 @@ class JsonDate:
         self.BACKGROUND_FILE = DATABASE / "image" / "background.png"
         self.BOSS_IMG = DATABASE / "boss_img" 
         self.BANNER_FILE = DATABASE / "image" / "banner.png"
-        self.exercises_level_jsonpath = DATABASE / "炼体境界.json"
         self.FONT_FILE = DATABASE / "font" / "sarasa-mono-sc-regular.ttf"
 
     def level_data(self):
