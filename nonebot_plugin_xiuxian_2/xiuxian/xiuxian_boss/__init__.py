@@ -969,11 +969,17 @@ def get_user_boss_fight_info(user_id):
 
 def read_user_boss_fight_info(user_id):
     user_id = str(user_id)
-
     FILEPATH = PLAYERSDATA / user_id / "boss_fight_info.json"
+    
     with open(FILEPATH, "r", encoding="UTF-8") as f:
-        data = f.read()
-    return json.loads(data)
+        data = json.load(f)
+        
+    # 检查 boss_integral 是否为负数
+    if "boss_integral" in data and data["boss_integral"] < 0:
+        data["boss_integral"] = 0
+    
+    return data
+
 
 
 def save_user_boss_fight_info(user_id, data):
