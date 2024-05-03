@@ -1,7 +1,7 @@
 from ..xiuxian_utils.lay_out import assign_bot, Cooldown
 from nonebot.params import CommandArg
 from nonebot import on_command
-from ..xiuxian_utils.xiuxian_config import XiuConfig
+from ..xiuxian_config import XiuConfig
 from ..xiuxian_utils.xiuxian2_handle import XiuxianDateManage
 from nonebot.adapters.onebot.v11 import (
     Bot,
@@ -19,11 +19,11 @@ items = Items()
 
 tz = on_command('合成天罪', priority=15, permission=GROUP,block=True)
 
-@tz.handle(parameterless=[Cooldown(at_sender=True)])
+@tz.handle(parameterless=[Cooldown(at_sender=False)])
 async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = check_user(event)
-    user_id = user_info.user_id
+    user_id = user_info['user_id']
     back_msg = sql_message.get_back_msg(user_id)
     if back_msg is None:
         msg = "道友的背包空空如也！"
@@ -41,9 +41,9 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
     in_flag_yz = False  # 判断原罪（残缺）是否在背包内
 
     for back in back_msg:
-        if wz == back.goods_name:
+        if wz == back['goods_name']:
             in_flag_wz = True
-        elif yz == back.goods_name:
+        elif yz == back['goods_name']:
             in_flag_yz = True
         if in_flag_wz and in_flag_yz:
             break

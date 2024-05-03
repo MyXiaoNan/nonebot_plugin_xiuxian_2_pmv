@@ -10,15 +10,13 @@ from asyncio import get_running_loop
 from typing import DefaultDict, Dict, Any
 from nonebot.matcher import Matcher
 from nonebot.params import Depends
-from nonebot.adapters.onebot.v11.event import MessageEvent, GroupMessageEvent, Message
+from nonebot.adapters.onebot.v11.event import MessageEvent, GroupMessageEvent
 from nonebot.adapters.onebot.v11 import Bot, MessageSegment
-from .xiuxian_config import XiuConfig, JsonConfig
+from ..xiuxian_config import XiuConfig, JsonConfig
 from .utils import get_msg_pic
 
 
 limit_all = require("nonebot_plugin_apscheduler").scheduler
-from nonebot_plugin_apscheduler import scheduler
-
 limit_all_data: Dict[str, Any] = {}
 limit_num = 99999
 
@@ -28,6 +26,7 @@ def limit_all():
     global limit_all_data
     limit_all_data  = {}
     logger.opt(colors=True).success("<green>已重置消息字典！</green>")
+
 
 def limit_all_run(user_id: str):
     global limit_all_data
@@ -55,6 +54,7 @@ def limit_all_run(user_id: str):
         limit_all_data[user_id]["num"] = num
         return None
 
+
 def format_time(seconds: int) -> str:
     """将秒数转换为更大的时间单位"""
     minutes, seconds = divmod(seconds, 60)
@@ -69,6 +69,8 @@ def format_time(seconds: int) -> str:
         return f"{minutes}分钟{seconds}秒"
     else:
         return f"{seconds}秒"
+    
+
 def get_random_chat_notice():
     return random.choice([
         "慢...慢一..点❤，还有{}，让我在歇会！",
@@ -166,7 +168,10 @@ def Cooldown(
                     event.get_user_id() in bot.config.superusers
             ):
                 bot = await assign_bot_group(group_id=group_id)
-                await bot.send(event=event, message=MessageSegment.at(event.get_user_id()) + f"本群已关闭修仙模组,请联系管理员开启,开启命令为【启用修仙功能】!")
+                if at_sender:
+                    await bot.send(event=event, message=MessageSegment.at(event.get_user_id()) + "本群已关闭修仙模组,请联系管理员开启,开启命令为【启用修仙功能】!")
+                else:
+                    await bot.send(event=event, message="本群已关闭修仙模组,请联系管理员开启,开启命令为【启用修仙功能】!")
                 await matcher.finish()
             else:
                 await matcher.finish()
@@ -233,7 +238,7 @@ async def range_bot(bot: Bot, event: GroupMessageEvent):  # 随机一个qq发送
     return bot, group_id
 
 
-async def assign_bot(bot: Bot, event: GroupMessageEvent):  # 按字典分配对应qq发送消息
+async def assign_bot(bot=None, event=None):  # 按字典分配对应qq发送消息
     group_id = str(event.group_id)
     try:
         bot_id = layout_bot_dict[group_id]

@@ -9,7 +9,7 @@ from nonebot.adapters.onebot.v11 import (
     GroupMessageEvent
 )
 from nonebot import get_driver
-from .xiuxian_utils.xiuxian_config import XiuConfig
+from .xiuxian_config import XiuConfig
 from pathlib import Path
 from pkgutil import iter_modules
 from nonebot.log import logger

@@ -98,6 +98,8 @@ class Items:
         return self.readf(self.sw_jsonpath)
 
     def get_data_by_item_id(self, item_id):
+        if item_id is None:
+            return None
         return self.items[str(item_id)]
 
 
@@ -108,6 +110,9 @@ class Items:
                 v['type'] = '技能'
             self.items[k] = v
             self.items[k].update({'item_type': item_type})
+
+            if '境界' in v:
+                self.items[k]['境界'] = v['境界']
 
     def get_data_by_item_type(self, item_type):
         temp_dict = {}

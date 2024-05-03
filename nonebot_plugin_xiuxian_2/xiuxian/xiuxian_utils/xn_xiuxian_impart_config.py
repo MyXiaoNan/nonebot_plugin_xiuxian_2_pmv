@@ -14,5 +14,4 @@ class IMPART_BUFF_CONFIG:
                                       "impart_mix_per", "impart_reap_per",
                                       "impart_two_exp", "stone_num"]
 
-
 config_impart = IMPART_BUFF_CONFIG()

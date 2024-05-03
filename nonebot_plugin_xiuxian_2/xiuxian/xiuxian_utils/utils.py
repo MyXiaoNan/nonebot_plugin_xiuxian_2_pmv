@@ -12,7 +12,7 @@ from nonebot.adapters.onebot.v11 import (
 )
 from nonebot.params import Depends
 from io import BytesIO
-from .xiuxian_config import XiuConfig
+from ..xiuxian_config import XiuConfig
 from PIL import Image, ImageDraw, ImageFont
 from wcwidth import wcwidth
 from nonebot.adapters import MessageSegment
@@ -52,7 +52,7 @@ def check_user_type(user_id, need_type):
     if user_cd_message is None:
         user_type = 0
     else:
-        user_type = user_cd_message.type
+        user_type = user_cd_message['type']
 
     if user_type == need_type:  # 状态一致
         isType = True
@@ -116,7 +116,7 @@ class Txt2Img:
         self.share_img_width = 1080
         self.line_space = int(size)
         self.lrc_line_space = int(size / 2)
-        self.img_compression_limit = XiuConfig().img_compression_limit # 压缩率
+        
         
           
     def prepare(self, text, scale):
@@ -326,7 +326,7 @@ class Txt2Img:
             tmp_draw = ImageDraw.Draw(tmp_img)
             user_bbox = tmp_draw.textbbox((0, 0), title, font=user_font, spacing=self.line_space)
             # 四元组(left, top, right, bottom)
-            user_w = user_bbox[2] - user_bbox[0]  # 宽度 = right - left
+            user_w = user_bbox[2] - user_bbox[0] # 宽度 = right - left
             user_h = user_bbox[3] - user_bbox[1]
             draw.text(
                 ((w - user_w) // 2, out_padding + padding),
@@ -354,17 +354,29 @@ class Txt2Img:
                 spacing=self.lrc_line_space,
             )
         buf = BytesIO()
-        out_img.save(buf, format="WebP")
+        if XiuConfig().img_type == "webp":
+            out_img.save(buf, format="WebP")
+        elif XiuConfig().img_type == "jpeg":
+            out_img.save(buf, format="JPEG")
+        else:
+            out_img.save(buf, format="WebP")
         buf.seek(0)
         return buf
     
     def save_image_with_compression(self, out_img):
         img_byte_arr = io.BytesIO()
-        compression_quality = 100 - self.img_compression_limit  # 质量从100到0
-        if not (0 <= self.img_compression_limit <= 100):
-            out_img.save(img_byte_arr, format="WebP", lossless=True)
+        compression_quality = 100 - XiuConfig().img_compression_limit # 质量从100到0
+        if not (0 <= XiuConfig().img_compression_limit <= 100):
+            compression_quality = 0
+
+        if XiuConfig().img_type == "webp":
+            out_img.save(img_byte_arr, format = "WebP", quality = compression_quality)
+
+        elif XiuConfig().img_type == "jpeg":
+            out_img.save(img_byte_arr, format = "JPEG", quality = compression_quality)
+
         else:
-            out_img.save(img_byte_arr, format="WebP", quality=compression_quality)
+            out_img.save(img_byte_arr, format = "WebP", quality = compression_quality)
         img_byte_arr.seek(0)
         return img_byte_arr
 
@@ -390,7 +402,7 @@ async def get_msg_pic(msg, boss_name="", scale = True):
     return pic
 
 
-async def send_msg_handler(bot, event, *kwargs, msg_type=None):
+async def send_msg_handler(bot, event, *kwargs):
     """
     统一消息发送处理器
     :param bot: 机器人实例
@@ -469,7 +481,7 @@ def number_to(num):
     递归实现，精确为最大单位值 + 小数点后一位
     '''
     def strofsize(num, level):
-        if level >= 6:
+        if level >= 11:
             return num, level
         elif num >= 10000:
             num /= 10000
@@ -477,11 +489,11 @@ def number_to(num):
             return strofsize(num, level)
         else:
             return num, level
-    units = ['', '万', '亿', '兆', '京', '垓', '秭']
+    units = ['', '万', '亿', '兆', '京', '垓', '秭', '穰', '沟', '涧', '正', '载']
     num, level = strofsize(num, 0)
     if level >= len(units):
         level = len(units) - 1
-    return '{}{}'.format(round(num, 1), units[level])
+    return "{}{}".format(round(num, 1), units[level])
 
 async def pic_msg_format(msg, event):
     user_name = (

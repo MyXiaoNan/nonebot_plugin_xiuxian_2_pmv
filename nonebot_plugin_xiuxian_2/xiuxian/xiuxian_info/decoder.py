@@ -22,7 +22,7 @@ class JSONDecodeError(ValueError):
 
     msg: The unformatted error message
     doc: The JSON document being parsed
-    pos: The start index of doc where parsing failed
+    pos: The start index of doc WHERE parsing failed
     lineno: The line corresponding to pos
     colno: The column corresponding to pos
 
@@ -166,7 +166,7 @@ def JSONObject(s_and_end, strict, scan_once, object_hook, object_pairs_hook,
     while True:
         key, end = scanstring(s, end, strict)
         key = memo_get(key, key)
-        # To skip some function call overhead we optimize the fast paths where
+        # To skip some function call overhead we optimize the fast paths WHERE
         # the JSON key separator is ": " or just ":".
         if s[end:end + 1] != ':':
             end = _w(s, end).end()
@@ -343,7 +343,7 @@ class JSONDecoder(object):
     def raw_decode(self, s, idx=0):
         """Decode a JSON document from ``s`` (a ``str`` beginning with
         a JSON document) and return a 2-tuple of the Python
-        representation and the index in ``s`` where the document ended.
+        representation and the index in ``s`` WHERE the document ended.
 
         This can be used to decode a JSON document from a string that may
         have extraneous data at the end.

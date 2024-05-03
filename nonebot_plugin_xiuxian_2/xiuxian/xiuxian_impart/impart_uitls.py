@@ -23,7 +23,7 @@ def character_probability(count):
 def get_rank(user_id):
     impart_data = xiuxian_impart.get_user_message(user_id)
     value = random_int()
-    num = int(impart_data.wish)
+    num = int(impart_data['wish'])
     for x in range(num, num + 10):
         index_5 = character_probability(x)
         if value <= index_5:

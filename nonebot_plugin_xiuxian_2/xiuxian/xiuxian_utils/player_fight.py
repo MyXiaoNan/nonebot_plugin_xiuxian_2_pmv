@@ -1,6 +1,6 @@
 import random
 from .xiuxian2_handle import XiuxianDateManage ,OtherSet, UserBuffDate, XIUXIAN_IMPART_BUFF
-from .xiuxian_config import USERRANK
+from ..xiuxian_config import get_user_rank
 xiuxian_impart = XIUXIAN_IMPART_BUFF()
 boss_zs = 0
 boss_hx = 0 
@@ -32,8 +32,8 @@ def Player_fight(player1: dict, player2: dict, type_in, bot_id):
         user_1_impart_data = xiuxian_impart.get_user_message(player1['user_id'])
     except:
         user_1_impart_data = None
-    user_1_impart_hp = user_1_impart_data.impart_hp_per if user_1_impart_data is not None else 0
-    user_1_impart_mp = user_1_impart_data.impart_mp_per if user_1_impart_data is not None else 0
+    user_1_impart_hp = user_1_impart_data['impart_hp_per'] if user_1_impart_data is not None else 0
+    user_1_impart_mp = user_1_impart_data['impart_mp_per'] if user_1_impart_data is not None else 0
     user1_hp_buff = user1_hp_buff + user_1_impart_hp
     user1_mp_buff = user1_mp_buff + user_1_impart_mp
 
@@ -45,8 +45,8 @@ def Player_fight(player1: dict, player2: dict, type_in, bot_id):
         user_2_impart_data = xiuxian_impart.get_user_message(player2['user_id'])
     except:
         user_2_impart_data = None
-    user_2_impart_hp = user_1_impart_data.impart_hp_per if user_2_impart_data is not None else 0
-    user_2_impart_mp = user_1_impart_data.impart_mp_per if user_2_impart_data is not None else 0
+    user_2_impart_hp = user_1_impart_data['impart_hp_per'] if user_2_impart_data is not None else 0
+    user_2_impart_mp = user_1_impart_data['impart_mp_per'] if user_2_impart_data is not None else 0
     user1_hp_buff = user1_hp_buff + user_2_impart_hp
     user1_mp_buff = user1_mp_buff + user_2_impart_mp
 
@@ -572,18 +572,22 @@ async def Boss_fight(player1: dict, boss: dict, type_in=2, bot_id=0):
     {"user_id": None,"道号": None, "气血": None, "攻击": None, "真元": None, '会心':None, 'exp':None}
     """
     user1_buff_date = UserBuffDate(player1['user_id'])  # 1号的buff信息
-    user1_main_buff_data = user1_buff_date.get_user_main_buff_data()
-    user1_sub_buff_data = user1_buff_date.get_user_sub_buff_data() #获取玩家1的辅修功法
-    user1_hp_buff = user1_main_buff_data['hpbuff'] if user1_main_buff_data is not None else 0
-    user1_mp_buff = user1_main_buff_data['mpbuff'] if user1_main_buff_data is not None else 0
-    user1_random_buff = user1_main_buff_data['random_buff'] if user1_main_buff_data is not None else 0
-    fan_buff = user1_sub_buff_data['fan'] if user1_sub_buff_data is not None else 0
-    stone_buff = user1_sub_buff_data['stone'] if user1_sub_buff_data is not None else 0
-    integral_buff = user1_sub_buff_data['integral'] if user1_sub_buff_data is not None else 0
-    sub_break = user1_sub_buff_data['break'] if user1_sub_buff_data is not None else 0
+    if user1_buff_date is None: # 处理为空的情况
+        user1_main_buff_data = None
+        user1_sub_buff_data = None
+    else:
+        user1_main_buff_data = user1_buff_date.get_user_main_buff_data()
+        user1_sub_buff_data = user1_buff_date.get_user_sub_buff_data() #获取玩家1的辅修功法
+        user1_hp_buff = user1_main_buff_data['hpbuff'] if user1_main_buff_data is not None else 0
+        user1_mp_buff = user1_main_buff_data['mpbuff'] if user1_main_buff_data is not None else 0
+        user1_random_buff = user1_main_buff_data['random_buff'] if user1_main_buff_data is not None else 0
+        fan_buff = user1_sub_buff_data['fan'] if user1_sub_buff_data is not None else 0
+        stone_buff = user1_sub_buff_data['stone'] if user1_sub_buff_data is not None else 0
+        integral_buff = user1_sub_buff_data['integral'] if user1_sub_buff_data is not None else 0
+        sub_break = user1_sub_buff_data['break'] if user1_sub_buff_data is not None else 0
     impart_data = xiuxian_impart.get_user_message(player1['user_id'])
-    impart_hp_per = impart_data.impart_hp_per if impart_data is not None else 0
-    impart_mp_per = impart_data.impart_mp_per if impart_data is not None else 0
+    impart_hp_per = impart_data['impart_hp_per'] if impart_data is not None else 0
+    impart_mp_per = impart_data['impart_mp_per'] if impart_data is not None else 0
     user1_hp_buff = user1_hp_buff + impart_hp_per
     user1_mp_buff = user1_mp_buff + impart_mp_per
     global random_break
@@ -670,7 +674,7 @@ async def Boss_fight(player1: dict, boss: dict, type_in=2, bot_id=0):
 
     player1_sub_open = False #辅修功法14
     user1_sub_buff_date = {}
-    if user1_buff_date.get_user_sub_buff_data() != None:
+    if user1_buff_date.get_user_sub_buff_data() is not None:
         user1_sub_buff_date = user1_buff_date.get_user_sub_buff_data()
         player1_sub_open = True
 
@@ -744,7 +748,7 @@ async def Boss_fight(player1: dict, boss: dict, type_in=2, bot_id=0):
                 boss_jb = 0
                 boss_xl = 1  #boss禁血
     
-    if 21 < USERRANK[boss["jj"] + '中期' ] < 59: #遁一以下无免伤
+    if get_user_rank('遁一境初期')[0] < get_user_rank((boss["jj"] + '中期'))[0] < get_user_rank('江湖好手')[0]: #遁一以下无技能
             boss["减伤"] = 1 # boss减伤率
             boss_zs = 0
             boss_hx = 0
@@ -754,7 +758,7 @@ async def Boss_fight(player1: dict, boss: dict, type_in=2, bot_id=0):
             boss_jh = 0
             boss_jb = 0
             boss_xl = 0
-    if 18 < USERRANK[boss["jj"] + '中期' ] < 22: #遁一境 技能
+    if get_user_rank('斩我境圆满')[0] < get_user_rank((boss["jj"] + '中期'))[0] < get_user_rank('至尊境初期')[0]: #遁一境
             boss["减伤"] = random.randint(50,55)/100 # boss减伤率
             boss_st1 = random.randint(0,100) #boss神通1
             if 0 <= boss_st1 <= 25:
@@ -800,9 +804,7 @@ async def Boss_fight(player1: dict, boss: dict, type_in=2, bot_id=0):
                 boss_jb = 0
                 boss_xl = random.randint(5,100)/100  #boss禁血
                 
-                        
-    
-    if 15 < USERRANK[boss["jj"] + '中期' ] < 19: #至尊境 技能
+    if get_user_rank('遁一境圆满')[0] < get_user_rank((boss["jj"] + '中期'))[0] < get_user_rank('真仙境初期')[0]: #至尊境
             boss["减伤"] = random.randint(40,45)/100 # boss减伤率
             boss_st1 = random.randint(0,100) #boss神通1
             if 0 <= boss_st1 <= 25:
@@ -848,7 +850,7 @@ async def Boss_fight(player1: dict, boss: dict, type_in=2, bot_id=0):
                 boss_jb = 0
                 boss_xl = random.randint(10,100)/100  #boss禁血
             
-    if 12 < USERRANK[boss["jj"] + '中期' ] < 16: #真仙境免伤
+    if get_user_rank('至尊境圆满')[0] < get_user_rank((boss["jj"] + '中期'))[0] < get_user_rank('仙王境初期')[0]: #真仙境
             boss["减伤"] = random.randint(30,35)/100 # boss减伤率
             boss_st1 = random.randint(0,100) #boss神通1
             if 0 <= boss_st1 <= 25:
@@ -894,7 +896,7 @@ async def Boss_fight(player1: dict, boss: dict, type_in=2, bot_id=0):
                 boss_jb = 0
                 boss_xl = random.randint(30,100)/100  #boss禁血
             
-    if 9 < USERRANK[(boss["jj"]+ '中期')] < 13: #仙王境免伤
+    if get_user_rank('真仙境圆满')[0] < get_user_rank((boss["jj"] + '中期'))[0] < get_user_rank('准帝境初期')[0]: #仙王境
             boss["减伤"] = random.randint(20,25)/100  # boss减伤率
             boss_st1 = random.randint(0,100) #boss神通1
             if 0 <= boss_st1 <= 25:
@@ -940,7 +942,7 @@ async def Boss_fight(player1: dict, boss: dict, type_in=2, bot_id=0):
                 boss_jb = 0
                 boss_xl = random.randint(40,100)/100  #boss禁血
             
-    if 6 < USERRANK[(boss["jj"]+ '中期')] < 10: #准帝境免伤
+    if get_user_rank('仙王境圆满')[0] < get_user_rank((boss["jj"]+ '中期'))[0] < get_user_rank('仙帝境初期')[0]: #准帝境
             boss["减伤"] = random.randint(10,15)/100  # boss减伤率
             boss_st1 = random.randint(0,100) #boss神通1
             if 0 <= boss_st1 <= 25:
@@ -986,7 +988,7 @@ async def Boss_fight(player1: dict, boss: dict, type_in=2, bot_id=0):
                 boss_jb = 0
                 boss_xl = random.randint(50,100)/100  #boss禁血
       
-    if 3 < USERRANK[(boss["jj"]+ '中期')] < 7: #仙帝境免伤
+    if get_user_rank('准帝境圆满')[0] < get_user_rank((boss["jj"]+ '中期'))[0] < get_user_rank('祭道境初期')[0]: #仙帝境
             boss["减伤"] = 0.1  # boss减伤率
             boss_st1 = random.randint(0,100) #boss神通1
             if 0 <= boss_st1 <= 25:
@@ -1342,7 +1344,7 @@ async def Boss_fight(player1: dict, boss: dict, type_in=2, bot_id=0):
             play_list.append(get_msg_dict(player1, player_init_hp, boss_hp_msg))
             sh += player1_sh
             
-         ## 自己回合结束 处理 辅修功法14
+        ## 自己回合结束 处理 辅修功法14
         player1,boss,msg = after_atk_sub_buff_handle(player1_sub_open,player1,user1_main_buff_data,user1_sub_buff_date,player2_health_temp - boss['气血'],boss)
         play_list.append(get_msg_dict(player1, player_init_hp, msg))
         sh += player2_health_temp - boss['气血']
@@ -1508,8 +1510,8 @@ def get_turnatk(player, buff=0, user_battle_buff_date={}): #辅修功法14
         impart_data = None
         weapon_critatk_data = None
         main_critatk_data = None
-    impart_know_per = impart_data.impart_know_per if impart_data is not None else 0
-    impart_burst_per = impart_data.impart_burst_per if impart_data is not None else 0
+    impart_know_per = impart_data['impart_know_per'] if impart_data is not None else 0
+    impart_burst_per = impart_data['impart_burst_per'] if impart_data is not None else 0
     weapon_critatk = weapon_critatk_data['critatk'] if weapon_critatk_data is not None else 0 #武器会心伤害
     main_critatk = main_critatk_data['critatk'] if main_critatk_data is not None else 0 #功法会心伤害
     isCrit = False
@@ -1666,7 +1668,7 @@ def before_atk_sub_buff_handle(player, subbuffdata):
 
 
 # 处理攻击后辅修功法效果
-def     after_atk_sub_buff_handle(player1_sub_open, player1, user1_main_buff_data, subbuffdata1, damage1, player2):
+def after_atk_sub_buff_handle(player1_sub_open, player1, user1_main_buff_data, subbuffdata1, damage1, player2):
     msg = ""
 
     if not player1_sub_open:
@@ -1676,8 +1678,8 @@ def     after_atk_sub_buff_handle(player1_sub_open, player1, user1_main_buff_dat
     buff_tow = int(subbuffdata1['buff2'])
     buff_type = subbuffdata1['buff_type']
     exp = int(player1['exp'])
-    max_hp = int(exp/2) * (1 + user1_main_buff_data['hpbuff'])
-    max_mp = exp * (1 + user1_main_buff_data['mpbuff'])
+    max_hp = int(exp / 2) * (1 + user1_main_buff_data.get('hpbuff', 0) if user1_main_buff_data is not None else 0)
+    max_mp = exp * (1 + user1_main_buff_data.get('mpbuff', 0) if user1_main_buff_data is not None else 0)
     
     if buff_type == '4':
         restore_health = int(exp/2) * (1 + user1_main_buff_data['hpbuff']) * buff_value // 100

@@ -24,8 +24,7 @@ JINGJIEEXP = {  # 数值为中期和圆满的平均值
     "仙王境": [15020246016, 21028344422, 27036442828],
     "准帝境": [54072885657, 75702039920, 97331194180],
     "仙帝境": [194662388360, 272527343704, 350392299048],
-    "祭道境": [1550392299048, 1850392299048, 2150392299048],
-    "零始境": [3150392299048, 3450392299048, 3750392299048]
+    "祭道境": [1550392299048, 1850392299048, 2150392299048]
 }
 
 jinjie_list = [k for k, v in JINGJIEEXP.items()]
@@ -43,14 +42,19 @@ def get_boss_jinjie_dict():
 
 def createboss():
     top_user_info = sql_message.get_top1_user()
-    top_user_level = top_user_info.level
-    level = top_user_level[:3]
-    boss_jj = random.choice(jinjie_list[:jinjie_list.index(level) + 1])
-
-    bossinfo = get_boss_exp(boss_jj)
-    bossinfo['name'] = random.choice(config["Boss名字"])
-    bossinfo['jj'] = boss_jj
-    bossinfo['stone'] = random.choice(config["Boss灵石"][boss_jj])
+    top_user_level = top_user_info['level']
+    if len(top_user_level) == 5:
+        level = top_user_level[:3] 
+    elif len(top_user_level) == 4: # 对江湖好手判断
+        level = "搬血境"
+    try:
+        boss_jj = random.choice(jinjie_list[:jinjie_list.index(level) + 1])
+        bossinfo = get_boss_exp(boss_jj)
+        bossinfo['name'] = random.choice(config["Boss名字"])
+        bossinfo['jj'] = boss_jj
+        bossinfo['stone'] = random.choice(config["Boss灵石"][boss_jj])
+    except KeyError as e:
+        raise Exception("生成boss失败: {}，如果是和境界有关的报错不用管".format(str(e)))
     return bossinfo
 
 
