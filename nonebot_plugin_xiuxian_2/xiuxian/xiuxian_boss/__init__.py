@@ -148,6 +148,7 @@ async def send_bot(group_id:str):
         return     
 
     if len(group_boss[group_id]) >= config['Boss个数上限']:
+        logger.opt(colors=True).info(f"<green>群{group_id}Boss个数已到达个数上限</green>")
         return
     
     api = 'send_group_msg' #要调用的函数

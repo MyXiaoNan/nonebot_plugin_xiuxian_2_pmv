@@ -350,7 +350,7 @@ async def impart_info_(bot: Bot, event: GroupMessageEvent):
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-        await impart_data.finish()
+        await impart_info.finish()
     user_id = user_info['user_id']
     impart_data_draw = await impart_check(user_id)
     if impart_data_draw is None:
@@ -360,7 +360,7 @@ async def impart_info_(bot: Bot, event: GroupMessageEvent):
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-        await impart_data.finish()
+        await impart_info.finish()
 
     msg = f"""--道友{user_info['user_name']}的传承物资--
 思恋结晶：{impart_data_draw['stone_num']}颗
@@ -372,7 +372,7 @@ async def impart_info_(bot: Bot, event: GroupMessageEvent):
         await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
     else:
         await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-    await impart_data.finish()
+    await impart_info.finish()
 
 
 
