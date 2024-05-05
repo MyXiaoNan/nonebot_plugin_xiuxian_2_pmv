@@ -1312,7 +1312,8 @@ async def rob_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Command
 
             if user_info['hp'] <= user_info['exp'] / 10:
                 time_msg = leave_harm_time(user_id)
-                msg = f"重伤未愈，动弹不得！距离脱离生命危险还需要{time_msg}分钟！"
+                msg = "重伤未愈，动弹不得！距离脱离生命危险还需要{}分钟！".format(time_msg)
+                msg += "请道友进行闭关，或者使用药品恢复气血，不要干等，没有自动回血！！！"
                 if XiuConfig().img:
                     pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                     await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
