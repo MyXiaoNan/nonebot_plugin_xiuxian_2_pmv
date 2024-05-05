@@ -844,7 +844,6 @@ async def user_leveluprate_(bot: Bot, event: GroupMessageEvent):
     level_rate = jsondata.level_rate_data()[level_name]  # 
     main_rate_buff = UserBuffDate(user_id).get_user_main_buff_data()#功法突破概率提升
     number =  main_rate_buff['number'] if main_rate_buff is not None else 0
-    print(level_rate, leveluprate, number)
     msg = f"道友下一次突破成功概率为{level_rate + leveluprate + number}%"
     if XiuConfig().img:
         pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
