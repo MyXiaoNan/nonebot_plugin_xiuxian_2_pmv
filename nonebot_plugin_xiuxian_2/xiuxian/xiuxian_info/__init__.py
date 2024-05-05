@@ -122,7 +122,6 @@ async def xiuxian_message_(bot: Bot, event: GroupMessageEvent):
     
     logger.opt(colors=True).info("<yellow>开始检测不常玩的宗主</yellow>")
     
-    enabled_groups = JsonConfig().get_enabled_groups()
     all_sect_owners_id = sql_message.get_sect_owners()
     all_active = all(sql_message.get_last_check_info_time(owner_id) is None or
                      datetime.now() - sql_message.get_last_check_info_time(owner_id) < timedelta(days=XiuConfig().auto_change_sect_owner_cd)
@@ -135,9 +134,7 @@ async def xiuxian_message_(bot: Bot, event: GroupMessageEvent):
 
         user_info = sql_message.get_user_message(owner_id)
         sect_id = user_info['sect_id']
-
         logger.opt(colors=True).info("<red>{}离线时间超过{}天，开始自动换宗主</red>".format(user_info['user_name'], XiuConfig().auto_change_sect_owner_cd))
-       
         new_owner_id = sql_message.get_highest_contrib_user_except_current(sect_id, owner_id)
         new_owner_info = sql_message.get_user_message(new_owner_id[0])
         
@@ -146,7 +143,7 @@ async def xiuxian_message_(bot: Bot, event: GroupMessageEvent):
         sql_message.update_sect_owner(new_owner_id[0], sect_id)
         sect_info = sql_message.get_sect_info_by_id(sect_id)
         logger.opt(colors=True).info("<green>由{}继承{}宗主之位</green>".format(new_owner_info['user_name'], sect_info['sect_name']))
-        
+
     if all_active:
         logger.opt(colors=True).info("<green>各宗宗主在修行之途上勤勉不辍，宗门安危无忧，可喜可贺！</green>")
     

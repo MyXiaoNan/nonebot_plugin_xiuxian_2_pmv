@@ -454,8 +454,6 @@ async def send_msg_handler(bot, event, *kwargs):
             raise ValueError("参数数量或类型不匹配")
 
 
-
-
 def CommandObjectID() -> int:
     """
     根据消息事件的类型获取对象id
@@ -489,7 +487,7 @@ def number_to(num):
             return strofsize(num, level)
         else:
             return num, level
-    units = ['', '万', '亿', '兆', '京', '垓', '秭', '穰', '沟', '涧', '正', '载']
+    units = ['', '万', '亿', '兆', '京', '垓', '秭', '穰', '沟', '涧', '正', '载'] # 真的有这么多单位吗？
     num, level = strofsize(num, 0)
     if level >= len(units):
         level = len(units) - 1
