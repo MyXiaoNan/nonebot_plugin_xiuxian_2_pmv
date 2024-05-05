@@ -1054,7 +1054,7 @@ def get_id(dict_data, user_level):
     """根据字典的rank、用户等级、秘境等级随机获取key"""
     l_temp = []
     final_rank = get_user_rank(user_level)[0]  # 秘境等级，会提高用户的等级
-    pass_rank = get_user_rank('搬血境中期')[0]  # 最终等级超过此等级会抛弃
+    pass_rank = get_user_rank('搬血境初期')[0]  # 最终等级超过此等级会抛弃
     for k, v in dict_data.items():
         if v["rank"] >= final_rank and (v["rank"] - final_rank) <= pass_rank:
             l_temp.append(k)

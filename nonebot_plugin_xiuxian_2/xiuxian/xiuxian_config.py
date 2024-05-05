@@ -7,8 +7,11 @@ from pathlib import Path
 DATABASE = Path() / "data" / "xiuxian"
 
 def get_user_rank(rank_name):
+    """
+    获取境界等级，替代原来的USERRANK
+    """
     ranks = [
-        '江湖好手', 
+        '江湖好手', # 57
         '搬血境初期', '搬血境中期', '搬血境圆满',
         '洞天境初期', '洞天境中期', '洞天境圆满', # 51
         '化灵境初期', '化灵境中期', '化灵境圆满',
@@ -40,26 +43,26 @@ def get_user_rank(rank_name):
 class XiuConfig:
     def __init__(self):
         self.sql_table = ["user_xiuxian", "user_cd", "sects", "back", "BuffInfo"]  # 数据库表校验,别动
-        self.sql_user_xiuxian = ["id", "user_id", "stone", "root",
+        self.sql_user_xiuxian = ["id", "user_id", "user_name", "stone", "root",
                                  "root_type", "level", "power",
                                  "create_time", "is_sign", "is_beg", "is_ban",
-                                 "exp", "user_name", "work_num", "level_up_cd",
+                                 "exp", "work_num", "level_up_cd",
                                  "level_up_rate", "sect_id",
                                  "sect_position", "hp", "mp", "atk",
                                  "atkpractice", "sect_task", "sect_contribution",
-                                 "sect_elixir_get", "blessed_spot_flag",
-                                 "blessed_spot_name"]
+                                 "sect_elixir_get", "blessed_spot_flag", "blessed_spot_name"]
         self.sql_user_cd = ["user_id", "type", "create_time", "scheduled_time", "last_check_info_time"]
         self.sql_sects = ["sect_id", "sect_name", "sect_owner", "sect_scale", "sect_used_stone", "sect_fairyland",
                           "sect_materials", "mainbuff", "secbuff", "elixir_room_level"]
         self.sql_buff = ["id", "user_id", "main_buff", "sec_buff", "faqi_buff", "fabao_weapon", "armor_buff",
-                         "atk_buff", "blessed_spot"]
+                         "atk_buff", "sub_buff", "blessed_spot"]
         self.sql_back = ["user_id", "goods_id", "goods_name", "goods_type", "goods_num", "create_time", "update_time",
                          "remake", "day_num", "all_num", "action_time", "state", "bind_num"]
         
+        self.level = get_user_rank('江湖好手')[1] # 别动
         self.img = True # 是否使用图片发送，True是使用图片发送，False是使用文字发送
         self.user_info_image = True # 是否使用图片发送个人信息，True是使用图片发送，False是使用文字发送
-        self.level = get_user_rank('江湖好手')[1] # 别动
+        
         self.user_info_cd = 30  # 我的存档cd/秒
         self.level_up_cd = 0  # 突破CD(分钟)
         self.closing_exp = 60  # 闭关每分钟获取的修为
