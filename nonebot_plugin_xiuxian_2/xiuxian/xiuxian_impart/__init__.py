@@ -93,7 +93,7 @@ async def impart_img_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
         await impart_img.finish()
 
 
-@impart_draw.handle(parameterless=[Cooldown(cd_time=30, at_sender=False)])
+@impart_draw.handle(parameterless=[Cooldown(cd_time=10, at_sender=False)])
 async def impart_draw_(bot: Bot, event: GroupMessageEvent):
     """传承抽卡"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -141,21 +141,27 @@ async def impart_draw_(bot: Bot, event: GroupMessageEvent):
             list_tp = []
             if impart_data_json.data_person_add(user_id, reap_img):
                 msg = ""
-                msg += f"抽卡10次结果如下\n"
-                msg += f"检测到传承背包已经存在卡片{reap_img}\n"
-                msg += f"已转化为2880分钟闭关时间\n"
-                msg += f"累计共获得3540分钟闭关时间!"
+                msg += "检测到传承背包已经存在卡片{}\n".format(reap_img)
+                msg += "已转化为2880分钟闭关时间\n"
+                msg += "累计共获得3540分钟闭关时间!"
+                msg += "抽卡10次结果如下\n"
 
                 list_tp.append(
                     {"type": "node", "data": {"name": f"道友{user_info['user_name']}的传承抽卡", "uin": bot.self_id,
                                               "content": msg}})
-                img = MessageSegment.image(img_path / str(reap_img + ".png"))
+                if XiuConfig().merge_forward_send:
+                    img = MessageSegment.image(img_path / str(reap_img + ".png"))
+                else:
+                    img = str(reap_img)
                 list_tp.append(
                     {"type": "node", "data": {"name": f"道友{user_info['user_name']}的传承抽卡", "uin": bot.self_id,
                                               "content": img}})
                 random.shuffle(time_img)
                 for x in time_img[:9]:
-                    img = MessageSegment.image(img_path / str(x + ".png"))
+                    if XiuConfig().merge_forward_send:
+                        img = MessageSegment.image(img_path / str(x + ".png"))
+                    else:
+                        img = str(x)
                     list_tp.append(
                         {"type": "node", "data": {"name": f"道友{user_info['user_name']}的传承抽卡", "uin": bot.self_id,
                                                   "content": img}})
@@ -177,18 +183,24 @@ async def impart_draw_(bot: Bot, event: GroupMessageEvent):
                 await impart_draw.finish()
             else:
                 msg = ""
-                msg += f"抽卡10次结果如下,获得新的传承卡片{reap_img}\n"
-                msg += f"累计共获得660分钟闭关时间!"
+                msg += "累计共获得660分钟闭关时间!"
+                msg += "抽卡10次结果如下,获得新的传承卡片{}\n".format(reap_img)
                 list_tp.append(
                     {"type": "node", "data": {"name": f"道友{user_info['user_name']}的传承抽卡", "uin": bot.self_id,
                                               "content": msg}})
-                img = MessageSegment.image(img_path / str(reap_img + ".png"))
+                if XiuConfig().merge_forward_send:
+                    img = MessageSegment.image(img_path / str(reap_img + ".png"))
+                else:
+                    img = str(reap_img)
                 list_tp.append(
                     {"type": "node", "data": {"name": f"道友{user_info['user_name']}的传承抽卡", "uin": bot.self_id,
                                               "content": img}})
                 random.shuffle(time_img)
                 for x in time_img[:9]:
-                    img = MessageSegment.image(img_path / str(x + ".png"))
+                    if XiuConfig().merge_forward_send:
+                        img = MessageSegment.image(img_path / str(x + ".png"))
+                    else:
+                        img = str(x)
                     list_tp.append(
                         {"type": "node", "data": {"name": f"道友{user_info['user_name']}的传承抽卡", "uin": bot.self_id,
                                                   "content": img}})
@@ -211,14 +223,17 @@ async def impart_draw_(bot: Bot, event: GroupMessageEvent):
         else:
             list_tp = []
             msg = ""
-            msg += f"抽卡10次结果如下!\n"
-            msg += f"累计共获得660分钟闭关时间!"
+            msg += "累计共获得660分钟闭关时间!"
+            msg += "抽卡10次结果如下!\n"
             list_tp.append(
                 {"type": "node", "data": {"name": f"道友{user_info['user_name']}的传承抽卡", "uin": bot.self_id,
                                           "content": msg}})
             random.shuffle(time_img)
             for x in time_img:
-                img = MessageSegment.image(img_path / str(x + ".png"))
+                if XiuConfig().merge_forward_send:
+                    img = MessageSegment.image(img_path / str(x + ".png"))
+                else:
+                    img = str(x)
                 list_tp.append(
                     {"type": "node", "data": {"name": f"道友{user_info['user_name']}的传承抽卡", "uin": bot.self_id,
                                               "content": img}})
@@ -263,7 +278,10 @@ async def impart_back_(bot: Bot, event: GroupMessageEvent):
     list_tp = []
     img = None
     for x in range(len(img_tp)):
-        img += MessageSegment.image(img_path / str(img_tp[x] + ".png"))
+        if XiuConfig().merge_forward_send:
+            img += MessageSegment.image(img_path / str(img_tp[x] + ".png"))
+        else:
+            img = str(img_tp[x])
     txt_back = f"""--道友{user_info['user_name']}的传承物资--
 思恋结晶：{impart_data_draw['stone_num']}颗
 抽卡次数：{impart_data_draw['wish']}/90次
@@ -280,6 +298,7 @@ async def impart_back_(bot: Bot, event: GroupMessageEvent):
 灵田收取数量提升：{impart_data_draw['impart_reap_per']}颗
 每日双修次数提升：{impart_data_draw['impart_two_exp']}次
 boss战攻击提升:{int(impart_data_draw['boss_atk'] * 100)}%
+道友拥有的传承卡片如下:
 """
     list_tp.append(
         {"type": "node", "data": {"name": f"道友{user_info['user_name']}的传承背包", "uin": bot.self_id,
@@ -350,7 +369,7 @@ async def impart_info_(bot: Bot, event: GroupMessageEvent):
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-        await impart_data.finish()
+        await impart_info.finish()
     user_id = user_info['user_id']
     impart_data_draw = await impart_check(user_id)
     if impart_data_draw is None:
@@ -360,7 +379,7 @@ async def impart_info_(bot: Bot, event: GroupMessageEvent):
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-        await impart_data.finish()
+        await impart_info.finish()
 
     msg = f"""--道友{user_info['user_name']}的传承物资--
 思恋结晶：{impart_data_draw['stone_num']}颗
@@ -372,7 +391,7 @@ async def impart_info_(bot: Bot, event: GroupMessageEvent):
         await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
     else:
         await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-    await impart_data.finish()
+    await impart_info.finish()
 
 
 

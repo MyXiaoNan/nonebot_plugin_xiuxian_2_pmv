@@ -148,6 +148,7 @@ async def send_bot(group_id:str):
         return     
 
     if len(group_boss[group_id]) >= config['Boss个数上限']:
+        logger.opt(colors=True).info(f"<green>群{group_id}Boss个数已到达个数上限</green>")
         return
     
     api = 'send_group_msg' #要调用的函数
@@ -972,8 +973,16 @@ def read_user_boss_fight_info(user_id):
 
     FILEPATH = PLAYERSDATA / user_id / "boss_fight_info.json"
     with open(FILEPATH, "r", encoding="UTF-8") as f:
-        data = f.read()
-    return json.loads(data)
+        data = json.load(f)
+
+    # 检查 boss_integral 键值是否为负数
+    if "boss_integral" in data and data["boss_integral"] < 0:
+        data["boss_integral"] = 0
+        with open(FILEPATH, "w", encoding="UTF-8") as f:
+            json.dump(data, f, indent=4)
+
+    return data
+
 
 
 def save_user_boss_fight_info(user_id, data):
