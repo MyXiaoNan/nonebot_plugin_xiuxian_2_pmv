@@ -538,7 +538,6 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
         user_boss_fight_info = get_user_boss_fight_info(user_id)
         user_boss_fight_info['boss_integral'] += boss_integral
         save_user_boss_fight_info(user_id, user_boss_fight_info)
-        print("群友赢了", boss_integral, points_bonus)
         msg = "恭喜道友击败{}，收获灵石{}枚，{}获得世界积分：{}点!{} {}".format(bossinfo['name'], get_stone, 
                                                            more_msg, boss_integral, exp_msg, drops_msg)
         if user_info['root'] == "器师" and boss_integral < 0:

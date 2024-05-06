@@ -20,6 +20,7 @@ from ..xiuxian_utils.xiuxian2_handle import XiuxianDateManage, OtherSet, UserBuf
 from .. import NICKNAME
 
 xiuxian_impart = XIUXIAN_IMPART_BUFF()
+sql_message = XiuxianDateManage()  # sql类
 
 impart_re = require("nonebot_plugin_apscheduler").scheduler
 
