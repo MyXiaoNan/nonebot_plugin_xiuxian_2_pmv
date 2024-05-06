@@ -1,6 +1,7 @@
 import random
 from .xiuxian2_handle import XiuxianDateManage ,OtherSet, UserBuffDate, XIUXIAN_IMPART_BUFF
 from ..xiuxian_config import get_user_rank
+from .utils import number_to
 xiuxian_impart = XIUXIAN_IMPART_BUFF()
 boss_zs = 0
 boss_hx = 0 
@@ -746,7 +747,7 @@ async def Boss_fight(player1: dict, boss: dict, type_in=2, bot_id=0):
                 boss_jg = 0
                 boss_jh = 0
                 boss_jb = 0
-                boss_xl = 1  #boss禁血
+                boss_xl = 1  #boss禁蓝
     
     if get_user_rank('遁一境初期')[0] < get_user_rank((boss["jj"] + '中期'))[0] < get_user_rank('江湖好手')[0]: #遁一以下无技能
             boss["减伤"] = 1 # boss减伤率
@@ -1139,16 +1140,16 @@ async def Boss_fight(player1: dict, boss: dict, type_in=2, bot_id=0):
         play_list.append(random_def_data)
         
         
-    #if boss_js <= 0.6 and boss['name'] == "衣以候":
-       # boss_js_data = {"type": "node", "data": {"name": f"{boss['name']}",
-   #                                  "uin": int(bot_id), "content": f"使用了金身神通：混世魔身！,获得了{int((1-boss_js)*100)}%减伤!"}}  
-     #   play_list.append(boss_js_data)
-       # print(boss_js_data["data"]["content"])
+    # if boss_js <= 0.6 and boss['name'] == "衣以候":
+    #    boss_js_data = {"type": "node", "data": {"name": f"{boss['name']}",
+    #                                 "uin": int(bot_id), "content": f"使用了金身神通：混世魔身！,获得了{int((1-boss_js)*100)}%减伤!"}}  
+    #    play_list.append(boss_js_data)
+    #    print(boss_js_data["data"]["content"])
     
-    #if boss_js <1:
-        #boss_js_data = {"type": "node", "data": {"name": f"{boss['name']}",
-        #                             "uin": int(bot_id), "content": f"凝聚真气,获得了{int((1-boss_js)*100)}%减伤!"}}
-        #play_list.append(boss_js_data)
+    # if boss_js <1:
+    #     boss_js_data = {"type": "node", "data": {"name": f"{boss['name']}",
+    #                                 "uin": int(bot_id), "content": f"凝聚真气,获得了{int((1-boss_js)*100)}%减伤!"}}
+    #     play_list.append(boss_js_data)
           
     boss['会心'] = 30
     
@@ -1564,8 +1565,8 @@ def calculate_skill_cost(player, hpcost, mpcost):
 
 def get_persistent_skill_msg(username, skillname, sh, turn):
     if sh:
-        return f"{username}的封印技能：{skillname}，剩余回合：{turn}!"
-    return f"{username}的持续性技能：{skillname}，造成{sh}伤害，剩余回合：{turn}!"
+        return "{}的封印技能：{}，剩余回合：{}!".format(username, skillname, turn)
+    return "{}的持续性技能：{}，造成{}伤害，剩余回合：{turn}!".format(username, skillname, number_to(sh), turn)
 
 
 def get_skill_sh_data(player, secbuffdata):

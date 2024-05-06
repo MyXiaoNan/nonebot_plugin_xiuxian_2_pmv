@@ -960,8 +960,13 @@ def read_user_boss_fight_info(user_id):
     user_id = str(user_id)
 
     FILEPATH = PLAYERSDATA / user_id / "boss_fight_info.json"
-    with open(FILEPATH, "r", encoding="UTF-8") as f:
-        data = json.load(f)
+    if not os.path.exists(FILEPATH):
+        data = {"boss_integral": 0}
+        with open(FILEPATH, "w", encoding="UTF-8") as f:
+            json.dump(data, f, indent=4)
+    else:
+        with open(FILEPATH, "r", encoding="UTF-8") as f:
+            data = json.load(f)
 
     # 检查 boss_integral 键值是否为负数
     if "boss_integral" in data and data["boss_integral"] < 0:
