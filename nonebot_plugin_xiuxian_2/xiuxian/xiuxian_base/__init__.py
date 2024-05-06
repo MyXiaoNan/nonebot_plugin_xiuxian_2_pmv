@@ -1189,12 +1189,21 @@ async def cz_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
                 await bot.send_group_msg(group_id=int(send_group_id), message=msg)
             await cz.finish()
     else:
-        msg = f"请艾特目标用户！"
-        if XiuConfig().img:
-            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
-            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
-        else:
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        all_users = sql_message.get_all_user_id()
+        for user_id in all_users:
+            sql_message.send_back(user_id, goods_id, goods_name, goods_type, goods_num)  # 给每个用户发送物品
+        msg = "全服通告：赠送所有用户{}{}个,请注意查收！".format(goods_name, goods_num)
+        enabled_groups = JsonConfig().get_enabled_groups()
+        for group_id in enabled_groups:
+            bot = await assign_bot_group(group_id=group_id)
+            try:
+                if XiuConfig().img:
+                    pic = await get_msg_pic(msg)
+                    await bot.send_group_msg(group_id=int(group_id), message=MessageSegment.image(pic))
+                else:
+                    await bot.send_group_msg(group_id=int(group_id), message=msg)
+            except ActionFailed:  # 发送群消息失败
+                continue
         await cz.finish()
 
 
