@@ -21,7 +21,7 @@ from ..xiuxian_utils.utils import (
     check_user, check_user_type,
     send_msg_handler, get_msg_pic, CommandObjectID
 )
-from .riftconfig import get_config, savef
+from .riftconfig import get_rift_config, savef_rift
 from .jsondata import save_rift_data, read_rift_data
 from ..xiuxian_config import XiuConfig
 from .riftmake import (
@@ -30,7 +30,7 @@ from .riftmake import (
 )
 
 
-config = get_config()
+config = get_rift_config()
 sql_message = XiuxianDateManage()  # sql类
 cache_help = {}
 group_rift = {}  # dict
@@ -44,7 +44,6 @@ rift_help = on_fullmatch("秘境帮助", priority=6, permission=GROUP, block=Tru
 create_rift = on_fullmatch("生成秘境", priority=5, permission=GROUP and (SUPERUSER | GROUP_ADMIN | GROUP_OWNER), block=True)
 complete_rift = on_command("秘境结算", aliases={"结算秘境"}, priority=7, permission=GROUP, block=True)
 break_rift = on_command("秘境探索终止", aliases={"终止探索秘境"}, priority=7, permission=GROUP, block=True)
-close_rift = on_command("关闭秘境",aliases={"删除秘境"},priority=8,permission=GROUP and SUPERUSER,block=True)
 
 __rift_help__ = f"""
 秘境帮助信息:
@@ -408,7 +407,7 @@ async def set_group_rift_(bot: Bot, event: GroupMessageEvent, args: Message = Co
 
         else:
             config['open'].append(group_id)
-            savef(config)
+            savef_rift(config)
             msg = f"已开启本群秘境!"
             if XiuConfig().img:
                 pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
@@ -420,7 +419,7 @@ async def set_group_rift_(bot: Bot, event: GroupMessageEvent, args: Message = Co
     elif mode == '关闭':
         if is_in_group:
             config['open'].remove(group_id)
-            savef(config)
+            savef_rift(config)
             msg = f"已关闭本群秘境!"
             if XiuConfig().img:
                 pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
@@ -446,35 +445,6 @@ async def set_group_rift_(bot: Bot, event: GroupMessageEvent, args: Message = Co
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await set_group_rift.finish()
 
-
-@close_rift.handle(parameterless=[Cooldown(at_sender=False)])
-async def _(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
-    """关闭秘境"""
-    user_id, group_id, send_group_id = await assign_bot(bot=bot, event=event)
-
-    if group_id not in groups:
-        msg = '本群尚未开启秘境，请联系管理员开启群秘境'
-        if XiuConfig().img:
-            pic = await get_msg_pic(f"@{event.sender.nickname}" + msg)
-            await close_rift.finish(MessageSegment.image(pic))
-        else:
-            await create_rift.finish(msg)
-    if group_id in group_rift:
-        qun_info = group_rift[group_id]
-        del group_rift[group_id]
-        msg = f"秘境入口因受到一股强大力量影响，无法维持而关闭了"
-        if XiuConfig().img:
-            pic = await get_msg_pic(f"@{event.sender.nickname}" + msg)
-            await create_rift.finish(MessageSegment.image(pic))
-        else:
-            await close_rift.finish(msg)
-    else:
-        msg = f"野外秘境尚未生成"
-        if XiuConfig().img:
-            pic = await get_msg_pic(f"@{event.sender.nickname}" + msg)
-            await create_rift.finish(MessageSegment.image(pic))
-        else:
-            await close_rift.finish(msg)
 
 
 def is_in_groups(event: GroupMessageEvent):

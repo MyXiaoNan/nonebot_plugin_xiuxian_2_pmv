@@ -687,6 +687,15 @@ class XiuxianDateManage:
         result = cur.fetchall()
         return result
 
+    def get_all_user_id(self):
+        """获取全部用户id"""
+        sql = f"SELECT user_id FROM user_xiuxian"
+        cur = self.conn.cursor()
+        cur.execute(sql, )
+        result = cur.fetchall()
+        return [row[0] for row in result]
+
+
     def in_closing(self, user_id, the_type):
         """
         更新用户操作CD

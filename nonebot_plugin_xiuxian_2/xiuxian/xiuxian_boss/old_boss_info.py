@@ -47,5 +47,4 @@ class OLD_BOSS_INFO(object):
         self.__save()
         return tp
 
-
 old_boss_info = OLD_BOSS_INFO()

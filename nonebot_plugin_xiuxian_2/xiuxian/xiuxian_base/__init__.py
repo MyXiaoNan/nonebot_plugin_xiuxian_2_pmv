@@ -33,6 +33,9 @@ from ..xiuxian_utils.utils import (
     Txt2Img, send_msg_handler
 )
 from ..xiuxian_utils.item_json import Items
+from ..xiuxian_boss.bossconfig import get_boss_config, savef_boss
+from ..xiuxian_back.backconfig import get_auction_config, savef_auction
+from ..xiuxian_rift.riftconfig import get_rift_config, savef_rift
 items = Items()
 
 # 定时任务
@@ -42,6 +45,12 @@ cache_help_fk = {}
 cache_level_help = {}
 sql_message = XiuxianDateManage()  # sql类
 xiuxian_impart = XIUXIAN_IMPART_BUFF()
+boss_config = get_boss_config()
+boss_groups = boss_config['open'] # list，群世界boss使用
+auction_config = get_auction_config()
+auction_groups = auction_config['open']  # list，群交流会使用
+rift_config = get_rift_config()
+rift_groups = rift_config['open']  # list，群秘境使用
 
 run_xiuxian = on_fullmatch("我要修仙", priority=8, permission=GROUP, block=True)
 restart = on_fullmatch("重入仙途", permission=GROUP, priority=7, block=True)
@@ -82,22 +91,22 @@ __xiuxian_notes__ = f"""
 9、排行榜:修仙排行榜,灵石排行榜,战力排行榜,宗门排行榜
 10、悬赏令帮助:获取悬赏令帮助信息
 11、我的状态:查看当前HP,我的功法：查看当前技能
-12、宗门系统:发送"宗门帮助"获取
-13、灵庄系统:发送"灵庄帮助"获取
-14、世界BOSS:发送"世界boss帮助"获取
-15、功法/灵田：发送“功法帮助/灵田帮助”查看
-16、背包/拍卖：发送"背包帮助"获取
-17、秘境系统:发送"秘境帮助"获取
+12、宗门系统:发送 宗门帮助 获取
+13、灵庄系统:发送 灵庄帮助 获取
+14、世界BOSS:发送 世界boss帮助 获取
+15、功法/灵田：发送 功法帮助/灵田帮助 查看
+16、背包/拍卖：发送 背包帮助 获取
+17、秘境系统:发送 秘境帮助 获取
 18、炼丹帮助:炼丹功能
-19、传承系统:发送"传承帮助/虚神界帮助"获取
+19、传承系统:发送 传承帮助/虚神界帮助 获取
 20、修仙适配:将1的境界适配到2
 21、启用/禁用修仙功能：当前群开启或关闭修仙功能
 22、更新记录:获取插件最新内容
-23、仙途奇缘:发送“奇缘帮助”获取
-24、轮回重修:发送“轮回重修”获取
+23、仙途奇缘:发送 奇缘帮助 获取
+24、轮回重修:发送 轮回重修帮助 获取
 25、境界帮助、灵根帮助、品阶帮助:获取对应帮助信息
-26、仙器合成:发送合成xx获取，目前开放合成的仙器为天罪
-27、金银阁:发送“金银阁帮助”获取
+26、仙器合成:发送 合成xx 获取，目前开放合成的仙器为天罪
+27、金银阁:发送 金银阁帮助 获取
 """.strip()
 
 __warring_help__ = f"""
@@ -1189,12 +1198,21 @@ async def cz_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
                 await bot.send_group_msg(group_id=int(send_group_id), message=msg)
             await cz.finish()
     else:
-        msg = f"请艾特目标用户！"
-        if XiuConfig().img:
-            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
-            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
-        else:
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        all_users = sql_message.get_all_user_id()
+        for user_id in all_users:
+            sql_message.send_back(user_id, goods_id, goods_name, goods_type, goods_num)  # 给每个用户发送物品
+        msg = "全服通告：赠送所有用户{}{}个,请注意查收！".format(goods_name, goods_num)
+        enabled_groups = JsonConfig().get_enabled_groups()
+        for group_id in enabled_groups:
+            bot = await assign_bot_group(group_id=group_id)
+            try:
+                if XiuConfig().img:
+                    pic = await get_msg_pic(msg)
+                    await bot.send_group_msg(group_id=int(group_id), message=MessageSegment.image(pic))
+                else:
+                    await bot.send_group_msg(group_id=int(group_id), message=msg)
+            except ActionFailed:  # 发送群消息失败
+                continue
         await cz.finish()
 
 
@@ -1312,7 +1330,8 @@ async def rob_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Command
 
             if user_info['hp'] <= user_info['exp'] / 10:
                 time_msg = leave_harm_time(user_id)
-                msg = f"重伤未愈，动弹不得！距离脱离生命危险还需要{time_msg}分钟！"
+                msg = "重伤未愈，动弹不得！距离脱离生命危险还需要{}分钟！".format(time_msg)
+                msg += "请道友进行闭关，或者使用药品恢复气血，不要干等，没有自动回血！！！"
                 if XiuConfig().img:
                     pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                     await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -1475,9 +1494,43 @@ async def open_xiuxian_(bot: Bot, event: GroupMessageEvent):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     group_msg = str(event.message)
     group_id = str(event.group_id)
+    isInGroup = isInGroups(event)  # True在，False不在,这里是boss的配置
+    is_in_group = is_in_groups(event) # True在，False不在,这里是拍卖会的配置
+    Is_in_group = Is_in_groups(event) # True在，False不在,这里是秘境的配置
+    conf_data = JsonConfig().read_data()
+
     if "启用" in group_msg:
-        JsonConfig().write_data(1, group_id)  # 添加
-        msg = "当前群聊修仙模组已启用！"
+        if group_id in conf_data["group"] and any([isInGroup, is_in_group, Is_in_group]):
+            msg = "当前群聊修仙模组已启用，请勿重复操作！"
+            if XiuConfig().img:
+                pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
+                await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+            else:
+                await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+            await set_xiuxian.finish()
+        JsonConfig().write_data(1, group_id)
+        if isInGroup:
+            pass
+        else:
+            info = {
+                str(group_id):{
+                                "hours":boss_config['Boss生成时间参数']["hours"],
+                                "minutes":boss_config['Boss生成时间参数']["minutes"]
+                                }
+                            }
+            boss_config['open'].update(info)
+            savef_boss(boss_config)
+        if is_in_group:
+            pass
+        else:
+            auction_config['open'].append(group_id)
+            savef_auction(auction_config)
+        if Is_in_group:
+            pass
+        else:
+            rift_config['open'].append(group_id)
+            savef_rift(rift_config)
+        msg = "当前群聊修仙基础模组，群世界boss,群拍卖会，群秘境已启用！(改了配置文件还是需要重启才能生效哦！)"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -1486,8 +1539,34 @@ async def open_xiuxian_(bot: Bot, event: GroupMessageEvent):
         await set_xiuxian.finish()
 
     elif "禁用" in group_msg:
-        JsonConfig().write_data(2, group_id)  # 删除
-        msg = "当前群聊修仙模组已禁用！"
+        if group_id not in conf_data["group"] and not any([isInGroup, is_in_group, Is_in_group]):
+            msg = "当前群聊修仙模组已禁用，请勿重复操作！"
+            if XiuConfig().img:
+                pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
+                await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+            else:
+                await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+            await set_xiuxian.finish()
+        JsonConfig().write_data(2, group_id)
+        if isInGroup:
+            try:
+                del boss_config['open'][str(group_id)]
+            except:
+                pass
+            savef_boss(boss_config)
+        if is_in_group:
+            try:
+                auction_config['open'].remove(group_id)
+                savef_auction(auction_config)
+            except:
+                pass
+        if Is_in_group:
+            try:
+                rift_config['open'].remove(group_id)
+                savef_rift(rift_config)
+            except:
+                pass
+        msg = "当前群聊修仙基础模组，群世界boss,群拍卖会，群秘境已禁用！(改了配置文件还是需要重启才能生效哦！)"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -1548,3 +1627,13 @@ async def xiuxian_updata_level_(bot: Bot, event: GroupMessageEvent):
     else:
         await bot.send_group_msg(group_id=int(send_group_id), message=msg)
     await xiuxian_updata_level.finish()
+
+
+def isInGroups(event: GroupMessageEvent): # 这里是boss的配置
+    return str(event.group_id) in boss_groups
+
+def is_in_groups(event: GroupMessageEvent): # 这里是拍卖会的配置
+    return str(event.group_id) in auction_groups
+
+def Is_in_groups(event: GroupMessageEvent): # 这里是秘境的配置
+    return str(event.group_id) in rift_groups

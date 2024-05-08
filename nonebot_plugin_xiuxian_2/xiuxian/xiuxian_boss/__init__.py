@@ -29,7 +29,7 @@ from ..xiuxian_utils.xiuxian2_handle import (
 )
 from ..xiuxian_config import get_user_rank, XiuConfig
 from .makeboss import createboss, createboss_root, createboss_jj
-from .bossconfig import get_config, savef
+from .bossconfig import get_boss_config, savef_boss
 from .old_boss_info import old_boss_info
 from ..xiuxian_utils.player_fight import Boss_fight
 from ..xiuxian_utils.item_json import Items
@@ -44,7 +44,7 @@ from .. import DRIVER
 require('nonebot_plugin_apscheduler')
 from nonebot_plugin_apscheduler import scheduler
 
-config = get_config()
+config = get_boss_config()
 cache_help = {}
 del_boss_id = XiuConfig().del_boss_id
 gen_boss_id = XiuConfig().gen_boss_id
@@ -402,28 +402,14 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await battle.finish()
 
-    # try:
-    #    battle_flag[group_id]
-    # except:
-    #    battle_flag[group_id] = False
-
-    # if battle_flag[group_id]:
-    #     msg = f'当前有道友正在Boss战斗!'
-    #     if XiuConfig().img:
-    #         pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
-    #         await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
-    #     else:
-    #         await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-    #     await battle.finish()
-
     if user_info['hp'] is None or user_info['hp'] == 0:
         # 判断用户气血是否为空
         XiuxianDateManage().update_user_hp(user_id)
 
     if user_info['hp'] <= user_info['exp'] / 10:
         time = leave_harm_time(user_id)
-        msg = f"重伤未愈，动弹不得！距离脱离危险还需要{time}分钟！\n"
-        msg += f"请道友进行闭关，或者使用药品恢复气血，不要干等，没有自动回血！！！"
+        msg = "重伤未愈，动弹不得！距离脱离危险还需要{}分钟！\n".format(time)
+        msg += "请道友进行闭关，或者使用药品恢复气血，不要干等，没有自动回血！！！"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -482,18 +468,14 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
         # 新增boss战斗积分点数
         boss_now_hp = bossinfo_new['气血']  # 打之后的血量
         boss_all_hp = bossinfo['总血量']  # 总血量
-        boss_integral = int(((boss_old_hp - boss_now_hp) / boss_all_hp) * 30)
+        boss_integral = int(((boss_old_hp - boss_now_hp) / boss_all_hp) * 240)
         if boss_integral < 5:  # 摸一下不给
             boss_integral = 0
         if user_info['root'] == "器师":
             boss_integral = int(boss_integral * (1 + (user_rank - boss_rank)))
-            if boss_integral <= 0:
-                boss_integral = 0
-            more_msg = f"道友低boss境界{user_rank - boss_rank}层，获得{int(50 * (user_rank - boss_rank))}%积分加成！"
-        else:
-            if boss_rank - user_rank >= 6:  # 超过太多不给
-                boss_integral = 0
-                more_msg = "道友的境界超过boss太多了,不齿！"
+            points_bonus = int(80 * (user_rank - boss_rank))
+            more_msg = "道友低boss境界{}层，获得{}%积分加成！".format(user_rank - boss_rank, points_bonus)
+
         user_boss_fight_info = get_user_boss_fight_info(user_id)
         user_boss_fight_info['boss_integral'] += boss_integral
         save_user_boss_fight_info(user_id, user_boss_fight_info)
@@ -506,6 +488,8 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
         else:
             exp_msg =" "
         msg = f"道友不敌{bossinfo['name']}，重伤逃遁，临逃前收获灵石{get_stone}枚，{more_msg}获得世界积分：{boss_integral}点{exp_msg} "
+        if user_info['root'] == "器师" and boss_integral < 0:
+            msg += "\n如果出现负积分，说明你这器师境界太高了(如果总世界积分为负数，会帮你重置成0)，玩器师就不要那么高境界了！！！"
         battle_flag[group_id] = False
         try:
             await send_msg_handler(bot, event, result)
@@ -521,12 +505,13 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
     elif victor == "群友赢了":
         # 新增boss战斗积分点数
         boss_all_hp = bossinfo['总血量']  # 总血量
-        boss_integral = int((boss_old_hp / boss_all_hp) * 30)
+        boss_integral = int((boss_old_hp / boss_all_hp) * 240)
         if user_info['root'] == "器师":
             boss_integral = int(boss_integral * (1 + (user_rank - boss_rank)))
-            more_msg = f"道友低boss境界{user_rank - boss_rank}层，获得{int(50 * (user_rank - boss_rank))}%积分加成！"
+            points_bonus = int(80 * (user_rank - boss_rank))
+            more_msg = "道友低boss境界{}层，获得{}%积分加成！".format(user_rank - boss_rank, points_bonus)
         else:
-            if boss_rank - user_rank >= 6:  # 超过太多不给
+            if boss_rank - user_rank >= 9:  # 超过太多不给
                 boss_integral = 0
                 more_msg = "道友的境界超过boss太多了,不齿！"
                 
@@ -541,7 +526,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
         drops_id, drops_info =  boss_drops(user_rank, boss_rank, bossinfo, userinfo)
         if drops_id == None:
             drops_msg = " "
-        elif boss_rank < 22:           
+        elif boss_rank < get_user_rank('遁一境中期')[0]:           
             drops_msg = f"boss的尸体上好像有什么东西， 凑近一看居然是{drops_info['name']}！ "
             sql_message.send_back(user_info['user_id'], drops_info['id'],drops_info['name'], drops_info['type'], 1)
         else :
@@ -553,7 +538,10 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
         user_boss_fight_info = get_user_boss_fight_info(user_id)
         user_boss_fight_info['boss_integral'] += boss_integral
         save_user_boss_fight_info(user_id, user_boss_fight_info)
-        msg = f"恭喜道友击败{bossinfo['name']}，收获灵石{get_stone}枚，{more_msg}获得世界积分：{boss_integral}点!{exp_msg} {drops_msg}"
+        msg = "恭喜道友击败{}，收获灵石{}枚，{}获得世界积分：{}点!{} {}".format(bossinfo['name'], get_stone, 
+                                                           more_msg, boss_integral, exp_msg, drops_msg)
+        if user_info['root'] == "器师" and boss_integral < 0:
+           msg += "\n如果出现负积分，说明你这器师境界太高了(如果总世界积分为负数，会帮你重置成0)，玩器师就不要那么高境界了！！！"
         try:
             await send_msg_handler(bot, event, result)
         except ActionFailed:
@@ -767,7 +755,8 @@ async def set_group_boss_(bot: Bot, event: GroupMessageEvent, args: Message = Co
                                 }
                             }
             config['open'].update(info)
-            savef(config)
+            savef_boss(config)
+            await reload_boss_data()
             msg = f"已开启本群世界Boss!"
             if XiuConfig().img:
                 pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
@@ -782,7 +771,8 @@ async def set_group_boss_(bot: Bot, event: GroupMessageEvent, args: Message = Co
                 del config['open'][str(group_id)]
             except:
                 pass
-            savef(config)
+            savef_boss(config)
+            await reload_boss_data()
             msg = f"已关闭本群世界Boss!"
             if XiuConfig().img:
                 pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
@@ -963,7 +953,6 @@ def get_user_boss_fight_info(user_id):
     try:
         user_boss_fight_info = read_user_boss_fight_info(user_id)
     except:
-        user_boss_fight_info = {'boss_integral': 0}
         save_user_boss_fight_info(user_id, user_boss_fight_info)
     return user_boss_fight_info
 
@@ -972,8 +961,13 @@ def read_user_boss_fight_info(user_id):
     user_id = str(user_id)
 
     FILEPATH = PLAYERSDATA / user_id / "boss_fight_info.json"
-    with open(FILEPATH, "r", encoding="UTF-8") as f:
-        data = json.load(f)
+    if not os.path.exists(FILEPATH):
+        data = {"boss_integral": 0}
+        with open(FILEPATH, "w", encoding="UTF-8") as f:
+            json.dump(data, f, indent=4)
+    else:
+        with open(FILEPATH, "r", encoding="UTF-8") as f:
+            data = json.load(f)
 
     # 检查 boss_integral 键值是否为负数
     if "boss_integral" in data and data["boss_integral"] < 0:
@@ -982,7 +976,6 @@ def read_user_boss_fight_info(user_id):
             json.dump(data, f, indent=4)
 
     return data
-
 
 
 def save_user_boss_fight_info(user_id, data):
@@ -1067,7 +1060,7 @@ def get_id(dict_data, user_level):
     """根据字典的rank、用户等级、秘境等级随机获取key"""
     l_temp = []
     final_rank = get_user_rank(user_level)[0]  # 秘境等级，会提高用户的等级
-    pass_rank = 55  # 最终等级超过次等级会抛弃
+    pass_rank = get_user_rank('搬血境初期')[0]  # 最终等级超过此等级会抛弃
     for k, v in dict_data.items():
         if v["rank"] >= final_rank and (v["rank"] - final_rank) <= pass_rank:
             l_temp.append(k)

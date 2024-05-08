@@ -1,5 +1,5 @@
 import random
-from .riftconfig import get_config
+from .riftconfig import get_rift_config
 from ..xiuxian_utils.xiuxian2_handle import OtherSet
 from .jsondata import read_f
 from ..xiuxian_utils.xiuxian2_handle import XiuxianDateManage, UserBuffDate, XIUXIAN_IMPART_BUFF
@@ -287,7 +287,7 @@ def get_dict_type_rate(data_dict):
 
 def get_rift_type():
     """根据概率返回秘境等级"""
-    data_dict = get_config()['rift']
+    data_dict = get_rift_config()['rift']
     return get_dict_type_rate(data_dict)
 
 
