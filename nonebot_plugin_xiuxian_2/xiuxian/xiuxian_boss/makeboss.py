@@ -1,10 +1,10 @@
 import random
 from pathlib import Path
 from ..xiuxian_utils.xiuxian2_handle import XiuxianDateManage
-from .bossconfig import get_config
+from .bossconfig import get_boss_config
 import json
 
-config = get_config()
+config = get_boss_config()
 JINGJIEEXP = {  # 数值为中期和圆满的平均值
     "搬血境": [1000, 2000, 3000],
     "洞天境": [6000, 8000.10000],

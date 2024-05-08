@@ -22,7 +22,7 @@ from .back_util import (
     get_item_msg, get_item_msg_rank, check_use_elixir,
     get_use_jlq_msg, get_no_use_equipment_sql
 )
-from .backconfig import get_config, savef
+from .backconfig import get_auction_config, savef_auction
 from ..xiuxian_utils.item_json import Items
 from ..xiuxian_utils.utils import (
     check_user, get_msg_pic, 
@@ -37,7 +37,7 @@ from ..xiuxian_utils.xiuxian2_handle import (
 from ..xiuxian_config import XiuConfig, get_user_rank
 
 items = Items()
-config = get_config()
+config = get_auction_config()
 groups = config['open']  # list，群交流会使用
 auction = {}
 AUCTIONSLEEPTIME = 120  # 拍卖初始等待时间（秒）
@@ -1477,7 +1477,7 @@ async def set_auction_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
             await set_auction.finish()
         else:
             config['open'].append(group_id)
-            savef(config)
+            savef_auction(config)
             msg = "已开启群拍卖会"
             if XiuConfig().img:
                 pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
@@ -1489,7 +1489,7 @@ async def set_auction_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
     elif mode == '关闭':
         if is_in_group:
             config['open'].remove(group_id)
-            savef(config)
+            savef_auction(config)
             msg = "已关闭本群拍卖会!"
             if XiuConfig().img:
                 pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)

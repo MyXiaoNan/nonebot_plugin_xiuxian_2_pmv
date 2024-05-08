@@ -160,16 +160,16 @@ CONFIG = {
 }
 
 
-def get_config():
+def get_auction_config():
     try:
         config = readf()
         for key in configkey:
             if key not in list(config.keys()):
                 config[key] = CONFIG[key]
-        savef(config)
+        savef_auction(config)
     except:
         config = CONFIG
-        savef(config)
+        savef_auction(config)
     return config
 
 
@@ -183,7 +183,7 @@ def readf():
     return json.loads(data)
 
 
-def savef(data):
+def savef_auction(data):
     data = json.dumps(data, ensure_ascii=False, indent=3)
     savemode = "w" if os.path.exists(FILEPATH) else "x"
     with open(FILEPATH, mode=savemode, encoding="UTF-8") as f:

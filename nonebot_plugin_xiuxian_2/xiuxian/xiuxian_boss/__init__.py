@@ -29,7 +29,7 @@ from ..xiuxian_utils.xiuxian2_handle import (
 )
 from ..xiuxian_config import get_user_rank, XiuConfig
 from .makeboss import createboss, createboss_root, createboss_jj
-from .bossconfig import get_config, savef
+from .bossconfig import get_boss_config, savef_boss
 from .old_boss_info import old_boss_info
 from ..xiuxian_utils.player_fight import Boss_fight
 from ..xiuxian_utils.item_json import Items
@@ -44,7 +44,7 @@ from .. import DRIVER
 require('nonebot_plugin_apscheduler')
 from nonebot_plugin_apscheduler import scheduler
 
-config = get_config()
+config = get_boss_config()
 cache_help = {}
 del_boss_id = XiuConfig().del_boss_id
 gen_boss_id = XiuConfig().gen_boss_id
@@ -755,7 +755,8 @@ async def set_group_boss_(bot: Bot, event: GroupMessageEvent, args: Message = Co
                                 }
                             }
             config['open'].update(info)
-            savef(config)
+            savef_boss(config)
+            await reload_boss_data()
             msg = f"已开启本群世界Boss!"
             if XiuConfig().img:
                 pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
@@ -770,7 +771,8 @@ async def set_group_boss_(bot: Bot, event: GroupMessageEvent, args: Message = Co
                 del config['open'][str(group_id)]
             except:
                 pass
-            savef(config)
+            savef_boss(config)
+            await reload_boss_data()
             msg = f"已关闭本群世界Boss!"
             if XiuConfig().img:
                 pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
