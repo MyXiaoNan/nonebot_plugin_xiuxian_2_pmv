@@ -1500,7 +1500,7 @@ async def open_xiuxian_(bot: Bot, event: GroupMessageEvent):
     conf_data = JsonConfig().read_data()
 
     if "启用" in group_msg:
-        if group_id in conf_data["group"]:
+        if group_id in conf_data["group"] and any([isInGroup, is_in_group, Is_in_group]):
             msg = "当前群聊修仙模组已启用，请勿重复操作！"
             if XiuConfig().img:
                 pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
@@ -1539,7 +1539,7 @@ async def open_xiuxian_(bot: Bot, event: GroupMessageEvent):
         await set_xiuxian.finish()
 
     elif "禁用" in group_msg:
-        if group_id not in conf_data["group"]:
+        if group_id not in conf_data["group"] and not any([isInGroup, is_in_group, Is_in_group]):
             msg = "当前群聊修仙模组已禁用，请勿重复操作！"
             if XiuConfig().img:
                 pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
