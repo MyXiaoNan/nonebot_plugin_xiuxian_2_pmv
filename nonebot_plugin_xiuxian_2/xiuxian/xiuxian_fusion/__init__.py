@@ -28,7 +28,7 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
     if back_msg is None:
         msg = "道友的背包空空如也！"
         if XiuConfig().img:
-            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
+            pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)

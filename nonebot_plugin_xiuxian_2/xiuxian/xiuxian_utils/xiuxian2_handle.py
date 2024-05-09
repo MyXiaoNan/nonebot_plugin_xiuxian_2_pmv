@@ -681,7 +681,7 @@ class XiuxianDateManage:
 
     def get_all_sect_id(self):
         """获取全部宗门id"""
-        sql = f"SELECT sect_id FROM sects"
+        sql = "SELECT sect_id FROM sects"
         cur = self.conn.cursor()
         cur.execute(sql, )
         result = cur.fetchall()
@@ -689,7 +689,7 @@ class XiuxianDateManage:
 
     def get_all_user_id(self):
         """获取全部用户id"""
-        sql = f"SELECT user_id FROM user_xiuxian"
+        sql = "SELECT user_id FROM user_xiuxian"
         cur = self.conn.cursor()
         cur.execute(sql, )
         result = cur.fetchall()
@@ -711,7 +711,7 @@ class XiuxianDateManage:
         elif the_type == 2:
             now_time = datetime.now()
         # scheduled_time = datetime.now() + datetime.timedelta(minutes=int(the_time))
-        sql = f"UPDATE user_cd SET type=?,create_time=? WHERE user_id=?"
+        sql = "UPDATE user_cd SET type=?,create_time=? WHERE user_id=?"
         cur = self.conn.cursor()
         cur.execute(sql, (the_type, now_time, user_id))
         self.conn.commit()
@@ -722,21 +722,21 @@ class XiuxianDateManage:
 
     def update_exp(self, user_id, exp):
         """增加修为"""
-        sql = f"UPDATE user_xiuxian SET exp=exp+? WHERE user_id=?"
+        sql = "UPDATE user_xiuxian SET exp=exp+? WHERE user_id=?"
         cur = self.conn.cursor()
         cur.execute(sql, (int(exp), user_id))
         self.conn.commit()
 
     def update_j_exp(self, user_id, exp):
         """减少修为"""
-        sql = f"UPDATE user_xiuxian SET exp=exp-? WHERE user_id=?"
+        sql = "UPDATE user_xiuxian SET exp=exp-? WHERE user_id=?"
         cur = self.conn.cursor()
         cur.execute(sql, (int(exp), user_id))
         self.conn.commit()
 
     def del_exp_decimal(self, user_id, exp):
         """去浮点"""
-        sql = f"UPDATE user_xiuxian SET exp=? WHERE user_id=?"
+        sql = "UPDATE user_xiuxian SET exp=? WHERE user_id=?"
         cur = self.conn.cursor()
         cur.execute(sql, (int(exp), user_id))
         self.conn.commit()
@@ -751,7 +751,7 @@ class XiuxianDateManage:
             ORDER BY exp DESC, (CASE level """
     
         for level, value in sorted(rank_mapping.items(), key=lambda x: x[1], reverse=True):
-            sql += f"WHEN '{level}' THEN '{value:02}' "
+            sql += "WHEN '{}' THEN '{:02}' ".format(level, value)
     
         sql += """ELSE level END) ASC LIMIT 50"""
     
