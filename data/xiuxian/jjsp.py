@@ -9,7 +9,7 @@ def update_rank(root_dir):
                 try:
                     with open(file_path, 'r+', encoding='utf-8') as f:
                         data = json.load(f)
-                        update_value(data, 'rank', 2)
+                        update_value(data, 'rank', 5)
                         f.seek(0)
                         json.dump(data, f, indent=4, ensure_ascii=False) 
                         f.truncate()
@@ -19,7 +19,7 @@ def update_rank(root_dir):
 def update_value(d, target_key, increment):
     for k, v in d.items():
         if k == target_key and isinstance(v, int) and v != -5: # -5不加
-            d[k] = v + increment
+            d[k] = v - increment
         elif isinstance(v, dict):
             update_value(v, target_key, increment)
         elif isinstance(v, list):

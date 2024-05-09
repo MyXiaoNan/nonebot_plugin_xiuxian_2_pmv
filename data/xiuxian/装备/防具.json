@@ -4,7 +4,7 @@
         "def_buff": 0.08,
         "atk_buff": 0,
         "crit_buff": 0,
-        "rank": 57,
+        "rank": 54,
         "level": "下品符器",
         "type": "装备",
         "desc": "随处可见的长袍，能略微抵挡真元冲击"
@@ -14,7 +14,7 @@
         "def_buff": 0.1,
         "atk_buff": 0,
         "crit_buff": 0,
-        "rank": 54,
+        "rank": 51,
         "level": "上品符器",
         "type": "装备"
     },
@@ -23,7 +23,7 @@
         "def_buff": 0.12,
         "atk_buff": 0,
         "crit_buff": 0,
-        "rank": 51,
+        "rank": 48,
         "level": "下品玄器",
         "type": "装备"
     },
@@ -32,7 +32,7 @@
         "def_buff": 0.14,
         "atk_buff": 0,
         "crit_buff": 0,
-        "rank": 48,
+        "rank": 45,
         "level": "上品玄器",
         "type": "装备"
     },
@@ -41,7 +41,7 @@
         "def_buff": 0.16,
         "atk_buff": 0,
         "crit_buff": 0,
-        "rank": 45,
+        "rank": 42,
         "level": "下品纯阳",
         "type": "装备"
     },
@@ -50,7 +50,7 @@
         "def_buff": 0.18,
         "atk_buff": 0,
         "crit_buff": 0,
-        "rank": 42,
+        "rank": 39,
         "level": "上品纯阳",
         "type": "装备"
     },
@@ -59,7 +59,7 @@
         "def_buff": 0.2,
         "atk_buff": 0,
         "crit_buff": 0,
-        "rank": 39,
+        "rank": 36,
         "level": "下品通天",
         "type": "装备"
     },
@@ -68,7 +68,7 @@
         "def_buff": 0.22,
         "atk_buff": 0,
         "crit_buff": 0,
-        "rank": 36,
+        "rank": 33,
         "level": "上品通天",
         "type": "装备"
     },
@@ -77,7 +77,7 @@
         "def_buff": 0.24,
         "atk_buff": 0,
         "crit_buff": 0,
-        "rank": 33,
+        "rank": 30,
         "level": "下品仙器",
         "type": "装备"
     },
@@ -86,7 +86,7 @@
         "def_buff": 0.26,
         "atk_buff": 0,
         "crit_buff": 0,
-        "rank": 30,
+        "rank": 27,
         "level": "上品仙器",
         "type": "装备"
     },
@@ -113,7 +113,7 @@
         "def_buff": 0.2,
         "atk_buff": 0.2,
         "crit_buff": 0.15,
-        "rank": 16,
+        "rank": 13,
         "level": "极品仙器",
         "type": "装备"
     },

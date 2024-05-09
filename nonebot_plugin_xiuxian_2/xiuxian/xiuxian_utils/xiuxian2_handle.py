@@ -1017,7 +1017,7 @@ class XiuxianDateManage:
 
     def update_user_hp(self, user_id):
         """重置用户状态信息"""
-        sql = f"UPDATE user_xiuxian SET hp=exp/2,mp=exp,atk=exp/10 WHERE user_id=?"
+        sql = f"UPDATE user_xiuxian SET hp=exp/2,mp=exp WHERE user_id=?"
         cur = self.conn.cursor()
         cur.execute(sql, (user_id,))
         self.conn.commit()
@@ -1025,12 +1025,12 @@ class XiuxianDateManage:
     def restate(self, user_id=None):
         """restate重置所有用户状态或重置对应人状态"""
         if user_id is None:
-            sql = f"UPDATE user_xiuxian SET hp=exp/2,mp=exp,atk=exp/10"
+            sql = f"UPDATE user_xiuxian SET hp=exp/2,mp=exp"
             cur = self.conn.cursor()
             cur.execute(sql, )
             self.conn.commit()
         else:
-            sql = f"UPDATE user_xiuxian SET hp=exp/2,mp=exp,atk=exp/10 WHERE user_id=?"
+            sql = f"UPDATE user_xiuxian SET hp=exp/2,mp=exp WHERE user_id=?"
             cur = self.conn.cursor()
             cur.execute(sql, (user_id,))
             self.conn.commit()
