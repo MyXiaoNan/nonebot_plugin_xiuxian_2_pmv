@@ -9,7 +9,7 @@ from datetime import datetime
 from pathlib import Path
 from nonebot.log import logger
 from .data_source import jsondata
-from ..xiuxian_config import XiuConfig
+from ..xiuxian_config import XiuConfig, get_user_rank
 from .. import DRIVER
 from .item_json import Items
 from .xn_xiuxian_impart_config import config_impart
@@ -741,77 +741,27 @@ class XiuxianDateManage:
         cur.execute(sql, (int(exp), user_id))
         self.conn.commit()
 
+    
     def realm_top(self):
         """境界排行榜前百"""
-        sql = f"""SELECT user_name,level,exp FROM user_xiuxian 
-        WHERE user_name is NOT NULL
-        ORDER BY CASE
-        WHEN level = '零始境圆满' THEN '00'
-        WHEN level = '零始境中期' THEN '01'
-        WHEN level = '零始境初期' THEN '02'
-        WHEN level = '祭道境圆满' THEN '03'
-        WHEN level = '祭道境中期' THEN '04'
-        WHEN level = '祭道境初期' THEN '05'
-        WHEN level = '仙帝境圆满' THEN '06'
-        WHEN level = '仙帝境中期' THEN '07'
-        WHEN level = '仙帝境初期' THEN '08'
-        WHEN level = '准帝境圆满' THEN '09'
-        WHEN level = '准帝境中期' THEN '10'
-        WHEN level = '准帝境初期' THEN '11'
-        WHEN level = '仙王境圆满' THEN '12'
-        WHEN level = '仙王境中期' THEN '13'
-        WHEN level = '仙王境初期' THEN '14'
-        WHEN level = '真仙境圆满' THEN '15'
-        WHEN level = '真仙境中期' THEN '16'
-        WHEN level = '真仙境初期' THEN '17'
-        WHEN level = '至尊境圆满' THEN '18'
-        WHEN level = '至尊境中期' THEN '19'
-        WHEN level = '至尊境初期' THEN '20'
-        WHEN level = '遁一境圆满' THEN '21'
-        WHEN level = '遁一境中期' THEN '22'
-        WHEN level = '遁一境初期' THEN '23'
-        WHEN level = '斩我境圆满' THEN '24'
-        WHEN level = '斩我境中期' THEN '25'
-        WHEN level = '斩我境初期' THEN '26'
-        WHEN level = '虚道境圆满' THEN '27'
-        WHEN level = '虚道境中期' THEN '28'
-        WHEN level = '虚道境初期' THEN '29'
-        WHEN level = '天神境圆满' THEN '30'
-        WHEN level = '天神境中期' THEN '31'
-        WHEN level = '天神境初期' THEN '32'
-        WHEN level = '圣祭境圆满' THEN '33'
-        WHEN level = '圣祭境中期' THEN '34'
-        WHEN level = '圣祭境初期' THEN '35'
-        WHEN level = '真一境圆满' THEN '36'
-        WHEN level = '真一境中期' THEN '37'
-        WHEN level = '真一境初期' THEN '38'
-        WHEN level = '神火境圆满' THEN '39'
-        WHEN level = '神火境中期' THEN '40'
-        WHEN level = '神火境初期' THEN '41'
-        WHEN level = '尊者境圆满' THEN '42'
-        WHEN level = '尊者境中期' THEN '43'
-        WHEN level = '尊者境初期' THEN '44'
-        WHEN level = '列阵境圆满' THEN '45'
-        WHEN level = '列阵境中期' THEN '46'
-        WHEN level = '列阵境初期' THEN '47'
-        WHEN level = '铭纹境圆满' THEN '48'
-        WHEN level = '铭纹境中期' THEN '49'
-        WHEN level = '铭纹境初期' THEN '50'
-        WHEN level = '化灵境圆满' THEN '51'
-        WHEN level = '化灵境中期' THEN '52'
-        WHEN level = '化灵境初期' THEN '53'
-        WHEN level = '洞天境圆满' THEN '54'
-        WHEN level = '洞天境中期' THEN '55'
-        WHEN level = '洞天境初期' THEN '56'
-        WHEN level = '搬血境圆满' THEN '57'
-        WHEN level = '搬血境中期' THEN '58'
-        WHEN level = '搬血境初期' THEN '59'
-        WHEN level = '江湖好手' THEN '60'
-        ELSE level END ASC,exp DESC LIMIT 50"""
+        rank_mapping = {rank: idx for idx, rank in enumerate(get_user_rank('江湖好手')[1])}
+    
+        sql = """SELECT user_name, level, exp FROM user_xiuxian 
+            WHERE user_name IS NOT NULL
+            ORDER BY exp DESC, (CASE level """
+    
+        for level, value in sorted(rank_mapping.items(), key=lambda x: x[1], reverse=True):
+            sql += f"WHEN '{level}' THEN '{value:02}' "
+    
+        sql += """ELSE level END) ASC LIMIT 50"""
+    
         cur = self.conn.cursor()
         cur.execute(sql, )
         result = cur.fetchall()
         return result
+
+
+
 
     def stone_top(self):
         """这也是灵石排行榜"""
