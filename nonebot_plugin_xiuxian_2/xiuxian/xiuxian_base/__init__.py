@@ -445,13 +445,19 @@ async def remaname_(bot: Bot, event: GroupMessageEvent, args: Message = CommandA
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await remaname.finish()
-    msg = sql_message.update_user_name(user_id, user_name)
-    if XiuConfig().img:
-        pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
-        await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+    elif user_name is None:
+        if XiuConfig().img:
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + "道友确定要改名无名？还请三思。")
+            await bot.send_group_msg(group_id=event.group_id, message=MessageSegment.image(pic))
+        await remaname.finish()
     else:
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-    await remaname.finish()
+        msg = sql_message.update_user_name(user_id, user_name)
+        if XiuConfig().img:
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
+            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+        else:
+            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await remaname.finish()
 
 
 @level_up.handle(parameterless=[Cooldown(at_sender=False)])
@@ -1274,53 +1280,28 @@ async def rob_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Command
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await give_stone.finish()
-
-    if user_info['root'] == "器师":
-        msg = "目前职业无法抢劫！"
-        if XiuConfig().img:
-            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
-            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
-        else:
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-        await rob_stone.finish()
-    user_id = user_info['user_id']
+    user_id = user_info["user_id"]
+    user_mes = sql_message.get_user_message(user_id)
     give_qq = None  # 艾特的时候存到这里
     for arg in args:
         if arg.type == "at":
             give_qq = arg.data.get("qq", "")
     player1 = {"user_id": None, "道号": None, "气血": None, "攻击": None, "真元": None, '会心': None, '爆伤': None, '防御': 0}
     player2 = {"user_id": None, "道号": None, "气血": None, "攻击": None, "真元": None, '会心': None, '爆伤': None, '防御': 0}
-    if give_qq:
-        if str(give_qq) == str(user_id):
-            msg = "请不要偷自己刷成就！"
+    user_2 = sql_message.get_user_message(give_qq)
+    if user_mes and user_2:
+        if user_info['root'] == "器师":
+            msg = "目前职业无法抢劫！"
             if XiuConfig().img:
                 pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
             else:
                 await bot.send_group_msg(group_id=int(send_group_id), message=msg)
             await rob_stone.finish()
-
-        user_2 = sql_message.get_user_message(give_qq)
-        if user_2['root'] == "器师":
-            msg = "对方职业无法被抢劫！"
-            if XiuConfig().img:
-                pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
-                await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
-            else:
-                await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-            await rob_stone.finish()
-        if user_2:
-            if user_info['hp'] is None:
-                # 判断用户气血是否为None
-                sql_message.update_user_hp(user_id)
-                user_info = sql_message.get_user_message(user_id)
-            if user_2['hp'] is None:
-                sql_message.update_user_hp(give_qq)
-                user_2 = sql_message.get_user_message(give_qq)
-
-            if user_2['hp'] <= user_2['exp'] / 10:
-                time_2 = leave_harm_time(give_qq)
-                msg = f"对方重伤藏匿了，无法抢劫！距离对方脱离生命危险还需要{time_2}分钟！"
+       
+        if give_qq:
+            if str(give_qq) == str(user_id):
+                msg = "请不要偷自己刷成就！"
                 if XiuConfig().img:
                     pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                     await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -1328,102 +1309,138 @@ async def rob_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Command
                     await bot.send_group_msg(group_id=int(send_group_id), message=msg)
                 await rob_stone.finish()
 
-            if user_info['hp'] <= user_info['exp'] / 10:
-                time_msg = leave_harm_time(user_id)
-                msg = "重伤未愈，动弹不得！距离脱离生命危险还需要{}分钟！".format(time_msg)
-                msg += "请道友进行闭关，或者使用药品恢复气血，不要干等，没有自动回血！！！"
+            if user_2['root'] == "器师":
+                msg = "对方职业无法被抢劫！"
                 if XiuConfig().img:
                     pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                     await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
                 else:
                     await bot.send_group_msg(group_id=int(send_group_id), message=msg)
                 await rob_stone.finish()
-            impart_data_1 = xiuxian_impart.get_user_message(user_id)
-            player1['user_id'] = user_info['user_id']
-            player1['道号'] = user_info['user_name']
-            player1['气血'] = user_info['hp']
-            player1['攻击'] = user_info['atk']
-            player1['真元'] = user_info['mp']
-            player1['会心'] = int(
-                (0.01 + impart_data_1['impart_know_per'] if impart_data_1 is not None else 0) * 100)
-            player1['爆伤'] = int(
-                1.5 + impart_data_1['impart_burst_per'] if impart_data_1 is not None else 0)
-            user_buff_data = UserBuffDate(user_id)
-            user_armor_data = user_buff_data.get_user_armor_buff_data()
-            if user_armor_data is not None:
-                def_buff = int(user_armor_data['def_buff'])
-            else:
-                def_buff = 0
-            player1['防御'] = def_buff
+            if user_2:
+                if user_info['hp'] is None:
+                    # 判断用户气血是否为None
+                    sql_message.update_user_hp(user_id)
+                    user_info = sql_message.get_user_message(user_id)
+                if user_2['hp'] is None:
+                    sql_message.update_user_hp(give_qq)
+                    user_2 = sql_message.get_user_message(give_qq)
 
-            impart_data_2 = xiuxian_impart.get_user_message(user_2['user_id'])
-            player2['user_id'] = user_2['user_id']
-            player2['道号'] = user_2['user_name']
-            player2['气血'] = user_2['hp']
-            player2['攻击'] = user_2['atk']
-            player2['真元'] = user_2['mp']
-            player2['会心'] = int(
-                (0.01 + impart_data_2['impart_know_per'] if impart_data_2 is not None else 0) * 100)
-            player2['爆伤'] = int(
-                1.5 + impart_data_2['impart_burst_per'] if impart_data_2 is not None else 0)
-            user_buff_data = UserBuffDate(user_2['user_id'])
-            user_armor_data = user_buff_data.get_user_armor_buff_data()
-            if user_armor_data is not None:
-                def_buff = int(user_armor_data['def_buff'])
-            else:
-                def_buff = 0
-            player2['防御'] = def_buff
-
-            result, victor = OtherSet().player_fight(player1, player2)
-            await send_msg_handler(bot, event, '决斗场', bot.self_id, result)
-            if victor == player1['道号']:
-                foe_stone = user_2['stone']
-                if foe_stone > 0:
-                    sql_message.update_ls(user_id, int(foe_stone * 0.1), 1)
-                    sql_message.update_ls(give_qq, int(foe_stone * 0.1), 2)
-                    exps = int(user_2['exp'] * 0.005)
-                    sql_message.update_exp(user_id, exps)
-                    sql_message.update_j_exp(give_qq, exps / 2)
-                    msg = "大战一番，战胜对手，获取灵石{}枚，修为增加{}，对手修为减少{}".format(int(foe_stone * 0.1), exps, exps / 2)
+                if user_2['hp'] <= user_2['exp'] / 10:
+                    time_2 = leave_harm_time(give_qq)
+                    msg = f"对方重伤藏匿了，无法抢劫！距离对方脱离生命危险还需要{time_2}分钟！"
                     if XiuConfig().img:
                         pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                         await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
                     else:
                         await bot.send_group_msg(group_id=int(send_group_id), message=msg)
                     await rob_stone.finish()
+
+                if user_info['hp'] <= user_info['exp'] / 10:
+                    time_msg = leave_harm_time(user_id)
+                    msg = "重伤未愈，动弹不得！距离脱离生命危险还需要{}分钟！".format(time_msg)
+                    msg += "请道友进行闭关，或者使用药品恢复气血，不要干等，没有自动回血！！！"
+                    if XiuConfig().img:
+                        pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
+                        await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+                    else:
+                        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+                    await rob_stone.finish()
+                impart_data_1 = xiuxian_impart.get_user_message(user_id)
+                player1['user_id'] = user_info['user_id']
+                player1['道号'] = user_info['user_name']
+                player1['气血'] = user_info['hp']
+                player1['攻击'] = user_info['atk']
+                player1['真元'] = user_info['mp']
+                player1['会心'] = int(
+                    (0.01 + impart_data_1['impart_know_per'] if impart_data_1 is not None else 0) * 100)
+                player1['爆伤'] = int(
+                    1.5 + impart_data_1['impart_burst_per'] if impart_data_1 is not None else 0)
+                user_buff_data = UserBuffDate(user_id)
+                user_armor_data = user_buff_data.get_user_armor_buff_data()
+                if user_armor_data is not None:
+                    def_buff = int(user_armor_data['def_buff'])
                 else:
-                    exps = int(user_2['exp'] * 0.005)
-                    sql_message.update_exp(user_id, exps)
-                    sql_message.update_j_exp(give_qq, exps / 2)
-                    msg = "大战一番，战胜对手，结果对方是个穷光蛋，修为增加{}，对手修为减少{}".format(exps, exps / 2)
-                    if XiuConfig().img:
-                        pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
-                        await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
-                    else:
-                        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-                    await rob_stone.finish()
+                    def_buff = 0
+                player1['防御'] = def_buff
 
-            elif victor == player2['道号']:
-                mind_stone = user_info['stone']
-                if mind_stone > 0:
-                    sql_message.update_ls(user_id, int(mind_stone * 0.1), 2)
-                    sql_message.update_ls(give_qq, int(mind_stone * 0.1), 1)
-                    exps = int(user_info['exp'] * 0.005)
-                    sql_message.update_j_exp(user_id, exps)
-                    sql_message.update_exp(give_qq, exps / 2)
-                    msg = "大战一番，被对手反杀，损失灵石{}枚，修为减少{}，对手获取灵石{}枚，修为增加{}".format(int(mind_stone * 0.1), exps,
-                                                                              int(mind_stone * 0.1), exps / 2)
-                    if XiuConfig().img:
-                        pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
-                        await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
-                    else:
-                        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-                    await rob_stone.finish()
+                impart_data_2 = xiuxian_impart.get_user_message(user_2['user_id'])
+                player2['user_id'] = user_2['user_id']
+                player2['道号'] = user_2['user_name']
+                player2['气血'] = user_2['hp']
+                player2['攻击'] = user_2['atk']
+                player2['真元'] = user_2['mp']
+                player2['会心'] = int(
+                    (0.01 + impart_data_2['impart_know_per'] if impart_data_2 is not None else 0) * 100)
+                player2['爆伤'] = int(
+                    1.5 + impart_data_2['impart_burst_per'] if impart_data_2 is not None else 0)
+                user_buff_data = UserBuffDate(user_2['user_id'])
+                user_armor_data = user_buff_data.get_user_armor_buff_data()
+                if user_armor_data is not None:
+                    def_buff = int(user_armor_data['def_buff'])
                 else:
-                    exps = int(user_info['exp'] * 0.005)
-                    sql_message.update_j_exp(user_id, exps)
-                    sql_message.update_exp(give_qq, exps / 2)
-                    msg = "大战一番，被对手反杀，修为减少{}，对手修为增加{}".format(exps, exps / 2)
+                    def_buff = 0
+                player2['防御'] = def_buff
+
+                result, victor = OtherSet().player_fight(player1, player2)
+                await send_msg_handler(bot, event, '决斗场', bot.self_id, result)
+                if victor == player1['道号']:
+                    foe_stone = user_2['stone']
+                    if foe_stone > 0:
+                        sql_message.update_ls(user_id, int(foe_stone * 0.1), 1)
+                        sql_message.update_ls(give_qq, int(foe_stone * 0.1), 2)
+                        exps = int(user_2['exp'] * 0.005)
+                        sql_message.update_exp(user_id, exps)
+                        sql_message.update_j_exp(give_qq, exps / 2)
+                        msg = "大战一番，战胜对手，获取灵石{}枚，修为增加{}，对手修为减少{}".format(int(foe_stone * 0.1), exps, exps / 2)
+                        if XiuConfig().img:
+                            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
+                            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+                        else:
+                            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+                        await rob_stone.finish()
+                    else:
+                        exps = int(user_2['exp'] * 0.005)
+                        sql_message.update_exp(user_id, exps)
+                        sql_message.update_j_exp(give_qq, exps / 2)
+                        msg = "大战一番，战胜对手，结果对方是个穷光蛋，修为增加{}，对手修为减少{}".format(exps, exps / 2)
+                        if XiuConfig().img:
+                            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
+                            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+                        else:
+                            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+                        await rob_stone.finish()
+
+                elif victor == player2['道号']:
+                    mind_stone = user_info['stone']
+                    if mind_stone > 0:
+                        sql_message.update_ls(user_id, int(mind_stone * 0.1), 2)
+                        sql_message.update_ls(give_qq, int(mind_stone * 0.1), 1)
+                        exps = int(user_info['exp'] * 0.005)
+                        sql_message.update_j_exp(user_id, exps)
+                        sql_message.update_exp(give_qq, exps / 2)
+                        msg = "大战一番，被对手反杀，损失灵石{}枚，修为减少{}，对手获取灵石{}枚，修为增加{}".format(int(mind_stone * 0.1), exps,
+                                                                                int(mind_stone * 0.1), exps / 2)
+                        if XiuConfig().img:
+                            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
+                            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+                        else:
+                            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+                        await rob_stone.finish()
+                    else:
+                        exps = int(user_info['exp'] * 0.005)
+                        sql_message.update_j_exp(user_id, exps)
+                        sql_message.update_exp(give_qq, exps / 2)
+                        msg = "大战一番，被对手反杀，修为减少{}，对手修为增加{}".format(exps, exps / 2)
+                        if XiuConfig().img:
+                            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
+                            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+                        else:
+                            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+                        await rob_stone.finish()
+
+                else:
+                    msg = "发生错误！"
                     if XiuConfig().img:
                         pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                         await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -1431,23 +1448,14 @@ async def rob_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Command
                         await bot.send_group_msg(group_id=int(send_group_id), message=msg)
                     await rob_stone.finish()
 
-            else:
-                msg = "发生错误！"
-                if XiuConfig().img:
-                    pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
-                    await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
-                else:
-                    await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-                await rob_stone.finish()
-
+    else:
+        msg = "对方未踏入修仙界，不可抢劫！"
+        if XiuConfig().img:
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
+            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
-            msg = "没有对方的信息！"
-            if XiuConfig().img:
-                pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
-                await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
-            else:
-                await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-            await rob_stone.finish()
+            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await rob_stone.finish()
 
 
 @restate.handle(parameterless=[Cooldown(at_sender=False)])

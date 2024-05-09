@@ -1098,9 +1098,8 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await use.finish()
     elif goods_type == "丹药":
-        num = 1  # 默认使用数量为1
+        num = 1
         try:
-             # 如果指定了数量
             if len(args) > 1 and 1 <= int(args[1]) <= int(goods_num):
                 num = int(args[1])
             elif len(args) > 1 and int(args[1]) > int(goods_num):
@@ -1112,7 +1111,6 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
                     await bot.send_group_msg(group_id=int(send_group_id), message=msg)
                 await use.finish()
         except ValueError:
-            # 默认使用1个，并继续后续操作
             num = 1
         msg = check_use_elixir(user_id, goods_id, num)
         if XiuConfig().img:
@@ -1122,9 +1120,8 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await use.finish()
     elif goods_type =="神物":
-        num = 1  # 默认使用数量为1
+        num = 1
         try:
-             # 如果指定了数量
             if len(args) > 1 and 1 <= int(args[1]) <= int(goods_num):
                 num = int(args[1])
             elif len(args) > 1 and int(args[1]) > int(goods_num):
@@ -1136,7 +1133,6 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
                     await bot.send_group_msg(group_id=int(send_group_id), message=msg)
                 await use.finish()
         except ValueError:
-            # 默认使用1个，并继续后续操作
             num = 1
         goods_info = items.get_data_by_item_id(goods_id)
         user_info = sql_message.get_user_message(user_id)

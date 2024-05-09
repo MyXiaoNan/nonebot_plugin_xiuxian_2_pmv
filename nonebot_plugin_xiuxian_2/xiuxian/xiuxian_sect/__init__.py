@@ -234,7 +234,8 @@ async def sect_elixir_get_(bot: Bot, event: GroupMessageEvent):
         await sect_elixir_get.finish()
 
     sect_id = user_info['sect_id']
-    sql_message.update_last_check_info_time(user_info) # 更新查看修仙信息时间
+    user_id = user_info['user_id']
+    sql_message.update_last_check_info_time(user_id) # 更新查看修仙信息时间
     if sect_id:
         sect_position = user_info['sect_position']
         elixir_room_config = config['宗门丹房参数']
