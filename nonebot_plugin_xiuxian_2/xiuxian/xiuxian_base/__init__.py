@@ -1394,7 +1394,8 @@ async def rob_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Command
                         exps = int(user_2['exp'] * 0.005)
                         sql_message.update_exp(user_id, exps)
                         sql_message.update_j_exp(give_qq, exps / 2)
-                        msg = "大战一番，战胜对手，获取灵石{}枚，修为增加{}，对手修为减少{}".format(int(foe_stone * 0.1), exps, exps / 2)
+                        msg = "大战一番，战胜对手，获取灵石{}枚，修为增加{}，对手修为减少{}".format(
+                                            int(number_to(foe_stone * 0.1)), number_to(exps), number_to(exps / 2))
                         if XiuConfig().img:
                             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
                             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -1405,7 +1406,7 @@ async def rob_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Command
                         exps = int(user_2['exp'] * 0.005)
                         sql_message.update_exp(user_id, exps)
                         sql_message.update_j_exp(give_qq, exps / 2)
-                        msg = "大战一番，战胜对手，结果对方是个穷光蛋，修为增加{}，对手修为减少{}".format(exps, exps / 2)
+                        msg = "大战一番，战胜对手，结果对方是个穷光蛋，修为增加{}，对手修为减少{}".format(number_to(exps), number_to(exps / 2))
                         if XiuConfig().img:
                             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
                             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -1421,8 +1422,8 @@ async def rob_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Command
                         exps = int(user_info['exp'] * 0.005)
                         sql_message.update_j_exp(user_id, exps)
                         sql_message.update_exp(give_qq, exps / 2)
-                        msg = "大战一番，被对手反杀，损失灵石{}枚，修为减少{}，对手获取灵石{}枚，修为增加{}".format(int(mind_stone * 0.1), exps,
-                                                                                int(mind_stone * 0.1), exps / 2)
+                        msg = "大战一番，被对手反杀，损失灵石{}枚，修为减少{}，对手获取灵石{}枚，修为增加{}".format(int(number_to(mind_stone * 0.1)), number_to(exps),
+                                                                                int(number_to(mind_stone * 0.1)), number_to(exps / 2))
                         if XiuConfig().img:
                             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
                             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -1433,7 +1434,7 @@ async def rob_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Command
                         exps = int(user_info['exp'] * 0.005)
                         sql_message.update_j_exp(user_id, exps)
                         sql_message.update_exp(give_qq, exps / 2)
-                        msg = "大战一番，被对手反杀，修为减少{}，对手修为增加{}".format(exps, exps / 2)
+                        msg = "大战一番，被对手反杀，修为减少{}，对手修为增加{}".format(number_to(exps), number_to(exps / 2))
                         if XiuConfig().img:
                             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
                             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -1442,7 +1443,7 @@ async def rob_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Command
                         await rob_stone.finish()
 
                 else:
-                    msg = "发生错误！"
+                    msg = "发生错误，请检查后台！"
                     if XiuConfig().img:
                         pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
                         await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))

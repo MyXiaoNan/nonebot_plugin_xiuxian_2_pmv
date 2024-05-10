@@ -143,8 +143,8 @@ class XiuxianDateManage:
             try:
                 c.execute(f"select {i} from user_xiuxian")
             except sqlite3.OperationalError:
-                logger.opt(colors=True).info("<yellow>有数据库字段不存在，开始创建\n</yellow>")
-                sql = f"ALTER TABLE user_xiuxian ADD COLUMN {i} INTEGER DEFAULT 0;"
+                logger.opt(colors=True).info("<yellow>sql_user_xiuxian有字段不存在，开始创建\n</yellow>")
+                sql = "ALTER TABLE user_xiuxian ADD COLUMN {} INTEGER DEFAULT 0;".format(i)
                 logger.opt(colors=True).info("<green>{}</green>".format(sql))
                 c.execute(sql)
 
@@ -152,8 +152,8 @@ class XiuxianDateManage:
             try:
                 c.execute(f"select {d} from user_cd")
             except sqlite3.OperationalError:
-                logger.opt(colors=True).info("<yellow>有数据库字段不存在，开始创建</yellow>")
-                sql = f"ALTER TABLE user_cd ADD COLUMN {d} INTEGER DEFAULT 0;"
+                logger.opt(colors=True).info("<yellow>sql_user_cd有字段不存在，开始创建</yellow>")
+                sql = "ALTER TABLE user_cd ADD COLUMN {} INTEGER DEFAULT 0;".format(d)
                 logger.opt(colors=True).info("<green>{}</green>".format(sql))
                 c.execute(sql)
 
@@ -161,8 +161,8 @@ class XiuxianDateManage:
             try:
                 c.execute(f"select {s} from sects")
             except sqlite3.OperationalError:
-                logger.opt(colors=True).info("<yellow>有数据库字段不存在，开始创建</yellow>")
-                sql = f"ALTER TABLE sects ADD COLUMN {s} INTEGER DEFAULT 0;"
+                logger.opt(colors=True).info("<yellow>sql_sects有字段不存在，开始创建</yellow>")
+                sql = "ALTER TABLE sects ADD COLUMN {} INTEGER DEFAULT 0;".format(s)
                 logger.opt(colors=True).info("<green>{}</green>".format(sql))
                 c.execute(sql)
 
@@ -170,8 +170,8 @@ class XiuxianDateManage:
             try:
                 c.execute(f"select {m} from BuffInfo")
             except sqlite3.OperationalError:
-                logger.opt(colors=True).info("<yellow>有数据库字段不存在，开始创建</yellow>")
-                sql = f"ALTER TABLE BuffInfo ADD COLUMN {m} INTEGER DEFAULT 0;"
+                logger.opt(colors=True).info("<yellow>sql_buff有字段不存在，开始创建</yellow>")
+                sql = "ALTER TABLE BuffInfo ADD COLUMN {} INTEGER DEFAULT 0;".format(m)
                 logger.opt(colors=True).info("<green>{}</green>".format(sql))
                 c.execute(sql)
 
@@ -179,17 +179,16 @@ class XiuxianDateManage:
             try:
                 c.execute(f"select {b} from back")
             except sqlite3.OperationalError:
-                logger.opt(colors=True).info("<yellow>有数据库字段不存在，开始创建</yellow>")
-                sql = f"ALTER TABLE back ADD COLUMN {b} INTEGER DEFAULT 0;"
+                logger.opt(colors=True).info("<yellow>sql_back有字段不存在，开始创建</yellow>")
+                sql = "ALTER TABLE back ADD COLUMN {} INTEGER DEFAULT 0;".format(b)
                 logger.opt(colors=True).info("<green>{}</green>".format(sql))
                 c.execute(sql)
         
         # 检查并更新 last_check_info_time 列的记录
         c.execute("""UPDATE user_cd
-    SET last_check_info_time = ?
-    WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
-    """, (current_time,))
-
+SET last_check_info_time = ?
+WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
+        """, (current_time,))
 
         self.conn.commit()
 
@@ -200,7 +199,7 @@ class XiuxianDateManage:
     def _create_user(self, user_id: str, root: str, type: str, power: str, create_time, user_name) -> None:
         """在数据库中创建用户并初始化"""
         c = self.conn.cursor()
-        sql = f"INSERT INTO user_xiuxian (user_id,stone,root,root_type,level,power,create_time,user_name,exp,sect_id,sect_position) VALUES (?,0,?,?,'江湖好手',?,?,?,100,NULL,NULL)"
+        sql = "INSERT INTO user_xiuxian (user_id,stone,root,root_type,level,power,create_time,user_name,exp,sect_id,sect_position) VALUES (?,0,?,?,'江湖好手',?,?,?,100,NULL,NULL)"
         c.execute(sql, (user_id, root, type, power, create_time, user_name))
         self.conn.commit()
 
@@ -208,7 +207,7 @@ class XiuxianDateManage:
     def get_user_message(self, user_id):
         """根据USER_ID获取用户信息,不获取功法加成"""
         cur = self.conn.cursor()
-        sql = f"select * from user_xiuxian WHERE user_id=?"
+        sql = "select * from user_xiuxian WHERE user_id=?"
         cur.execute(sql, (user_id,))
         result = cur.fetchone()
         if result:
@@ -222,7 +221,7 @@ class XiuxianDateManage:
     def get_user_real_info(self, user_id):
         """根据USER_ID获取用户信息,获取功法加成"""
         cur = self.conn.cursor()
-        sql = f"select * from user_xiuxian WHERE user_id=?"
+        sql = "select * from user_xiuxian WHERE user_id=?"
         cur.execute(sql, (user_id,))
         result = cur.fetchone()
         if result:
@@ -240,7 +239,7 @@ class XiuxianDateManage:
         :return:
         """
         cur = self.conn.cursor()
-        sql = f"select * from sects WHERE sect_id=?"
+        sql = "select * from sects WHERE sect_id=?"
         cur.execute(sql, (sect_id,))
         result = cur.fetchone()
         if result:
@@ -271,7 +270,7 @@ class XiuxianDateManage:
     def get_user_message2(self, user_id):
         """根据user_name获取用户信息"""
         cur = self.conn.cursor()
-        sql = f"select * from user_xiuxian WHERE user_name=?"
+        sql = "select * from user_xiuxian WHERE user_name=?"
         cur.execute(sql, (user_id,))
         result = cur.fetchone()
         if result:
@@ -291,19 +290,19 @@ class XiuxianDateManage:
         if not result:
             self._create_user(user_id, args[0], args[1], args[2], args[3], args[4])
             self.conn.commit()
-            welcome_msg = '欢迎进入修仙世界的，你的灵根为：{},类型是：{},你的战力为：{},当前境界：江湖好手'.format(args[0], args[1], args[2], args[3])
+            welcome_msg = "欢迎进入修仙世界的，你的灵根为：{},类型是：{},你的战力为：{},当前境界：江湖好手".format(args[0], args[1], args[2], args[3])
             return True, welcome_msg
         else:
-            return False, '您已迈入修仙世界，输入【我的修仙信息】获取数据吧！'
+            return False, "您已迈入修仙世界，输入【我的修仙信息】获取数据吧！"
 
     def get_sign(self, user_id):
         """获取用户签到信息"""
         cur = self.conn.cursor()
-        sql = f"select is_sign from user_xiuxian WHERE user_id=?"
+        sql = "select is_sign from user_xiuxian WHERE user_id=?"
         cur.execute(sql, (user_id,))
         result = cur.fetchone()
         if not result:
-            return '修仙界没有你的足迹，输入 我要修仙 加入修仙世界吧！'
+            return "修仙界没有你的足迹，输入 我要修仙 加入修仙世界吧！"
         elif result[0] == 0:
             ls = random.randint(XiuConfig().sign_in_lingshi_lower_limit, XiuConfig().sign_in_lingshi_upper_limit)
             sql2 = f"UPDATE user_xiuxian SET is_sign=1,stone=stone+? WHERE user_id=?"
@@ -316,12 +315,12 @@ class XiuxianDateManage:
     def get_beg(self, user_id):
         """获取今日奇缘信息"""
         cur = self.conn.cursor()
-        sql = f"select is_beg from user_xiuxian WHERE user_id=?"
+        sql = "select is_beg from user_xiuxian WHERE user_id=?"
         cur.execute(sql, (user_id,))
         result = cur.fetchone()
         if result[0] == 0:
             ls = random.randint(XiuConfig().beg_lingshi_lower_limit, XiuConfig().beg_lingshi_upper_limit)
-            sql2 = f"UPDATE user_xiuxian SET is_beg=1,stone=stone+? WHERE user_id=?"
+            sql2 = "UPDATE user_xiuxian SET is_beg=1,stone=stone+? WHERE user_id=?"
             cur.execute(sql2, (ls,user_id))
             self.conn.commit()
             return ls
@@ -333,11 +332,11 @@ class XiuxianDateManage:
         cur = self.conn.cursor()
 
         # 查灵石
-        sql_s = f"SELECT stone FROM user_xiuxian WHERE user_id=?"
+        sql_s = "SELECT stone FROM user_xiuxian WHERE user_id=?"
         cur.execute(sql_s, (user_id,))
         result = cur.fetchone()
         if result[0] >= XiuConfig().remake:
-            sql = f"UPDATE user_xiuxian SET root=?,root_type=?,stone=stone-? WHERE user_id=?"
+            sql = "UPDATE user_xiuxian SET root=?,root_type=?,stone=stone-? WHERE user_id=?"
             cur.execute(sql, (lg, type, XiuConfig().remake, user_id))
             self.conn.commit()
 
@@ -477,7 +476,7 @@ class XiuxianDateManage:
         self.conn.commit()
 
     def ban_user(self, user_id):
-        """小黑屋，暂时没用"""
+        """小黑屋"""
         sql = f"UPDATE user_xiuxian SET is_ban=1 WHERE user_id=?"
         cur = self.conn.cursor()
         cur.execute(sql, (user_id,))
@@ -685,7 +684,10 @@ class XiuxianDateManage:
         cur = self.conn.cursor()
         cur.execute(sql, )
         result = cur.fetchall()
-        return result
+        if result:
+            return result
+        else:
+            return None
 
     def get_all_user_id(self):
         """获取全部用户id"""
@@ -693,7 +695,10 @@ class XiuxianDateManage:
         cur = self.conn.cursor()
         cur.execute(sql, )
         result = cur.fetchall()
-        return [row[0] for row in result]
+        if result:
+            return [row[0] for row in result]
+        else:
+            return None
 
 
     def in_closing(self, user_id, the_type):
@@ -710,7 +715,6 @@ class XiuxianDateManage:
             now_time = 0
         elif the_type == 2:
             now_time = datetime.now()
-        # scheduled_time = datetime.now() + datetime.timedelta(minutes=int(the_time))
         sql = "UPDATE user_cd SET type=?,create_time=? WHERE user_id=?"
         cur = self.conn.cursor()
         cur.execute(sql, (the_type, now_time, user_id))
@@ -966,14 +970,14 @@ class XiuxianDateManage:
         self.conn.commit()
 
     def update_user_hp(self, user_id):
-        """重置用户状态信息"""
+        """重置用户hp,mp信息"""
         sql = f"UPDATE user_xiuxian SET hp=exp/2,mp=exp WHERE user_id=?"
         cur = self.conn.cursor()
         cur.execute(sql, (user_id,))
         self.conn.commit()
 
     def restate(self, user_id=None):
-        """restate重置所有用户状态或重置对应人状态"""
+        """重置所有用户状态或重置对应人状态"""
         if user_id is None:
             sql = f"UPDATE user_xiuxian SET hp=exp/2,mp=exp"
             cur = self.conn.cursor()
@@ -992,9 +996,6 @@ class XiuxianDateManage:
         cur = self.conn.cursor()
         cur.execute(sql, (user_id,))
         result = cur.fetchall()
-        # msg = f"你的背包\n"
-        # for i in result:
-        #     msg += f"{i},"
         if not result:
             return None
     
