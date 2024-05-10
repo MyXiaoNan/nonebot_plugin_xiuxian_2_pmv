@@ -1139,17 +1139,6 @@ async def Boss_fight(player1: dict, boss: dict, type_in=2, bot_id=0):
                                      "uin": int(bot_id), "content": f"{player1['道号']}发动了八九玄功,获得了{int((random_def)*100)}%!减伤！"}}
         play_list.append(random_def_data)
         
-        
-    # if boss_js <= 0.6 and boss['name'] == "衣以候":
-    #    boss_js_data = {"type": "node", "data": {"name": f"{boss['name']}",
-    #                                 "uin": int(bot_id), "content": f"使用了金身神通：混世魔身！,获得了{int((1-boss_js)*100)}%减伤!"}}  
-    #    play_list.append(boss_js_data)
-    #    print(boss_js_data["data"]["content"])
-    
-    # if boss_js <1:
-    #     boss_js_data = {"type": "node", "data": {"name": f"{boss['name']}",
-    #                                 "uin": int(bot_id), "content": f"凝聚真气,获得了{int((1-boss_js)*100)}%减伤!"}}
-    #     play_list.append(boss_js_data)
           
     boss['会心'] = 30
     
@@ -1662,10 +1651,6 @@ def start_sub_buff_handle(player1_sub_open, subbuffdata1, user1_battle_buff_date
     msg2 = apply_buff(user2_battle_buff_date, subbuffdata2, is_opponent=True) if player2_sub_open else ""
 
     return user1_battle_buff_date, user2_battle_buff_date, msg1 + msg2
-
-
-def before_atk_sub_buff_handle(player, subbuffdata):
-    print("123")
 
 
 # 处理攻击后辅修功法效果

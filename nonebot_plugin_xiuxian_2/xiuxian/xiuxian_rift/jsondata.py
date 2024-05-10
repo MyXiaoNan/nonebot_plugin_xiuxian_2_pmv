@@ -4,6 +4,7 @@ except ImportError:
     import json
 import os
 from pathlib import Path
+from nonebot.log import logger
 
 SKILLPATH = Path() / "data" / "xiuxian" / "功法" / "功法概率设置.json"
 PLAYERSDATA = Path() / "data" / "xiuxian" / "players"
@@ -26,7 +27,7 @@ def read_rift_data(user_id):
 def save_rift_data(user_id, data):
     user_id = str(user_id)
     if not os.path.exists(PLAYERSDATA / user_id):
-        print("目录不存在，创建目录")
+        logger.opt(colors=True).info("<red>目录不存在，创建目录</green>")
         os.makedirs(PLAYERSDATA / user_id)
     FILEPATH = PLAYERSDATA / user_id / "riftinfo.json"
     data = json.dumps(data, ensure_ascii=False, indent=3)

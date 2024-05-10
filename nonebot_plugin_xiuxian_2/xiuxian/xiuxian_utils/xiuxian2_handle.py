@@ -9,7 +9,7 @@ from datetime import datetime
 from pathlib import Path
 from nonebot.log import logger
 from .data_source import jsondata
-from ..xiuxian_config import XiuConfig
+from ..xiuxian_config import XiuConfig, get_user_rank
 from .. import DRIVER
 from .item_json import Items
 from .xn_xiuxian_impart_config import config_impart
@@ -143,8 +143,8 @@ class XiuxianDateManage:
             try:
                 c.execute(f"select {i} from user_xiuxian")
             except sqlite3.OperationalError:
-                logger.opt(colors=True).info("<yellow>有数据库字段不存在，开始创建\n</yellow>")
-                sql = f"ALTER TABLE user_xiuxian ADD COLUMN {i} INTEGER DEFAULT 0;"
+                logger.opt(colors=True).info("<yellow>sql_user_xiuxian有字段不存在，开始创建\n</yellow>")
+                sql = "ALTER TABLE user_xiuxian ADD COLUMN {} INTEGER DEFAULT 0;".format(i)
                 logger.opt(colors=True).info("<green>{}</green>".format(sql))
                 c.execute(sql)
 
@@ -152,8 +152,8 @@ class XiuxianDateManage:
             try:
                 c.execute(f"select {d} from user_cd")
             except sqlite3.OperationalError:
-                logger.opt(colors=True).info("<yellow>有数据库字段不存在，开始创建</yellow>")
-                sql = f"ALTER TABLE user_cd ADD COLUMN {d} INTEGER DEFAULT 0;"
+                logger.opt(colors=True).info("<yellow>sql_user_cd有字段不存在，开始创建</yellow>")
+                sql = "ALTER TABLE user_cd ADD COLUMN {} INTEGER DEFAULT 0;".format(d)
                 logger.opt(colors=True).info("<green>{}</green>".format(sql))
                 c.execute(sql)
 
@@ -161,8 +161,8 @@ class XiuxianDateManage:
             try:
                 c.execute(f"select {s} from sects")
             except sqlite3.OperationalError:
-                logger.opt(colors=True).info("<yellow>有数据库字段不存在，开始创建</yellow>")
-                sql = f"ALTER TABLE sects ADD COLUMN {s} INTEGER DEFAULT 0;"
+                logger.opt(colors=True).info("<yellow>sql_sects有字段不存在，开始创建</yellow>")
+                sql = "ALTER TABLE sects ADD COLUMN {} INTEGER DEFAULT 0;".format(s)
                 logger.opt(colors=True).info("<green>{}</green>".format(sql))
                 c.execute(sql)
 
@@ -170,8 +170,8 @@ class XiuxianDateManage:
             try:
                 c.execute(f"select {m} from BuffInfo")
             except sqlite3.OperationalError:
-                logger.opt(colors=True).info("<yellow>有数据库字段不存在，开始创建</yellow>")
-                sql = f"ALTER TABLE BuffInfo ADD COLUMN {m} INTEGER DEFAULT 0;"
+                logger.opt(colors=True).info("<yellow>sql_buff有字段不存在，开始创建</yellow>")
+                sql = "ALTER TABLE BuffInfo ADD COLUMN {} INTEGER DEFAULT 0;".format(m)
                 logger.opt(colors=True).info("<green>{}</green>".format(sql))
                 c.execute(sql)
 
@@ -179,17 +179,16 @@ class XiuxianDateManage:
             try:
                 c.execute(f"select {b} from back")
             except sqlite3.OperationalError:
-                logger.opt(colors=True).info("<yellow>有数据库字段不存在，开始创建</yellow>")
-                sql = f"ALTER TABLE back ADD COLUMN {b} INTEGER DEFAULT 0;"
+                logger.opt(colors=True).info("<yellow>sql_back有字段不存在，开始创建</yellow>")
+                sql = "ALTER TABLE back ADD COLUMN {} INTEGER DEFAULT 0;".format(b)
                 logger.opt(colors=True).info("<green>{}</green>".format(sql))
                 c.execute(sql)
         
         # 检查并更新 last_check_info_time 列的记录
         c.execute("""UPDATE user_cd
-    SET last_check_info_time = ?
-    WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
-    """, (current_time,))
-
+SET last_check_info_time = ?
+WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
+        """, (current_time,))
 
         self.conn.commit()
 
@@ -200,7 +199,7 @@ class XiuxianDateManage:
     def _create_user(self, user_id: str, root: str, type: str, power: str, create_time, user_name) -> None:
         """在数据库中创建用户并初始化"""
         c = self.conn.cursor()
-        sql = f"INSERT INTO user_xiuxian (user_id,stone,root,root_type,level,power,create_time,user_name,exp,sect_id,sect_position) VALUES (?,0,?,?,'江湖好手',?,?,?,100,NULL,NULL)"
+        sql = "INSERT INTO user_xiuxian (user_id,stone,root,root_type,level,power,create_time,user_name,exp,sect_id,sect_position) VALUES (?,0,?,?,'江湖好手',?,?,?,100,NULL,NULL)"
         c.execute(sql, (user_id, root, type, power, create_time, user_name))
         self.conn.commit()
 
@@ -208,7 +207,7 @@ class XiuxianDateManage:
     def get_user_message(self, user_id):
         """根据USER_ID获取用户信息,不获取功法加成"""
         cur = self.conn.cursor()
-        sql = f"select * from user_xiuxian WHERE user_id=?"
+        sql = "select * from user_xiuxian WHERE user_id=?"
         cur.execute(sql, (user_id,))
         result = cur.fetchone()
         if result:
@@ -222,7 +221,7 @@ class XiuxianDateManage:
     def get_user_real_info(self, user_id):
         """根据USER_ID获取用户信息,获取功法加成"""
         cur = self.conn.cursor()
-        sql = f"select * from user_xiuxian WHERE user_id=?"
+        sql = "select * from user_xiuxian WHERE user_id=?"
         cur.execute(sql, (user_id,))
         result = cur.fetchone()
         if result:
@@ -240,7 +239,7 @@ class XiuxianDateManage:
         :return:
         """
         cur = self.conn.cursor()
-        sql = f"select * from sects WHERE sect_id=?"
+        sql = "select * from sects WHERE sect_id=?"
         cur.execute(sql, (sect_id,))
         result = cur.fetchone()
         if result:
@@ -271,7 +270,7 @@ class XiuxianDateManage:
     def get_user_message2(self, user_id):
         """根据user_name获取用户信息"""
         cur = self.conn.cursor()
-        sql = f"select * from user_xiuxian WHERE user_name=?"
+        sql = "select * from user_xiuxian WHERE user_name=?"
         cur.execute(sql, (user_id,))
         result = cur.fetchone()
         if result:
@@ -291,19 +290,19 @@ class XiuxianDateManage:
         if not result:
             self._create_user(user_id, args[0], args[1], args[2], args[3], args[4])
             self.conn.commit()
-            welcome_msg = '欢迎进入修仙世界的，你的灵根为：{},类型是：{},你的战力为：{},当前境界：江湖好手'.format(args[0], args[1], args[2], args[3])
+            welcome_msg = "欢迎进入修仙世界的，你的灵根为：{},类型是：{},你的战力为：{},当前境界：江湖好手".format(args[0], args[1], args[2], args[3])
             return True, welcome_msg
         else:
-            return False, '您已迈入修仙世界，输入【我的修仙信息】获取数据吧！'
+            return False, "您已迈入修仙世界，输入【我的修仙信息】获取数据吧！"
 
     def get_sign(self, user_id):
         """获取用户签到信息"""
         cur = self.conn.cursor()
-        sql = f"select is_sign from user_xiuxian WHERE user_id=?"
+        sql = "select is_sign from user_xiuxian WHERE user_id=?"
         cur.execute(sql, (user_id,))
         result = cur.fetchone()
         if not result:
-            return '修仙界没有你的足迹，输入 我要修仙 加入修仙世界吧！'
+            return "修仙界没有你的足迹，输入 我要修仙 加入修仙世界吧！"
         elif result[0] == 0:
             ls = random.randint(XiuConfig().sign_in_lingshi_lower_limit, XiuConfig().sign_in_lingshi_upper_limit)
             sql2 = f"UPDATE user_xiuxian SET is_sign=1,stone=stone+? WHERE user_id=?"
@@ -316,12 +315,12 @@ class XiuxianDateManage:
     def get_beg(self, user_id):
         """获取今日奇缘信息"""
         cur = self.conn.cursor()
-        sql = f"select is_beg from user_xiuxian WHERE user_id=?"
+        sql = "select is_beg from user_xiuxian WHERE user_id=?"
         cur.execute(sql, (user_id,))
         result = cur.fetchone()
         if result[0] == 0:
             ls = random.randint(XiuConfig().beg_lingshi_lower_limit, XiuConfig().beg_lingshi_upper_limit)
-            sql2 = f"UPDATE user_xiuxian SET is_beg=1,stone=stone+? WHERE user_id=?"
+            sql2 = "UPDATE user_xiuxian SET is_beg=1,stone=stone+? WHERE user_id=?"
             cur.execute(sql2, (ls,user_id))
             self.conn.commit()
             return ls
@@ -333,11 +332,11 @@ class XiuxianDateManage:
         cur = self.conn.cursor()
 
         # 查灵石
-        sql_s = f"SELECT stone FROM user_xiuxian WHERE user_id=?"
+        sql_s = "SELECT stone FROM user_xiuxian WHERE user_id=?"
         cur.execute(sql_s, (user_id,))
         result = cur.fetchone()
         if result[0] >= XiuConfig().remake:
-            sql = f"UPDATE user_xiuxian SET root=?,root_type=?,stone=stone-? WHERE user_id=?"
+            sql = "UPDATE user_xiuxian SET root=?,root_type=?,stone=stone-? WHERE user_id=?"
             cur.execute(sql, (lg, type, XiuConfig().remake, user_id))
             self.conn.commit()
 
@@ -477,7 +476,7 @@ class XiuxianDateManage:
         self.conn.commit()
 
     def ban_user(self, user_id):
-        """小黑屋，暂时没用"""
+        """小黑屋"""
         sql = f"UPDATE user_xiuxian SET is_ban=1 WHERE user_id=?"
         cur = self.conn.cursor()
         cur.execute(sql, (user_id,))
@@ -681,19 +680,25 @@ class XiuxianDateManage:
 
     def get_all_sect_id(self):
         """获取全部宗门id"""
-        sql = f"SELECT sect_id FROM sects"
+        sql = "SELECT sect_id FROM sects"
         cur = self.conn.cursor()
         cur.execute(sql, )
         result = cur.fetchall()
-        return result
+        if result:
+            return result
+        else:
+            return None
 
     def get_all_user_id(self):
         """获取全部用户id"""
-        sql = f"SELECT user_id FROM user_xiuxian"
+        sql = "SELECT user_id FROM user_xiuxian"
         cur = self.conn.cursor()
         cur.execute(sql, )
         result = cur.fetchall()
-        return [row[0] for row in result]
+        if result:
+            return [row[0] for row in result]
+        else:
+            return None
 
 
     def in_closing(self, user_id, the_type):
@@ -710,8 +715,7 @@ class XiuxianDateManage:
             now_time = 0
         elif the_type == 2:
             now_time = datetime.now()
-        # scheduled_time = datetime.now() + datetime.timedelta(minutes=int(the_time))
-        sql = f"UPDATE user_cd SET type=?,create_time=? WHERE user_id=?"
+        sql = "UPDATE user_cd SET type=?,create_time=? WHERE user_id=?"
         cur = self.conn.cursor()
         cur.execute(sql, (the_type, now_time, user_id))
         self.conn.commit()
@@ -722,96 +726,46 @@ class XiuxianDateManage:
 
     def update_exp(self, user_id, exp):
         """增加修为"""
-        sql = f"UPDATE user_xiuxian SET exp=exp+? WHERE user_id=?"
+        sql = "UPDATE user_xiuxian SET exp=exp+? WHERE user_id=?"
         cur = self.conn.cursor()
         cur.execute(sql, (int(exp), user_id))
         self.conn.commit()
 
     def update_j_exp(self, user_id, exp):
         """减少修为"""
-        sql = f"UPDATE user_xiuxian SET exp=exp-? WHERE user_id=?"
+        sql = "UPDATE user_xiuxian SET exp=exp-? WHERE user_id=?"
         cur = self.conn.cursor()
         cur.execute(sql, (int(exp), user_id))
         self.conn.commit()
 
     def del_exp_decimal(self, user_id, exp):
         """去浮点"""
-        sql = f"UPDATE user_xiuxian SET exp=? WHERE user_id=?"
+        sql = "UPDATE user_xiuxian SET exp=? WHERE user_id=?"
         cur = self.conn.cursor()
         cur.execute(sql, (int(exp), user_id))
         self.conn.commit()
 
+    
     def realm_top(self):
         """境界排行榜前百"""
-        sql = f"""SELECT user_name,level,exp FROM user_xiuxian 
-        WHERE user_name is NOT NULL
-        ORDER BY CASE
-        WHEN level = '零始境圆满' THEN '00'
-        WHEN level = '零始境中期' THEN '01'
-        WHEN level = '零始境初期' THEN '02'
-        WHEN level = '祭道境圆满' THEN '03'
-        WHEN level = '祭道境中期' THEN '04'
-        WHEN level = '祭道境初期' THEN '05'
-        WHEN level = '仙帝境圆满' THEN '06'
-        WHEN level = '仙帝境中期' THEN '07'
-        WHEN level = '仙帝境初期' THEN '08'
-        WHEN level = '准帝境圆满' THEN '09'
-        WHEN level = '准帝境中期' THEN '10'
-        WHEN level = '准帝境初期' THEN '11'
-        WHEN level = '仙王境圆满' THEN '12'
-        WHEN level = '仙王境中期' THEN '13'
-        WHEN level = '仙王境初期' THEN '14'
-        WHEN level = '真仙境圆满' THEN '15'
-        WHEN level = '真仙境中期' THEN '16'
-        WHEN level = '真仙境初期' THEN '17'
-        WHEN level = '至尊境圆满' THEN '18'
-        WHEN level = '至尊境中期' THEN '19'
-        WHEN level = '至尊境初期' THEN '20'
-        WHEN level = '遁一境圆满' THEN '21'
-        WHEN level = '遁一境中期' THEN '22'
-        WHEN level = '遁一境初期' THEN '23'
-        WHEN level = '斩我境圆满' THEN '24'
-        WHEN level = '斩我境中期' THEN '25'
-        WHEN level = '斩我境初期' THEN '26'
-        WHEN level = '虚道境圆满' THEN '27'
-        WHEN level = '虚道境中期' THEN '28'
-        WHEN level = '虚道境初期' THEN '29'
-        WHEN level = '天神境圆满' THEN '30'
-        WHEN level = '天神境中期' THEN '31'
-        WHEN level = '天神境初期' THEN '32'
-        WHEN level = '圣祭境圆满' THEN '33'
-        WHEN level = '圣祭境中期' THEN '34'
-        WHEN level = '圣祭境初期' THEN '35'
-        WHEN level = '真一境圆满' THEN '36'
-        WHEN level = '真一境中期' THEN '37'
-        WHEN level = '真一境初期' THEN '38'
-        WHEN level = '神火境圆满' THEN '39'
-        WHEN level = '神火境中期' THEN '40'
-        WHEN level = '神火境初期' THEN '41'
-        WHEN level = '尊者境圆满' THEN '42'
-        WHEN level = '尊者境中期' THEN '43'
-        WHEN level = '尊者境初期' THEN '44'
-        WHEN level = '列阵境圆满' THEN '45'
-        WHEN level = '列阵境中期' THEN '46'
-        WHEN level = '列阵境初期' THEN '47'
-        WHEN level = '铭纹境圆满' THEN '48'
-        WHEN level = '铭纹境中期' THEN '49'
-        WHEN level = '铭纹境初期' THEN '50'
-        WHEN level = '化灵境圆满' THEN '51'
-        WHEN level = '化灵境中期' THEN '52'
-        WHEN level = '化灵境初期' THEN '53'
-        WHEN level = '洞天境圆满' THEN '54'
-        WHEN level = '洞天境中期' THEN '55'
-        WHEN level = '洞天境初期' THEN '56'
-        WHEN level = '搬血境圆满' THEN '57'
-        WHEN level = '搬血境中期' THEN '58'
-        WHEN level = '搬血境初期' THEN '59'
-        WHEN level = '江湖好手' THEN '60'
-        ELSE level END ASC,exp DESC LIMIT 50"""
+        rank_mapping = {rank: idx for idx, rank in enumerate(get_user_rank('江湖好手')[1])}
+    
+        sql = """SELECT user_name, level, exp FROM user_xiuxian 
+            WHERE user_name IS NOT NULL
+            ORDER BY exp DESC, (CASE level """
+    
+        for level, value in sorted(rank_mapping.items(), key=lambda x: x[1], reverse=True):
+            sql += "WHEN '{}' THEN '{:02}' ".format(level, value)
+    
+        sql += """ELSE level END) ASC LIMIT 50"""
+    
         cur = self.conn.cursor()
         cur.execute(sql, )
         result = cur.fetchall()
         return result
+
+
+
 
     def stone_top(self):
         """这也是灵石排行榜"""
@@ -1016,21 +970,21 @@ class XiuxianDateManage:
         self.conn.commit()
 
     def update_user_hp(self, user_id):
-        """重置用户状态信息"""
+        """重置用户hp,mp信息"""
         sql = f"UPDATE user_xiuxian SET hp=exp/2,mp=exp WHERE user_id=?"
         cur = self.conn.cursor()
         cur.execute(sql, (user_id,))
         self.conn.commit()
 
     def restate(self, user_id=None):
-        """restate重置所有用户状态或重置对应人状态"""
+        """重置所有用户状态或重置对应人状态"""
         if user_id is None:
-            sql = f"UPDATE user_xiuxian SET hp=exp/2,mp=exp"
+            sql = "UPDATE user_xiuxian SET hp=exp/2,mp=exp"
             cur = self.conn.cursor()
             cur.execute(sql, )
             self.conn.commit()
         else:
-            sql = f"UPDATE user_xiuxian SET hp=exp/2,mp=exp WHERE user_id=?"
+            sql = "UPDATE user_xiuxian SET hp=exp/2,mp=exp WHERE user_id=?"
             cur = self.conn.cursor()
             cur.execute(sql, (user_id,))
             self.conn.commit()
@@ -1038,13 +992,10 @@ class XiuxianDateManage:
     
     def get_back_msg(self, user_id):
         """获取用户背包信息"""
-        sql = f"SELECT * FROM back WHERE user_id=? and goods_num >= 1"
+        sql = "SELECT * FROM back WHERE user_id=? and goods_num >= 1"
         cur = self.conn.cursor()
         cur.execute(sql, (user_id,))
         result = cur.fetchall()
-        # msg = f"你的背包\n"
-        # for i in result:
-        #     msg += f"{i},"
         if not result:
             return None
     
@@ -1063,7 +1014,7 @@ class XiuxianDateManage:
         :param goods_id: 物品id
         :return: 物品数量
         """
-        sql = f"SELECT num FROM back WHERE user_id=? and goods_id=?"
+        sql = "SELECT num FROM back WHERE user_id=? and goods_id=?"
         cur = self.conn.cursor()
         cur.execute(sql, (user_id, goods_id))
         result = cur.fetchone()
@@ -1074,7 +1025,7 @@ class XiuxianDateManage:
 
     def get_all_user_exp(self, level):
         """查询所有对应大境界玩家的修为"""
-        sql = f"SELECT exp FROM user_xiuxian  WHERE level like '{level}%'"
+        sql = "SELECT exp FROM user_xiuxian  WHERE level like '{}%'".format(level)
         cur = self.conn.cursor()
         cur.execute(sql, )
         result = cur.fetchall()
@@ -1082,77 +1033,77 @@ class XiuxianDateManage:
 
     def update_user_atkpractice(self, user_id, atkpractice):
         """更新用户攻击修炼等级"""
-        sql = f"UPDATE user_xiuxian SET atkpractice={atkpractice} WHERE user_id=?"
+        sql = "UPDATE user_xiuxian SET atkpractice={} WHERE user_id=?".format(atkpractice)
         cur = self.conn.cursor()
         cur.execute(sql, (user_id,))
         self.conn.commit()
 
     def update_user_sect_task(self, user_id, sect_task):
         """更新用户宗门任务次数"""
-        sql = f"UPDATE user_xiuxian SET sect_task=sect_task+? WHERE user_id=?"
+        sql = "UPDATE user_xiuxian SET sect_task=sect_task+? WHERE user_id=?"
         cur = self.conn.cursor()
         cur.execute(sql, (sect_task, user_id))
         self.conn.commit()
 
     def sect_task_reset(self):
         """重置宗门任务次数"""
-        sql = f"UPDATE user_xiuxian SET sect_task=0"
+        sql = "UPDATE user_xiuxian SET sect_task=0"
         cur = self.conn.cursor()
         cur.execute(sql, )
         self.conn.commit()
 
     def update_sect_scale_and_used_stone(self, sect_id, sect_used_stone, sect_scale):
         """更新宗门灵石、建设度"""
-        sql = f"UPDATE sects SET sect_used_stone=?,sect_scale=? WHERE sect_id=?"
+        sql = "UPDATE sects SET sect_used_stone=?,sect_scale=? WHERE sect_id=?"
         cur = self.conn.cursor()
         cur.execute(sql, (sect_used_stone, sect_scale, sect_id))
         self.conn.commit()
 
     def update_sect_elixir_room_level(self, sect_id, level):
         """更新宗门丹房等级"""
-        sql = f"UPDATE sects SET elixir_room_level=? WHERE sect_id=?"
+        sql = "UPDATE sects SET elixir_room_level=? WHERE sect_id=?"
         cur = self.conn.cursor()
         cur.execute(sql, (level, sect_id))
         self.conn.commit()
 
     def update_user_sect_elixir_get_num(self, user_id):
         """更新用户每日领取丹药领取次数"""
-        sql = f"UPDATE user_xiuxian SET sect_elixir_get=1 WHERE user_id=?"
+        sql = "UPDATE user_xiuxian SET sect_elixir_get=1 WHERE user_id=?"
         cur = self.conn.cursor()
         cur.execute(sql, (user_id,))
         self.conn.commit()
 
     def sect_elixir_get_num_reset(self):
         """重置宗门丹药领取次数"""
-        sql = f"UPDATE user_xiuxian SET sect_elixir_get=0"
+        sql = "UPDATE user_xiuxian SET sect_elixir_get=0"
         cur = self.conn.cursor()
         cur.execute(sql, )
         self.conn.commit()
 
     def update_sect_mainbuff(self, sect_id, mainbuffid):
         """更新宗门当前的主修功法"""
-        sql = f"UPDATE sects SET mainbuff=? WHERE sect_id=?"
+        sql = "UPDATE sects SET mainbuff=? WHERE sect_id=?"
         cur = self.conn.cursor()
         cur.execute(sql, (mainbuffid, sect_id))
         self.conn.commit()
 
     def update_sect_secbuff(self, sect_id, secbuffid):
         """更新宗门当前的神通"""
-        sql = f"UPDATE sects SET secbuff=? WHERE sect_id=?"
+        sql = "UPDATE sects SET secbuff=? WHERE sect_id=?"
         cur = self.conn.cursor()
         cur.execute(sql, (secbuffid, sect_id))
         self.conn.commit()
 
     def initialize_user_buff_info(self, user_id):
         """初始化用户buff信息"""
-        sql = f"INSERT INTO BuffInfo (user_id,main_buff,sec_buff,faqi_buff,fabao_weapon) VALUES (?,0,0,0,0)"
+        sql = "INSERT INTO BuffInfo (user_id,main_buff,sec_buff,faqi_buff,fabao_weapon) VALUES (?,0,0,0,0)"
         cur = self.conn.cursor()
         cur.execute(sql, (user_id,))
         self.conn.commit()
 
     def get_user_buff_info(self, user_id):
         """获取用户buff信息"""
-        sql = f"select * from BuffInfo WHERE user_id =?"
+        sql = "select * from BuffInfo WHERE user_id =?"
         cur = self.conn.cursor()
         cur.execute(sql, (user_id,))
         result = cur.fetchone()
@@ -1165,77 +1116,77 @@ class XiuxianDateManage:
         
     def updata_user_main_buff(self, user_id, id):
         """更新用户主功法信息"""
-        sql = f"UPDATE BuffInfo SET main_buff = ? WHERE user_id = ?"
+        sql = "UPDATE BuffInfo SET main_buff = ? WHERE user_id = ?"
         cur = self.conn.cursor()
         cur.execute(sql, (id, user_id,))
         self.conn.commit()
     
     def updata_user_sub_buff(self, user_id, id): #辅修功法3
         """更新用户辅修功法信息"""
-        sql = f"UPDATE BuffInfo SET sub_buff = ? WHERE user_id = ?"
+        sql = "UPDATE BuffInfo SET sub_buff = ? WHERE user_id = ?"
         cur = self.conn.cursor()
         cur.execute(sql, (id, user_id,))
         self.conn.commit()
     
     def updata_user_sec_buff(self, user_id, id):
         """更新用户副功法信息"""
-        sql = f"UPDATE BuffInfo SET sec_buff = ? WHERE user_id = ?"
+        sql = "UPDATE BuffInfo SET sec_buff = ? WHERE user_id = ?"
         cur = self.conn.cursor()
         cur.execute(sql, (id, user_id,))
         self.conn.commit()
 
     def updata_user_faqi_buff(self, user_id, id):
         """更新用户法器信息"""
-        sql = f"UPDATE BuffInfo SET faqi_buff = ? WHERE user_id = ?"
+        sql = "UPDATE BuffInfo SET faqi_buff = ? WHERE user_id = ?"
         cur = self.conn.cursor()
         cur.execute(sql, (id, user_id,))
         self.conn.commit()
 
     def updata_user_fabao_weapon(self, user_id, id):
         """更新用户法宝信息"""
-        sql = f"UPDATE BuffInfo SET fabao_weapon = ? WHERE user_id = ?"
+        sql = "UPDATE BuffInfo SET fabao_weapon = ? WHERE user_id = ?"
         cur = self.conn.cursor()
         cur.execute(sql, (id, user_id,))
         self.conn.commit()
 
     def updata_user_armor_buff(self, user_id, id):
         """更新用户防具信息"""
-        sql = f"UPDATE BuffInfo SET armor_buff = ? WHERE user_id = ?"
+        sql = "UPDATE BuffInfo SET armor_buff = ? WHERE user_id = ?"
         cur = self.conn.cursor()
         cur.execute(sql, (id, user_id,))
         self.conn.commit()
 
     def updata_user_atk_buff(self, user_id, buff):
         """更新用户永久攻击buff信息"""
-        sql = f"UPDATE BuffInfo SET atk_buff=atk_buff+? WHERE user_id = ?"
+        sql = "UPDATE BuffInfo SET atk_buff=atk_buff+? WHERE user_id = ?"
         cur = self.conn.cursor()
         cur.execute(sql, (buff, user_id,))
         self.conn.commit()
 
     def updata_user_blessed_spot(self, user_id, blessed_spot):
         """更新用户洞天福地等级"""
-        sql = f"UPDATE BuffInfo SET blessed_spot=? WHERE user_id = ?"
+        sql = "UPDATE BuffInfo SET blessed_spot=? WHERE user_id = ?"
         cur = self.conn.cursor()
         cur.execute(sql, (blessed_spot, user_id,))
         self.conn.commit()
 
     def update_user_blessed_spot_flag(self, user_id):
         """更新用户洞天福地是否开启"""
-        sql = f"UPDATE user_xiuxian SET blessed_spot_flag=1 WHERE user_id=?"
+        sql = "UPDATE user_xiuxian SET blessed_spot_flag=1 WHERE user_id=?"
         cur = self.conn.cursor()
         cur.execute(sql, (user_id,))
         self.conn.commit()
 
     def update_user_blessed_spot_name(self, user_id, blessed_spot_name):
         """更新用户洞天福地的名字"""
-        sql = f"UPDATE user_xiuxian SET blessed_spot_name=? WHERE user_id=?"
+        sql = "UPDATE user_xiuxian SET blessed_spot_name=? WHERE user_id=?"
         cur = self.conn.cursor()
         cur.execute(sql, (blessed_spot_name, user_id,))
         self.conn.commit()
 
     def day_num_reset(self):
         """重置丹药每日使用次数"""
-        sql = f"UPDATE back SET day_num=0 WHERE goods_type='丹药'"
+        sql = "UPDATE back SET day_num=0 WHERE goods_type='丹药'"
         cur = self.conn.cursor()
         cur.execute(sql, )
         self.conn.commit()
@@ -1286,7 +1237,7 @@ class XiuxianDateManage:
             else:
                 bind_num = back['bind_num']
             goods_nums = back['goods_num'] + goods_num
-            sql = f"UPDATE back set goods_num=?,update_time=?,bind_num={bind_num} WHERE user_id=? and goods_id=?"
+            sql = "UPDATE back set goods_num=?,update_time=?,bind_num={} WHERE user_id=? and goods_id=?".format(bind_num)
             cur.execute(sql, (goods_nums, now_time, user_id, goods_id))
             self.conn.commit()
         else:
@@ -1304,7 +1255,7 @@ class XiuxianDateManage:
 
     def get_item_by_good_id_and_user_id(self, user_id, goods_id):
         """根据物品id、用户id获取物品信息"""
-        sql = f"select * from back WHERE user_id=? and goods_id=?"
+        sql = "select * from back WHERE user_id=? and goods_id=?"
         cur = self.conn.cursor()
         cur.execute(sql, (user_id, goods_id))
         result = cur.fetchone()
@@ -1318,7 +1269,7 @@ class XiuxianDateManage:
 
     def update_back_equipment(self, sql_str):
         """更新背包,传入sql"""
-        print(f"执行的sql:{sql_str}")
+        logger.opt(colors=True).info("<green>执行的sql:{}</green>".format(sql_str))
         cur = self.conn.cursor()
         cur.execute(sql_str)
         self.conn.commit()
@@ -1702,7 +1653,7 @@ class XIUXIAN_IMPART_BUFF:
                 c.execute(f"select {s} from xiuxian_impart")
             except sqlite3.OperationalError:
                 sql = f"ALTER TABLE xiuxian_impart ADD COLUMN {s} integer DEFAULT 0;"
-                print(sql)
+                logger.opt(colors=True).info("<green>{}</green>".format(sql))
                 logger.opt(colors=True).info(f"<green>xiuxian_impart数据库核对成功!</green>")
                 c.execute(sql)
 
@@ -2264,7 +2215,7 @@ def save_player_info(user_id, data, info_name):
     user_id = str(user_id)
 
     if not os.path.exists(PLAYERSDATA / user_id):
-        print("目录不存在，创建目录")
+        logger.opt(colors=True).info("<green>用户目录不存在，创建目录</green>")
         os.makedirs(PLAYERSDATA / user_id)
 
     FILEPATH = PLAYERSDATA / user_id / f"{info_name}.json"

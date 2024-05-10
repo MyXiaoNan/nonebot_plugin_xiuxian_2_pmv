@@ -117,8 +117,7 @@ class Txt2Img:
         self.line_space = int(size)
         self.lrc_line_space = int(size / 2)
         
-        
-          
+    # 预处理
     def prepare(self, text, scale):
         text = unicodedata.normalize("NFKC", text)
         if scale:
@@ -158,7 +157,7 @@ class Txt2Img:
                 line_num =5
                 text += "\n"
                 for k in range(blank_space):
-                    text += "(ᵔ ᵕ ᵔ)\n"
+                    text += "(^ ᵕ ^)\n"
             else:
                 line_num = line_num
         else:
@@ -169,7 +168,7 @@ class Txt2Img:
                             color=black_clor)
         draw = ImageDraw.Draw(out_img, "RGBA")
 
-        # # # #
+        # 设置
         banner_size = 12
         border_color = (220, 211, 196)
         out_padding = 15
@@ -178,11 +177,11 @@ class Txt2Img:
             (banner_size, banner_size), resample=3
         )
 
-        # add background
+        # 添加背景
         for x in range(int(math.ceil(img_hight / 100))):
             out_img.paste(mi_img, (0, x * 100))
 
-        # add border
+        # 添加边框
         def draw_rectangle(draw, rect, width):
             for i in range(width):
                 draw.rectangle(
@@ -194,7 +193,7 @@ class Txt2Img:
             draw, (out_padding, out_padding, img_width - out_padding, img_hight - out_padding), 2
         )
 
-        # add banner
+        # 添加banner
         out_img.paste(mi_banner, (out_padding, out_padding))
         out_img.paste(
             mi_banner.transpose(Image.FLIP_TOP_BOTTOM),
@@ -209,7 +208,7 @@ class Txt2Img:
             (img_width - out_padding - banner_size + 1, img_hight - out_padding - banner_size + 1),
         )
         
-        # # # # 
+        # 绘制文字
         draw.text(
             (left_size, upper_size),
             text,
@@ -217,7 +216,7 @@ class Txt2Img:
             fill=(125, 101, 89),
             spacing=padding,
         )
-
+        # 贴boss图
         if boss_name:
             boss_img_path = jsondata.BOSS_IMG / f"{boss_name}.png"
             if os.path.exists(boss_img_path):
@@ -229,7 +228,6 @@ class Txt2Img:
                 out_img.paste(
                     boss_img,
                     (int(img_width - boss_img_w), int(img_hight - boss_img_h)),
-                    boss_img
                 )
         return out_img
 

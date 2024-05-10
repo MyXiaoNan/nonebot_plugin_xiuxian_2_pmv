@@ -1,5 +1,7 @@
-from ..xiuxian_utils.data_source import *
 import os
+from nonebot.log import logger
+from ..xiuxian_utils.data_source import *
+
 
 WORKDATA = Path() / "data" / "xiuxian" / "work"
 
@@ -58,7 +60,7 @@ def savef(user_id, data):
     user_id = str(user_id)
 
     if not os.path.exists(PLAYERSDATA / user_id):
-        print("目录不存在，创建目录")
+        logger.opt(colors=True).info("<green>用户目录不存在，创建目录</green>")
         os.makedirs(PLAYERSDATA / user_id)
 
     FILEPATH = PLAYERSDATA / user_id / "workinfo.json"

@@ -193,7 +193,7 @@ def get_dxsj_info(rift_type, user_info):
         nowmp = user_info['mp'] - exp if (user_info['mp'] - exp) > 0 else 1
         sql_message.update_user_hp_mp(user_info['user_id'], nowhp, nowmp)  # 修为掉了，血量、真元也要掉
 
-        msg = random.choice(battle_data[rift_type]['desc']).format(f"修为减少了：{exp}点！=")
+        msg = random.choice(battle_data[rift_type]['desc']).format(f"修为减少了：{exp}点！")
     elif cost_type == "hp":
         cost_hp = int((user_info['exp'] / 2) * value)
         now_hp = user_info['hp'] - cost_hp
