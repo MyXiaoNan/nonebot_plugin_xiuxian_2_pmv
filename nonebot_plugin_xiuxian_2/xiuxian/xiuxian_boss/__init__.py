@@ -756,7 +756,6 @@ async def set_group_boss_(bot: Bot, event: GroupMessageEvent, args: Message = Co
                             }
             config['open'].update(info)
             savef_boss(config)
-            await reload_boss_data()
             msg = f"已开启本群世界Boss!"
             if XiuConfig().img:
                 pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
@@ -772,7 +771,6 @@ async def set_group_boss_(bot: Bot, event: GroupMessageEvent, args: Message = Co
             except:
                 pass
             savef_boss(config)
-            await reload_boss_data()
             msg = f"已关闭本群世界Boss!"
             if XiuConfig().img:
                 pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
@@ -982,7 +980,7 @@ def save_user_boss_fight_info(user_id, data):
     user_id = str(user_id)
 
     if not os.path.exists(PLAYERSDATA / user_id):
-        print("目录不存在，创建目录")
+        logger.opt(colors=True).info("<red>目录不存在，创建目录</green>")
         os.makedirs(PLAYERSDATA / user_id)
 
     FILEPATH = PLAYERSDATA / user_id / "boss_fight_info.json"

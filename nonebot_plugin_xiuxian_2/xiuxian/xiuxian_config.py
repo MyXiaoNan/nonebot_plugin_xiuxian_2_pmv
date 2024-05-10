@@ -3,6 +3,7 @@ try:
 except ImportError:
     import json
 from pathlib import Path
+from nonebot.log import logger
 
 DATABASE = Path() / "data" / "xiuxian"
 
@@ -140,7 +141,7 @@ class JsonConfig:
                     group_list.append(group_id)
                     json_data['group'] = group_list
                 except Exception as e:
-                    print(e)
+                    logger.opt(colors=True).info("<red>错误:{}</red>".format(e))
                     return False
         elif key == 2:
             if group_id in group_list:
@@ -148,10 +149,10 @@ class JsonConfig:
                     group_list.remove(group_id)
                     json_data['group'] = group_list
                 except Exception as e:
-                    print(e)
+                    logger.opt(colors=True).info("<red>错误:{}</ewd>".format(e))
                     return False
         else:
-            print('未知key')
+            logger.opt(colors=True).info("<red>未知key</red>")
             return False
 
         # 去重

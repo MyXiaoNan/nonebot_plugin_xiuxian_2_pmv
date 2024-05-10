@@ -14,7 +14,7 @@ def update_rank(root_dir):
                         json.dump(data, f, indent=4, ensure_ascii=False) 
                         f.truncate()
                 except Exception as e:
-                    print(f"处理 {file_path} 出错: {e}")
+                    print("处理 {} 出错: {}".format(file_path, e))
 
 def update_value(d, target_key, increment):
     for k, v in d.items():
