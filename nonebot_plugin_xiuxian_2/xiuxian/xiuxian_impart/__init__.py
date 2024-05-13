@@ -94,7 +94,7 @@ async def impart_img_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
         await impart_img.finish()
 
 
-@impart_draw.handle(parameterless=[Cooldown(cd_time=10, at_sender=False)])
+@impart_draw.handle(parameterless=[Cooldown(at_sender=False)])
 async def impart_draw_(bot: Bot, event: GroupMessageEvent):
     """传承抽卡"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)

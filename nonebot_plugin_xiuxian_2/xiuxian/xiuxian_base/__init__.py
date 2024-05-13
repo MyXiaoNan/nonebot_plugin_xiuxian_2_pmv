@@ -227,13 +227,7 @@ async def run_xiuxian_(bot: Bot, event: GroupMessageEvent):
             await asyncio.sleep(1)
             if XiuConfig().img:
                 pic = await get_msg_pic(f"@{event.sender.nickname}\n"+ 
-                                        "耳边响起一个神秘人的声音：“不要忘记仙途奇缘！\n可以发送 修仙帮助 获取更多帮助！！\n这次就先帮你自动发送了嗷”")
-                await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
-            else:
-                await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-            msg = __xiuxian_notes__
-            if XiuConfig().img:
-                pic = await get_msg_pic(msg, scale=False)
+                                        "耳边响起一个神秘人的声音：“不要忘记仙途奇缘！\n可以发送 修仙帮助 获取更多帮助！！")
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
             else:
                 await bot.send_group_msg(group_id=int(send_group_id), message=msg)
@@ -1541,7 +1535,7 @@ async def open_xiuxian_(bot: Bot, event: GroupMessageEvent):
         else:
             rift_config['open'].append(group_id)
             savef_rift(rift_config)
-        msg = "当前群聊修仙基础模组，群世界boss,群拍卖会，群秘境已启用！(改了配置文件还是需要重启才能生效哦！)"
+        msg = "当前群聊修仙基础模组，群世界boss,群拍卖会，群秘境已启用,快发送 我要修仙 加入修仙世界吧！"
         if XiuConfig().img:
             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -1577,7 +1571,7 @@ async def open_xiuxian_(bot: Bot, event: GroupMessageEvent):
                 savef_rift(rift_config)
             except:
                 pass
-        msg = "当前群聊修仙基础模组，群世界boss,群拍卖会，群秘境已禁用！(改了配置文件还是需要重启才能生效哦！)"
+        msg = "当前群聊修仙基础模组，群世界boss,群拍卖会，群秘境已禁用！(还是需要重启才能生效哦！)"
         if XiuConfig().img:
             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))

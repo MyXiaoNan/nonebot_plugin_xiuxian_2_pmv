@@ -1843,7 +1843,7 @@ class XIUXIAN_IMPART_BUFF:
         return True
 
     def update_impart_two_exp(self, impart_num, user_id):
-        """impart_two_exp"""
+        """更新双修"""
         cur = self.conn.cursor()
         sql = f"UPDATE xiuxian_impart SET impart_two_exp=? WHERE user_id=?"
         cur.execute(sql, (impart_num, user_id))
@@ -1859,7 +1859,7 @@ class XIUXIAN_IMPART_BUFF:
         return True
 
     def update_impart_wish(self, impart_num, user_id):
-        """update impart_wish"""
+        """更新抽卡次数"""
         cur = self.conn.cursor()
         sql = f"UPDATE xiuxian_impart SET wish=? WHERE user_id=?"
         cur.execute(sql, (impart_num, user_id))
@@ -1867,7 +1867,7 @@ class XIUXIAN_IMPART_BUFF:
         return True
 
     def add_impart_wish(self, impart_num, user_id):
-        """add impart_wish"""
+        """增加抽卡次数"""
         cur = self.conn.cursor()
         sql = f"UPDATE xiuxian_impart SET wish=wish+? WHERE user_id=?"
         cur.execute(sql, (impart_num, user_id))
@@ -1875,7 +1875,7 @@ class XIUXIAN_IMPART_BUFF:
         return True
 
     def update_stone_num(self, impart_num, user_id, type_):
-        """impart_stone_num"""
+        """更新结晶数量"""
         if type_ == 1:
             cur = self.conn.cursor()
             sql = f"UPDATE xiuxian_impart SET stone_num=stone_num+? WHERE user_id=?"

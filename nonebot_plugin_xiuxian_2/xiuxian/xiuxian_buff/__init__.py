@@ -290,10 +290,12 @@ async def qc_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
         await qc.finish()
     user_id = user_info['user_id']
 
+    user1 = sql_message.get_user_real_info(user_id)
     give_qq = None  # 艾特的时候存到这里
     for arg in args:
         if arg.type == "at":
             give_qq = arg.data.get("qq", "")
+    user2 = sql_message.get_user_real_info(give_qq)
     if give_qq:
         if give_qq == str(user_id):
             msg = "道友不会左右互搏之术！"
@@ -303,12 +305,13 @@ async def qc_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
             else:
                 await bot.send_group_msg(group_id=int(send_group_id), message=msg)
             await qc.finish()
-
+    
+    if user1 and user2:
         player1 = {"user_id": None, "道号": None, "气血": None,
                    "攻击": None, "真元": None, '会心': None, '防御': 0, 'exp': 0}
         player2 = {"user_id": None, "道号": None, "气血": None,
                    "攻击": None, "真元": None, '会心': None, '防御': 0, 'exp': 0}
-        user1 = sql_message.get_user_real_info(user_id)
+        
 
         user1_weapon_data = UserBuffDate(user_id).get_user_weapon_data()
         user1_armor_crit_buff = UserBuffDate(user_id).get_user_armor_buff_data()
@@ -329,7 +332,7 @@ async def qc_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
         else:
             player1['会心'] = (armor_crit_buff + main_crit_buff) * 100
 
-        user2 = sql_message.get_user_real_info(give_qq)
+        
         user2_weapon_data = UserBuffDate(user2['user_id']).get_user_weapon_data()
         user2_armor_crit_buff = UserBuffDate(user_id).get_user_armor_buff_data()
         user2_main_data = UserBuffDate(user_id).get_user_main_buff_data() #玩家2功法会心
@@ -372,7 +375,7 @@ async def qc_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await qc.finish()
     else:
-        msg = "没有对方的信息！"
+        msg = "修仙界没有对方的信息，快邀请对方加入修仙界吧！"
         if XiuConfig().img:
             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -401,124 +404,32 @@ async def two_exp_(bot: Bot, event: GroupMessageEvent, args: Message = CommandAr
     for arg in args:
         if arg.type == "at":
             two_qq = arg.data.get("qq", "")
-    if two_qq is None:
-        msg = "请at你的道侣,与其一起双修！"
-        if XiuConfig().img:
-            pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
-            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
-        else:
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-        await two_exp.finish()
-
+    
     user_2 = sql_message.get_user_message(two_qq)
-    if int(user_1['user_id']) == int(two_qq):
-        msg = "道友无法与自己双修！"
-        if XiuConfig().img:
-            pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
-            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
-        else:
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-        await two_exp.finish()
-    if user_2:
-        exp_1 = user_1['exp']
-        exp_2 = user_2['exp']
-        if exp_2 > exp_1:
-            msg = "修仙大能看了看你，不屑一顾，扬长而去！"
+    
+    if user_1 and user_2:
+        if two_qq is None:
+            msg = "请at你的道侣,与其一起双修！"
             if XiuConfig().img:
                 pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
             else:
                 await bot.send_group_msg(group_id=int(send_group_id), message=msg)
             await two_exp.finish()
-        else:
-            
-            limt_1 = two_exp_cd.find_user(user_1['user_id'])
-            limt_2 = two_exp_cd.find_user(user_2['user_id'])
-            sql_message.update_last_check_info_time(user_1['user_id']) # 更新查看修仙信息时间
-            # 加入传承
-            impart_data_1 = xiuxian_impart.get_user_message(user_1['user_id'])
-            impart_data_2 = xiuxian_impart.get_user_message(user_2['user_id'])
-            impart_two_exp_1 = impart_data_1['impart_two_exp'] if impart_data_1 is not None else 0
-            impart_two_exp_2 = impart_data_2['impart_two_exp'] if impart_data_2 is not None else 0
-            
-            main_two_data_1 = UserBuffDate(user_1['user_id']).get_user_main_buff_data()#功法双修次数提升
-            main_two_data_2 = UserBuffDate(user_2['user_id']).get_user_main_buff_data()
-            main_two_1 =  main_two_data_1['two_buff'] if main_two_data_1 is not None else 0
-            main_two_2 =  main_two_data_2['two_buff'] if main_two_data_2 is not None else 0
-            if limt_1 >= two_exp_limit + impart_two_exp_1 + main_two_1:
-                msg = "道友今天双修次数已经到达上限！"
-                if XiuConfig().img:
-                    pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
-                    await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
-                else:
-                    await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-                await two_exp.finish()
-            if limt_2 >= two_exp_limit + impart_two_exp_2 + main_two_2:
-                msg = "对方今天双修次数已经到达上限！"
-                if XiuConfig().img:
-                    pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
-                    await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
-                else:
-                    await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-                await two_exp.finish()
-            max_exp_1 = (
-                    int(OtherSet().set_closing_type(user_1['level'])) * XiuConfig().closing_exp_upper_limit
-            )  # 获取下个境界需要的修为 * 1.5为闭关上限
-            max_exp_2 = (
-                    int(OtherSet().set_closing_type(user_2['level'])) * XiuConfig().closing_exp_upper_limit
-            )
-            user_get_exp_max_1 = int(max_exp_1) - user_1['exp']
-            user_get_exp_max_2 = int(max_exp_2) - user_2['exp']
 
-            if user_get_exp_max_1 < 0:
-                user_get_exp_max_1 = 0
-            if user_get_exp_max_2 < 0:
-                user_get_exp_max_2 = 0
-            msg = ""
-            msg += f"{user_1['user_name']}与{user_2['user_name']}情投意合，于某地一起修炼了一晚。"
-            if random.randint(1, 100) in [13, 14, 52, 10, 66]:
-                exp = int((exp_1 + exp_2) * 0.0055)
-
-                if user_1['sect_position'] is None:
-                    max_exp_limit = 4
-                else:
-                    max_exp_limit = user_1['sect_position']
-                max_exp = 100000000000 #jsondata.sect_config_data()[str(max_exp_limit)]["max_exp"] #双修上限罪魁祸首
-                if exp >= max_exp:
-                    exp_limit_1 = max_exp
-                else:
-                    exp_limit_1 = exp
-
-                if exp_limit_1 >= user_get_exp_max_1:
-                    sql_message.update_exp(user_1['user_id'], user_get_exp_max_1)
-                    msg += f"{user_1['user_name']}修为到达上限，增加修为{user_get_exp_max_1}。"
-                else:
-                    sql_message.update_exp(user_1['user_id'], exp_limit_1)
-                    msg += f"{user_1['user_name']}增加修为{exp_limit_1}。"
-                sql_message.update_power2(user_1['user_id'])
-
-                if user_2['sect_position'] is None:
-                    max_exp_limit = 4
-                else:
-                    max_exp_limit = user_2['sect_position']
-                max_exp = 100000000000 #jsondata.sect_config_data()[str(max_exp_limit)]["max_exp"] #双修上限罪魁祸首
-                if exp >= max_exp:
-                    exp_limit_2 = max_exp
-                else:
-                    exp_limit_2 = exp
-
-                if exp_limit_2 >= user_get_exp_max_2:
-                    sql_message.update_exp(user_2['user_id'], user_get_exp_max_2)
-                    msg += f"{user_2['user_name']}修为到达上限，增加修为{user_get_exp_max_2}。"
-                else:
-                    sql_message.update_exp(user_2['user_id'], exp_limit_2)
-                    msg += f"{user_2['user_name']}增加修为{exp_limit_2}。"
-                sql_message.update_power2(user_2['user_id'])
-                sql_message.update_levelrate(user_1['user_id'], user_1['level_up_rate'] + 2)
-                sql_message.update_levelrate(user_2['user_id'], user_2['level_up_rate'] + 2)
-                two_exp_cd.add_user(user_1['user_id'])
-                two_exp_cd.add_user(user_2['user_id'])
-                msg += f"离开时双方互相留法宝为对方护道,双方各增加突破概率2%。"
+        if int(user_1['user_id']) == int(two_qq):
+            msg = "道友无法与自己双修！"
+            if XiuConfig().img:
+                pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+                await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+            else:
+                await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+            await two_exp.finish()
+        if user_2:
+            exp_1 = user_1['exp']
+            exp_2 = user_2['exp']
+            if exp_2 > exp_1:
+                msg = "修仙大能看了看你，不屑一顾，扬长而去！"
                 if XiuConfig().img:
                     pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
                     await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -526,49 +437,144 @@ async def two_exp_(bot: Bot, event: GroupMessageEvent, args: Message = CommandAr
                     await bot.send_group_msg(group_id=int(send_group_id), message=msg)
                 await two_exp.finish()
             else:
-                exp = int((exp_1 + exp_2) * 0.0055)
+                
+                limt_1 = two_exp_cd.find_user(user_1['user_id'])
+                limt_2 = two_exp_cd.find_user(user_2['user_id'])
+                sql_message.update_last_check_info_time(user_1['user_id']) # 更新查看修仙信息时间
+                # 加入传承
+                impart_data_1 = xiuxian_impart.get_user_message(user_1['user_id'])
+                impart_data_2 = xiuxian_impart.get_user_message(user_2['user_id'])
+                impart_two_exp_1 = impart_data_1['impart_two_exp'] if impart_data_1 is not None else 0
+                impart_two_exp_2 = impart_data_2['impart_two_exp'] if impart_data_2 is not None else 0
+                
+                main_two_data_1 = UserBuffDate(user_1['user_id']).get_user_main_buff_data()#功法双修次数提升
+                main_two_data_2 = UserBuffDate(user_2['user_id']).get_user_main_buff_data()
+                main_two_1 =  main_two_data_1['two_buff'] if main_two_data_1 is not None else 0
+                main_two_2 =  main_two_data_2['two_buff'] if main_two_data_2 is not None else 0
+                if limt_1 >= two_exp_limit + impart_two_exp_1 + main_two_1:
+                    msg = "道友今天双修次数已经到达上限！"
+                    if XiuConfig().img:
+                        pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+                        await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+                    else:
+                        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+                    await two_exp.finish()
+                if limt_2 >= two_exp_limit + impart_two_exp_2 + main_two_2:
+                    msg = "对方今天双修次数已经到达上限！"
+                    if XiuConfig().img:
+                        pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+                        await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+                    else:
+                        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+                    await two_exp.finish()
+                max_exp_1 = (
+                        int(OtherSet().set_closing_type(user_1['level'])) * XiuConfig().closing_exp_upper_limit
+                )  # 获取下个境界需要的修为 * 1.5为闭关上限
+                max_exp_2 = (
+                        int(OtherSet().set_closing_type(user_2['level'])) * XiuConfig().closing_exp_upper_limit
+                )
+                user_get_exp_max_1 = int(max_exp_1) - user_1['exp']
+                user_get_exp_max_2 = int(max_exp_2) - user_2['exp']
 
-                if user_1['sect_position'] is None:
-                    max_exp_limit = 4
-                else:
-                    max_exp_limit = user_1['sect_position']
-                max_exp = 100000000000 #jsondata.sect_config_data()[str(max_exp_limit)]["max_exp"] #双修上限罪魁祸首
-                if exp >= max_exp:
-                    exp_limit_1 = max_exp
-                else:
-                    exp_limit_1 = exp
-                if exp_limit_1 >= user_get_exp_max_1:
-                    sql_message.update_exp(user_1['user_id'], user_get_exp_max_1)
-                    msg += f"{user_1['user_name']}修为到达上限，增加修为{user_get_exp_max_1}。"
-                else:
-                    sql_message.update_exp(user_1['user_id'], exp_limit_1)
-                    msg += f"{user_1['user_name']}增加修为{exp_limit_1}。"
-                sql_message.update_power2(user_1['user_id'])
+                if user_get_exp_max_1 < 0:
+                    user_get_exp_max_1 = 0
+                if user_get_exp_max_2 < 0:
+                    user_get_exp_max_2 = 0
+                msg = ""
+                msg += f"{user_1['user_name']}与{user_2['user_name']}情投意合，于某地一起修炼了一晚。"
+                if random.randint(1, 100) in [13, 14, 52, 10, 66]:
+                    exp = int((exp_1 + exp_2) * 0.0055)
 
-                if user_2['sect_position'] is None:
-                    max_exp_limit = 4
+                    if user_1['sect_position'] is None:
+                        max_exp_limit = 4
+                    else:
+                        max_exp_limit = user_1['sect_position']
+                    max_exp = 100000000000 #jsondata.sect_config_data()[str(max_exp_limit)]["max_exp"] #双修上限罪魁祸首
+                    if exp >= max_exp:
+                        exp_limit_1 = max_exp
+                    else:
+                        exp_limit_1 = exp
+
+                    if exp_limit_1 >= user_get_exp_max_1:
+                        sql_message.update_exp(user_1['user_id'], user_get_exp_max_1)
+                        msg += f"{user_1['user_name']}修为到达上限，增加修为{user_get_exp_max_1}。"
+                    else:
+                        sql_message.update_exp(user_1['user_id'], exp_limit_1)
+                        msg += f"{user_1['user_name']}增加修为{exp_limit_1}。"
+                    sql_message.update_power2(user_1['user_id'])
+
+                    if user_2['sect_position'] is None:
+                        max_exp_limit = 4
+                    else:
+                        max_exp_limit = user_2['sect_position']
+                    max_exp = 100000000000 #jsondata.sect_config_data()[str(max_exp_limit)]["max_exp"] #双修上限罪魁祸首
+                    if exp >= max_exp:
+                        exp_limit_2 = max_exp
+                    else:
+                        exp_limit_2 = exp
+
+                    if exp_limit_2 >= user_get_exp_max_2:
+                        sql_message.update_exp(user_2['user_id'], user_get_exp_max_2)
+                        msg += f"{user_2['user_name']}修为到达上限，增加修为{user_get_exp_max_2}。"
+                    else:
+                        sql_message.update_exp(user_2['user_id'], exp_limit_2)
+                        msg += f"{user_2['user_name']}增加修为{exp_limit_2}。"
+                    sql_message.update_power2(user_2['user_id'])
+                    sql_message.update_levelrate(user_1['user_id'], user_1['level_up_rate'] + 2)
+                    sql_message.update_levelrate(user_2['user_id'], user_2['level_up_rate'] + 2)
+                    two_exp_cd.add_user(user_1['user_id'])
+                    two_exp_cd.add_user(user_2['user_id'])
+                    msg += f"离开时双方互相留法宝为对方护道,双方各增加突破概率2%。"
+                    if XiuConfig().img:
+                        pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+                        await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+                    else:
+                        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+                    await two_exp.finish()
                 else:
-                    max_exp_limit = user_2['sect_position']
-                max_exp = 100000000000 #jsondata.sect_config_data()[str(max_exp_limit)]["max_exp"] #双修上限罪魁祸首
-                if exp >= max_exp:
-                    exp_limit_2 = max_exp
-                else:
-                    exp_limit_2 = exp
-                if exp_limit_2 >= user_get_exp_max_2:
-                    sql_message.update_exp(user_2['user_id'], user_get_exp_max_2)
-                    msg += f"{user_2['user_name']}修为到达上限，增加修为{user_get_exp_max_2}。"
-                else:
-                    sql_message.update_exp(user_2['user_id'], exp_limit_2)
-                    msg += f"{user_2['user_name']}增加修为{exp_limit_2}。"
-                sql_message.update_power2(user_2['user_id'])
-                two_exp_cd.add_user(user_1['user_id'])
-                two_exp_cd.add_user(user_2['user_id'])
-                if XiuConfig().img:
-                    pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
-                    await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
-                else:
-                    await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-                await two_exp.finish()
+                    exp = int((exp_1 + exp_2) * 0.0055)
+
+                    if user_1['sect_position'] is None:
+                        max_exp_limit = 4
+                    else:
+                        max_exp_limit = user_1['sect_position']
+                    max_exp = 100000000000 #jsondata.sect_config_data()[str(max_exp_limit)]["max_exp"] #双修上限罪魁祸首
+                    if exp >= max_exp:
+                        exp_limit_1 = max_exp
+                    else:
+                        exp_limit_1 = exp
+                    if exp_limit_1 >= user_get_exp_max_1:
+                        sql_message.update_exp(user_1['user_id'], user_get_exp_max_1)
+                        msg += f"{user_1['user_name']}修为到达上限，增加修为{user_get_exp_max_1}。"
+                    else:
+                        sql_message.update_exp(user_1['user_id'], exp_limit_1)
+                        msg += f"{user_1['user_name']}增加修为{exp_limit_1}。"
+                    sql_message.update_power2(user_1['user_id'])
+
+                    if user_2['sect_position'] is None:
+                        max_exp_limit = 4
+                    else:
+                        max_exp_limit = user_2['sect_position']
+                    max_exp = 100000000000 #jsondata.sect_config_data()[str(max_exp_limit)]["max_exp"] #双修上限罪魁祸首
+                    if exp >= max_exp:
+                        exp_limit_2 = max_exp
+                    else:
+                        exp_limit_2 = exp
+                    if exp_limit_2 >= user_get_exp_max_2:
+                        sql_message.update_exp(user_2['user_id'], user_get_exp_max_2)
+                        msg += f"{user_2['user_name']}修为到达上限，增加修为{user_get_exp_max_2}。"
+                    else:
+                        sql_message.update_exp(user_2['user_id'], exp_limit_2)
+                        msg += f"{user_2['user_name']}增加修为{exp_limit_2}。"
+                    sql_message.update_power2(user_2['user_id'])
+                    two_exp_cd.add_user(user_1['user_id'])
+                    two_exp_cd.add_user(user_2['user_id'])
+                    if XiuConfig().img:
+                        pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+                        await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+                    else:
+                        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+                    await two_exp.finish()
     else:
         msg = "修仙者应一心向道，务要留恋凡人！"
         if XiuConfig().img:
