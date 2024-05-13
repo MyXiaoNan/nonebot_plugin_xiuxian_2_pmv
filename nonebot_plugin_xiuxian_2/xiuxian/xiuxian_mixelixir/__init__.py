@@ -357,7 +357,7 @@ async def mix_elixir_(bot: Bot, event: GroupMessageEvent):
     try:
         var = user_ldl_flag[user_id]
     except KeyError:
-        msg = f"道友背包内没有炼丹炉，无法炼丹！"
+        msg = f"道友背包内没有炼丹炉，无法炼丹！先去世界积分商店兑换吧！"
         if XiuConfig().img:
             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))

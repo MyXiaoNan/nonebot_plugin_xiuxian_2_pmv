@@ -749,7 +749,7 @@ async def Boss_fight(player1: dict, boss: dict, type_in=2, bot_id=0):
                 boss_jb = 0
                 boss_xl = 1  #boss禁蓝
     
-    if get_user_rank('遁一境初期')[0] < get_user_rank((boss["jj"] + '中期'))[0] < get_user_rank('江湖好手')[0]: #遁一以下无技能
+    if get_user_rank('遁一境初期')[0] < get_user_rank((boss["jj"] + '中期'))[0] < get_user_rank('江湖好手')[0]: #遁一以下
             boss["减伤"] = 1 # boss减伤率
             boss_zs = 0
             boss_hx = 0
@@ -759,7 +759,7 @@ async def Boss_fight(player1: dict, boss: dict, type_in=2, bot_id=0):
             boss_jh = 0
             boss_jb = 0
             boss_xl = 0
-    if get_user_rank('斩我境圆满')[0] < get_user_rank((boss["jj"] + '中期'))[0] < get_user_rank('至尊境初期')[0]: #遁一境
+    if  get_user_rank('至尊境初期')[0] < get_user_rank((boss["jj"] + '中期'))[0] < get_user_rank('斩我境圆满')[0]: #遁一境
             boss["减伤"] = random.randint(50,55)/100 # boss减伤率
             boss_st1 = random.randint(0,100) #boss神通1
             if 0 <= boss_st1 <= 25:
@@ -805,7 +805,7 @@ async def Boss_fight(player1: dict, boss: dict, type_in=2, bot_id=0):
                 boss_jb = 0
                 boss_xl = random.randint(5,100)/100  #boss禁血
                 
-    if get_user_rank('遁一境圆满')[0] < get_user_rank((boss["jj"] + '中期'))[0] < get_user_rank('真仙境初期')[0]: #至尊境
+    if get_user_rank('真仙境初期')[0] < get_user_rank((boss["jj"] + '中期'))[0] < get_user_rank('遁一境圆满')[0]: #至尊境
             boss["减伤"] = random.randint(40,45)/100 # boss减伤率
             boss_st1 = random.randint(0,100) #boss神通1
             if 0 <= boss_st1 <= 25:
@@ -851,7 +851,7 @@ async def Boss_fight(player1: dict, boss: dict, type_in=2, bot_id=0):
                 boss_jb = 0
                 boss_xl = random.randint(10,100)/100  #boss禁血
             
-    if get_user_rank('至尊境圆满')[0] < get_user_rank((boss["jj"] + '中期'))[0] < get_user_rank('仙王境初期')[0]: #真仙境
+    if get_user_rank('仙王境初期')[0] < get_user_rank((boss["jj"] + '中期'))[0] < get_user_rank('至尊境圆满')[0]: #真仙境
             boss["减伤"] = random.randint(30,35)/100 # boss减伤率
             boss_st1 = random.randint(0,100) #boss神通1
             if 0 <= boss_st1 <= 25:
@@ -897,7 +897,7 @@ async def Boss_fight(player1: dict, boss: dict, type_in=2, bot_id=0):
                 boss_jb = 0
                 boss_xl = random.randint(30,100)/100  #boss禁血
             
-    if get_user_rank('真仙境圆满')[0] < get_user_rank((boss["jj"] + '中期'))[0] < get_user_rank('准帝境初期')[0]: #仙王境
+    if get_user_rank('准帝境初期')[0] < get_user_rank((boss["jj"] + '中期'))[0] < get_user_rank('真仙境圆满')[0]: #仙王境 
             boss["减伤"] = random.randint(20,25)/100  # boss减伤率
             boss_st1 = random.randint(0,100) #boss神通1
             if 0 <= boss_st1 <= 25:
@@ -943,7 +943,7 @@ async def Boss_fight(player1: dict, boss: dict, type_in=2, bot_id=0):
                 boss_jb = 0
                 boss_xl = random.randint(40,100)/100  #boss禁血
             
-    if get_user_rank('仙王境圆满')[0] < get_user_rank((boss["jj"]+ '中期'))[0] < get_user_rank('仙帝境初期')[0]: #准帝境
+    if get_user_rank('仙帝境初期')[0] < get_user_rank((boss["jj"]+ '中期'))[0] < get_user_rank('仙王境圆满')[0]: #准帝境
             boss["减伤"] = random.randint(10,15)/100  # boss减伤率
             boss_st1 = random.randint(0,100) #boss神通1
             if 0 <= boss_st1 <= 25:
@@ -989,7 +989,7 @@ async def Boss_fight(player1: dict, boss: dict, type_in=2, bot_id=0):
                 boss_jb = 0
                 boss_xl = random.randint(50,100)/100  #boss禁血
       
-    if get_user_rank('准帝境圆满')[0] < get_user_rank((boss["jj"]+ '中期'))[0] < get_user_rank('祭道境初期')[0]: #仙帝境
+    if get_user_rank('祭道境初期')[0] < get_user_rank((boss["jj"]+ '中期'))[0] < get_user_rank('准帝境圆满')[0]: #仙帝境
             boss["减伤"] = 0.1  # boss减伤率
             boss_st1 = random.randint(0,100) #boss神通1
             if 0 <= boss_st1 <= 25:

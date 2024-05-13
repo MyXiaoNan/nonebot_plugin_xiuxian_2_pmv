@@ -228,6 +228,7 @@ class Txt2Img:
                 out_img.paste(
                     boss_img,
                     (int(img_width - boss_img_w), int(img_hight - boss_img_h)),
+                    boss_img
                 )
         return out_img
 
