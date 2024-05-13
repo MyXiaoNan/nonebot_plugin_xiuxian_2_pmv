@@ -9,16 +9,18 @@ from nonebot.adapters.onebot.v11 import (
     MessageSegment
 )
 from nonebot.log import logger
-from ..xiuxian_utils.xiuxian2_handle import XiuxianDateManage,OtherSet
+from ..xiuxian_utils.xiuxian2_handle import XiuxianDateManage
 from ..xiuxian_config import XiuConfig
+from ..xiuxian_utils.item_json import Items
 from ..xiuxian_utils.data_source import jsondata
 from ..xiuxian_utils.utils import (
-    check_user,
+    check_user,Txt2Img,
     get_msg_pic,
     CommandObjectID,
 )
 
-# 定时任务
+items = Items()
+cache_level_help = {}
 scheduler = require("nonebot_plugin_apscheduler").scheduler
 cache_help = {}
 sql_message = XiuxianDateManage()  # sql类
@@ -29,16 +31,16 @@ async def xiuxian_beg_():
     sql_message.beg_remake()
     logger.opt(colors=True).info("<green>仙途奇缘重置成功！</green>")
 
-__beg_help__ = f"""
-奇缘帮助信息:
-为了让初入仙途的道友们更顺利地踏上修炼之路，特别开辟了额外的机缘——发送“仙途奇缘”(先去看奇缘帮助)
-便可天降灵石，助君一臂之力。
-若有心人借此谋取不正之利，必将遭遇天道轮回，异象降临，后果自负。
-诸位道友，若不信此言，可自行一试，便知天机不可泄露，天道不容欺。
+__beg_help__ = """
+详情:
+            为了让初入仙途的道友们更顺利地踏上修炼之路，特别开辟了额外的机缘
+            天降灵石，助君一臂之力。
+            若有心人借此谋取不正之利，必将遭遇天道轮回，异象降临，后果自负。
+            诸位道友，若不信此言，可自行一试，便知天机不可泄露，天道不容欺。
 """.strip()
 
 beg_stone = on_command("仙途奇缘", permission=GROUP, priority=7, block=True)
-beg_help = on_command("奇缘帮助", permission=GROUP, priority=7, block=True)
+beg_help = on_command("仙途奇缘帮助", permission=GROUP, priority=7, block=True)
 
 @beg_help.handle(parameterless=[Cooldown(at_sender=False)])
 async def beg_help_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
@@ -47,10 +49,13 @@ async def beg_help_(bot: Bot, event: GroupMessageEvent, session_id: int = Comman
         await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(cache_help[session_id]))
         await beg_help.finish()
     else:
+        font_size = 32
+        title = "仙途奇缘帮助"
         msg = __beg_help__
+        img = Txt2Img(font_size)
         if XiuConfig().img:
-            pic = await get_msg_pic(msg)
-            cache_help[session_id] = pic
+            pic = await img.save(title,msg)
+            cache_level_help[session_id] = pic
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)

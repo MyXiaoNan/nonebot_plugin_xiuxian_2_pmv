@@ -84,7 +84,7 @@ def Player_fight(player1: dict, player2: dict, type_in, bot_id):
     player2_init_hp = player2['气血']
 
     player1_turn_cost = 0  # 先设定为初始值 0
-    player2_turn_cost = 0  # 先设定为初始值 0
+    player2_turn_cost = 0
     player1_f_js = get_user_def_buff(player1['user_id'])
     player2_f_js = get_user_def_buff(player2['user_id'])
     player1_js = player1_f_js
@@ -94,7 +94,7 @@ def Player_fight(player1: dict, player2: dict, type_in, bot_id):
     user1_buff_turn = True
     user2_buff_turn = True
     
-    user1_battle_buff_date = UserBattleBuffDate(player1['user_id'])  # 1号的战斗buff信息 辅修功法14
+    user1_battle_buff_date = UserBattleBuffDate(player1['user_id'])  # 1号的战斗buff信息
     user2_battle_buff_date = UserBattleBuffDate(player2['user_id'])  # 2号的战斗buff信息
     
     while True:
@@ -701,7 +701,7 @@ async def Boss_fight(player1: dict, boss: dict, type_in=2, bot_id=0):
     global boss_jh
     global boss_jb 
     global boss_xl
-    #try:
+
     if boss["jj"] == "祭道境":
             #boss["减伤"] = random.randint(40,90)/100 # boss减伤率
             boss["减伤"] = 0.05 # boss减伤率
@@ -760,7 +760,7 @@ async def Boss_fight(player1: dict, boss: dict, type_in=2, bot_id=0):
             boss_jb = 0
             boss_xl = 0
     if  get_user_rank('至尊境初期')[0] < get_user_rank((boss["jj"] + '中期'))[0] < get_user_rank('斩我境圆满')[0]: #遁一境
-            boss["减伤"] = random.randint(50,55)/100 # boss减伤率
+            boss["减伤"] = random.randint(50,55) / 100 # boss减伤率
             boss_st1 = random.randint(0,100) #boss神通1
             if 0 <= boss_st1 <= 25:
                 boss_zs = 0.3   #boss攻击
@@ -781,7 +781,7 @@ async def Boss_fight(player1: dict, boss: dict, type_in=2, bot_id=0):
                 boss_zs = 0
                 boss_hx = 0
                 boss_bs = 0
-                boss_xx = random.randint(5,100)/100  #boss禁血
+                boss_xx = random.randint(5,100) / 100  #boss禁血
                 
             boss_st2 = random.randint(0,100) #boss神通2
             if 0 <= boss_st2 <= 25:
@@ -803,10 +803,10 @@ async def Boss_fight(player1: dict, boss: dict, type_in=2, bot_id=0):
                 boss_jg = 0
                 boss_jh = 0
                 boss_jb = 0
-                boss_xl = random.randint(5,100)/100  #boss禁血
+                boss_xl = random.randint(5,100) / 100  #boss禁血
                 
     if get_user_rank('真仙境初期')[0] < get_user_rank((boss["jj"] + '中期'))[0] < get_user_rank('遁一境圆满')[0]: #至尊境
-            boss["减伤"] = random.randint(40,45)/100 # boss减伤率
+            boss["减伤"] = random.randint(40,45) / 100 # boss减伤率
             boss_st1 = random.randint(0,100) #boss神通1
             if 0 <= boss_st1 <= 25:
                 boss_zs = 0.4   #boss攻击
@@ -827,7 +827,7 @@ async def Boss_fight(player1: dict, boss: dict, type_in=2, bot_id=0):
                 boss_zs = 0
                 boss_hx = 0
                 boss_bs = 0
-                boss_xx = random.randint(10,100)/100  #boss禁血
+                boss_xx = random.randint(10,100) / 100  #boss禁血
                 
             boss_st2 = random.randint(0,100) #boss神通2
             if 0 <= boss_st2 <= 25:
@@ -849,10 +849,10 @@ async def Boss_fight(player1: dict, boss: dict, type_in=2, bot_id=0):
                 boss_jg = 0
                 boss_jh = 0
                 boss_jb = 0
-                boss_xl = random.randint(10,100)/100  #boss禁血
+                boss_xl = random.randint(10,100) / 100  #boss禁血
             
     if get_user_rank('仙王境初期')[0] < get_user_rank((boss["jj"] + '中期'))[0] < get_user_rank('至尊境圆满')[0]: #真仙境
-            boss["减伤"] = random.randint(30,35)/100 # boss减伤率
+            boss["减伤"] = random.randint(30,35) / 100 # boss减伤率
             boss_st1 = random.randint(0,100) #boss神通1
             if 0 <= boss_st1 <= 25:
                 boss_zs = 0.6   #boss攻击
@@ -873,7 +873,7 @@ async def Boss_fight(player1: dict, boss: dict, type_in=2, bot_id=0):
                 boss_zs = 0
                 boss_hx = 0
                 boss_bs = 0
-                boss_xx = random.randint(30,100)/100  #boss禁血
+                boss_xx = random.randint(30,100) / 100  #boss禁血
                 
             boss_st2 = random.randint(0,100) #boss神通2
             if 0 <= boss_st2 <= 25:
@@ -895,10 +895,10 @@ async def Boss_fight(player1: dict, boss: dict, type_in=2, bot_id=0):
                 boss_jg = 0
                 boss_jh = 0
                 boss_jb = 0
-                boss_xl = random.randint(30,100)/100  #boss禁血
+                boss_xl = random.randint(30,100) / 100  #boss禁血
             
     if get_user_rank('准帝境初期')[0] < get_user_rank((boss["jj"] + '中期'))[0] < get_user_rank('真仙境圆满')[0]: #仙王境 
-            boss["减伤"] = random.randint(20,25)/100  # boss减伤率
+            boss["减伤"] = random.randint(20,25) / 100  # boss减伤率
             boss_st1 = random.randint(0,100) #boss神通1
             if 0 <= boss_st1 <= 25:
                 boss_zs = 0.7   #boss攻击
@@ -919,7 +919,7 @@ async def Boss_fight(player1: dict, boss: dict, type_in=2, bot_id=0):
                 boss_zs = 0
                 boss_hx = 0
                 boss_bs = 0
-                boss_xx = random.randint(40,100)/100  #boss禁血
+                boss_xx = random.randint(40,100) / 100  #boss禁血
                 
             boss_st2 = random.randint(0,100) #boss神通2
             if 0 <= boss_st2 <= 25:
@@ -941,10 +941,10 @@ async def Boss_fight(player1: dict, boss: dict, type_in=2, bot_id=0):
                 boss_jg = 0
                 boss_jh = 0
                 boss_jb = 0
-                boss_xl = random.randint(40,100)/100  #boss禁血
+                boss_xl = random.randint(40,100) / 100  #boss禁血
             
     if get_user_rank('仙帝境初期')[0] < get_user_rank((boss["jj"]+ '中期'))[0] < get_user_rank('仙王境圆满')[0]: #准帝境
-            boss["减伤"] = random.randint(10,15)/100  # boss减伤率
+            boss["减伤"] = random.randint(10,15) / 100  # boss减伤率
             boss_st1 = random.randint(0,100) #boss神通1
             if 0 <= boss_st1 <= 25:
                 boss_zs = 0.85   #boss攻击
@@ -965,7 +965,7 @@ async def Boss_fight(player1: dict, boss: dict, type_in=2, bot_id=0):
                 boss_zs = 0
                 boss_hx = 0
                 boss_bs = 0
-                boss_xx = random.randint(50,100)/100  #boss禁血
+                boss_xx = random.randint(50,100) / 100  #boss禁血
                 
             boss_st2 = random.randint(0,100) #boss神通2
             if 0 <= boss_st2 <= 25:
@@ -987,7 +987,7 @@ async def Boss_fight(player1: dict, boss: dict, type_in=2, bot_id=0):
                 boss_jg = 0
                 boss_jh = 0
                 boss_jb = 0
-                boss_xl = random.randint(50,100)/100  #boss禁血
+                boss_xl = random.randint(50,100) / 100  #boss禁血
       
     if get_user_rank('祭道境初期')[0] < get_user_rank((boss["jj"]+ '中期'))[0] < get_user_rank('准帝境圆满')[0]: #仙帝境
             boss["减伤"] = 0.1  # boss减伤率
@@ -1011,7 +1011,7 @@ async def Boss_fight(player1: dict, boss: dict, type_in=2, bot_id=0):
                 boss_zs = 0
                 boss_hx = 0
                 boss_bs = 0
-                boss_xx = random.randint(60,100)/100  #boss禁血
+                boss_xx = random.randint(60,100) / 100  #boss禁血
                 
             boss_st2 = random.randint(0,100) #boss神通2
             if 0 <= boss_st2 <= 25:
@@ -1033,7 +1033,7 @@ async def Boss_fight(player1: dict, boss: dict, type_in=2, bot_id=0):
                 boss_jg = 0
                 boss_jh = 0
                 boss_jb = 0
-                boss_xl = random.randint(60,100)/100  #boss禁血
+                boss_xl = random.randint(60,100) / 100  #boss禁血
             
             
     if fan_buff == 1:

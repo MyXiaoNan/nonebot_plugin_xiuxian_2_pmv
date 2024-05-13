@@ -27,13 +27,25 @@ from ..xiuxian_utils.utils import (
 from ..xiuxian_utils.item_json import Items
 
 items = Items()
+sql_message = XiuxianDateManage()  # sql类
 config = get_config()
 LEVLECOST = config["LEVLECOST"]
 cache_help = {}
 userstask = {}
 
-sql_message = XiuxianDateManage()  # sql类
-# 定时任务
+buffrankkey = {
+    "人阶下品": 1,
+    "人阶上品": 2,
+    "黄阶下品": 3,
+    "黄阶上品": 4,
+    "玄阶下品": 5,
+    "玄阶上品": 6,
+    "地阶下品": 7,
+    "地阶上品": 8,
+    "天阶下品": 9,
+    "天阶上品": 10,
+}
+
 materialsupdate = require("nonebot_plugin_apscheduler").scheduler
 resetusertask = require("nonebot_plugin_apscheduler").scheduler
 upatkpractice = on_command("升级攻击修炼", priority=5, permission=GROUP, block=True)
@@ -376,14 +388,14 @@ async def sect_buff_info_(bot: Bot, event: GroupMessageEvent):
             main_msg = '\n☆------宗门功法------☆\n'
             msg += main_msg
             list_tp.append(
-                {"type": "node", "data": {"name": f"道友{user_info['user_name']}的宗门功法信息", "uin": bot.self_id,
+                {"type": "node", "data": {"name": "道友{}的宗门功法信息".format(user_info['user_name']), "uin": bot.self_id,
                                           "content": main_msg}})
             for main in mainbufflist:
                 mainbuff, mainbuffmsg = get_main_info_msg(str(main))
                 mainmsg = f"{mainbuff['level']}:{mainbuffmsg}\n"
                 msg += mainmsg
                 list_tp.append(
-                    {"type": "node", "data": {"name": f"道友{user_info['user_name']}的宗门秘籍信息", "uin": bot.self_id,
+                    {"type": "node", "data": {"name": "道友{}的宗门秘籍信息".format(user_info['user_name']), "uin": bot.self_id,
                                               "content": mainmsg}})
 
         if sect_info['secbuff'] != 0:
@@ -391,7 +403,7 @@ async def sect_buff_info_(bot: Bot, event: GroupMessageEvent):
             sec_msg = '☆------宗门神通------☆\n'
             msg += sec_msg
             list_tp.append(
-                {"type": "node", "data": {"name": f"道友{user_info['user_name']}的宗门神通信息", "uin": bot.self_id,
+                {"type": "node", "data": {"name": "道友{}的宗门神通信息".format(user_info['user_name']), "uin": bot.self_id,
                                           "content": sec_msg}})
             for sec in secbufflist:
                 secbuff = items.get_data_by_item_id(sec)
@@ -399,7 +411,7 @@ async def sect_buff_info_(bot: Bot, event: GroupMessageEvent):
                 secmsg = f"{secbuff['level']}:{secbuff['name']} {secbuffmsg}\n"
                 msg += secmsg
                 list_tp.append(
-                    {"type": "node", "data": {"name": f"道友{user_info['user_name']}的宗门神通信息", "uin": bot.self_id,
+                    {"type": "node", "data": {"name": "道友{}的宗门神通信息".format(user_info['user_name']), "uin": bot.self_id,
                                               "content": secmsg}})
         try:
             await send_msg_handler(bot, event, list_tp)
@@ -419,20 +431,6 @@ async def sect_buff_info_(bot: Bot, event: GroupMessageEvent):
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await sect_buff_info.finish()
-
-
-buffrankkey = {
-    "人阶下品": 1,
-    "人阶上品": 2,
-    "黄阶下品": 3,
-    "黄阶上品": 4,
-    "玄阶下品": 5,
-    "玄阶上品": 6,
-    "地阶下品": 7,
-    "地阶上品": 8,
-    "天阶下品": 9,
-    "天阶上品": 10,
-}
 
 
 @sect_mainbuff_learn.handle(parameterless=[Cooldown(at_sender=False)])
@@ -502,7 +500,8 @@ async def sect_mainbuff_learn_(bot: Bot, event: GroupMessageEvent, args: Message
                 sql_message.update_sect_materials(sect_id, materialscost, 2)
                 sql_message.updata_user_main_buff(user_info['user_id'], mainbuffid)
                 mainbuff, mainbuffmsg = get_main_info_msg(str(mainbuffid))
-                msg = f"本次学习消耗{materialscost}宗门资材，成功学习到本宗{mainbufftype}功法：{mainbuff['name']}\n{mainbuffmsg}"
+                msg = "本次学习消耗{}宗门资材，成功学习到本宗{}功法：{}\n{}".format(materialscost, mainbufftype, 
+                                                                                    mainbuff['name'], mainbuffmsg)
                 if XiuConfig().img:
                     pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
                     await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -856,7 +855,9 @@ async def upatkpractice_(bot: Bot, event: GroupMessageEvent, args: Message = Com
         total_materials_cost = int(total_stone_cost * 10)
 
         if int(user_info['stone']) < total_stone_cost:
-            msg = f"道友的灵石不够，升级到攻击修炼等级 {useratkpractice + level_up_count} 还需 {total_stone_cost - int(user_info['stone'])} 灵石!"
+            msg = "道友的灵石不够，升级到攻击修炼等级 {} 还需 {} 灵石!".format(
+            useratkpractice + level_up_count, total_stone_cost - int(user_info['stone'])
+            )
             if XiuConfig().img:
                 pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -865,7 +866,9 @@ async def upatkpractice_(bot: Bot, event: GroupMessageEvent, args: Message = Com
             await upatkpractice.finish()
 
         if sect_materials < total_materials_cost:
-            msg = f"道友的所处的宗门资材不足，还需 {total_materials_cost - sect_materials} 资材来升级到攻击修炼等级 {useratkpractice + level_up_count}!"
+            msg = "道友的所处的宗门资材不足，还需 {} 资材来升级到攻击修炼等级 {}!".format(
+            total_materials_cost - sect_materials, useratkpractice + level_up_count
+            )
             if XiuConfig().img:
                 pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -876,7 +879,9 @@ async def upatkpractice_(bot: Bot, event: GroupMessageEvent, args: Message = Com
         sql_message.update_ls(user_id, total_stone_cost, 2)
         sql_message.update_sect_materials(sect_id, total_materials_cost, 2)
         sql_message.update_user_atkpractice(user_id, useratkpractice + level_up_count)
-        msg = f"升级成功，道友当前攻击修炼等级：{useratkpractice + level_up_count}，消耗灵石：{total_stone_cost}枚，消耗宗门资材{total_materials_cost}!"
+        msg = "升级成功，道友当前攻击修炼等级：{}，消耗灵石：{}枚，消耗宗门资材{}!".format(
+        useratkpractice + level_up_count, total_stone_cost, total_materials_cost
+        )
         if XiuConfig().img:
             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -910,7 +915,9 @@ async def sect_task_refresh_(bot: Bot, event: GroupMessageEvent):
     if sect_id:
         if isUserTask(user_id):
             create_user_sect_task(user_id)
-            msg = f"已刷新，道友当前接取的任务：{userstask[user_id]['任务名称']}\n{userstask[user_id]['任务内容']['desc']}"
+            msg = "已刷新，道友当前接取的任务：{}\n{}".format(
+            userstask[user_id]['任务名称'], userstask[user_id]['任务内容']['desc']
+            )
             if XiuConfig().img:
                 pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -945,7 +952,8 @@ async def sect_list_(bot: Bot, event: GroupMessageEvent):
     msg_list = []
     for sect in sect_lists_with_members:
         sect_id, sect_name, sect_scale, user_name, member_count = sect
-        msg_list.append(f"编号{sect_id}：{sect_name}\n宗主：{user_name}\n宗门建设度：{number_to(sect_scale)}\n成员数：{member_count}")
+        msg_list.append("编号{}：{}\n宗主：{}\n宗门建设度：{}\n成员数：{}".format(
+        sect_id, sect_name, user_name, number_to(sect_scale), member_count))
 
     await send_msg_handler(bot, event, '宗门列表', bot.self_id, msg_list)
     await sect_list.finish()
@@ -969,12 +977,15 @@ async def sect_users_(bot: Bot, event: GroupMessageEvent):
         if sect_id:
             sect_info = sql_message.get_sect_info(sect_id)
             userlist = sql_message.get_all_users_by_sect_id(sect_id)
-            msg = f"☆【{sect_info['sect_name']}】的成员信息☆\n"
+            msg = "☆【{}】的成员信息☆\n".format(sect_info['sect_name'])
             msg_list.append(msg)
             i = 1
             for user in userlist:
-                msg = f"编号{i}:{user['user_name']},{user['level']}，宗门职位：{jsondata.sect_config_data()[f"{user['sect_position']}"]['title']}，宗门贡献度：{user['sect_contribution']}\n"
-                msg += f"QQ号{user['user_id']}"
+                msg = "编号{}:{},{}，宗门职位：{}，宗门贡献度：{}\n".format(
+                i, user['user_name'], user['level'], jsondata.sect_config_data()["{}".format(user['sect_position'])]['title'], 
+                user['sect_contribution']
+                )
+                msg += "QQ号{}".format(user['user_id'])
                 msg_list.append(msg)
                 i += 1
         else:
@@ -1002,7 +1013,7 @@ async def sect_task_(bot: Bot, event: GroupMessageEvent):
     if sect_id:
         user_now_num = int(user_info['sect_task'])
         if user_now_num >= config["每日宗门任务次上限"]:
-            msg = f"道友已完成{user_now_num}次，今日无法再获取宗门任务了！"
+            msg = "道友已完成{}次，今日无法再获取宗门任务了！".format(user_now_num)
             if XiuConfig().img:
                 pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -1011,7 +1022,9 @@ async def sect_task_(bot: Bot, event: GroupMessageEvent):
             await sect_task.finish()
 
         if isUserTask(user_id):  # 已有任务
-            msg = f"道友当前已接取了任务：{userstask[user_id]['任务名称']}\n{userstask[user_id]['任务内容']['desc']}"
+            msg = "道友当前已接取了任务：{}\n{}".format(
+            userstask[user_id]['任务名称'], userstask[user_id]['任务内容']['desc']
+            )
             if XiuConfig().img:
                 pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -1020,7 +1033,7 @@ async def sect_task_(bot: Bot, event: GroupMessageEvent):
             await sect_task.finish()
 
         create_user_sect_task(user_id)
-        msg = f"{userstask[user_id]['任务内容']['desc']}"
+        msg = "{}".format(userstask[user_id]['任务内容']['desc'])
         if XiuConfig().img:
             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -1095,7 +1108,9 @@ async def sect_task_complete_(bot: Bot, event: GroupMessageEvent):
             sql_message.update_sect_materials(sect_id, sect_stone * 10, 1)
             sql_message.update_user_sect_task(user_id, 1)
             sql_message.update_user_sect_contribution(user_id, user_info['sect_contribution'] + int(sect_stone))
-            msg += f"道友大战一番，气血减少：{costhp}，获得修为：{get_exp}，所在宗门建设度增加：{sect_stone}，资材增加：{sect_stone * 10}, 宗门贡献度增加：{int(sect_stone)}"
+            msg += "道友大战一番，气血减少：{}，获得修为：{}，所在宗门建设度增加：{}，资材增加：{}, 宗门贡献度增加：{}".format(
+            costhp, get_exp, sect_stone, sect_stone * 10, int(sect_stone)
+            )
             userstask[user_id] = {}
             if XiuConfig().img:
                 pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
@@ -1110,8 +1125,7 @@ async def sect_task_complete_(bot: Bot, event: GroupMessageEvent):
             if costls > int(user_info['stone']):
                 msg = (
                     "道友兴高采烈的出门做任务，结果发现灵石带少了，当前任务所需灵石：{},"
-                    "道友只好原路返回，浪费了一次出门机会，看你这么可怜，就不扣你任务次数了！"
-                .format(costls))
+                    "道友只好原路返回，浪费了一次出门机会，看你这么可怜，就不扣你任务次数了！".format(costls))
                 if XiuConfig().img:
                     pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
                     await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -1139,7 +1153,8 @@ async def sect_task_complete_(bot: Bot, event: GroupMessageEvent):
             sql_message.update_sect_materials(sect_id, sect_stone * 10, 1)
             sql_message.update_user_sect_task(user_id, 1)
             sql_message.update_user_sect_contribution(user_id, user_info['sect_contribution'] + int(sect_stone))
-            msg = f"道友为了完成任务购买宝物消耗灵石：{costls}枚，获得修为：{get_exp}，所在宗门建设度增加：{sect_stone}，资材增加：{sect_stone * 10}, 宗门贡献度增加：{int(sect_stone)}"
+            msg = "道友为了完成任务购买宝物消耗灵石：{}枚，获得修为：{}，所在宗门建设度增加：{}，资材增加：{}, 宗门贡献度增加：{}".format(
+            costls, get_exp, sect_stone, sect_stone * 10, int(sect_stone))
             userstask[user_id] = {}
             if XiuConfig().img:
                 pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
@@ -1209,7 +1224,8 @@ async def sect_owner_change_(bot: Bot, event: GroupMessageEvent, args: Message =
                 sql_message.update_usr_sect(user_info['user_id'], user_info['sect_id'], owner_position + 1)
                 sect_info = sql_message.get_sect_info_by_id(give_user['sect_id'])
                 sql_message.update_sect_owner(give_user['user_id'], sect_info['sect_id'])
-                msg = f"传老宗主{user_info['user_name']}法旨，即日起{give_user['user_name']}继任{sect_info['sect_name']}宗主"
+                msg = "传老宗主{}法旨，即日起由{}继任{}宗主".format(
+                    user_info['user_name'], give_user['user_name'], sect_info['sect_name'])
                 for group_id in enabled_groups:
                     bot = await assign_bot_group(group_id=group_id)
                     try:
@@ -1218,11 +1234,11 @@ async def sect_owner_change_(bot: Bot, event: GroupMessageEvent, args: Message =
                             await bot.send_group_msg(group_id=int(group_id), message=MessageSegment.image(pic))
                         else:
                             await bot.send_group_msg(group_id=int(group_id), message=msg)
-                    except ActionFailed:  # 发送群消息失败
+                    except ActionFailed:
                         continue
                 await sect_owner_change.finish()
             else:
-                msg = f"{give_user['user_name']}不在你管理的宗门内，请检查。"
+                msg = "{}不在你管理的宗门内，请检查。".format(give_user['user_name'])
                 if XiuConfig().img:
                     pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
                     await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -1270,7 +1286,6 @@ async def sect_rename_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await sect_rename.finish()
     else:
-        # 获取新的宗门名称
         update_sect_name = args.extract_plain_text().strip()
         sect_id = user_info['sect_id']
         sect_info = sql_message.get_sect_info(sect_id)
@@ -1286,8 +1301,8 @@ async def sect_rename_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
                 await bot.send_group_msg(group_id=int(send_group_id), message=msg)
             await sect_rename.finish()
 
-        elif sect_info['sect_used_stone'] < XiuConfig().sect_rename_cost:
-            msg = f"道友宗门灵石储备不足，还需{number_to(XiuConfig().sect_rename_cost - sect_info['sect_used_stone'])}灵石!"
+        elif update_sect_name is None:
+            msg = "道友确定要改名无名之宗门？还请三思。"
             if XiuConfig().img:
                 pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -1295,8 +1310,9 @@ async def sect_rename_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
                 await bot.send_group_msg(group_id=int(send_group_id), message=msg)
             await sect_rename.finish()
 
-        elif update_sect_name is None:
-            msg = "道友确定要改名无名之宗门？还请三思。"
+        elif sect_info['sect_used_stone'] < XiuConfig().sect_rename_cost:
+            msg = "道友宗门灵石储备不足，还需{}灵石!".format(
+                number_to(XiuConfig().sect_rename_cost - sect_info['sect_used_stone']))
             if XiuConfig().img:
                 pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -1359,10 +1375,11 @@ async def create_sect_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
             user_info['stone'] < XiuConfig().sect_create_cost or
             user_info['sect_id']
     ):
-        msg = f"""创建宗门要求:
-(1)创建者境界最低要求为{XiuConfig().sect_min_level}
-(2)花费{XiuConfig().sect_create_cost}灵石费用
-(3)创建者当前处于无宗门状态。道友暂未满足所有条件，请逐一核实后，再来寻我。"""
+        msg = """创建宗门要求:
+(1)创建者境界最低要求为{}
+(2)花费{}灵石费用
+(3)创建者当前处于无宗门状态。道友暂未满足所有条件，请逐一核实后，再来寻我。""".format(
+    XiuConfig().sect_min_level, XiuConfig().sect_create_cost)
 
     else:
         # 获取宗门名称
@@ -1374,7 +1391,8 @@ async def create_sect_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
             owner_position = int(owner_idx[0]) if len(owner_idx) == 1 else 0
             sql_message.update_usr_sect(user_id, new_sect['sect_id'], owner_position)
             sql_message.update_ls(user_id, XiuConfig().sect_min_level, 2)
-            msg = f"恭喜{user_info['user_name']}道友创建宗门——{sect_name}，宗门编号为{new_sect['sect_id']}。为道友贺！为仙道贺！"
+            msg = "恭喜{}道友创建宗门——{}，宗门编号为{}。为道友贺！为仙道贺！".format(
+                user_info['user_name'], sect_name, new_sect['sect_id'])
         else:
             msg = "道友确定要创建无名之宗门？还请三思。"
     if XiuConfig().img:
@@ -1437,7 +1455,8 @@ async def sect_kick_out_(bot: Bot, event: GroupMessageEvent, args: Message = Com
                 idx_position = int(position_zhanglao[0]) if len(position_zhanglao) == 1 else 1
                 if user_info['sect_position'] <= idx_position:
                     if give_user['sect_position'] <= user_info['sect_position']:
-                        msg = f"{give_user['user_name']}的宗门职务为{jsondata.sect_config_data()[f"{give_user['sect_position']}"]['title']}，不在你之下，无权操作。"
+                        msg = "{}的宗门职务为{}，不在你之下，无权操作。".format(
+                            give_user['user_name'], jsondata.sect_config_data()["{}".format(give_user['sect_position'])]['title'])
                         if XiuConfig().img:
                             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
                             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -1448,7 +1467,10 @@ async def sect_kick_out_(bot: Bot, event: GroupMessageEvent, args: Message = Com
                         sect_info = sql_message.get_sect_info_by_id(give_user['sect_id'])
                         sql_message.update_usr_sect(give_user['user_id'], None, None)
                         sql_message.update_user_sect_contribution(give_user['user_id'], 0)
-                        msg = f"传{jsondata.sect_config_data()[f"{user_info['sect_position']}"]['title']}{user_info['user_name']}法旨，即日起{give_user['user_name']}被{sect_info['sect_name']}除名"
+                        msg = "传{}{}法旨，即日起{}被{}除名".format(
+                            jsondata.sect_config_data()["{}".format(user_info['sect_position'])]['title'], user_info['user_name'], 
+                            give_user['user_name'], sect_info['sect_name']
+                        )
                         if XiuConfig().img:
                             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
                             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -1456,7 +1478,9 @@ async def sect_kick_out_(bot: Bot, event: GroupMessageEvent, args: Message = Com
                             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
                         await sect_kick_out.finish()
                 else:
-                    msg = f"你的宗门职务为{jsondata.sect_config_data()[f"{user_info['sect_position']}"]['title']}，只有长老及以上可执行踢出操作。"
+                    msg = "你的宗门职务为{}，只有长老及以上可执行踢出操作。".format(
+                        jsondata.sect_config_data()["{}".format(user_info['sect_position'])]['title']
+                    )
                     if XiuConfig().img:
                         pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
                         await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -1464,7 +1488,7 @@ async def sect_kick_out_(bot: Bot, event: GroupMessageEvent, args: Message = Com
                         await bot.send_group_msg(group_id=int(send_group_id), message=msg)
                     await sect_kick_out.finish()
             else:
-                msg = f"{give_user['user_name']}不在你管理的宗门内，请检查。"
+                msg = "{}不在你管理的宗门内，请检查。".format(give_user['user_name'])
                 if XiuConfig().img:
                     pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
                     await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -1509,7 +1533,7 @@ async def sect_out_(bot: Bot, event: GroupMessageEvent, args: Message = CommandA
         sql_message.update_usr_sect(user_id, None, None)
         sect_info = sql_message.get_sect_info_by_id(int(sect_out_id))
         sql_message.update_user_sect_contribution(user_id, 0)
-        msg = f"道友已退出{sect_info['sect_name']}，今后就是自由散修，是福是祸，犹未可知。"
+        msg = "道友已退出{}，今后就是自由散修，是福是祸，犹未可知。".format(sect_info['sect_name'])
         if XiuConfig().img:
             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -1562,7 +1586,8 @@ async def sect_donate_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
             sql_message.update_ls(user_id, int(donate_num[0]), 2)
             sql_message.donate_update(user_info['sect_id'], int(donate_num[0]))
             sql_message.update_user_sect_contribution(user_id, user_info['sect_contribution'] + int(donate_num[0]))
-            msg = f"道友捐献灵石{int(donate_num[0])}枚，增加宗门建设度{int(donate_num[0])}，宗门贡献度增加：{int(donate_num[0])}点，蒸蒸日上！"
+            msg = "道友捐献灵石{}枚，宗门建设度增加：{}，宗门贡献度增加：{}点，蒸蒸日上！".format(
+                int(donate_num[0]), int(donate_num[0]), int(donate_num[0]))
             if XiuConfig().img:
                 pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -1596,7 +1621,7 @@ async def sect_position_update_(bot: Bot, event: GroupMessageEvent, args: Messag
     position_zhanglao = [k for k, v in jsondata.sect_config_data().items() if v.get("title", "") == "长老"]
     idx_position = int(position_zhanglao[0]) if len(position_zhanglao) == 1 else 1
     if user_info['sect_position'] > idx_position:
-        msg = f"你的宗门职位为{jsondata.sect_config_data()[f"{user_info['sect_position']}"]['title']}，无权进行职位管理"
+        msg = "你的宗门职位为{}，无权进行职位管理！".format(jsondata.sect_config_data()["{}".format(user_info['sect_position'])]['title'])
         if XiuConfig().img:
             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -1604,9 +1629,9 @@ async def sect_position_update_(bot: Bot, event: GroupMessageEvent, args: Messag
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await sect_position_update.finish()
 
-    give_qq = None  # 艾特的时候存到这里
+    give_qq = None 
     msg = args.extract_plain_text().strip()
-    position_num = re.findall(r"\d+", msg)  # 职位品阶
+    position_num = re.findall(r"\d+", msg)
 
     for arg in args:
         if arg.type == "at":
@@ -1626,7 +1651,10 @@ async def sect_position_update_(bot: Bot, event: GroupMessageEvent, args: Messag
                 if give_user['sect_id'] == user_info['sect_id'] and give_user['sect_position'] > user_info['sect_position']:
                     if int(position_num[0]) > user_info['sect_position']:
                         sql_message.update_usr_sect(give_user['user_id'], give_user['sect_id'], int(position_num[0]))
-                        msg = f"""传{jsondata.sect_config_data()[f"{user_info['sect_position']}"]['title']}{user_info['user_name']}法旨:即日起{give_user['user_name']}为本宗{jsondata.sect_config_data()[f'{int(position_num[0])}']['title']}"""
+                        msg = """传{}{}法旨:即日起{}为本宗{}""".format(
+                            jsondata.sect_config_data()["{}".format(user_info['sect_position'])]['title'], 
+                            user_info['user_name'], give_user['user_name'], 
+                            jsondata.sect_config_data()["{}".format(int(position_num[0]))]['title'])
                         if XiuConfig().img:
                             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
                             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -1658,7 +1686,8 @@ async def sect_position_update_(bot: Bot, event: GroupMessageEvent, args: Messag
                     await bot.send_group_msg(group_id=int(send_group_id), message=msg)
                 await sect_position_update.finish()
     else:
-        msg = f"""请按照规范进行操作,ex:宗门职位变更2@XXX,将XXX道友(需在自己管理下的宗门)的变更为{jsondata.sect_config_data().get('2', {'title': '没有找到2品阶'})['title']}"""
+        msg = """请按照规范进行操作,ex:宗门职位变更2@XXX,将XXX道友(需在自己管理下的宗门)的变更为{}""".format(
+            jsondata.sect_config_data().get('2', {'title': '没有找到2品阶'})['title'])
         if XiuConfig().img:
             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -1733,18 +1762,21 @@ async def my_sect_(bot: Bot, event: GroupMessageEvent):
             elixir_room_name = "暂无"
         else:
             elixir_room_name = elixir_room_level_up_config[str(sect_info['elixir_room_level'])]['name']
-        msg = f"""{user_name}所在宗门
-宗门名讳：{sect_info['sect_name']}
-宗门编号：{sect_id}
-宗   主：{sql_message.get_user_message(sect_info['sect_owner'])['user_name']}
-道友职位：{jsondata.sect_config_data()[f"{sect_position}"]["title"]}
-宗门建设度：{number_to(sect_info['sect_scale'])}
-洞天福地：{sect_info['sect_fairyland'] if sect_info['sect_fairyland'] else "暂无"}
-宗门位面排名：{top_idx_list.index(sect_id) + 1}
-宗门拥有资材：{number_to(sect_info['sect_materials'])}
-宗门贡献度：{number_to(user_info['sect_contribution'])}
-宗门丹房：{elixir_room_name}
-"""
+        msg = """{}所在宗门
+宗门名讳：{}
+宗门编号：{}
+宗   主：{}
+道友职位：{}
+宗门建设度：{}
+洞天福地：{}
+宗门位面排名：{}
+宗门拥有资材：{}
+宗门贡献度：{}
+宗门丹房：{}
+""".format(user_name, sect_info['sect_name'], sect_id, sql_message.get_user_message(sect_info['sect_owner'])['user_name'], 
+           jsondata.sect_config_data()["{}".format(sect_position)]["title"], number_to(sect_info['sect_scale']), 
+           sect_info['sect_fairyland'] if sect_info['sect_fairyland'] else "暂无", top_idx_list.index(sect_id) + 1, 
+           number_to(sect_info['sect_materials']), number_to(user_info['sect_contribution']), elixir_room_name)
         if sect_position == owner_position:
             msg += "\n宗门储备：{}灵石".format(sect_info['sect_used_stone'])
     else:
