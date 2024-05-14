@@ -28,7 +28,7 @@ from ..xiuxian_utils.xiuxian2_handle import (
     XIUXIAN_IMPART_BUFF, leave_harm_time
 )
 from ..xiuxian_config import get_user_rank, XiuConfig
-from .makeboss import createboss, createboss_root, createboss_jj
+from .makeboss import createboss, createboss_jj
 from .bossconfig import get_boss_config, savef_boss
 from .old_boss_info import old_boss_info
 from ..xiuxian_utils.player_fight import Boss_fight
@@ -658,7 +658,7 @@ async def create_(bot: Bot, event: GroupMessageEvent):
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await create.finish()
 
-    bossinfo = createboss_root()
+    bossinfo = createboss()
     try:
         group_boss[group_id]
     except:
@@ -700,7 +700,7 @@ async def _(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     except:
         group_boss[group_id] = []
     if len(group_boss[group_id]) >= config['Boss个数上限']:
-        msg = f"本群世界Boss已达到上限{config['Boss个数上限']}个，无法继续生成"
+        msg = "本群世界Boss已达到上限{}个，无法继续生成".format(config['Boss个数上限'])
         if XiuConfig().img:
             msg = await pic_msg_format(msg, event)
             pic = await get_msg_pic(msg)
@@ -716,10 +716,20 @@ async def _(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
             await create_appoint.finish(MessageSegment.image(pic))
         else:
             await create_appoint.finish(msg, at_sender=False)
+
     boss_jj = arg_list[0]  # 用户指定的境界
     boss_name = arg_list[1] if len(arg_list) > 1 else None  # 用户指定的Boss名称，如果有的话
+    
     # 使用提供的境界和名称生成boss信息
     bossinfo = createboss_jj(boss_jj, boss_name)
+    if bossinfo is None:
+        msg = "请输入正确的境界，例如：生成指定世界boss 祭道境"
+        if XiuConfig().img:
+            msg = await pic_msg_format(msg, event)
+            pic = await get_msg_pic(msg)
+            await create_appoint.finish(MessageSegment.image(pic))
+        else:
+            await create_appoint.finish(msg, at_sender=False)
     group_boss[group_id].append(bossinfo)
     msg = f"已生成{bossinfo['jj']}Boss:{bossinfo['name']}，诸位道友请击败Boss获得奖励吧！"
     if XiuConfig().img:
