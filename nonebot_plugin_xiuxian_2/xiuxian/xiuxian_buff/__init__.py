@@ -773,7 +773,6 @@ async def out_closing_(bot: Bot, event: GroupMessageEvent):
             await out_closing.finish()
         else:
             # 用户获取的修为没有到达上限
-
             if str(event.message) == "灵石出关":
                 user_stone = user_mes['stone']  # 用户灵石数
                 if user_stone <= 0:
