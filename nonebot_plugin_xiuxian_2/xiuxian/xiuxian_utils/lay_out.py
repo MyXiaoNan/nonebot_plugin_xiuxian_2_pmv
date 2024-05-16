@@ -263,8 +263,16 @@ async def assign_bot_group(group_id):  # 只导入群号，按字典分配对应
             bot = get_bots()[random.choice(bot_id)]
         else:
             bot = get_bots()[put_bot[0]]
-    except:
-        bot = get_bot() if get_bot() else None
-        if bot is None:
-            logger.opt(colors=True).error("<red>未找到对应的bot实例,请检查实现端链接状况！</red>")
+    except KeyError:
+        bot = None
+    except Exception as e:
+        logger.opt(colors=True).error(f"<red>错误: {e}</red>")
+
+    if bot is None:
+        try:
+            bot = get_bot()
+        except ValueError:
+            logger.opt(colors=True).error(f"<red>未找到对应的bot实例,请检查实现端链接状况！</red>")
+            bot = None
+
     return bot
