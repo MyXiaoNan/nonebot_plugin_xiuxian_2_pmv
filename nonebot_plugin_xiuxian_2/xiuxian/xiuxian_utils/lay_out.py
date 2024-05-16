@@ -264,5 +264,7 @@ async def assign_bot_group(group_id):  # 只导入群号，按字典分配对应
         else:
             bot = get_bots()[put_bot[0]]
     except:
-        bot = get_bot()
+        bot = get_bot() if get_bot() else None
+        if bot is None:
+            logger.opt(colors=True).error("<red>未找到对应的bot实例,请检查实现端链接状况！</red>")
     return bot
