@@ -148,9 +148,9 @@ async def set_auction_by_scheduler_():
         auction['group_id'] = 0
 
         if i + 1 == len(auction_ids):
-            msg = "最后一件拍卖品为：{}\n".format(auction['name'])
+            msg = "最后一件拍卖品为：{}\n".format(get_auction_msg(auction_id))
         else:
-            msg = "第{}件拍卖品为：{}\n".format(i + 1, auction['name'])
+            msg = "第{}件拍卖品为：{}\n".format(i + 1, get_auction_msg(auction_id))
         msg += "\n底价为 {} 灵石，每次加价不少于 {} 灵石".format(start_price, int(start_price * 0.05))
         msg += "\n竞拍时间为:{}秒，请诸位道友发送 拍卖+金额 来进行拍卖吧！".format(AUCTIONSLEEPTIME)
         
@@ -169,22 +169,30 @@ async def set_auction_by_scheduler_():
             except ActionFailed:  # 发送群消息失败
                 continue
 
+        warning_messages = [
+    "竞拍还剩下30秒，还有道友想要出价或是加价吗(环顾四周)？",
+    "拍卖即将结束，最后30秒了，抓紧时间出价！",
+    "最后的30秒倒计时，还有没有道友要竞价？",
+    "剩余30秒，拍卖即将结束，请抓紧时间！",
+    "拍卖即将结束，最后的30秒，赶快出价吧！"
+]
 
         remaining_time = AUCTIONSLEEPTIME
         while remaining_time > 0:
             await asyncio.sleep(10)
             remaining_time -= 10
             if remaining_time == 30:
-                warning_msg = "竞拍还剩下剩余30秒，还有道友想要出价或是加价吗(环顾四周)？"
-                for gid in groups:
-                    try:
-                        if XiuConfig().img:
-                            pic = await get_msg_pic(warning_msg)
-                            await bot.send_group_msg(group_id=int(gid), message=MessageSegment.image(pic))
-                        else:
-                            await bot.send_group_msg(group_id=int(gid), message=warning_msg)
-                    except ActionFailed:  # 发送群消息失败
-                        continue
+                if random.random() < 0.3:  # 30% 概率触发
+                    warning_msg = random.choice(warning_messages)
+                    for gid in groups:
+                        try:
+                            if XiuConfig().img:
+                                pic = await get_msg_pic(warning_msg)
+                                await bot.send_group_msg(group_id=int(gid), message=MessageSegment.image(pic))
+                            else:
+                                await bot.send_group_msg(group_id=int(gid), message=warning_msg)
+                        except ActionFailed:  # 发送群消息失败
+                            continue
 
         global auction_offer_flag, auction_offer_time_count, auction_offer_all_count
         while auction_offer_flag:  # 有人拍卖
@@ -1345,9 +1353,9 @@ async def creat_auction_(bot: Bot, event: GroupMessageEvent):
         auction['group_id'] = group_id
 
         if i + 1 == len(auction_ids):
-            msg = "最后一件拍卖品为：{}\n".format(auction['name'])
+            msg = "最后一件拍卖品为：{}\n".format(get_auction_msg(auction_id))
         else:
-            msg = "第{}件拍卖品为：{}\n".format(i + 1, auction['name'])
+            msg = "第{}件拍卖品为：{}\n".format(i + 1, get_auction_msg(auction_id))
         msg += "\n底价为 {} 灵石，每次加价不少于 {} 灵石".format(start_price, int(start_price * 0.05))
         msg += "\n竞拍时间为:{}秒，请诸位道友发送 拍卖+金额 来进行拍卖吧！".format(AUCTIONSLEEPTIME)
         
@@ -1366,21 +1374,30 @@ async def creat_auction_(bot: Bot, event: GroupMessageEvent):
             except ActionFailed:  # 发送群消息失败
                 continue
 
+        warning_messages = [
+    "竞拍还剩下30秒，还有道友想要出价或是加价吗(环顾四周)？",
+    "拍卖即将结束，最后30秒了，抓紧时间出价！",
+    "最后的30秒倒计时，还有没有道友要竞价？",
+    "剩余30秒，拍卖即将结束，请抓紧时间！",
+    "拍卖即将结束，最后的30秒，赶快出价吧！"
+]
+
         remaining_time = AUCTIONSLEEPTIME
         while remaining_time > 0:
             await asyncio.sleep(10)
             remaining_time -= 10
             if remaining_time == 30:
-                warning_msg = "竞拍还剩下剩余30秒了，还有人想出价或是加价吗(环顾四周)？"
-                for gid in groups:
-                    try:
-                        if XiuConfig().img:
-                            pic = await get_msg_pic(warning_msg)
-                            await bot.send_group_msg(group_id=int(gid), message=MessageSegment.image(pic))
-                        else:
-                            await bot.send_group_msg(group_id=int(gid), message=warning_msg)
-                    except ActionFailed:  # 发送群消息失败
-                        continue
+                if random.random() < 0.3:  # 30% 概率触发
+                    warning_msg = random.choice(warning_messages)
+                    for gid in groups:
+                        try:
+                            if XiuConfig().img:
+                                pic = await get_msg_pic(warning_msg)
+                                await bot.send_group_msg(group_id=int(gid), message=MessageSegment.image(pic))
+                            else:
+                                await bot.send_group_msg(group_id=int(gid), message=warning_msg)
+                        except ActionFailed:  # 发送群消息失败
+                            continue
 
         global auction_offer_flag, auction_offer_time_count, auction_offer_all_count
         while auction_offer_flag:  # 有人拍卖
