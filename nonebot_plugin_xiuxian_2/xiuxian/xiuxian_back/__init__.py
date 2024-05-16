@@ -109,7 +109,7 @@ async def set_auction_by_scheduler_():
     auction_id_list = None
     try:
         auction_id_list = get_auction_id_list()
-        auction_count = random.randint(3, 8)  # 随机挑
+        auction_count = random.randint(1, 8)  # 随机挑
         auction_ids = random.sample(auction_id_list, auction_count)
     except LookupError:
         logger.opt(colors=True).info("<red>获取不到拍卖物品的信息，请检查配置文件！</red>")
@@ -1312,7 +1312,7 @@ async def creat_auction_(bot: Bot, event: GroupMessageEvent):
     auction_id_list = None
     try:
         auction_id_list = get_auction_id_list()
-        auction_count = random.randint(3, 8)  # 随机挑
+        auction_count = random.randint(1, 8)  # 随机挑
         auction_ids = random.sample(auction_id_list, auction_count)
     except LookupError:
         msg = "获取不到拍卖物品的信息，请检查配置文件！"

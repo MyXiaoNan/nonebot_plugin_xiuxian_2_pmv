@@ -144,6 +144,7 @@ __xiuxian_updata_data__ = """
 4.替换base为io，支持转发消息类型，支持图片压缩率
 5.适配Pydantic,Pillow,更换失效的api
 6.替换数据库元组为字典返回，替换USERRANK为get_user_rank函数
+7.群拍卖会可以依次拍卖多个物品了
 """.strip()
 
 __level_help__ = """
