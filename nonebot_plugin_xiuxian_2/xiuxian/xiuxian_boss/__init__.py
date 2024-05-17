@@ -478,18 +478,20 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
 
         user_boss_fight_info = get_user_boss_fight_info(user_id)
         user_boss_fight_info['boss_integral'] += boss_integral
+        top_user_info = sql_message.get_top1_user()
+        top_user_exp = top_user_info['exp']
         save_user_boss_fight_info(user_id, user_boss_fight_info)
         
         if exp_buff > 0:
-            log_exp = math.log(user_info['exp'] + 1)
-            now_exp = int(math.exp(log_exp * exp_buff))
+            now_exp = int(((top_user_exp * 0.3) / user_info['exp']) / (exp_buff * (1 / (get_user_rank(user_info['level'])[0] + 1))))
             sql_message.update_exp(user_id, now_exp)
             exp_msg = "，获得修为{}点！".format(now_exp)
         else:
             exp_msg =" "
+            
         msg = f"道友不敌{bossinfo['name']}，重伤逃遁，临逃前收获灵石{get_stone}枚，{more_msg}获得世界积分：{boss_integral}点{exp_msg} "
         if user_info['root'] == "器师" and boss_integral < 0:
-            msg += "\n如果出现负积分，说明你这器师境界太高了(如果总世界积分为负数，会帮你重置成0)，玩器师就不要那么高境界了！！！"
+            msg += "\n如果出现负积分，你这器师境界太高了(如果总世界积分为负数，会帮你重置成0)，玩器师就不要那么高境界了！！！"
         battle_flag[group_id] = False
         try:
             await send_msg_handler(bot, event, result)
@@ -516,10 +518,9 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
                 more_msg = "道友的境界超过boss太多了,不齿！"
                 
         if exp_buff > 0:
-            log_exp = math.log(user_info['exp'] + 1)
-            now_exp = int(math.exp(log_exp * exp_buff))
+            now_exp = int(((top_user_exp * 0.3) / user_info['exp']) / (exp_buff * (1 / (get_user_rank(user_info['level'])[0] + 1))))
             sql_message.update_exp(user_id, now_exp)
-            exp_msg = f"获得修为{now_exp}点！"
+            exp_msg = "，获得修为{}点！".format(now_exp)
         else:
             exp_msg =" "
                 
