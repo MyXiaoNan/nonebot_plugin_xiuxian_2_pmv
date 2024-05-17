@@ -282,7 +282,7 @@ async def help_in_(bot: Bot, event: GroupMessageEvent, session_id: int = Command
         img = Txt2Img(font_size)
         if XiuConfig().img:
             pic = await img.save(title,msg)
-            cache_level_help[session_id] = pic
+            cache_help[session_id] = pic
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
@@ -317,13 +317,10 @@ async def warring_help_(bot: Bot, event: GroupMessageEvent, session_id: int = Co
         await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(cache_help_fk[session_id]))
         await warring_help.finish()
     else:
-        font_size = 32
-        title = "轮回重修帮助"
         msg = __warring_help__
-        img = Txt2Img(font_size)
         if XiuConfig().img:
-            pic = await img.save(title,msg)
-            cache_level_help[session_id] = pic
+            pic = await get_msg_pic(msg)
+            cache_help_fk[session_id] = pic
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)

@@ -22,7 +22,7 @@ from ..xiuxian_utils.utils import (
 items = Items()
 cache_level_help = {}
 scheduler = require("nonebot_plugin_apscheduler").scheduler
-cache_help = {}
+cache_beg_help = {}
 sql_message = XiuxianDateManage()  # sql类
 
 # 重置奇缘
@@ -45,21 +45,18 @@ beg_help = on_command("仙途奇缘帮助", permission=GROUP, priority=7, block=
 @beg_help.handle(parameterless=[Cooldown(at_sender=False)])
 async def beg_help_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
-    if session_id in cache_help:
-        await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(cache_help[session_id]))
+    if session_id in cache_beg_help:
+        await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(cache_beg_help[session_id]))
         await beg_help.finish()
     else:
-        font_size = 32
-        title = "仙途奇缘帮助"
         msg = __beg_help__
-        img = Txt2Img(font_size)
         if XiuConfig().img:
-            pic = await img.save(title,msg)
-            cache_level_help[session_id] = pic
+            pic = await get_msg_pic(msg)
+            cache_beg_help[session_id] = pic
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-        await beg_help.finish()
+    await beg_help.finish()
 
 @beg_stone.handle(parameterless=[Cooldown(at_sender=False)])
 async def beg_stone(bot: Bot, event: GroupMessageEvent):
