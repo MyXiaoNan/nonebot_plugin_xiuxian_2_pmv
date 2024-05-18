@@ -82,7 +82,7 @@ create = on_command("生成世界boss", aliases={"生成世界Boss", "生成世�
                     rule=check_rule_bot_boss_s(), block=True)
 create_appoint = on_command("生成指定世界boss", aliases={"生成指定世界boss", "生成指定世界BOSS", "生成指定BOSS", "生成指定boss"}, priority=5,
                             rule=check_rule_bot_boss_s())
-boss_info = on_command("查询世界boss", aliases={"查询世界Boss", "查询世界BOSS", "查询boss"}, priority=6, permission=GROUP, block=True)
+boss_info = on_command("查询世界boss", aliases={"查询世界Boss", "查询世界BOSS", "查询boss", "世界Boss查询", "世界BOSS查询", "boss查询"}, priority=6, permission=GROUP, block=True)
 set_group_boss = on_command("世界boss", aliases={"世界Boss", "世界BOSS"}, priority=13,
                             permission=GROUP and (SUPERUSER | GROUP_ADMIN | GROUP_OWNER), block=True)
 battle = on_command("讨伐boss", aliases={"讨伐世界boss", "讨伐Boss", "讨伐BOSS", "讨伐世界Boss", "讨伐世界BOSS"}, priority=6,
@@ -517,6 +517,9 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
                 boss_integral = 0
                 more_msg = "道友的境界超过boss太多了,不齿！"
                 
+        top_user_info = sql_message.get_top1_user()
+        top_user_exp = top_user_info['exp']
+        
         if exp_buff > 0:
             now_exp = int(((top_user_exp * 0.3) / user_info['exp']) / (exp_buff * (1 / (get_user_rank(user_info['level'])[0] + 1))))
             sql_message.update_exp(user_id, now_exp)
