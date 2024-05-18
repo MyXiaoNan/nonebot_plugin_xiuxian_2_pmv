@@ -968,7 +968,7 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
 
     def update_user_hp(self, user_id):
         """重置用户hp,mp信息"""
-        sql = f"UPDATE user_xiuxian SET hp=exp/2,mp=exp WHERE user_id=?"
+        sql = f"UPDATE user_xiuxian SET hp=exp/2,mp=exp,atk=exp/10 WHERE user_id=?"
         cur = self.conn.cursor()
         cur.execute(sql, (user_id,))
         self.conn.commit()
@@ -976,12 +976,12 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
     def restate(self, user_id=None):
         """重置所有用户状态或重置对应人状态"""
         if user_id is None:
-            sql = "UPDATE user_xiuxian SET hp=exp/2,mp=exp"
+            sql = "UPDATE user_xiuxian SET hp=exp/2,mp=exp,atk=exp/10"
             cur = self.conn.cursor()
             cur.execute(sql, )
             self.conn.commit()
         else:
-            sql = "UPDATE user_xiuxian SET hp=exp/2,mp=exp WHERE user_id=?"
+            sql = "UPDATE user_xiuxian SET hp=exp/2,mp=exp,atk=exp/10 WHERE user_id=?"
             cur = self.conn.cursor()
             cur.execute(sql, (user_id,))
             self.conn.commit()

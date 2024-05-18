@@ -1023,7 +1023,10 @@ async def steal_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
             await steal_stone.finish()
         else:
             steal_user = sql_message.get_user_message(steal_qq)
-            steal_user_stone = steal_user['stone']
+            if steal_user:
+                steal_user_stone = steal_user['stone']
+            else:
+                steal_user is None
     if steal_user:
         steal_success = random.randint(0, 100)
         result = OtherSet().get_power_rate(user_info['power'], steal_user['power'])
