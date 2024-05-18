@@ -1,4 +1,4 @@
-from nonebot import on_command
+from nonebot import on_command, on_fullmatch
 from ..xiuxian_utils.lay_out import assign_bot, Cooldown
 from ..xiuxian_config import XiuConfig
 from ..xiuxian_utils.xiuxian2_handle import XiuxianDateManage
@@ -14,12 +14,40 @@ from ..xiuxian_utils.utils import (
     CommandObjectID
 )
 
+__warring_help__ = """
+详情：
+散尽修为，轮回重修，将万世的道果凝聚为极致天赋
+修为、功法、神通将被清空！！
+进入千世轮回：获得轮回灵根，可定制极品仙器(找超管)
+进入万世轮回：获得真轮回灵根，可定制无上仙器(找超管)
+自废修为：字面意思，仅搬血境可用
+""".strip()
+
+cache_help_fk = {}
 sql_message = XiuxianDateManage()  # sql类
 
-
+warring_help = on_fullmatch("轮回重修帮助", priority=12, permission=GROUP, block=True)
 lunhui = on_command('进入千世轮回', priority=15, permission=GROUP,block=True)
 Twolun = on_command('进入万世轮回', priority=15, permission=GROUP,block=True)
 resetting = on_command('自废修为', priority=15, permission=GROUP,block=True)
+
+
+@warring_help.handle(parameterless=[Cooldown(at_sender=False)])
+async def warring_help_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
+    """轮回重修帮助"""
+    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    if session_id in cache_help_fk:
+        await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(cache_help_fk[session_id]))
+        await warring_help.finish()
+    else:
+        msg = __warring_help__
+        if XiuConfig().img:
+            pic = await get_msg_pic(msg)
+            cache_help_fk[session_id] = pic
+            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+        else:
+            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await warring_help.finish()
 
 @lunhui.handle(parameterless=[Cooldown(at_sender=False)])
 async def lunhui_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):

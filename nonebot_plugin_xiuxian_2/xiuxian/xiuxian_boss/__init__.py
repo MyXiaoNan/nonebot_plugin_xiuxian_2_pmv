@@ -6,7 +6,6 @@ import re
 from pathlib import Path
 import random
 import os
-import math
 from nonebot.rule import Rule
 from nonebot import get_bots, get_bot ,on_command, require
 from nonebot.params import CommandArg
@@ -343,7 +342,6 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await battle.finish()
 
-   
     user_id = user_info['user_id']
     sql_message.update_last_check_info_time(user_id) # 更新查看修仙信息时间
     msg = args.extract_plain_text().strip()
@@ -404,7 +402,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
 
     if user_info['hp'] is None or user_info['hp'] == 0:
         # 判断用户气血是否为空
-        XiuxianDateManage().update_user_hp(user_id)
+        sql_message.update_user_hp(user_id)
 
     if user_info['hp'] <= user_info['exp'] / 10:
         time = leave_harm_time(user_id)
@@ -418,7 +416,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
         await battle.finish()
 
     player = {"user_id": None, "道号": None, "气血": None, "攻击": None, "真元": None, '会心': None, '防御': 0}
-    userinfo = XiuxianDateManage().get_user_real_info(user_id)
+    userinfo = sql_message.get_user_real_info(user_id)
     user_weapon_data = UserBuffDate(userinfo['user_id']).get_user_weapon_data()
 
     impart_data = xiuxian_impart.get_user_message(user_id)
@@ -458,13 +456,21 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
     else:
         boss_rank = get_user_rank((bossinfo['jj'] + '中期'))[0]
     user_rank = get_user_rank(userinfo['level'])[0]
+    if boss_rank - user_rank >= 12:
+        msg = "道友拿小辈的Boss，可耻！"
+        if XiuConfig().img:
+            pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+        else:
+            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await battle.finish()
     boss_old_hp = bossinfo['气血']  # 打之前的血量
     more_msg = ''
     battle_flag[group_id] = True
     result, victor, bossinfo_new, get_stone = await Boss_fight(player, bossinfo, bot_id=bot.self_id)
     if victor == "Boss赢了":
         group_boss[group_id][boss_num - 1] = bossinfo_new
-        XiuxianDateManage().update_ls(user_id, get_stone, 1)
+        sql_message.update_ls(user_id, get_stone, 1)
         # 新增boss战斗积分点数
         boss_now_hp = bossinfo_new['气血']  # 打之后的血量
         boss_all_hp = bossinfo['总血量']  # 总血量
@@ -538,7 +544,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
             
         group_boss[group_id].remove(group_boss[group_id][boss_num - 1])
         battle_flag[group_id] = False
-        XiuxianDateManage().update_ls(user_id, get_stone, 1)
+        sql_message.update_ls(user_id, get_stone, 1)
         user_boss_fight_info = get_user_boss_fight_info(user_id)
         user_boss_fight_info['boss_integral'] += boss_integral
         save_user_boss_fight_info(user_id, user_boss_fight_info)

@@ -2,6 +2,8 @@ import random
 from .xiuxian2_handle import XiuxianDateManage ,OtherSet, UserBuffDate, XIUXIAN_IMPART_BUFF
 from ..xiuxian_config import get_user_rank
 from .utils import number_to
+
+sql_message = XiuxianDateManage()  # sql类
 xiuxian_impart = XIUXIAN_IMPART_BUFF()
 boss_zs = 0
 boss_hx = 0 
@@ -285,12 +287,12 @@ def Player_fight(player1: dict, player2: dict, type_in, bot_id):
                 if player1['气血'] <= 0:
                     player1['气血'] = 1
                 #
-                XiuxianDateManage().update_user_hp_mp(
+                sql_message.update_user_hp_mp(
                     player1['user_id'],
                     int(player1['气血'] / (1 + user1_hp_buff)),
                     int(player1['真元'] / (1 + user1_mp_buff))
                 )
-                XiuxianDateManage().update_user_hp_mp(player2['user_id'], 1, int(player2['真元'] / (1 + user2_mp_buff)))
+                sql_message.update_user_hp_mp(player2['user_id'], 1, int(player2['真元'] / (1 + user2_mp_buff)))
             break
 
         if player1_turn_cost < 0:  # 休息为负数，如果休息，则跳过回合，正常是0
@@ -470,12 +472,12 @@ def Player_fight(player1: dict, player2: dict, type_in, bot_id):
                 {"type": "node", "data": {"name": "Bot", "uin": int(bot_id), "content": "{}胜利".format(player2['道号'])}})
             suc = f"{player2['道号']}"
             if isSql:
-                XiuxianDateManage().update_user_hp_mp(player1['user_id'], 1, int(player1['真元'] / (1 + user1_mp_buff)))
+                sql_message.update_user_hp_mp(player1['user_id'], 1, int(player1['真元'] / (1 + user1_mp_buff)))
                 #
                 if player2['气血'] <= 0:
                     player2['气血'] = 1
                 #
-                XiuxianDateManage().update_user_hp_mp(
+                sql_message.update_user_hp_mp(
                     player2['user_id'],
                     int(player2['气血'] / (1 + user2_hp_buff)),
                     int(player2['真元'] / (1 + user2_mp_buff))
@@ -492,8 +494,8 @@ def Player_fight(player1: dict, player2: dict, type_in, bot_id):
                               "data": {"name": "Bot", "uin": int(bot_id), "content": "{}胜利".format(player2['道号'])}})
             suc = f"{player2['道号']}"
             if isSql:
-                XiuxianDateManage().update_user_hp_mp(player1['user_id'], 1, int(player1['真元'] / (1 + user1_mp_buff)))
-                XiuxianDateManage().update_user_hp_mp(player2['user_id'], int(player2['气血'] / (1 + user2_hp_buff)),
+                sql_message.update_user_hp_mp(player1['user_id'], 1, int(player1['真元'] / (1 + user1_mp_buff)))
+                sql_message.update_user_hp_mp(player2['user_id'], int(player2['气血'] / (1 + user2_hp_buff)),
                                                       int(player2['真元'] / (1 + user2_mp_buff)))
             break
 
@@ -1349,7 +1351,7 @@ async def Boss_fight(player1: dict, boss: dict, type_in=2, bot_id=0):
                 if player1['气血'] <= 0:
                     player1['气血'] = 1
                 #
-                XiuxianDateManage().update_user_hp_mp(
+                sql_message.update_user_hp_mp(
                     player1['user_id'],
                     int(player1['气血'] / (1 + user1_hp_buff)),
                     int(player1['真元'] / (1 + user1_mp_buff))
@@ -1415,7 +1417,7 @@ async def Boss_fight(player1: dict, boss: dict, type_in=2, bot_id=0):
 
 
             if isSql:
-                XiuxianDateManage().update_user_hp_mp(
+                sql_message.update_user_hp_mp(
                     player1['user_id'], 1,
                     int(player1['真元'] / (1 + user1_mp_buff))
                 )

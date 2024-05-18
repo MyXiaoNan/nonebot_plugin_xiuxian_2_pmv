@@ -61,7 +61,7 @@ NICKNAME = ["xx"]
 2、子插件的配置会在插件运行后在子插件文件中生成config.json文件，该文件字段含义在同级目录的xxxconfig.py有备注。注意：修改配置只需要修改json即可，修改.py文件的话需要删除json文件才会生效，任何修改都需要重启bot<br>
 3、记得将git下来的data文件夹放置于bot根目录下<br>
 4、总的参数配置在xiuxian_config.py中<br>
-5、更多详情可见 [文档](https://xiuxian.netlify.app/)(仅供参考)<br>
+5、更多详情可见 [文档](https://xiuxian.netlify.app/) (仅供参考)<br>
 
 
 # 💿 风控配置

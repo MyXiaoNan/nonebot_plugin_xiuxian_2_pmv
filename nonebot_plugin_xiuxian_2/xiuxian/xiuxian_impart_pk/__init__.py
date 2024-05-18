@@ -113,7 +113,7 @@ async def impart_pk_list_(bot: Bot, event: GroupMessageEvent):
     win_num = "win_num"
     pk_num = "pk_num"
     for x in range(len(xu_list)):
-        name = XiuxianDateManage().get_user_message(xu_list[x])['user_name']
+        name = sql_message.get_user_message(xu_list[x])['user_name']
         msg = ""
         msg += f"道友：{name}\n"
         msg += f"胜场：{impart_pk.find_user_data(xu_list[x])[win_num]}\n"
@@ -225,7 +225,7 @@ async def impart_pk_now_(bot: Bot, event: GroupMessageEvent, args: Message = Com
             await impart_pk_now.finish()
 
         player_1_name = user_info['user_name']
-        player_2_name = XiuxianDateManage().get_user_message(player_2)['user_name']
+        player_2_name = sql_message.get_user_message(player_2)['user_name']
 
         msg_list, win = await impart_pk_uitls.impart_pk_now_msg(player_1, player_1_name, player_2, player_2_name)
         if win is None:
@@ -333,7 +333,7 @@ async def impart_pk_exp_(bot: Bot, event: GroupMessageEvent, args: Message = Com
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await impart_pk_exp.finish()
     # 闭关时长计算(分钟)
-    level_rate = XiuxianDateManage().get_root_rate(user_info['root_type'])  # 灵根倍率
+    level_rate = sql_message.get_root_rate(user_info['root_type'])  # 灵根倍率
     realm_rate = jsondata.level_data()[level]["spend"]  # 境界倍率
     user_buff_data = UserBuffDate(user_id)
     mainbuffdata = user_buff_data.get_user_main_buff_data()
@@ -344,10 +344,10 @@ async def impart_pk_exp_(bot: Bot, event: GroupMessageEvent, args: Message = Com
     max_exp = int((int(OtherSet().set_closing_type(user_info['level'])) * XiuConfig().closing_exp_upper_limit))  # 获取下个境界需要的修为 * 1.5为闭关上限
     if 0 < int(user_info['exp'] + exp) < max_exp:
         xiuxian_impart.use_impart_exp_day(impaer_exp_time, user_id)
-        XiuxianDateManage().update_exp(user_id, exp)
-        XiuxianDateManage().update_power2(user_id)  # 更新战力
+        sql_message.update_exp(user_id, exp)
+        sql_message.update_power2(user_id)  # 更新战力
         result_msg, result_hp_mp = OtherSet().send_hp_mp(user_id, int(exp * hp_speed * (1 + mainbuffclors)), int(exp * mp_speed))
-        XiuxianDateManage().update_user_attribute(user_id, result_hp_mp[0], result_hp_mp[1], int(result_hp_mp[2] / 10))
+        sql_message.update_user_attribute(user_id, result_hp_mp[0], result_hp_mp[1], int(result_hp_mp[2] / 10))
         msg = "虚神界修炼结束，共修炼{}分钟，本次闭关增加修为：{}{}{}".format(impaer_exp_time, exp, result_msg[0],
                                                        result_msg[1])
         if XiuConfig().img:

@@ -63,9 +63,8 @@ class XiuConfig:
                          "remake", "day_num", "all_num", "action_time", "state", "bind_num"]
         
         self.level = get_user_rank('江湖好手')[1] # 境界列表，别动
-        self.img = True # 是否使用图片发送
+        self.img = True # 是否使用图片发送消息
         self.user_info_image = True # 是否使用图片发送个人信息
-        
         self.user_info_cd = 30  # 我的存档cd/秒
         self.level_up_cd = 0  # 突破CD(分钟)
         self.closing_exp = 60  # 闭关每分钟获取的修为

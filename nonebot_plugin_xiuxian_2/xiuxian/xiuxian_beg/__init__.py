@@ -116,7 +116,7 @@ async def beg_stone(bot: Bot, event: GroupMessageEvent):
             await bot.send_group_msg(group_id=event.group_id, message=msg)
 
     else:
-        stone = XiuxianDateManage().get_beg(user_id)
+        stone = sql_message.get_beg(user_id)
         if stone is None:
             msg = '贪心的人是不会有好运的！'
         else:
