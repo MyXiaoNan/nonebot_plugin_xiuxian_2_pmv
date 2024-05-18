@@ -1,11 +1,9 @@
-#!usr/bin/env python3
-# -*- coding: utf-8 -*-
 import re
 import random
 import asyncio
 from datetime import datetime
 from ..xiuxian_utils.lay_out import assign_bot, Cooldown, assign_bot_group
-from nonebot import require
+from nonebot import require, on_command, on_fullmatch
 from nonebot.adapters.onebot.v11 import (
     Bot,
     GROUP,
@@ -16,7 +14,6 @@ from nonebot.adapters.onebot.v11 import (
     MessageSegment,
     ActionFailed
 )
-from nonebot import on_command, on_fullmatch
 from nonebot.permission import SUPERUSER
 from nonebot.log import logger
 from nonebot.params import CommandArg
@@ -25,7 +22,7 @@ from ..xiuxian_utils.xiuxian2_handle import (
     XiuxianDateManage, XiuxianJsonDate, OtherSet, 
     UserBuffDate, XIUXIAN_IMPART_BUFF, leave_harm_time
 )
-from ..xiuxian_config import XiuConfig, JsonConfig
+from ..xiuxian_config import XiuConfig, JsonConfig, get_user_rank
 from ..xiuxian_utils.utils import (
     check_user,
     get_msg_pic, number_to,
@@ -33,37 +30,27 @@ from ..xiuxian_utils.utils import (
     Txt2Img, send_msg_handler
 )
 from ..xiuxian_utils.item_json import Items
-from ..xiuxian_boss.bossconfig import get_boss_config, savef_boss
-from ..xiuxian_back.backconfig import get_auction_config, savef_auction
-from ..xiuxian_rift.riftconfig import get_rift_config, savef_rift
 items = Items()
 
 # 定时任务
 scheduler = require("nonebot_plugin_apscheduler").scheduler
 cache_help = {}
-cache_help_fk = {}
 cache_level_help = {}
 sql_message = XiuxianDateManage()  # sql类
 xiuxian_impart = XIUXIAN_IMPART_BUFF()
-boss_config = get_boss_config()
-boss_groups = boss_config['open'] # list，群世界boss使用
-auction_config = get_auction_config()
-auction_groups = auction_config['open']  # list，群交流会使用
-rift_config = get_rift_config()
-rift_groups = rift_config['open']  # list，群秘境使用
 
 run_xiuxian = on_fullmatch("我要修仙", priority=8, permission=GROUP, block=True)
 restart = on_fullmatch("重入仙途", permission=GROUP, priority=7, block=True)
 sign_in = on_fullmatch("修仙签到", priority=13, permission=GROUP, block=True)
 help_in = on_fullmatch("修仙帮助", priority=12, permission=GROUP, block=True)
-warring_help = on_fullmatch("轮回重修帮助", priority=12, permission=GROUP, block=True)
+
 rank = on_command("排行榜", aliases={"修仙排行榜", "灵石排行榜", "战力排行榜", "境界排行榜", "宗门排行榜"},
                   priority=7, permission=GROUP, block=True)
 remaname = on_command("改名", priority=5, permission=GROUP, block=True)
 level_up = on_fullmatch("突破", priority=6, permission=GROUP, block=True)
 level_up_dr = on_fullmatch("渡厄突破", priority=7, permission=GROUP, block=True)
-level_up_drjd = on_command("渡厄金丹突破",aliases={"金丹突破"}, priority=7, permission=GROUP, block=True)
-level_up_zj = on_command("直接突破",aliases={"给我破","破","给 我 破","给——我——破"},  priority=7, permission=GROUP, block=True)
+level_up_drjd = on_command("渡厄金丹突破", aliases={"金丹突破"}, priority=7, permission=GROUP, block=True)
+level_up_zj = on_fullmatch("直接突破",  priority=7, permission=GROUP, block=True)
 give_stone = on_command("送灵石", priority=5, permission=GROUP, block=True)
 steal_stone = on_command("偷灵石", aliases={"飞龙探云手"}, priority=4, permission=GROUP, block=True)
 gm_command = on_command("神秘力量", permission=SUPERUSER, priority=10, block=True)
@@ -78,12 +65,12 @@ xiuxian_uodata_data = on_fullmatch('更新记录', priority=15, permission=GROUP
 lunhui = on_fullmatch('轮回重修帮助', priority=15, permission=GROUP, block=True)
 level_help = on_command('境界帮助', aliases={"灵根帮助", "品阶帮助"}, priority=15, permission=GROUP,block=True)
 
-__xiuxian_notes__ = f"""
-指令：
+__xiuxian_notes__ = """
+详情：
 1、我要修仙:进入修仙模式
 2、我的修仙信息:获取修仙数据
 3、修仙签到:获取灵石及修为
-4、重入仙途:重置灵根数据,每次{XiuConfig().remake}灵石
+4、重入仙途:重置灵根数据,每次{}灵石
 5、改名xx:修改你的道号
 6、突破:修为足够后,可突破境界（一定几率失败）
 7、闭关、出关、灵石出关、灵石修炼、双修:增加修为
@@ -102,22 +89,17 @@ __xiuxian_notes__ = f"""
 20、修仙适配:将1的境界适配到2
 21、启用/禁用修仙功能：当前群开启或关闭修仙功能
 22、更新记录:获取插件最新内容
-23、仙途奇缘:发送 奇缘帮助 获取
+23、仙途奇缘:发送 仙途奇缘帮助 获取
 24、轮回重修:发送 轮回重修帮助 获取
 25、境界帮助、灵根帮助、品阶帮助:获取对应帮助信息
 26、仙器合成:发送 合成xx 获取，目前开放合成的仙器为天罪
 27、金银阁:发送 金银阁帮助 获取
-""".strip()
+""".format(XiuConfig().remake).strip()
 
-__warring_help__ = f"""
-散尽修为，轮回重修，将万世的道果凝聚为极致天赋
-修为、功法、神通将被清空！！
-进入千世轮回：获得轮回灵根，可定制极品仙器(找超管)
-进入万世轮回：获得真轮回灵根，可定制无上仙器(找超管)
-自废修为：字面意思，仅搬血境可用
-""".strip()
 
-__xiuxian_updata_data__ = f"""
+
+__xiuxian_updata_data__ = """
+详情：
 #更新2023.6.14
 1.修复已知bug
 2.增强了Boss，现在的BOSS会掉落物品了
@@ -143,10 +125,11 @@ __xiuxian_updata_data__ = f"""
 3.生成指定境界boss可以指定boss名字了
 4.替换base为io，支持转发消息类型，支持图片压缩率
 5.适配Pydantic,Pillow,更换失效的api
-6.替换数据库元组为字典返回，替换USERRANK
+6.替换数据库元组为字典返回，替换USERRANK为get_user_rank函数
+7.群拍卖会可以依次拍卖多个物品了
 """.strip()
 
-__level_help__ = f"""
+__level_help__ = """
 详情：
                        --灵根帮助--
                轮回——异界——机械——混沌
@@ -226,8 +209,8 @@ async def run_xiuxian_(bot: Bot, event: GroupMessageEvent):
                 sql_message.update_user_hp(user_id)
             await asyncio.sleep(1)
             if XiuConfig().img:
-                pic = await get_msg_pic(f"@{event.sender.nickname}\n"+ 
-                                        "耳边响起一个神秘人的声音：“不要忘记仙途奇缘！\n可以发送 修仙帮助 获取更多帮助！！")
+                msg = "耳边响起一个神秘人的声音：不要忘记仙途奇缘！!\n不知道怎么玩的话可以发送 修仙帮助 获取更多帮助！！"
+                pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
             else:
                 await bot.send_group_msg(group_id=int(send_group_id), message=msg)
@@ -275,9 +258,12 @@ async def help_in_(bot: Bot, event: GroupMessageEvent, session_id: int = Command
         await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(cache_help[session_id]))
         await help_in.finish()
     else:
+        font_size = 32
+        title = "修仙帮助"
         msg = __xiuxian_notes__
+        img = Txt2Img(font_size)
         if XiuConfig().img:
-            pic = await get_msg_pic(msg, scale=False)
+            pic = await img.save(title,msg)
             cache_help[session_id] = pic
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
@@ -293,7 +279,7 @@ async def level_help_(bot: Bot, event: GroupMessageEvent, session_id: int = Comm
         await level_help.finish()
     else:
         font_size = 32
-        title = '境界帮助'
+        title = "境界帮助"
         msg = __level_help__
         img = Txt2Img(font_size)
         if XiuConfig().img:
@@ -303,27 +289,6 @@ async def level_help_(bot: Bot, event: GroupMessageEvent, session_id: int = Comm
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await level_help.finish()
-
-
-@warring_help.handle(parameterless=[Cooldown(at_sender=False)])
-async def warring_help_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
-    """轮回重修帮助"""
-    bot, send_group_id = await assign_bot(bot=bot, event=event)
-    if session_id in cache_help_fk:
-        await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(cache_help_fk[session_id]))
-        await warring_help.finish()
-    else:
-        msg = __warring_help__
-        if XiuConfig().img:
-            pic = await get_msg_pic(msg)
-            cache_help_fk[session_id] = pic
-            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
-        else:
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-        await warring_help.finish()
-
-    msg = help.__xiuxian_notes__
-    await help_in.send(msg, at_sender=False)
 
 
 @restart.handle(parameterless=[Cooldown(10, at_sender=False)])
@@ -362,7 +327,7 @@ async def rank_(bot: Bot, event: GroupMessageEvent):
     message = re.findall(rank_msg, message)
     if message:
         message = message[0]
-    if message == "排行榜" or message == "修仙排行榜" or message == "境界排行榜":
+    if message in ["排行榜", "修仙排行榜", "境界排行榜", "修为排行榜"]:
         p_rank = sql_message.realm_top()
         msg = f"✨位面境界排行榜TOP50✨\n"
         num = 0
@@ -441,7 +406,7 @@ async def remaname_(bot: Bot, event: GroupMessageEvent, args: Message = CommandA
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await remaname.finish()
-    elif user_name is None:
+    elif len_username < 1:
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + "道友确定要改名无名？还请三思。")
             await bot.send_group_msg(group_id=event.group_id, message=MessageSegment.image(pic))
@@ -1022,7 +987,10 @@ async def steal_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
             await steal_stone.finish()
         else:
             steal_user = sql_message.get_user_message(steal_qq)
-            steal_user_stone = steal_user['stone']
+            if steal_user:
+                steal_user_stone = steal_user['stone']
+            else:
+                steal_user is None
     if steal_user:
         steal_success = random.randint(0, 100)
         result = OtherSet().get_power_rate(user_info['power'], steal_user['power'])
@@ -1183,7 +1151,7 @@ async def cz_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     if give_qq:
         give_user = sql_message.get_user_message(give_qq)
         if give_user:
-            sql_message.send_back(give_qq, goods_id, goods_name, goods_type, goods_num)# 增加用户道具
+            sql_message.send_back(give_qq, goods_id, goods_name, goods_type, goods_num, 1)# 增加用户道具
             msg = "{}道友获得了系统赠送的{}个{}！".format(give_user['user_name'], goods_num, goods_name)
             if XiuConfig().img:
                 pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
@@ -1202,7 +1170,7 @@ async def cz_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     else:
         all_users = sql_message.get_all_user_id()
         for user_id in all_users:
-            sql_message.send_back(user_id, goods_id, goods_name, goods_type, goods_num)  # 给每个用户发送物品
+            sql_message.send_back(user_id, goods_id, goods_name, goods_type, goods_num, 1)  # 给每个用户发送物品
         msg = "全服通告：赠送所有用户{}{}个,请注意查收！".format(goods_name, goods_num)
         enabled_groups = JsonConfig().get_enabled_groups()
         for group_id in enabled_groups:
@@ -1307,6 +1275,14 @@ async def rob_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Command
 
             if user_2['root'] == "器师":
                 msg = "对方职业无法被抢劫！"
+                if XiuConfig().img:
+                    pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+                    await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+                else:
+                    await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+                await rob_stone.finish()
+            if get_user_rank(user_2['level'])[0] - get_user_rank(user_info['level'])[0] >= 12:
+                msg = "道友抢劫小辈，可耻！"
                 if XiuConfig().img:
                     pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
                     await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -1499,13 +1475,10 @@ async def open_xiuxian_(bot: Bot, event: GroupMessageEvent):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     group_msg = str(event.message)
     group_id = str(event.group_id)
-    isInGroup = isInGroups(event)  # True在，False不在,这里是boss的配置
-    is_in_group = is_in_groups(event) # True在，False不在,这里是拍卖会的配置
-    Is_in_group = Is_in_groups(event) # True在，False不在,这里是秘境的配置
     conf_data = JsonConfig().read_data()
 
     if "启用" in group_msg:
-        if group_id in conf_data["group"] and any([isInGroup, is_in_group, Is_in_group]):
+        if group_id in conf_data["group"]:
             msg = "当前群聊修仙模组已启用，请勿重复操作！"
             if XiuConfig().img:
                 pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
@@ -1514,28 +1487,7 @@ async def open_xiuxian_(bot: Bot, event: GroupMessageEvent):
                 await bot.send_group_msg(group_id=int(send_group_id), message=msg)
             await set_xiuxian.finish()
         JsonConfig().write_data(1, group_id)
-        if isInGroup:
-            pass
-        else:
-            info = {
-                str(group_id):{
-                                "hours":boss_config['Boss生成时间参数']["hours"],
-                                "minutes":boss_config['Boss生成时间参数']["minutes"]
-                                }
-                            }
-            boss_config['open'].update(info)
-            savef_boss(boss_config)
-        if is_in_group:
-            pass
-        else:
-            auction_config['open'].append(group_id)
-            savef_auction(auction_config)
-        if Is_in_group:
-            pass
-        else:
-            rift_config['open'].append(group_id)
-            savef_rift(rift_config)
-        msg = "当前群聊修仙基础模组，群世界boss,群拍卖会，群秘境已启用,快发送 我要修仙 加入修仙世界吧！"
+        msg = "当前群聊修仙基础模组已启用，快发送 我要修仙 加入修仙世界吧！"
         if XiuConfig().img:
             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -1544,7 +1496,7 @@ async def open_xiuxian_(bot: Bot, event: GroupMessageEvent):
         await set_xiuxian.finish()
 
     elif "禁用" in group_msg:
-        if group_id not in conf_data["group"] and not any([isInGroup, is_in_group, Is_in_group]):
+        if group_id not in conf_data["group"]:
             msg = "当前群聊修仙模组已禁用，请勿重复操作！"
             if XiuConfig().img:
                 pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
@@ -1553,25 +1505,7 @@ async def open_xiuxian_(bot: Bot, event: GroupMessageEvent):
                 await bot.send_group_msg(group_id=int(send_group_id), message=msg)
             await set_xiuxian.finish()
         JsonConfig().write_data(2, group_id)
-        if isInGroup:
-            try:
-                del boss_config['open'][str(group_id)]
-            except:
-                pass
-            savef_boss(boss_config)
-        if is_in_group:
-            try:
-                auction_config['open'].remove(group_id)
-                savef_auction(auction_config)
-            except:
-                pass
-        if Is_in_group:
-            try:
-                rift_config['open'].remove(group_id)
-                savef_rift(rift_config)
-            except:
-                pass
-        msg = "当前群聊修仙基础模组，群世界boss,群拍卖会，群秘境已禁用！(还是需要重启才能生效哦！)"
+        msg = "当前群聊修仙基础模组已禁用！"
         if XiuConfig().img:
             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -1632,13 +1566,3 @@ async def xiuxian_updata_level_(bot: Bot, event: GroupMessageEvent):
     else:
         await bot.send_group_msg(group_id=int(send_group_id), message=msg)
     await xiuxian_updata_level.finish()
-
-
-def isInGroups(event: GroupMessageEvent): # 这里是boss的配置
-    return str(event.group_id) in boss_groups
-
-def is_in_groups(event: GroupMessageEvent): # 这里是拍卖会的配置
-    return str(event.group_id) in auction_groups
-
-def Is_in_groups(event: GroupMessageEvent): # 这里是秘境的配置
-    return str(event.group_id) in rift_groups

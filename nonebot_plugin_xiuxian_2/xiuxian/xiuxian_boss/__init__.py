@@ -6,7 +6,6 @@ import re
 from pathlib import Path
 import random
 import os
-import math
 from nonebot.rule import Rule
 from nonebot import get_bots, get_bot ,on_command, require
 from nonebot.params import CommandArg
@@ -28,7 +27,7 @@ from ..xiuxian_utils.xiuxian2_handle import (
     XIUXIAN_IMPART_BUFF, leave_harm_time
 )
 from ..xiuxian_config import get_user_rank, XiuConfig
-from .makeboss import createboss, createboss_root, createboss_jj
+from .makeboss import createboss, createboss_jj
 from .bossconfig import get_boss_config, savef_boss
 from .old_boss_info import old_boss_info
 from ..xiuxian_utils.player_fight import Boss_fight
@@ -82,7 +81,7 @@ create = on_command("生成世界boss", aliases={"生成世界Boss", "生成世�
                     rule=check_rule_bot_boss_s(), block=True)
 create_appoint = on_command("生成指定世界boss", aliases={"生成指定世界boss", "生成指定世界BOSS", "生成指定BOSS", "生成指定boss"}, priority=5,
                             rule=check_rule_bot_boss_s())
-boss_info = on_command("查询世界boss", aliases={"查询世界Boss", "查询世界BOSS", "查询boss"}, priority=6, permission=GROUP, block=True)
+boss_info = on_command("查询世界boss", aliases={"查询世界Boss", "查询世界BOSS", "查询boss", "世界Boss查询", "世界BOSS查询", "boss查询"}, priority=6, permission=GROUP, block=True)
 set_group_boss = on_command("世界boss", aliases={"世界Boss", "世界BOSS"}, priority=13,
                             permission=GROUP and (SUPERUSER | GROUP_ADMIN | GROUP_OWNER), block=True)
 battle = on_command("讨伐boss", aliases={"讨伐世界boss", "讨伐Boss", "讨伐BOSS", "讨伐世界Boss", "讨伐世界BOSS"}, priority=6,
@@ -343,7 +342,6 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await battle.finish()
 
-   
     user_id = user_info['user_id']
     sql_message.update_last_check_info_time(user_id) # 更新查看修仙信息时间
     msg = args.extract_plain_text().strip()
@@ -404,7 +402,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
 
     if user_info['hp'] is None or user_info['hp'] == 0:
         # 判断用户气血是否为空
-        XiuxianDateManage().update_user_hp(user_id)
+        sql_message.update_user_hp(user_id)
 
     if user_info['hp'] <= user_info['exp'] / 10:
         time = leave_harm_time(user_id)
@@ -418,7 +416,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
         await battle.finish()
 
     player = {"user_id": None, "道号": None, "气血": None, "攻击": None, "真元": None, '会心': None, '防御': 0}
-    userinfo = XiuxianDateManage().get_user_real_info(user_id)
+    userinfo = sql_message.get_user_real_info(user_id)
     user_weapon_data = UserBuffDate(userinfo['user_id']).get_user_weapon_data()
 
     impart_data = xiuxian_impart.get_user_message(user_id)
@@ -458,13 +456,21 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
     else:
         boss_rank = get_user_rank((bossinfo['jj'] + '中期'))[0]
     user_rank = get_user_rank(userinfo['level'])[0]
+    if boss_rank - user_rank >= 12:
+        msg = "道友拿小辈的Boss，可耻！"
+        if XiuConfig().img:
+            pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+        else:
+            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await battle.finish()
     boss_old_hp = bossinfo['气血']  # 打之前的血量
     more_msg = ''
     battle_flag[group_id] = True
     result, victor, bossinfo_new, get_stone = await Boss_fight(player, bossinfo, bot_id=bot.self_id)
     if victor == "Boss赢了":
         group_boss[group_id][boss_num - 1] = bossinfo_new
-        XiuxianDateManage().update_ls(user_id, get_stone, 1)
+        sql_message.update_ls(user_id, get_stone, 1)
         # 新增boss战斗积分点数
         boss_now_hp = bossinfo_new['气血']  # 打之后的血量
         boss_all_hp = bossinfo['总血量']  # 总血量
@@ -478,18 +484,20 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
 
         user_boss_fight_info = get_user_boss_fight_info(user_id)
         user_boss_fight_info['boss_integral'] += boss_integral
+        top_user_info = sql_message.get_top1_user()
+        top_user_exp = top_user_info['exp']
         save_user_boss_fight_info(user_id, user_boss_fight_info)
         
         if exp_buff > 0:
-            log_exp = math.log(user_info['exp'] + 1)
-            now_exp = int(math.exp(log_exp * exp_buff))
+            now_exp = int(((top_user_exp * 0.3) / user_info['exp']) / (exp_buff * (1 / (get_user_rank(user_info['level'])[0] + 1))))
             sql_message.update_exp(user_id, now_exp)
             exp_msg = "，获得修为{}点！".format(now_exp)
         else:
             exp_msg =" "
+            
         msg = f"道友不敌{bossinfo['name']}，重伤逃遁，临逃前收获灵石{get_stone}枚，{more_msg}获得世界积分：{boss_integral}点{exp_msg} "
         if user_info['root'] == "器师" and boss_integral < 0:
-            msg += "\n如果出现负积分，说明你这器师境界太高了(如果总世界积分为负数，会帮你重置成0)，玩器师就不要那么高境界了！！！"
+            msg += "\n如果出现负积分，你这器师境界太高了(如果总世界积分为负数，会帮你重置成0)，玩器师就不要那么高境界了！！！"
         battle_flag[group_id] = False
         try:
             await send_msg_handler(bot, event, result)
@@ -515,11 +523,13 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
                 boss_integral = 0
                 more_msg = "道友的境界超过boss太多了,不齿！"
                 
+        top_user_info = sql_message.get_top1_user()
+        top_user_exp = top_user_info['exp']
+        
         if exp_buff > 0:
-            log_exp = math.log(user_info['exp'] + 1)
-            now_exp = int(math.exp(log_exp * exp_buff))
+            now_exp = int(((top_user_exp * 0.3) / user_info['exp']) / (exp_buff * (1 / (get_user_rank(user_info['level'])[0] + 1))))
             sql_message.update_exp(user_id, now_exp)
-            exp_msg = f"获得修为{now_exp}点！"
+            exp_msg = "，获得修为{}点！".format(now_exp)
         else:
             exp_msg =" "
                 
@@ -534,7 +544,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
             
         group_boss[group_id].remove(group_boss[group_id][boss_num - 1])
         battle_flag[group_id] = False
-        XiuxianDateManage().update_ls(user_id, get_stone, 1)
+        sql_message.update_ls(user_id, get_stone, 1)
         user_boss_fight_info = get_user_boss_fight_info(user_id)
         user_boss_fight_info['boss_integral'] += boss_integral
         save_user_boss_fight_info(user_id, user_boss_fight_info)
@@ -658,7 +668,7 @@ async def create_(bot: Bot, event: GroupMessageEvent):
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await create.finish()
 
-    bossinfo = createboss_root()
+    bossinfo = createboss()
     try:
         group_boss[group_id]
     except:
@@ -700,7 +710,7 @@ async def _(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     except:
         group_boss[group_id] = []
     if len(group_boss[group_id]) >= config['Boss个数上限']:
-        msg = f"本群世界Boss已达到上限{config['Boss个数上限']}个，无法继续生成"
+        msg = "本群世界Boss已达到上限{}个，无法继续生成".format(config['Boss个数上限'])
         if XiuConfig().img:
             msg = await pic_msg_format(msg, event)
             pic = await get_msg_pic(msg)
@@ -716,10 +726,20 @@ async def _(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
             await create_appoint.finish(MessageSegment.image(pic))
         else:
             await create_appoint.finish(msg, at_sender=False)
+
     boss_jj = arg_list[0]  # 用户指定的境界
     boss_name = arg_list[1] if len(arg_list) > 1 else None  # 用户指定的Boss名称，如果有的话
+    
     # 使用提供的境界和名称生成boss信息
     bossinfo = createboss_jj(boss_jj, boss_name)
+    if bossinfo is None:
+        msg = "请输入正确的境界，例如：生成指定世界boss 祭道境"
+        if XiuConfig().img:
+            msg = await pic_msg_format(msg, event)
+            pic = await get_msg_pic(msg)
+            await create_appoint.finish(MessageSegment.image(pic))
+        else:
+            await create_appoint.finish(msg, at_sender=False)
     group_boss[group_id].append(bossinfo)
     msg = f"已生成{bossinfo['jj']}Boss:{bossinfo['name']}，诸位道友请击败Boss获得奖励吧！"
     if XiuConfig().img:

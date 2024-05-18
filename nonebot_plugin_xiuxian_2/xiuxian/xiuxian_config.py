@@ -10,6 +10,8 @@ DATABASE = Path() / "data" / "xiuxian"
 def get_user_rank(rank_name):
     """
     获取境界等级，替代原来的USERRANK
+    get_user_rank('江湖好手')[0] 返回江湖好手的境界等级
+    get_user_rank('江湖好手')[1] 返回境界列表
     """
     ranks = [
         '江湖好手', # 57
@@ -60,14 +62,13 @@ class XiuConfig:
         self.sql_back = ["user_id", "goods_id", "goods_name", "goods_type", "goods_num", "create_time", "update_time",
                          "remake", "day_num", "all_num", "action_time", "state", "bind_num"]
         
-        self.level = get_user_rank('江湖好手')[1] # 别动
-        self.img = True # 是否使用图片发送，True是使用图片发送，False是使用文字发送
-        self.user_info_image = True # 是否使用图片发送个人信息，True是使用图片发送，False是使用文字发送
-        
+        self.level = get_user_rank('江湖好手')[1] # 境界列表，别动
+        self.img = True # 是否使用图片发送消息
+        self.user_info_image = True # 是否使用图片发送个人信息
         self.user_info_cd = 30  # 我的存档cd/秒
         self.level_up_cd = 0  # 突破CD(分钟)
         self.closing_exp = 60  # 闭关每分钟获取的修为
-        self.put_bot = []  # 接收消息qq,主qq，框架将只处理此qq的消息，
+        self.put_bot = []  # 接收消息qq,主qq，框架将只处理此qq的消息
         self.main_bo = []  # 负责发送消息的qq
         self.shield_group = []  # 屏蔽的群聊
         self.layout_bot_dict = {}
@@ -77,7 +78,7 @@ class XiuConfig:
         self.sect_create_cost = 5000000 # 创建宗门消耗
         self.sect_rename_cost = 50000000 # 宗门改名消耗
         self.sect_rename_cd = 1 # 宗门改名cd/天
-        self.auto_change_sect_owner_cd = 7 # 宗门自动换长时间不玩宗主cd/天
+        self.auto_change_sect_owner_cd = 7 # 自动换长时间不玩宗主cd/天
         self.closing_exp_upper_limit = 1.5  # 闭关获取修为上限（例如：1.5 下个境界的修为数*1.5）
         self.level_punishment_floor = 10  # 突破失败扣除修为，惩罚下限（百分比）
         self.level_punishment_limit = 35  # 突破失败扣除修为，惩罚上限(百分比)

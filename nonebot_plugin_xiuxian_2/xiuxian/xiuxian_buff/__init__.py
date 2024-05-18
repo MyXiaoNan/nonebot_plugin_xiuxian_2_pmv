@@ -33,6 +33,7 @@ cache_help = {}
 sql_message = XiuxianDateManage()  # sql类
 xiuxian_impart = XIUXIAN_IMPART_BUFF()
 BLESSEDSPOTCOST = 3500000
+two_exp_limit = 3 # 默认双修次数上限
 
 two_exp_cd_up = require("nonebot_plugin_apscheduler").scheduler
 
@@ -384,8 +385,6 @@ async def qc_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
         await qc.finish()
 
 
-two_exp_limit = 3 # 默认双修次数上限
-
 @two_exp.handle(parameterless=[Cooldown(at_sender=False)])
 async def two_exp_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """双修"""
@@ -489,7 +488,7 @@ async def two_exp_(bot: Bot, event: GroupMessageEvent, args: Message = CommandAr
                         max_exp_limit = 4
                     else:
                         max_exp_limit = user_1['sect_position']
-                    max_exp = 100000000000 #jsondata.sect_config_data()[str(max_exp_limit)]["max_exp"] #双修上限罪魁祸首
+                    max_exp = 1000000000 #jsondata.sect_config_data()[str(max_exp_limit)]["max_exp"] #双修上限罪魁祸首
                     if exp >= max_exp:
                         exp_limit_1 = max_exp
                     else:
@@ -507,7 +506,7 @@ async def two_exp_(bot: Bot, event: GroupMessageEvent, args: Message = CommandAr
                         max_exp_limit = 4
                     else:
                         max_exp_limit = user_2['sect_position']
-                    max_exp = 100000000000 #jsondata.sect_config_data()[str(max_exp_limit)]["max_exp"] #双修上限罪魁祸首
+                    max_exp = 1000000000 #jsondata.sect_config_data()[str(max_exp_limit)]["max_exp"] #双修上限罪魁祸首
                     if exp >= max_exp:
                         exp_limit_2 = max_exp
                     else:
@@ -538,7 +537,7 @@ async def two_exp_(bot: Bot, event: GroupMessageEvent, args: Message = CommandAr
                         max_exp_limit = 4
                     else:
                         max_exp_limit = user_1['sect_position']
-                    max_exp = 100000000000 #jsondata.sect_config_data()[str(max_exp_limit)]["max_exp"] #双修上限罪魁祸首
+                    max_exp = 1000000000 #jsondata.sect_config_data()[str(max_exp_limit)]["max_exp"] #双修上限罪魁祸首
                     if exp >= max_exp:
                         exp_limit_1 = max_exp
                     else:
@@ -555,7 +554,7 @@ async def two_exp_(bot: Bot, event: GroupMessageEvent, args: Message = CommandAr
                         max_exp_limit = 4
                     else:
                         max_exp_limit = user_2['sect_position']
-                    max_exp = 100000000000 #jsondata.sect_config_data()[str(max_exp_limit)]["max_exp"] #双修上限罪魁祸首
+                    max_exp = 1000000000 #jsondata.sect_config_data()[str(max_exp_limit)]["max_exp"] #双修上限罪魁祸首
                     if exp >= max_exp:
                         exp_limit_2 = max_exp
                     else:
@@ -773,7 +772,6 @@ async def out_closing_(bot: Bot, event: GroupMessageEvent):
             await out_closing.finish()
         else:
             # 用户获取的修为没有到达上限
-
             if str(event.message) == "灵石出关":
                 user_stone = user_mes['stone']  # 用户灵石数
                 if user_stone <= 0:

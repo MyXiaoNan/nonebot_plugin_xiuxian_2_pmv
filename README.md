@@ -15,28 +15,22 @@ _✨ QQ群聊修仙文字游戏✨_
 </div>
 
 # 📖 介绍
-
-
 一款适用于QQ群的修仙插件,设定征集中，有好的想法可以推送给我哦~~~
 
 原插件地址：https://github.com/QingMuCat/nonebot_plugin_xiuxian_2
 
 # 🎉 和原版有什么区别？
-
-
 1、修复了许多Bug，报错与原版相比少很多，以及更多功能优化
 
 2、新增了更多指令，例如：合成武器，仙途奇缘（新手灵石礼包），轮回重修等等
 
-3、支持全部转图片发送，支持压缩率等等，并且可以在配置文件中更改
+3、支持全部转图片发送，支持图片压缩率等等，并且可以在配置文件中更改
 
 4、新增各种丹药，装备，功法，礼包
 
 5、更多不同请自行探索
 
 # 💿 安装
-
-
 1、手动安装(所有改动都会在dev稳定后合并到master)
 ```
 git clone --depth=1 https://github.com/wsdtl/nonebot_plugin_xiuxian_2_pmv
@@ -67,7 +61,7 @@ NICKNAME = ["xx"]
 2、子插件的配置会在插件运行后在子插件文件中生成config.json文件，该文件字段含义在同级目录的xxxconfig.py有备注。注意：修改配置只需要修改json即可，修改.py文件的话需要删除json文件才会生效，任何修改都需要重启bot<br>
 3、记得将git下来的data文件夹放置于bot根目录下<br>
 4、总的参数配置在xiuxian_config.py中<br>
-5、更多详情可见 [文档](https://xiuxian.netlify.app/)<br>
+5、更多详情可见 [文档](https://xiuxian.netlify.app/) (仅供参考)<br>
 
 
 # 💿 风控配置
@@ -87,16 +81,12 @@ self.layout_bot_dict = {{}}  # QQ所负责的群聊{{群 :bot}}   其中 bot类�
 
 
 # 🎉 特别感谢
-
-
 - [NoneBot2](https://github.com/nonebot/nonebot2)：本插件实装的开发框架，NB天下第一可爱。
 - [nonebot_plugin_xiuxian](https://github.com/s52047qwas/nonebot_plugin_xiuxian)：原版修仙
 - [nonebot_plugin_xiuxian_2](https://github.com/QingMuCat/nonebot_plugin_xiuxian_2)：原版修仙2
 
 
 # 🎉 支持
-
-
 - 大家喜欢的话可以给这个项目点个star
 
 - 有bug、意见和建议都欢迎提交 [Issues](https://github.com/wsdtl/nonebot_plugin_xiuxian_2_pmv/issues) 

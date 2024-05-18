@@ -16,7 +16,7 @@ TEXT_PATH = Path() / "data" / "xiuxian" / "info_img"
 first_color = (242, 250, 242)
 second_color = (57, 57, 57)
 
-FONT_ORIGIN_PATH = Path() / "data" / "xiuxian" / "font" / 'font.ttf'
+FONT_ORIGIN_PATH = Path() / "data" / "xiuxian" / "font" / "SourceHanSerifCN-Heavy.otf"
 
 
 def font_origin(size: int) -> ImageFont.FreeTypeFont:

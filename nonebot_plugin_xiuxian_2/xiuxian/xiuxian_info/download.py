@@ -40,7 +40,7 @@ async def get_avatar_by_user_id_and_save(user_id):
         logger.opt(colors=True).info("<green>开始下载用户头像！</green>")
         image_bytes = await download_avatar(user_id)
         im = Image.open(io.BytesIO(image_bytes)).resize((280, 280)).convert("RGBA")
-        if not os.path.exists(PLAYERSDATA / user_id):  # 用户文件夹不存在
+        if not os.path.exists(PLAYERSDATA / user_id):
             os.makedirs(PLAYERSDATA / user_id)
         im.save(USER_AVATAR_PATH, "PNG")
     except Exception as e:
