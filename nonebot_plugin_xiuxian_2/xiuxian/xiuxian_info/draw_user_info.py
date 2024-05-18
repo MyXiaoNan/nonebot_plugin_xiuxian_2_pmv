@@ -33,8 +33,7 @@ async def draw_user_info_img(user_id, DETAIL_MAP):
     based_h = 2450
     # 获取背景图
     try:
-        img_url = await get_anime_pic()
-        img = Image.open(BytesIO(await async_request(img_url))).convert("RGBA")
+        img = Image.open(BytesIO(await async_request(await get_anime_pic()))).convert("RGBA")
         # 居中裁剪背景
         img_w, img_h = img.size
         scale = based_w / img_w

@@ -17,6 +17,7 @@ from nonebot.adapters.onebot.v11 import (
 from ..xiuxian_utils.lay_out import assign_bot, Cooldown, assign_bot_group
 from nonebot.params import CommandArg
 from ..xiuxian_utils.data_source import jsondata
+from datetime import datetime, timedelta
 from ..xiuxian_config import XiuConfig, get_user_rank, JsonConfig
 from .sectconfig import get_config
 from ..xiuxian_utils.utils import (
@@ -48,6 +49,7 @@ buffrankkey = {
 
 materialsupdate = require("nonebot_plugin_apscheduler").scheduler
 resetusertask = require("nonebot_plugin_apscheduler").scheduler
+auto_sect_owner_change = require("nonebot_plugin_apscheduler").scheduler
 upatkpractice = on_command("升级攻击修炼", priority=5, permission=GROUP, block=True)
 my_sect = on_command("我的宗门", aliases={"宗门信息"}, priority=5, permission=GROUP, block=True)
 create_sect = on_command("创建宗门", priority=5, permission=GROUP, block=True)
@@ -128,6 +130,36 @@ async def resetusertask_():
             else:
                 sql_message.update_sect_materials(sect_id=sect_info['sect_id'], sect_materials=elixir_room_cost, key=2)
     logger.opt(colors=True).info("<green>已重置所有宗门任务次数、宗门丹药领取次数，已扣除丹房维护费</green>")
+
+# 自动换宗主
+@auto_sect_owner_change.scheduled_job("interval", hours=1)
+async def auto_sect_owner_change_():
+    logger.opt(colors=True).info("<yellow>开始检测不常玩的宗主</yellow>")
+    
+    all_sect_owners_id = sql_message.get_sect_owners()
+    all_active = all(sql_message.get_last_check_info_time(owner_id) is None or
+                     datetime.now() - sql_message.get_last_check_info_time(owner_id) < timedelta(days=XiuConfig().auto_change_sect_owner_cd)
+                     for owner_id in all_sect_owners_id)
+
+    for owner_id in all_sect_owners_id:
+        last_check_time = sql_message.get_last_check_info_time(owner_id)
+        if last_check_time is None or datetime.now() - last_check_time < timedelta(days=XiuConfig().auto_change_sect_owner_cd):
+            continue
+
+        user_info = sql_message.get_user_message(owner_id)
+        sect_id = user_info['sect_id']
+        logger.opt(colors=True).info("<red>{}离线时间超过{}天，开始自动换宗主</red>".format(user_info['user_name'], XiuConfig().auto_change_sect_owner_cd))
+        new_owner_id = sql_message.get_highest_contrib_user_except_current(sect_id, owner_id)
+        new_owner_info = sql_message.get_user_message(new_owner_id[0])
+        
+        sql_message.update_usr_sect(owner_id, sect_id, 1)
+        sql_message.update_usr_sect(new_owner_id[0], sect_id, 0)
+        sql_message.update_sect_owner(new_owner_id[0], sect_id)
+        sect_info = sql_message.get_sect_info_by_id(sect_id)
+        logger.opt(colors=True).info("<green>由{}继承{}宗主之位</green>".format(new_owner_info['user_name'], sect_info['sect_name']))
+
+    if all_active:
+        logger.opt(colors=True).info("<green>各宗宗主在修行之途上勤勉不辍，宗门安危无忧，可喜可贺！</green>")
 
 
 @sect_help.handle(parameterless=[Cooldown(at_sender=False)])
@@ -674,7 +706,7 @@ async def sect_secbuff_get_(bot: Bot, event: GroupMessageEvent):
                 sql_message.update_sect_secbuff(sect_id, sql)
 
                 msg = "百次搜寻共消耗{}宗门灵石，{}宗门资材。\n".format(total_stone_cost, total_materials_cost)
-                msg += "失败{}次，获取到重复神通{}次。\n".format(fail_count, repeat_count)
+                msg += "失败{}次，获取到重复神通{}次。".format(fail_count, repeat_count)
                 if success_count > 0:
                     msg += "，成功搜寻到新神通{}次。\n".format(success_count)
                 else:
