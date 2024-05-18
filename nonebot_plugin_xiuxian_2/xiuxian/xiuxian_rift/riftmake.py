@@ -101,7 +101,7 @@ STORY = {
             "cost": {
                 "exp": {
                     "type_rate": 50,
-                    "value": [0.03, 0.04, 0.05]
+                    "value": [0.003, 0.004, 0.005]
                 },
                 "hp": {
                     "type_rate": 100,

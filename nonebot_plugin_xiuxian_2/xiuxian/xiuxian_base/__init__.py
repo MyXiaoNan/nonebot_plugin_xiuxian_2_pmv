@@ -61,7 +61,7 @@ remaname = on_command("改名", priority=5, permission=GROUP, block=True)
 level_up = on_fullmatch("突破", priority=6, permission=GROUP, block=True)
 level_up_dr = on_fullmatch("渡厄突破", priority=7, permission=GROUP, block=True)
 level_up_drjd = on_command("渡厄金丹突破",aliases={"金丹突破"}, priority=7, permission=GROUP, block=True)
-level_up_zj = on_command("直接突破",aliases={"给我破","破","给 我 破","给——我——破"},  priority=7, permission=GROUP, block=True)
+level_up_zj = on_fullmatch("直接突破",aliases={"给我破","破","给 我 破","给——我——破"},  priority=7, permission=GROUP, block=True)
 give_stone = on_command("送灵石", priority=5, permission=GROUP, block=True)
 steal_stone = on_command("偷灵石", aliases={"飞龙探云手"}, priority=4, permission=GROUP, block=True)
 gm_command = on_command("神秘力量", permission=SUPERUSER, priority=10, block=True)
@@ -1187,7 +1187,7 @@ async def cz_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     if give_qq:
         give_user = sql_message.get_user_message(give_qq)
         if give_user:
-            sql_message.send_back(give_qq, goods_id, goods_name, goods_type, goods_num)# 增加用户道具
+            sql_message.send_back(give_qq, goods_id, goods_name, goods_type, goods_num, 1)# 增加用户道具
             msg = "{}道友获得了系统赠送的{}个{}！".format(give_user['user_name'], goods_num, goods_name)
             if XiuConfig().img:
                 pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
@@ -1206,7 +1206,7 @@ async def cz_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     else:
         all_users = sql_message.get_all_user_id()
         for user_id in all_users:
-            sql_message.send_back(user_id, goods_id, goods_name, goods_type, goods_num)  # 给每个用户发送物品
+            sql_message.send_back(user_id, goods_id, goods_name, goods_type, goods_num, 1)  # 给每个用户发送物品
         msg = "全服通告：赠送所有用户{}{}个,请注意查收！".format(goods_name, goods_num)
         enabled_groups = JsonConfig().get_enabled_groups()
         for group_id in enabled_groups:
