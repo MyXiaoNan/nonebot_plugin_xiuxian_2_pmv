@@ -78,7 +78,7 @@ __sect_help__ = f"""
 1、我的宗门:查看当前所处宗门信息
 2、创建宗门:创建宗门，需求：{XiuConfig().sect_create_cost}灵石，需求境界{XiuConfig().sect_min_level}
 3、加入宗门:加入一个宗门,需要带上宗门id
-4、宗门职位变更:宗主可以改变宗门成员的职位等级【0 1 2 3 4】分别对应【宗主 长老 亲传 内门 外门】外门弟子无法获得宗门修炼资源
+4、宗门职位变更:宗主可以改变宗门成员的职位等级【0 1 2 3 4】分别对应【宗主 长老 亲传 内门 外门】(外门弟子无法获得宗门修炼资源)
 5、宗门捐献:建设宗门，提高宗门建设度，每{config["等级建设度"]}建设度会提高1级攻击修炼等级上限
 6、宗门改名:宗主可以改变宗门名称
 7、退出宗门:退出当前宗门
@@ -97,9 +97,7 @@ __sect_help__ = f"""
 20、宗门丹药领取、领取宗门丹药领取:领取宗门丹药
 非指令：
 1、拥有定时任务:每日{config["发放宗门资材"]["时间"]}点发放{config["发放宗门资材"]["倍率"]}倍对应宗门建设度的资材
-2、道统传承: 宗主|长老|亲传弟子|内门弟子|外门弟子|散修 单次稳定获得百分比修为上限分别为
-{jsondata.sect_config_data()[str(0)]["max_exp"]}  {jsondata.sect_config_data()[str(1)]["max_exp"]}  {jsondata.sect_config_data()[str(2)]["max_exp"]}
-{jsondata.sect_config_data()[str(3)]["max_exp"]}  {jsondata.sect_config_data()[str(4)]["max_exp"]}  {jsondata.sect_config_data()[str(4)]["max_exp"]}
+2、道统传承: 宗主|长老|亲传弟子|内门弟子|外门弟子|散修 单次稳定获得百分比修为上限分别为：{jsondata.sect_config_data()[str(0)]["max_exp"]}，{jsondata.sect_config_data()[str(1)]["max_exp"]}，{jsondata.sect_config_data()[str(2)]["max_exp"]}，{jsondata.sect_config_data()[str(3)]["max_exp"]}，{jsondata.sect_config_data()[str(4)]["max_exp"]}，{jsondata.sect_config_data()[str(4)]["max_exp"]}
 """.strip()
 
 

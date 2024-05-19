@@ -95,7 +95,7 @@ class XiuConfig:
         self.dufang_cd = 10  # 金银阁cd/秒
         self.tou_lower_limit = 0.01  # 偷灵石下限(百分比)
         self.tou_upper_limit = 0.50  # 偷灵石上限(百分比)
-        self.remake = 100000  # 重入仙途的消费
+        self.remake = 1000000  # 重入仙途的消费
         self.lunhui_min_level = "祭道境圆满" # 千世轮回最低境界
         self.twolun_min_level = "祭道境圆满" # 万世轮回最低境界
         self.del_boss_id = []  # 支持非管理员和超管天罚boss

@@ -18,8 +18,8 @@ __warring_help__ = """
 详情：
 散尽修为，轮回重修，将万世的道果凝聚为极致天赋
 修为、功法、神通将被清空！！
-进入千世轮回：获得轮回灵根，可定制极品仙器(找超管)
-进入万世轮回：获得真轮回灵根，可定制无上仙器(找超管)
+进入千世轮回：获得轮回灵根，可定制极品仙器(在做)
+进入万世轮回：获得真轮回灵根，可定制无上仙器(在做)
 自废修为：字面意思，仅搬血境可用
 """.strip()
 
@@ -69,7 +69,7 @@ async def lunhui_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandO
     level = user_info['level']
     
     if user_root == '轮回道果' :
-        msg = '道友已是千世轮回之身！'
+        msg = "道友已是千世轮回之身！"
         if XiuConfig().img:
             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -78,7 +78,7 @@ async def lunhui_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandO
         await lunhui.finish()
     
     if user_root == '真·轮回道果' :
-        msg = '道友已是万世轮回之身！'
+        msg = "道友已是万世轮回之身！"
         if XiuConfig().img:
             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -106,7 +106,7 @@ async def lunhui_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandO
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await lunhui.finish()
     else:
-        msg = '道友境界未达要求无法重修！'
+        msg = f"道友境界未达要求，进入千世轮回的最低境界为{XiuConfig().lunhui_min_level}"
         if XiuConfig().img:
             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -134,7 +134,7 @@ async def Twolun_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandO
     level = user_info['level']
     
     if user_root == '真·轮回道果':
-        msg = '道友已是万世轮回之身！'
+        msg = "道友已是万世轮回之身！"
         if XiuConfig().img:
             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -143,7 +143,7 @@ async def Twolun_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandO
         await Twolun.finish() 
         
     if user_root != '轮回道果':
-        msg = '道友还未轮回过！'
+        msg = "道友还未轮回过，请先进入千世轮回！"
         if XiuConfig().img:
             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -159,7 +159,7 @@ async def Twolun_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandO
         sql_message.update_j_exp(user_id, now_exp) #重置用户修为
         sql_message.update_user_hp(user_id)  # 重置用户HP，mp，atk状态
         sql_message.update_root(user_id, 7) #更换轮回灵根
-        msg = "万世道果集一身，脱出凡道入仙道，恭喜大能{user_name}万世轮回成功！"
+        msg = f"万世道果集一身，脱出凡道入仙道，恭喜大能{user_name}万世轮回成功！"
         if XiuConfig().img:
             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -167,7 +167,7 @@ async def Twolun_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandO
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await Twolun.finish()
     else:
-        msg = '道友境界未达要求！'
+        msg = f"道友境界未达要求，万世轮回的最低境界为{XiuConfig().twolun_min_level}！"
         if XiuConfig().img:
             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -207,7 +207,7 @@ async def resetting_(bot: Bot, event: GroupMessageEvent, session_id: int = Comma
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await Twolun.finish()
     else:
-        msg = '道友境界未达要求！'
+        msg = f"道友境界未达要求，自废修为的最低境界为搬血境！"
         if XiuConfig().img:
             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))

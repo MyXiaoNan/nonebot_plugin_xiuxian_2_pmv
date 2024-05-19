@@ -2,6 +2,7 @@ import re
 import random
 import asyncio
 from datetime import datetime
+from nonebot.typing import T_State
 from ..xiuxian_utils.lay_out import assign_bot, Cooldown, assign_bot_group
 from nonebot import require, on_command, on_fullmatch
 from nonebot.adapters.onebot.v11 import (
@@ -209,7 +210,7 @@ async def run_xiuxian_(bot: Bot, event: GroupMessageEvent):
                 sql_message.update_user_hp(user_id)
             await asyncio.sleep(1)
             if XiuConfig().img:
-                msg = "耳边响起一个神秘人的声音：不要忘记仙途奇缘！!\n不知道怎么玩的话可以发送 修仙帮助 获取更多帮助！！"
+                msg = "耳边响起一个神秘人的声音：不要忘记仙途奇缘！!\n不知道怎么玩的话可以发送 修仙帮助 喔！！"
                 pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
             else:
@@ -292,7 +293,7 @@ async def level_help_(bot: Bot, event: GroupMessageEvent, session_id: int = Comm
 
 
 @restart.handle(parameterless=[Cooldown(10, at_sender=False)])
-async def restart_(bot: Bot, event: GroupMessageEvent):
+async def restart_(bot: Bot, event: GroupMessageEvent, state: T_State):
     """刷新灵根信息"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = check_user(event)
@@ -303,19 +304,54 @@ async def restart_(bot: Bot, event: GroupMessageEvent):
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await restart.finish()
-    user_id = user_info['user_id']
-    name, root_type = XiuxianJsonDate().linggen_get()
-    msg = sql_message.ramaker(name, root_type, user_id)
+
+    state["user_id"] = user_info['user_id']  # 将用户信息存储在状态中
+
+    linggen_options = []
+    for _ in range(10):
+        name, root_type = XiuxianJsonDate().linggen_get()
+        linggen_options.append((name, root_type))
+
+    linggen_list_msg = "\n".join([f"{i+1}. {name} ({root_type})" for i, (name, root_type) in enumerate(linggen_options)])
+    msg = f"请从以下灵根中选择一个:\n{linggen_list_msg}\n请输入对应的数字选择 (1-10):"
+    state["linggen_options"] = linggen_options
+
+    if XiuConfig().img:
+        pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+        await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+    else:
+        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+
+
+@restart.receive()
+async def handle_user_choice(bot: Bot, event: GroupMessageEvent, state: T_State):
+    user_choice = event.get_plaintext().strip()
+    linggen_options = state["linggen_options"]
+    user_id = state["user_id"]  # 从状态中获取用户ID
+
+    selected_name, selected_root_type = max(linggen_options, key=lambda x: jsondata.root_data()[x[1]]["type_speeds"])
+
+    if user_choice.isdigit(): # 判断数字
+        user_choice = int(user_choice)
+        if 1 <= user_choice <= 10:
+            selected_name, selected_root_type = linggen_options[user_choice - 1]
+            msg = f"你选择了 {selected_name} 呢！\n"
+    else:
+        msg = "输入有误，帮你自动选择最佳灵根了嗷：\n"
+
+    msg += sql_message.ramaker(selected_name, selected_root_type, user_id)
     sql_message.update_power2(user_id)  # 更新战力
+
     try:
         if XiuConfig().img:
             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
-            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+            await bot.send_group_msg(group_id=event.group_id, message=MessageSegment.image(pic))
         else:
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-        await restart.finish()    
+            await bot.send_group_msg(group_id=event.group_id, message=msg)
     except ActionFailed:
-        await restart.finish("修仙界网络堵塞，发送失败!", reply_message=True)
+        await bot.send_group_msg(group_id=event.group_id, message="修仙界网络堵塞，发送失败!")
+
+    await restart.finish()
 
 
 @rank.handle(parameterless=[Cooldown(at_sender=False)])
@@ -473,7 +509,7 @@ async def level_up_(bot: Bot, event: GroupMessageEvent):
     main_rate_buff = UserBuffDate(user_id).get_user_main_buff_data()#功法突破概率提升，别忘了还有渡厄突破
     number = main_rate_buff['number'] if main_rate_buff is not None else 0
     if pause_flag:
-        msg = f"由于检测到背包有丹药：{elixir_name}，效果：{elixir_desc}，突破已经准备就绪，请发送 ，【渡厄突破】 或 【直接突破】来选择是否使用丹药突破！本次突破概率为：{level_rate + user_leveluprate + number}% "
+        msg = f"由于检测到背包有丹药：{elixir_name}，效果：{elixir_desc}，突破已经准备就绪\n请发送 ，【渡厄突破】 或 【直接突破】来选择是否使用丹药突破！\n本次突破概率为：{level_rate + user_leveluprate + number}% "
         if XiuConfig().img:
             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -481,7 +517,7 @@ async def level_up_(bot: Bot, event: GroupMessageEvent):
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await level_up.finish()
     else:
-        msg = f"由于检测到背包没有【渡厄丹】，突破已经准备就绪，请发送，【直接突破】来突破！请注意，本次突破失败将会损失部分修为，本次突破概率为：{level_rate + user_leveluprate + number}% "
+        msg = f"由于检测到背包没有【渡厄丹】，突破已经准备就绪\n请发送，【直接突破】来突破！请注意，本次突破失败将会损失部分修为！\n本次突破概率为：{level_rate + user_leveluprate + number}% "
         if XiuConfig().img:
             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -562,7 +598,7 @@ async def level_up_zj_(bot: Bot, event: GroupMessageEvent):
         sql_message.updata_level_cd(user_id)  # 更新CD
         sql_message.update_levelrate(user_id, 0)
         sql_message.update_user_hp(user_id)  # 重置用户HP，mp，atk状态
-        msg = "恭喜道友突破{}成功".format(le[0])
+        msg = "恭喜道友突破{}成功！".format(le[0])
         if XiuConfig().img:
             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
