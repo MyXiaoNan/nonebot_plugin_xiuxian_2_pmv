@@ -578,8 +578,8 @@ async def sect_mainbuff_get_(bot: Bot, event: GroupMessageEvent):
             mainbuffgear, mainbufftype = get_sectbufftxt(sect_info['sect_scale'], mainbuffconfig)
             stonecost = mainbuffgear * mainbuffconfig['获取消耗的灵石']
             materialscost = mainbuffgear * mainbuffconfig['获取消耗的资材']
-            total_stone_cost = stonecost * 100
-            total_materials_cost = materialscost * 100
+            total_stone_cost = stonecost
+            total_materials_cost = materialscost
 
             if sect_info['sect_used_stone'] >= total_stone_cost and sect_info['sect_materials'] >= total_materials_cost:
                 success_count = 0
@@ -594,12 +594,12 @@ async def sect_mainbuff_get_(bot: Bot, event: GroupMessageEvent):
                         if mainbuffid in mainbuffidlist:
                             mainbuff, mainbuffmsg = get_main_info_msg(mainbuffid)
                             repeat_count += 1
-                            results.append("第{}次抽到重复的功法：{}".format((i + 1), mainbuff['name']))
+                            results.append("第{}次获取到重复功法：{}".format((i + 1), mainbuff['name']))
                         else:
                             mainbuffidlist.append(mainbuffid)
                             mainbuff, mainbuffmsg = get_main_info_msg(mainbuffid)
                             success_count += 1
-                            results.append("第{}次成功获取到新{}功法：{}\n".format(i + 1, mainbufftype, mainbuff['name']))
+                            results.append("第{}次获取到{}功法：{}\n".format(i + 1, mainbufftype, mainbuff['name']))
                     else:
                         fail_count += 1
 
@@ -608,12 +608,12 @@ async def sect_mainbuff_get_(bot: Bot, event: GroupMessageEvent):
                 sql = set_sect_list(mainbuffidlist)
                 sql_message.update_sect_mainbuff(sect_id, sql)
 
-                msg = "百次搜寻共消耗{}宗门灵石，{}宗门资材。\n".format(total_stone_cost, total_materials_cost)
-                msg += "失败{}次，获取到重复功法{}次".format(fail_count, repeat_count)
+                msg = "共消耗{}宗门灵石，{}宗门资材。\n".format(total_stone_cost, total_materials_cost)
+                msg += "失败{}次，获取重复功法{}次".format(fail_count, repeat_count)
                 if success_count > 0:
-                    msg += "，成功搜寻到新功法{}次。\n".format(success_count)
+                    msg += "，搜寻到新功法{}次。\n".format(success_count)
                 else:
-                    msg += "，未成功搜寻到新功法！\n"
+                    msg += "，未搜寻到新功法！\n"
                 msg += "\n".join(results)
 
                 if XiuConfig().img:
@@ -623,7 +623,7 @@ async def sect_mainbuff_get_(bot: Bot, event: GroupMessageEvent):
                     await bot.send_group_msg(group_id=int(send_group_id), message=msg)
                 await sect_mainbuff_get.finish()
             else:
-                msg = "百次搜寻需要消耗{}宗门灵石，{}宗门资材，不满足条件！".format(total_stone_cost, total_materials_cost)
+                msg = "需要消耗{}宗门灵石，{}宗门资材，不满足条件！".format(total_stone_cost, total_materials_cost)
                 if XiuConfig().img:
                     pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
                     await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -671,8 +671,8 @@ async def sect_secbuff_get_(bot: Bot, event: GroupMessageEvent):
             secbuffgear, secbufftype = get_sectbufftxt(sect_info['sect_scale'], secbuffconfig)
             stonecost = secbuffgear * secbuffconfig['获取消耗的灵石']
             materialscost = secbuffgear * secbuffconfig['获取消耗的资材']
-            total_stone_cost = stonecost * 100
-            total_materials_cost = materialscost * 100
+            total_stone_cost = stonecost
+            total_materials_cost = materialscost
             
             if sect_info['sect_used_stone'] >= total_stone_cost and sect_info['sect_materials'] >= total_materials_cost:
                 success_count = 0
@@ -687,13 +687,12 @@ async def sect_secbuff_get_(bot: Bot, event: GroupMessageEvent):
                         if secbuffid in secbuffidlist:
                             secbuff = items.get_data_by_item_id(secbuffid)
                             repeat_count += 1
-                            results.append("第{}次抽到重复的神通：{}".format((i + 1), secbuff['name']))
+                            results.append("第{}次获取到重复神通：{}".format((i + 1), secbuff['name']))
                         else:
                             secbuffidlist.append(secbuffid)
                             secbuff = items.get_data_by_item_id(secbuffid)
-                            secmsg = get_sec_msg(secbuff)
                             success_count += 1
-                            results.append("第{}次成功获取到{}神通：{}\n{}".format(i + 1, secbufftype, secbuff['name'], secmsg))
+                            results.append("第{}次获取到{}神通：{}\n".format(i + 1, secbufftype, secbuff['name']))
                     else:
                         fail_count += 1
 
@@ -702,12 +701,12 @@ async def sect_secbuff_get_(bot: Bot, event: GroupMessageEvent):
                 sql = set_sect_list(secbuffidlist)
                 sql_message.update_sect_secbuff(sect_id, sql)
 
-                msg = "百次搜寻共消耗{}宗门灵石，{}宗门资材。\n".format(total_stone_cost, total_materials_cost)
-                msg += "失败{}次，获取到重复神通{}次。".format(fail_count, repeat_count)
+                msg = "共消耗{}宗门灵石，{}宗门资材。\n".format(total_stone_cost, total_materials_cost)
+                msg += "失败{}次，获取重复神通{}次".format(fail_count, repeat_count)
                 if success_count > 0:
-                    msg += "，成功搜寻到新神通{}次。\n".format(success_count)
+                    msg += "，搜寻到新神通{}次。\n".format(success_count)
                 else:
-                    msg += "，未成功搜寻到新神通！\n"
+                    msg += "，未搜寻到新神通！\n"
                 msg += "\n".join(results)
 
                 if XiuConfig().img:
@@ -717,7 +716,7 @@ async def sect_secbuff_get_(bot: Bot, event: GroupMessageEvent):
                     await bot.send_group_msg(group_id=int(send_group_id), message=msg)
                 await sect_secbuff_get.finish()
             else:
-                msg = "百次搜寻需要消耗{}宗门灵石，{}宗门资材，不满足条件！".format(total_stone_cost, total_materials_cost)
+                msg = "需要消耗{}宗门灵石，{}宗门资材，不满足条件！".format(total_stone_cost, total_materials_cost)
                 if XiuConfig().img:
                     pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
                     await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
