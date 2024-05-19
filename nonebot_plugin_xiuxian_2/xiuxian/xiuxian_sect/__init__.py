@@ -129,7 +129,7 @@ async def resetusertask_():
                 sql_message.update_sect_materials(sect_id=sect_info['sect_id'], sect_materials=elixir_room_cost, key=2)
     logger.opt(colors=True).info("<green>已重置所有宗门任务次数、宗门丹药领取次数，已扣除丹房维护费</green>")
 
-# 自动换宗主
+# 定时任务每1小时自动检测不常玩的宗主
 @auto_sect_owner_change.scheduled_job("interval", hours=1)
 async def auto_sect_owner_change_():
     logger.opt(colors=True).info("<yellow>开始检测不常玩的宗主</yellow>")

@@ -28,7 +28,7 @@ sql_message = XiuxianDateManage()  # sql类
 
 warring_help = on_fullmatch("轮回重修帮助", priority=12, permission=GROUP, block=True)
 lunhui = on_command('进入千世轮回', priority=15, permission=GROUP,block=True)
-Twolun = on_command('进入万世轮回', priority=15, permission=GROUP,block=True)
+twolun = on_command('进入万世轮回', priority=15, permission=GROUP,block=True)
 resetting = on_command('自废修为', priority=15, permission=GROUP,block=True)
 
 
@@ -114,8 +114,8 @@ async def lunhui_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandO
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await lunhui.finish()
         
-@Twolun.handle(parameterless=[Cooldown(at_sender=False)])
-async def Twolun_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
+@twolun.handle(parameterless=[Cooldown(at_sender=False)])
+async def twolun_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = check_user(event)
     if not isUser:
@@ -124,7 +124,7 @@ async def Twolun_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandO
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-        await Twolun.finish()
+        await twolun.finish()
         
     user_id = user_info['user_id']
     user_msg = sql_message.get_user_message(user_id) 
@@ -140,7 +140,7 @@ async def Twolun_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandO
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-        await Twolun.finish() 
+        await twolun.finish() 
         
     if user_root != '轮回道果':
         msg = "道友还未轮回过，请先进入千世轮回！"
@@ -149,7 +149,7 @@ async def Twolun_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandO
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-        await Twolun.finish() 
+        await twolun.finish() 
     
     if list_level_all.index(level) >= list_level_all.index(XiuConfig().twolun_min_level) and user_root == '轮回道果':
         exp = user_msg['exp']
@@ -165,7 +165,7 @@ async def Twolun_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandO
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-        await Twolun.finish()
+        await twolun.finish()
     else:
         msg = f"道友境界未达要求，万世轮回的最低境界为{XiuConfig().twolun_min_level}！"
         if XiuConfig().img:
@@ -173,7 +173,7 @@ async def Twolun_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandO
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-        await Twolun.finish()
+        await twolun.finish()
         
 @resetting.handle(parameterless=[Cooldown(at_sender=False)])
 async def resetting_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
@@ -205,7 +205,7 @@ async def resetting_(bot: Bot, event: GroupMessageEvent, session_id: int = Comma
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-        await Twolun.finish()
+        await resetting.finish()
     else:
         msg = f"道友境界未达要求，自废修为的最低境界为搬血境！"
         if XiuConfig().img:
@@ -213,5 +213,5 @@ async def resetting_(bot: Bot, event: GroupMessageEvent, session_id: int = Comma
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-        await Twolun.finish()
+        await resetting.finish()
         
