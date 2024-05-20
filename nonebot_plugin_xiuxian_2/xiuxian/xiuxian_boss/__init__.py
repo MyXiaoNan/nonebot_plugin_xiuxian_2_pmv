@@ -109,7 +109,7 @@ __boss_help__ = f"""
 7、天罚boss、天罚世界boss:删除世界Boss,必须加Boss编号,管理员权限
 8、天罚所有世界boss:删除所有世界Boss,,管理员权限
 9、世界积分查看:查看自己的世界积分,和世界积分兑换商品
-10、世界积分兑换+编号：兑换对应的商品
+10、世界积分兑换+编号：兑换对应的商品，可以批量购买
 """.strip()
 
 
@@ -892,10 +892,10 @@ async def boss_integral_use_(bot: Bot, event: GroupMessageEvent, args: Message =
 
     user_id = user_info['user_id']
     msg = args.extract_plain_text().strip()
-    shop_id = re.findall(r"\d+", msg)
+    shop_info = re.findall(r"(\d+)\s*(\d*)", msg)
 
     isInGroup = isInGroups(event)
-    if not isInGroup:  # 不在配置表内
+    if not isInGroup: 
         msg = f"本群尚未开启世界Boss,请联系管理员开启!"
         if XiuConfig().img:
             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
@@ -904,8 +904,9 @@ async def boss_integral_use_(bot: Bot, event: GroupMessageEvent, args: Message =
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await boss_integral_use.finish()
 
-    if shop_id:
-        shop_id = int(shop_id[0])
+    if shop_info:
+        shop_id = int(shop_info[0][0])
+        quantity = int(shop_info[0][1]) if shop_info[0][1] else 1
     else:
         msg = "请输入正确的商品编号！"
         if XiuConfig().img:
@@ -918,16 +919,14 @@ async def boss_integral_use_(bot: Bot, event: GroupMessageEvent, args: Message =
     boss_integral_shop = config['世界积分商品']
     is_in = False
     cost = None
-    shop_id = None
-    if boss_integral_shop != {}:
+    item_id = None
+    if boss_integral_shop:
         for k, v in boss_integral_shop.items():
             if shop_id == int(k):
                 is_in = True
                 cost = v['cost']
-                shop_id = v['id']
+                item_id = v['id']
                 break
-            else:
-                continue
     else:
         msg = "世界积分商店内空空如也！"
         if XiuConfig().img:
@@ -938,7 +937,8 @@ async def boss_integral_use_(bot: Bot, event: GroupMessageEvent, args: Message =
         await boss_integral_use.finish()
     if is_in:
         user_boss_fight_info = get_user_boss_fight_info(user_id)
-        if user_boss_fight_info['boss_integral'] < cost:
+        total_cost = cost * quantity
+        if user_boss_fight_info['boss_integral'] < total_cost:
             msg = "道友的世界积分不满足兑换条件呢"
             if XiuConfig().img:
                 pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
@@ -947,11 +947,11 @@ async def boss_integral_use_(bot: Bot, event: GroupMessageEvent, args: Message =
                 await bot.send_group_msg(group_id=int(send_group_id), message=msg)
             await boss_integral_use.finish()
         else:
-            user_boss_fight_info['boss_integral'] -= cost
+            user_boss_fight_info['boss_integral'] -= total_cost
             save_user_boss_fight_info(user_id, user_boss_fight_info)
-            item_info = Items().get_data_by_item_id(shop_id)
-            sql_message.send_back(user_id, shop_id, item_info['name'], item_info['type'], 1, 1)
-            msg = f"道友成功兑换获得：{item_info['name']}"
+            item_info = Items().get_data_by_item_id(item_id)
+            sql_message.send_back(user_id, item_id, item_info['name'], item_info['type'], quantity)  # 兑换指定数量
+            msg = "道友成功兑换获得：{}{}个".format(item_info['name'], quantity)
             if XiuConfig().img:
                 pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -959,7 +959,7 @@ async def boss_integral_use_(bot: Bot, event: GroupMessageEvent, args: Message =
                 await bot.send_group_msg(group_id=int(send_group_id), message=msg)
             await boss_integral_use.finish()
     else:
-        msg = f"该编号不在商品列表内哦，请检查后再兑换"
+        msg = "该编号不在商品列表内哦，请检查后再兑换"
         if XiuConfig().img:
             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))

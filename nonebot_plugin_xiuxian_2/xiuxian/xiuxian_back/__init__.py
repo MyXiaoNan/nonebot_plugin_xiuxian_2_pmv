@@ -595,8 +595,8 @@ async def shop_added_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
     user_id = user_info['user_id']
     args = args.extract_plain_text().split()
     goods_name = args[0] if len(args) > 0 else None
-    price_str = args[1] if len(args) > 1 else "500000"  # 如果未提供价格，默认为500000
-    quantity_str = args[2] if len(args) > 2 else "1"  # 如果未提供数量，默认为1
+    price_str = args[1] if len(args) > 1 else "500000"  # 默认为500000
+    quantity_str = args[2] if len(args) > 2 else "1"  # 默认为1
     if len(args) == 0:
         # 没有输入任何参数
         msg = "请输入正确指令！例如：坊市上架 物品 可选参数为(金额 数量)"
