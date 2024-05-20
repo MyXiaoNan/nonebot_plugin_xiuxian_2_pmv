@@ -212,6 +212,7 @@ async def set_auction_by_scheduler_():
             if auction_offer_all_count == 0:
                 auction_offer_flag = False
                 break
+
             logger.opt(colors=True).info(f"<green>有人拍卖，本次等待时间：{auction_offer_all_count * AUCTIONOFFERSLEEPTIME}秒</green>")
             first_time = auction_offer_all_count * AUCTIONOFFERSLEEPTIME
             auction_offer_all_count = 0
@@ -226,6 +227,7 @@ async def set_auction_by_scheduler_():
                 msg = f"很可惜，{auction['name']}流拍了，拍卖会到此结束。\n拍卖会结束，开始整理拍卖结果，感谢各位道友的参与！"
             else:
                 msg = f"很可惜，{auction['name']}流拍了，让我们来看下一个拍卖品"
+                
             for gid in groups:
                 bot = await assign_bot_group(group_id=gid)
                 try:
@@ -1460,6 +1462,7 @@ async def creat_auction_(bot: Bot, event: GroupMessageEvent):
             if auction_offer_all_count == 0:
                 auction_offer_flag = False
                 break
+
             logger.opt(colors=True).info(f"<green>有人拍卖，本次等待时间：{auction_offer_all_count * AUCTIONOFFERSLEEPTIME}秒</green>")
             first_time = auction_offer_all_count * AUCTIONOFFERSLEEPTIME
             auction_offer_all_count = 0
@@ -1474,6 +1477,7 @@ async def creat_auction_(bot: Bot, event: GroupMessageEvent):
                 msg = f"很可惜，{auction['name']}流拍了，拍卖会到此结束。\n拍卖会结束，开始整理拍卖结果，感谢各位道友的参与！"
             else:
                 msg = f"很可惜，{auction['name']}流拍了，让我们来看下一个拍卖品"
+
             for gid in groups:
                 bot = await assign_bot_group(group_id=gid)
                 try:
