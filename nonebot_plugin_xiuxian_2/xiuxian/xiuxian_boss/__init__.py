@@ -460,8 +460,8 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
     else:
         boss_rank = get_user_rank((bossinfo['jj'] + '中期'))[0]
     user_rank = get_user_rank(userinfo['level'])[0]
-    if boss_rank - user_rank >= 9:
-        msg = "道友拿小辈的Boss，可耻！"
+    if boss_rank - user_rank >= 12:
+        msg = "道友已是{}之人，妄图抢小辈的Boss，可耻！".format(userinfo['level'])
         if XiuConfig().img:
             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -495,7 +495,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
         if exp_buff > 0:
             now_exp = int(((top_user_exp * 0.1) / user_info['exp']) / (exp_buff * (1 / (get_user_rank(user_info['level'])[0] + 1))))
             if now_exp > 100000000:
-                now_exp = now_exp ** exp_buff * random.randint(100, 1000)
+                now_exp = int(now_exp ** exp_buff / random.randint(10, 100))
             sql_message.update_exp(user_id, now_exp)
             exp_msg = "，获得修为{}点！".format(now_exp)
         else:
@@ -535,7 +535,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
         if exp_buff > 0:
             now_exp = int(((top_user_exp * 0.1) / user_info['exp']) / (exp_buff * (1 / (get_user_rank(user_info['level'])[0] + 1))))
             if now_exp > 100000000:
-                now_exp = now_exp ** exp_buff * random.randint(100, 1000)
+                now_exp = int(now_exp ** exp_buff / random.randint(10, 100))
             sql_message.update_exp(user_id, now_exp)
             exp_msg = "，获得修为{}点！".format(now_exp)
         else:
