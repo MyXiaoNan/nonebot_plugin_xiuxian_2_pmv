@@ -337,7 +337,7 @@ async def handle_user_choice(bot: Bot, event: GroupMessageEvent, state: T_State)
             selected_name, selected_root_type = linggen_options[user_choice - 1]
             msg = f"你选择了 {selected_name} 呢！\n"
     else:
-        msg = "输入有误，帮你自动选择最佳灵根了嗷：\n"
+        msg = "输入有误，帮你自动选择最佳灵根了嗷！\n"
 
     msg += sql_message.ramaker(selected_name, selected_root_type, user_id)
     sql_message.update_power2(user_id)  # 更新战力

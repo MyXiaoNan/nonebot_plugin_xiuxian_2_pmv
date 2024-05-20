@@ -259,7 +259,7 @@ async def set_auction_by_scheduler_():
         item_name = items.get_data_by_item_id(auction_id)['name']
         if user_id:
             sql_message.update_ls(user_info['user_id'], int(final_price), 2)
-            sql_message.send_back(user_info['user_id'], auction_id, item_name, item_type, 1)
+            sql_message.send_back(user_info['user_id'], auction_id, item_name, item_type)
             end_msg += f"{idx + 1}号拍卖品：{item_name}由群{group_id}的{user_info['user_name']}道友成功拍下\n"      
             auction = {}
             auction_offer_time_count = 0
@@ -895,7 +895,7 @@ async def shop_off_(bot: Bot, event: GroupMessageEvent, args: Message = CommandA
     if shop_data[group_id][str(arg)]['user_id'] == user_id:
         sql_message.send_back(user_id, shop_data[group_id][str(arg)]['goods_id'],
                               shop_data[group_id][str(arg)]['goods_name'], shop_data[group_id][str(arg)]['goods_type'],
-                              1)
+                              shop_data[group_id][str(arg)]['stock'])
         msg = "成功下架物品：{}！".format(shop_data[group_id][str(arg)]['goods_name'])
         del shop_data[group_id][str(arg)]
         shop_data[group_id] = reset_dict_num(shop_data[group_id])
@@ -922,8 +922,9 @@ async def shop_off_(bot: Bot, event: GroupMessageEvent, args: Message = CommandA
         else:
             sql_message.send_back(shop_data[group_id][str(arg)]['user_id'], shop_data[group_id][str(arg)]['goods_id'],
                                   shop_data[group_id][str(arg)]['goods_name'],
-                                  shop_data[group_id][str(arg)]['goods_type'], 1)
-            msg1 = "道友上架的{}已被管理员{}下架！".format(shop_data[group_id][str(arg)]['goods_name'], user_info['user_name'])
+                                  shop_data[group_id][str(arg)]['goods_type'], shop_data[group_id][str(arg)]['stock'])
+            msg1 = "道友上架的{}个{}已被管理员{}下架！".format(shop_data[group_id][str(arg)]['stock'], 
+                                                 shop_data[group_id][str(arg)]['goods_name'], user_info['user_name'])
             del shop_data[group_id][str(arg)]
             shop_data[group_id] = reset_dict_num(shop_data[group_id])
             save_shop(shop_data)
@@ -1264,10 +1265,10 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
         goods_type2 = goods_info['type_2']
         goods_type3 = goods_info['type_3']
         
-        sql_message.send_back(user_id, goods_id1, goods_name1, goods_type1, 1 * num)# 增加用户道具
-        sql_message.send_back(user_id, goods_id2, goods_name2, goods_type2, 2 * num)
-        sql_message.send_back(user_id, goods_id3, goods_name3, goods_type3, 2 * num)
-        sql_message.update_back_j(user_id, goods_id, num=num, use_key=0)
+        sql_message.send_back(user_id, goods_id1, goods_name1, goods_type1, 1 * num, 1)# 增加用户道具
+        sql_message.send_back(user_id, goods_id2, goods_name2, goods_type2, 2 * num, 1)
+        sql_message.send_back(user_id, goods_id3, goods_name3, goods_type3, 2 * num, 1)
+        sql_message.update_back_j(user_id, goods_id, num, 0)
         msg = "道友打开了{}个{},里面居然是{}{}个、{}{}个、{}{}个".format(num, goods_name, goods_name1, int(1 * num), goods_name2, int(2 * num), goods_name3, int(2 * num))
         if XiuConfig().img:
             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
