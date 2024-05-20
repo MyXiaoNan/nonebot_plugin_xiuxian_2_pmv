@@ -55,7 +55,7 @@ NICKNAME = ["xx"]
 
 5、在xiuxian_config.py中配置好各种选项
 ```
-一般来说，只需要关注几项：
+一般来说，只需要关注下面几项：
 self.merge_forward_send = False # 消息转发类型,True是合并转发，False是长图发送
 self.img_compression_limit = 80 # 图片压缩率，0为不压缩，最高100
 self.img_type = "webp" # 图片类型，webp或者jpeg，如果机器人的图片消息不显示请使用jpeg
