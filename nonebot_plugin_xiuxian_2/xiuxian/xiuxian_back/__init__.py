@@ -947,7 +947,7 @@ async def shop_off_(bot: Bot, event: GroupMessageEvent, args: Message = CommandA
         await shop_off.finish()
 
 
-@main_back.handle(parameterless=[Cooldown(cd_time=XiuConfig().user_info_cd, at_sender=False)])
+@main_back.handle(parameterless=[Cooldown(cd_time=10, at_sender=False)])
 async def main_back_(bot: Bot, event: GroupMessageEvent):
     """我的背包
     ["user_id", "goods_id", "goods_name", "goods_type", "goods_num", "create_time", "update_time",
@@ -1786,14 +1786,14 @@ async def shop_off_all_(bot: Bot, event: GroupMessageEvent):
     for x in range(num):
         x = num - x
         if shop_data[group_id][str(x)]['user_id'] == 0:  # 这么写为了防止bot.send发送失败，不结算
-            msg += "成功下架物品：{}!\n".format(shop_data[group_id][str(x)]['goods_name'])
+            msg += "成功下架系统物品：{}!\n".format(shop_data[group_id][str(x)]['goods_name'])
             del shop_data[group_id][str(x)]
             save_shop(shop_data)
         else:
             sql_message.send_back(shop_data[group_id][str(x)]['user_id'], shop_data[group_id][str(x)]['goods_id'],
                                   shop_data[group_id][str(x)]['goods_name'],
-                                  shop_data[group_id][str(x)]['goods_type'], 1)
-            msg += "成功下架{}的物品：{}!\n".format(shop_data[group_id][str(x)]['user_name'], shop_data[group_id][str(x)]['goods_name'])
+                                  shop_data[group_id][str(x)]['goods_type'], shop_data[group_id][str(x)]['stock'])
+            msg += "成功下架{}的{}个{}!\n".format(shop_data[group_id][str(x)]['user_name'], shop_data[group_id][str(x)]['stock'], shop_data[group_id][str(x)]['goods_name'])
             del shop_data[group_id][str(x)]
             save_shop(shop_data)
     shop_data[group_id] = reset_dict_num(shop_data[group_id])
