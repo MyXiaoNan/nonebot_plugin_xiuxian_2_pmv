@@ -19,6 +19,8 @@ from nonebot.adapters import MessageSegment
 from nonebot.adapters.onebot.v11 import MessageSegment
 from .data_source import jsondata
 from pathlib import Path
+from base64 import b64encode
+from concurrent.futures import ThreadPoolExecutor
 
 sql_message = XiuxianDateManage()  # sql类
 boss_img_path = Path() / "data" / "xiuxian" / "boss_img"
@@ -230,17 +232,25 @@ class Txt2Img:
                     (int(img_width - boss_img_w), int(img_hight - boss_img_h)),
                     boss_img
                 )
-        return out_img
-
-
-    async def draw_to(self, text, boss_name="", scale=True):
+        if XiuConfig().img_send_type == "io":
+            return out_img
+        elif XiuConfig().img_send_type == "base64":
+            return self.img2b64(out_img)
+     
+    def img2b64(self, out_img) -> str:
+        """ 将图片转换为base64 """
+        buf = BytesIO()
+        out_img.save(buf, format="PNG")
+        base64_str = "base64://" + b64encode(buf.getvalue()).decode()
+        return base64_str
+    
+    async def io_draw_to(self, text, boss_name="", scale=True): # draw_to
         loop = asyncio.get_running_loop()
         out_img = await loop.run_in_executor(None, self.sync_draw_to, text, boss_name, scale)
         return await loop.run_in_executor(None, self.save_image_with_compression, out_img)
-
-
+    
     async def save(self, title, lrc):
-        """保存图片"""
+        """保存图片,涉及title时使用"""
         border_color = (220, 211, 196)
         text_color = (125, 101, 89)
 
@@ -352,17 +362,19 @@ class Txt2Img:
                 fill=text_color,
                 spacing=self.lrc_line_space,
             )
-        buf = BytesIO()
-        if XiuConfig().img_type == "webp":
-            out_img.save(buf, format="WebP")
-        elif XiuConfig().img_type == "jpeg":
-            out_img.save(buf, format="JPEG")
-        else:
-            out_img.save(buf, format="WebP")
-        buf.seek(0)
-        return buf
-    
+        if XiuConfig().img_send_type == "io":
+            buf = BytesIO()
+            if XiuConfig().img_type == "webp":
+                out_img.save(buf, format="WebP")
+            elif XiuConfig().img_type == "jpeg":
+                out_img.save(buf, format="JPEG")
+            buf.seek(0)
+            return buf
+        elif XiuConfig().img_send_type == "base64":
+            return self.img2b64(out_img)
+        
     def save_image_with_compression(self, out_img):
+        """对传入图片进行压缩"""
         img_byte_arr = io.BytesIO()
         compression_quality = 100 - XiuConfig().img_compression_limit # 质量从100到0
         if not (0 <= XiuConfig().img_compression_limit <= 100):
@@ -370,10 +382,8 @@ class Txt2Img:
 
         if XiuConfig().img_type == "webp":
             out_img.save(img_byte_arr, format = "WebP", quality = compression_quality)
-
         elif XiuConfig().img_type == "jpeg":
             out_img.save(img_byte_arr, format = "JPEG", quality = compression_quality)
-
         else:
             out_img.save(img_byte_arr, format = "WebP", quality = compression_quality)
         img_byte_arr.seek(0)
@@ -397,11 +407,14 @@ class Txt2Img:
     
 async def get_msg_pic(msg, boss_name="", scale = True):
     img = Txt2Img()
-    pic = await img.draw_to(msg, boss_name, scale)
+    if XiuConfig().img_send_type == "io":
+        pic = await img.io_draw_to(msg, boss_name, scale)
+    elif XiuConfig().img_send_type == "base64":
+        pic = img.sync_draw_to(msg, boss_name, scale)
     return pic
 
 
-async def send_msg_handler(bot, event, *kwargs):
+async def send_msg_handler(bot, event, *args):
     """
     统一消息发送处理器
     :param bot: 机器人实例
@@ -414,37 +427,42 @@ async def send_msg_handler(bot, event, *kwargs):
     """
 
     if XiuConfig().merge_forward_send:
-        if len(kwargs) == 3:
-            name, uin, msgs = kwargs
+        if len(args) == 3:
+            name, uin, msgs = args
             messages = [{"type": "node", "data": {"name": name, "uin": uin, "content": msg}} for msg in msgs]
             if isinstance(event, GroupMessageEvent):
                 await bot.call_api("send_group_forward_msg", group_id=event.group_id, messages=messages)
             else:
                 await bot.call_api("send_private_forward_msg", user_id=event.user_id, messages=messages)
-        elif len(kwargs) == 1 and isinstance(kwargs[0], list):
-            messages = kwargs[0]
+        elif len(args) == 1 and isinstance(args[0], list):
+            messages = args[0]
             if isinstance(event, GroupMessageEvent):
                 await bot.call_api("send_group_forward_msg", group_id=event.group_id, messages=messages)
             else:
                 await bot.call_api("send_private_forward_msg", user_id=event.user_id, messages=messages)
         else:
             raise ValueError("参数数量或类型不匹配")
-
     else:
-        if len(kwargs) == 3:
-            name, uin, msgs = kwargs
+        if len(args) == 3:
+            name, uin, msgs = args
             img = Txt2Img()
             messages = '\n'.join(msgs)
-            img_data = await img.draw_to(messages)
+            if XiuConfig().img_send_type == "io":
+                img_data = await img.io_draw_to(messages)
+            elif XiuConfig().img_send_type == "base64":
+                img_data = img.sync_draw_to(messages)
             if isinstance(event, GroupMessageEvent):
                 await bot.send_group_msg(group_id=event.group_id, message=MessageSegment.image(img_data))
             else:
                 await bot.send_private_msg(user_id=event.user_id, message=MessageSegment.image(img_data))
-        elif len(kwargs) == 1 and isinstance(kwargs[0], list):
-            messages = kwargs[0]
+        elif len(args) == 1 and isinstance(args[0], list):
+            messages = args[0]
             img = Txt2Img()
             messages = '\n'.join([str(msg['data']['content']) for msg in messages])
-            img_data = await img.draw_to(messages)
+            if XiuConfig().img_send_type == "io":
+                img_data = await img.io_draw_to(messages)
+            elif XiuConfig().img_send_type == "base64":
+                img_data = img.sync_draw_to(messages)
             if isinstance(event, GroupMessageEvent):
                 await bot.send_group_msg(group_id=event.group_id, message=MessageSegment.image(img_data))
             else:

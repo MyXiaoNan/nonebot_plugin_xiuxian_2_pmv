@@ -201,7 +201,7 @@ async def boss_help_(bot: Bot, event: GroupMessageEvent, session_id: int = Comma
         await boss_help.finish()
     else:
         if str(send_group_id) in groups:
-            msg = __boss_help__ + "非指令:1、拥有定时任务:每{}小时{}分钟生成一只随机大境界的世界Boss".format(
+            msg = __boss_help__ + "\n非指令:1、拥有定时任务:每{}小时{}分钟生成一只随机大境界的世界Boss".format(
             groups[str(send_group_id)]["hours"], groups[str(send_group_id)]["minutes"]
             )
         else:
@@ -456,7 +456,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
     else:
         boss_rank = get_user_rank((bossinfo['jj'] + '中期'))[0]
     user_rank = get_user_rank(userinfo['level'])[0]
-    if boss_rank - user_rank >= 12:
+    if boss_rank - user_rank >= 9:
         msg = "道友拿小辈的Boss，可耻！"
         if XiuConfig().img:
             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
@@ -489,7 +489,9 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
         save_user_boss_fight_info(user_id, user_boss_fight_info)
         
         if exp_buff > 0:
-            now_exp = int(((top_user_exp * 0.3) / user_info['exp']) / (exp_buff * (1 / (get_user_rank(user_info['level'])[0] + 1))))
+            now_exp = int(((top_user_exp * 0.1) / user_info['exp']) / (exp_buff * (1 / (get_user_rank(user_info['level'])[0] + 1))))
+            if now_exp > 100000000:
+                now_exp = now_exp ** exp_buff * 500
             sql_message.update_exp(user_id, now_exp)
             exp_msg = "，获得修为{}点！".format(now_exp)
         else:
@@ -497,7 +499,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
             
         msg = f"道友不敌{bossinfo['name']}，重伤逃遁，临逃前收获灵石{get_stone}枚，{more_msg}获得世界积分：{boss_integral}点{exp_msg} "
         if user_info['root'] == "器师" and boss_integral < 0:
-            msg += "\n如果出现负积分，你这器师境界太高了(如果总世界积分为负数，会帮你重置成0)，玩器师就不要那么高境界了！！！"
+            msg += "\n如果出现负积分，说明你境界太高了，玩器师就不要那么高境界了！！！"
         battle_flag[group_id] = False
         try:
             await send_msg_handler(bot, event, result)
@@ -527,7 +529,9 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
         top_user_exp = top_user_info['exp']
         
         if exp_buff > 0:
-            now_exp = int(((top_user_exp * 0.3) / user_info['exp']) / (exp_buff * (1 / (get_user_rank(user_info['level'])[0] + 1))))
+            now_exp = int(((top_user_exp * 0.1) / user_info['exp']) / (exp_buff * (1 / (get_user_rank(user_info['level'])[0] + 1))))
+            if now_exp > 100000000:
+                now_exp = now_exp ** exp_buff * 500
             sql_message.update_exp(user_id, now_exp)
             exp_msg = "，获得修为{}点！".format(now_exp)
         else:
