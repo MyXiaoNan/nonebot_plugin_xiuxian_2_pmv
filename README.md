@@ -51,6 +51,7 @@ pip install -r requirements.txt
 ```
 SUPERUSERS = ["xxxxx"]
 NICKNAME = ["xx"]
+```
 
 5、在xiuxian_config.py中配置好各种选项
 ```
@@ -60,8 +61,6 @@ self.img_compression_limit = 80 # 图片压缩率，0为不压缩，最高100
 self.img_type = "webp" # 图片类型，webp或者jpeg，如果机器人的图片消息不显示请使用jpeg
 self.img_send_type = "io" # 图片发送类型,默认io,官方bot建议base64
 self.third_party_bot = True # 是否是野生机器人，是的话填True，官方bot请填False
-```
-
 ```
 
 5、如解决不了进交流群：[760517008](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=zIKrPPqNStgZnRtuLhiOv9woBQSMQurq&authKey=Nrqm0zDxYKP2Fon2MskbNRmZ588Rqm79lJvQyVYWtkh9vDFK1RGBK0UhqzehVyDw&noverify=0&group_code=760517008) 提问，提问请贴上完整的日志
