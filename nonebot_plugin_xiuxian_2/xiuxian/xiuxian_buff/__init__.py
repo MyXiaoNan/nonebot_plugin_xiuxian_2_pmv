@@ -33,7 +33,7 @@ cache_help = {}
 sql_message = XiuxianDateManage()  # sql类
 xiuxian_impart = XIUXIAN_IMPART_BUFF()
 BLESSEDSPOTCOST = 3500000
-two_exp_limit = 3 # 默认双修次数上限
+two_exp_limit = 3 # 默认双修次数上限，修仙之人一天3次也不奇怪（
 
 two_exp_cd_up = require("nonebot_plugin_apscheduler").scheduler
 
@@ -93,7 +93,7 @@ async def buff_help_(bot: Bot, event: GroupMessageEvent, session_id: int = Comma
 
 @blessed_spot_creat.handle(parameterless=[Cooldown(at_sender=False)])
 async def blessed_spot_creat_(bot: Bot, event: GroupMessageEvent):
-    """洞天福地开启"""
+    """洞天福地购买"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = check_user(event)
     if not isUser:
@@ -126,7 +126,9 @@ async def blessed_spot_creat_(bot: Bot, event: GroupMessageEvent):
         mix_elixir_info = get_player_info(user_id, "mix_elixir_info")
         mix_elixir_info['收取时间'] = str(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
         save_player_info(user_id, mix_elixir_info, 'mix_elixir_info')
-        msg = f"恭喜道友拥有了自己的洞天福地，请收集聚灵旗来提升洞天福地的等级吧~"
+        msg = f"恭喜道友拥有了自己的洞天福地，请收集聚灵旗来提升洞天福地的等级吧~\n"
+        msg += "默认名称为：{}道友的家".format(user_info['user_name'])
+        sql_message.update_user_blessed_spot_name(user_id, "{}道友的家".format(user_info['user_name']))
         if XiuConfig().img:
             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
