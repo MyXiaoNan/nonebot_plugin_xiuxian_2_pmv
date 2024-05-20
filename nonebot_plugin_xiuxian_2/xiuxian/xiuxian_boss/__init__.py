@@ -26,7 +26,7 @@ from ..xiuxian_utils.xiuxian2_handle import (
     XiuxianDateManage ,OtherSet, UserBuffDate,
     XIUXIAN_IMPART_BUFF, leave_harm_time
 )
-from ..xiuxian_config import get_user_rank, XiuConfig
+from ..xiuxian_config import get_user_rank, XiuConfig, JsonConfig
 from .makeboss import createboss, createboss_jj
 from .bossconfig import get_boss_config, savef_boss
 from .old_boss_info import old_boss_info
@@ -43,6 +43,7 @@ from .. import DRIVER
 require('nonebot_plugin_apscheduler')
 from nonebot_plugin_apscheduler import scheduler
 
+conf_data = JsonConfig().read_data()
 config = get_boss_config()
 cache_help = {}
 del_boss_id = XiuConfig().del_boss_id
@@ -145,6 +146,9 @@ async def send_bot(group_id:str):
 
     if group_id not in groups:
         return     
+    
+    if group_id not in conf_data["group"]:
+        return
 
     if len(group_boss[group_id]) >= config['Boss个数上限']:
         logger.opt(colors=True).info(f"<green>群{group_id}Boss个数已到达个数上限</green>")
@@ -491,7 +495,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
         if exp_buff > 0:
             now_exp = int(((top_user_exp * 0.1) / user_info['exp']) / (exp_buff * (1 / (get_user_rank(user_info['level'])[0] + 1))))
             if now_exp > 100000000:
-                now_exp = now_exp ** exp_buff * 500
+                now_exp = now_exp ** exp_buff * random.randint(100, 1000)
             sql_message.update_exp(user_id, now_exp)
             exp_msg = "，获得修为{}点！".format(now_exp)
         else:
@@ -531,7 +535,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
         if exp_buff > 0:
             now_exp = int(((top_user_exp * 0.1) / user_info['exp']) / (exp_buff * (1 / (get_user_rank(user_info['level'])[0] + 1))))
             if now_exp > 100000000:
-                now_exp = now_exp ** exp_buff * 500
+                now_exp = now_exp ** exp_buff * random.randint(100, 1000)
             sql_message.update_exp(user_id, now_exp)
             exp_msg = "，获得修为{}点！".format(now_exp)
         else:

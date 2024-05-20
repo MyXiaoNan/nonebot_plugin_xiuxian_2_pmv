@@ -65,13 +65,11 @@ async def read_rift_():
     group_rift.update(old_rift_info.read_rift_info())
     logger.opt(colors=True).info("<green>历史rift数据读取成功</green>")
 
-
 @DRIVER.on_shutdown
 async def save_rift_():
     global group_rift
     old_rift_info.save_rift(group_rift)
     logger.opt(colors=True).info("<green>rift数据已保存</green>")
-
 
 # 定时任务生成群秘境
 @set_rift.scheduled_job("cron", hour=8, minute=0)
