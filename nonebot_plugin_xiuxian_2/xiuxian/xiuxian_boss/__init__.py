@@ -492,12 +492,12 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
         top_user_exp = top_user_info['exp']
         save_user_boss_fight_info(user_id, user_boss_fight_info)
         
-        if exp_buff > 0:
+        if exp_buff > 0 and user_info['root'] != "器师":
             now_exp = int(((top_user_exp * 0.1) / user_info['exp']) / (exp_buff * (1 / (get_user_rank(user_info['level'])[0] + 1))))
-            if now_exp > 100000000:
-                now_exp = int(now_exp ** exp_buff / random.randint(10, 100))
+            if now_exp > 9000000:
+                now_exp = int(now_exp ** exp_buff / random.randint(100, 1000))
             sql_message.update_exp(user_id, now_exp)
-            exp_msg = "，获得修为{}点！".format(now_exp)
+            exp_msg = "，获得修为{}点！".format(int(now_exp))
         else:
             exp_msg =" "
             
@@ -532,12 +532,12 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
         top_user_info = sql_message.get_top1_user()
         top_user_exp = top_user_info['exp']
         
-        if exp_buff > 0:
+        if exp_buff > 0 and user_info['root'] != "器师":
             now_exp = int(((top_user_exp * 0.1) / user_info['exp']) / (exp_buff * (1 / (get_user_rank(user_info['level'])[0] + 1))))
-            if now_exp > 100000000:
-                now_exp = int(now_exp ** exp_buff / random.randint(10, 100))
+            if now_exp > 9000000:
+                now_exp = int(now_exp ** exp_buff / random.randint(100, 1000))
             sql_message.update_exp(user_id, now_exp)
-            exp_msg = "，获得修为{}点！".format(now_exp)
+            exp_msg = "，获得修为{}点！".format(int(now_exp))
         else:
             exp_msg =" "
                 
