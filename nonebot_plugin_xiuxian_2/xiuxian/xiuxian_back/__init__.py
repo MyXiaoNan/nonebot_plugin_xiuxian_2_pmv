@@ -100,9 +100,9 @@ async def reset_day_num_scheduler_():
 # 定时任务生成拍卖会
 @set_auction_by_scheduler.scheduled_job("cron", hour=auction_time_config['hours'], minute=auction_time_config['minutes'])
 async def set_auction_by_scheduler_():
+    global auction, auction_offer_flag, auction_offer_all_count, auction_offer_time_count
     if groups:
-        global auction
-        if auction != {}:  # 存在拍卖会
+        if auction:
             logger.opt(colors=True).info("<green>本群已存在一场拍卖会，已清除！</green>")
             auction = {}
 
@@ -148,30 +148,40 @@ async def set_auction_by_scheduler_():
         auction_info = items.get_data_by_item_id(auction_id)
         start_price = get_auction_price_by_id(auction_id)['start_price']
 
-        auction['id'] = auction_id
-        auction['user_id'] = 0
-        auction['now_price'] = start_price
-        auction['name'] = auction_info['name']
-        auction['type'] = auction_info['type']
-        auction['quantity'] = item_quantity
-        auction['start_time'] = datetime.now()
-        auction['group_id'] = group_id
+        auction = {
+            'id': auction_id,
+            'user_id': 0,
+            'now_price': start_price,
+            'name': auction_info['name'],
+            'type': auction_info['type'],
+            'quantity': item_quantity,
+            'start_time': datetime.now(),
+            'group_id': 0
+        }
 
         remaining_items = len(auction_items) - (i + 1)
         
         if i + 1 == len(auction_items):
-            msg = "最后一件拍卖品为：\n{}\n".format(get_auction_msg(auction_id))
+            msg = "最后一件拍卖品为：\n{}\n".format(
+                get_auction_msg(auction_id)
+                )
         else:
-            msg = "第{}件拍卖品为：\n{}\n".format(i + 1, get_auction_msg(auction_id))
-        msg += "\n底价为 {} 灵石，加价不少于 {} 灵石".format(start_price, int(start_price * 0.05))
+            msg = "第{}件拍卖品为：\n{}\n".format(
+                i + 1, get_auction_msg(auction_id)
+                )
+        msg += "\n底价为 {}，加价不少于 {}".format(
+            start_price, int(start_price * 0.05)
+            )
         msg += "\n竞拍时间为:{}秒，请诸位道友发送 拍卖+金额 来进行拍卖吧！".format(AUCTIONSLEEPTIME)
 
         if auction['quantity'] > 1:
-            msg += f"\n注意：拍卖的是单件价格，共 {auction['quantity']} 件。最终价格价为 {auction['quantity']} * 您出的价。\n"
-        
+            msg += "\n注意：拍卖的是单件价格，共{}件，最终价格价为{} * 拍卖成交价。\n".format(
+                auction['quantity'], auction['quantity']
+            )
+
         if i + 1 < len(auction_items):
             next_item_name = items.get_data_by_item_id(auction_items[i + 1][0])['name']
-            msg += f"\n下一件拍卖品为：{next_item_name}，请心仪的道友提前开始准备吧！"
+            msg += "\n下一件拍卖品为：{}，请心仪的道友提前开始准备吧！".format(next_item_name)
 
         for gid in groups:
             bot = await assign_bot_group(group_id=gid)
@@ -185,11 +195,11 @@ async def set_auction_by_scheduler_():
                 continue
 
         warning_messages = [
-    "拍卖即将结束，最后30秒了，抓紧时间出价！",
-    "最后的30秒倒计时，还有没有道友要竞价？",
-    "剩余30秒，拍卖即将结束，请抓紧时间！",
-    "拍卖即将结束，最后的30秒，赶快出价吧！"
-]
+            "拍卖即将结束，最后30秒了，抓紧时间出价！",
+            "最后的30秒倒计时，还有没有道友要竞价？",
+            "剩余30秒，拍卖即将结束，请抓紧时间！",
+            "拍卖即将结束，最后的30秒，赶快出价吧！"
+        ]       
         remaining_time = AUCTIONSLEEPTIME
         while remaining_time > 0:
             await asyncio.sleep(10)
@@ -207,26 +217,38 @@ async def set_auction_by_scheduler_():
                         except ActionFailed:  # 发送群消息失败
                             continue
 
-        global auction_offer_flag, auction_offer_all_count, auction_offer_time_count
         while auction_offer_flag:  # 有人拍卖
             if auction_offer_all_count == 0:
                 auction_offer_flag = False
                 break
 
-            logger.opt(colors=True).info(f"<green>有人拍卖，本次等待时间：{auction_offer_all_count * AUCTIONOFFERSLEEPTIME}秒</green>")
+            logger.opt(colors=True).info("<green>有人拍卖，本次等待时间：{}秒</green>".format(
+                auction_offer_all_count * AUCTIONOFFERSLEEPTIME
+                )
+            )
             first_time = auction_offer_all_count * AUCTIONOFFERSLEEPTIME
             auction_offer_all_count = 0
             auction_offer_flag = False
             await asyncio.sleep(first_time)
             logger.opt(colors=True).info(
-                f"<green>总计等待时间{auction_offer_time_count * AUCTIONOFFERSLEEPTIME}秒，当前拍卖标志：{auction_offer_flag}，本轮等待时间：{first_time}</green>")
+                "<green>总计等待时间{}秒，当前拍卖标志：{}，本轮等待时间：{}</green>".format(
+                    auction_offer_time_count * AUCTIONOFFERSLEEPTIME, auction_offer_flag, first_time
+                )
+            )
 
-        logger.opt(colors=True).info(f"<green>等待时间结束，总计等待时间{auction_offer_time_count * AUCTIONOFFERSLEEPTIME}秒</green>")
+        logger.opt(colors=True).info("<green>等待时间结束，总计等待时间{}秒</green>".format(
+            auction_offer_time_count * AUCTIONOFFERSLEEPTIME
+            )
+        )
         if auction['user_id'] == 0:
             if i + 1 == len(auction_ids):
-                msg = f"很可惜，{auction['name']}流拍了，拍卖会到此结束。\n拍卖会结束，开始整理拍卖结果，感谢各位道友的参与！"
+                msg = "很可惜，{}流拍了，拍卖会到此结束。\n拍卖会结束，开始整理拍卖结果，感谢各位道友的参与！".format(
+                    auction['name']
+                )
             else:
-                msg = f"很可惜，{auction['name']}流拍了，让我们来看下一个拍卖品"
+                msg = "很可惜，{}流拍了，让我们来看下一个拍卖品".format(
+                    auction['name']
+                )
                 
             for gid in groups:
                 bot = await assign_bot_group(group_id=gid)
@@ -251,9 +273,10 @@ async def set_auction_by_scheduler_():
         if i + 1 == len(auction_ids):
             msg += ""
         else:
-            msg += f"第{i + 1}件拍卖品拍卖结束，下一件物品拍卖即将开始！"
+            msg += "第{}件拍卖品拍卖结束，下一件物品拍卖即将开始！".format(i + 1)
+
         if remaining_items > 0:
-            msg += f"\n距离拍卖会结束还剩 {remaining_items} 件拍卖品。"
+            msg += "\n距离拍卖会结束还有 {} 件拍卖品。".format(remaining_items)
 
         auction_results.append((auction_id, user_info['user_id'], auction['group_id'], 
                                 auction_info['type'], auction['now_price'], auction['quantity']))
@@ -1323,6 +1346,7 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
 
 @creat_auction.handle(parameterless=[Cooldown(at_sender=False)])
 async def creat_auction_(bot: Bot, event: GroupMessageEvent):
+    global auction, auction_offer_flag, auction_offer_all_count, auction_offer_time_count
     group_id = str(event.group_id)
     bot = await assign_bot_group(group_id=group_id)
     isUser, user_info, msg = check_user(event)
@@ -1343,8 +1367,7 @@ async def creat_auction_(bot: Bot, event: GroupMessageEvent):
             await bot.send_group_msg(group_id=int(group_id), message=msg)
         await creat_auction.finish()
 
-    global auction
-    if auction != {}:
+    if auction:
         msg = "本群已存在一场拍卖会，请等待拍卖会结束！"
         if XiuConfig().img:
             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
@@ -1398,30 +1421,40 @@ async def creat_auction_(bot: Bot, event: GroupMessageEvent):
         auction_info = items.get_data_by_item_id(auction_id)
         start_price = get_auction_price_by_id(auction_id)['start_price']
 
-        auction['id'] = auction_id
-        auction['user_id'] = 0
-        auction['now_price'] = start_price
-        auction['name'] = auction_info['name']
-        auction['type'] = auction_info['type']
-        auction['quantity'] = item_quantity
-        auction['start_time'] = datetime.now()
-        auction['group_id'] = group_id
+        auction = {
+            'id': auction_id,
+            'user_id': 0,
+            'now_price': start_price,
+            'name': auction_info['name'],
+            'type': auction_info['type'],
+            'quantity': item_quantity,
+            'start_time': datetime.now(),
+            'group_id': group_id
+        }
 
         remaining_items = len(auction_items) - (i + 1)
         
         if i + 1 == len(auction_items):
-            msg = "最后一件拍卖品为：\n{}\n".format(get_auction_msg(auction_id))
+            msg = "最后一件拍卖品为：\n{}\n".format(
+                get_auction_msg(auction_id)
+                )
         else:
-            msg = "第{}件拍卖品为：\n{}\n".format(i + 1, get_auction_msg(auction_id))
-        msg += "\n底价为 {} 灵石，加价不少于 {} 灵石".format(start_price, int(start_price * 0.05))
+            msg = "第{}件拍卖品为：\n{}\n".format(
+                i + 1, get_auction_msg(auction_id)
+                )
+        msg += "\n底价为 {}，加价不少于 {}".format(
+            start_price, int(start_price * 0.05)
+            )
         msg += "\n竞拍时间为:{}秒，请诸位道友发送 拍卖+金额 来进行拍卖吧！".format(AUCTIONSLEEPTIME)
 
         if auction['quantity'] > 1:
-            msg += f"\n注意：拍卖的是单件价格，共 {auction['quantity']} 件，最终价格价为 {auction['quantity']} * 您出的价。\n"
+            msg += "\n注意：拍卖的是单件价格，共{}件，最终价格价为{} * 拍卖成交价。\n".format(
+                auction['quantity'], auction['quantity']
+            )
 
         if i + 1 < len(auction_items):
             next_item_name = items.get_data_by_item_id(auction_items[i + 1][0])['name']
-            msg += f"\n下一件拍卖品为：{next_item_name}，请心仪的道友提前开始准备吧！"
+            msg += "\n下一件拍卖品为：{}，请心仪的道友提前开始准备吧！".format(next_item_name)
 
         for gid in groups:
             bot = await assign_bot_group(group_id=gid)
@@ -1435,11 +1468,11 @@ async def creat_auction_(bot: Bot, event: GroupMessageEvent):
                 continue
 
         warning_messages = [
-    "拍卖即将结束，最后30秒了，抓紧时间出价！",
-    "最后的30秒倒计时，还有没有道友要竞价？",
-    "剩余30秒，拍卖即将结束，请抓紧时间！",
-    "拍卖即将结束，最后的30秒，赶快出价吧！"
-]
+            "拍卖即将结束，最后30秒了，抓紧时间出价！",
+            "最后的30秒倒计时，还有没有道友要竞价？",
+            "剩余30秒，拍卖即将结束，请抓紧时间！",
+            "拍卖即将结束，最后的30秒，赶快出价吧！"
+        ]
         remaining_time = AUCTIONSLEEPTIME
         while remaining_time > 0:
             await asyncio.sleep(10)
@@ -1457,26 +1490,38 @@ async def creat_auction_(bot: Bot, event: GroupMessageEvent):
                         except ActionFailed:  # 发送群消息失败
                             continue
 
-        global auction_offer_flag, auction_offer_time_count, auction_offer_all_count
         while auction_offer_flag:  # 有人拍卖
             if auction_offer_all_count == 0:
                 auction_offer_flag = False
                 break
 
-            logger.opt(colors=True).info(f"<green>有人拍卖，本次等待时间：{auction_offer_all_count * AUCTIONOFFERSLEEPTIME}秒</green>")
+            logger.opt(colors=True).info("<green>有人拍卖，本次等待时间：{}秒</green>".format(
+                auction_offer_all_count * AUCTIONOFFERSLEEPTIME
+                )
+            )
             first_time = auction_offer_all_count * AUCTIONOFFERSLEEPTIME
             auction_offer_all_count = 0
             auction_offer_flag = False
             await asyncio.sleep(first_time)
             logger.opt(colors=True).info(
-                f"<green>总计等待时间{auction_offer_time_count * AUCTIONOFFERSLEEPTIME}秒，当前拍卖标志：{auction_offer_flag}，本轮等待时间：{first_time}</green>")
+                "<green>总计等待时间{}秒，当前拍卖标志：{}，本轮等待时间：{}</green>".format(
+                    auction_offer_time_count * AUCTIONOFFERSLEEPTIME, auction_offer_flag, first_time
+                )
+            )
 
-        logger.opt(colors=True).info(f"<green>等待时间结束，总计等待时间{auction_offer_time_count * AUCTIONOFFERSLEEPTIME}秒</green>")
+        logger.opt(colors=True).info("<green>等待时间结束，总计等待时间{}秒</green>".format(
+            auction_offer_time_count * AUCTIONOFFERSLEEPTIME
+            )
+        )
         if auction['user_id'] == 0:
             if i + 1 == len(auction_ids):
-                msg = f"很可惜，{auction['name']}流拍了，拍卖会到此结束。\n拍卖会结束，开始整理拍卖结果，感谢各位道友的参与！"
+                msg = "很可惜，{}流拍了，拍卖会到此结束。\n拍卖会结束，开始整理拍卖结果，感谢各位道友的参与！".format(
+                    auction['name']
+                )
             else:
-                msg = f"很可惜，{auction['name']}流拍了，让我们来看下一个拍卖品"
+                msg = "很可惜，{}流拍了，让我们来看下一个拍卖品".format(
+                    auction['name']
+                )
 
             for gid in groups:
                 bot = await assign_bot_group(group_id=gid)
@@ -1501,10 +1546,10 @@ async def creat_auction_(bot: Bot, event: GroupMessageEvent):
         if i + 1 == len(auction_ids):
             msg += ""
         else:
-            msg += f"第{i + 1}件拍卖品拍卖结束，下一件物品拍卖即将开始！"
+            msg += "第{}件拍卖品拍卖结束，下一件物品拍卖即将开始！".format(i + 1)
 
         if remaining_items > 0:
-            msg += f"\n距离拍卖会结束还剩 {remaining_items} 件拍卖品。"
+            msg += "\n距离拍卖会结束还有 {} 件拍卖品。".format(remaining_items)
 
         auction_results.append((auction_id, user_info['user_id'], auction['group_id'], 
                                 auction_info['type'], auction['now_price'], auction['quantity']))
@@ -1578,7 +1623,7 @@ async def offer_auction_(bot: Bot, event: GroupMessageEvent, args: Message = Com
         await creat_auction.finish()
 
     global auction
-    if auction == {}:
+    if not auction:
         msg = "本群不存在拍卖会，请等待拍卖会开启！"
         if XiuConfig().img:
             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
@@ -1630,12 +1675,13 @@ async def offer_auction_(bot: Bot, event: GroupMessageEvent, args: Message = Com
     logger.opt(colors=True).info("<green>{}({})竞价了！！</green>".format(user_info['user_name'], auction['user_id']))
 
     now_time = datetime.now()
-    dif_time = OtherSet().date_diff(now_time, auction['start_time'])
+    dif_time = (now_time - auction['start_time']).total_seconds()
+    remaining_time = int(AUCTIONSLEEPTIME - dif_time + AUCTIONOFFERSLEEPTIME * auction_offer_time_count)
     msg = (
-        "来自群{}的{}道友拍卖：{}枚灵石！".format(group_id, user_info['user_name'], price) + 
+        "来自群{}的{}道友拍卖：{}枚灵石！".format(group_id, user_info['user_name'], price) +
         "竞拍时间增加：{}秒，竞拍剩余时间：{}秒".format(
-            AUCTIONOFFERSLEEPTIME, int(AUCTIONSLEEPTIME - dif_time + AUCTIONOFFERSLEEPTIME * auction_offer_time_count)
-            )
+            AUCTIONOFFERSLEEPTIME, remaining_time
+        )
     )
     error_msg = None
     for group_id in groups:
@@ -1650,7 +1696,9 @@ async def offer_auction_(bot: Bot, event: GroupMessageEvent, args: Message = Com
             error_msg = "消息发送失败，可能被风控，当前拍卖物品金额为：{}！".format(auction['now_price'])
             continue
     logger.opt(colors=True).info(
-        "<green>有人拍卖，拍卖标志：{}，当前等待时间：{}，总计拍卖次数：{}</green>".format(auction_offer_flag, auction_offer_all_count * AUCTIONOFFERSLEEPTIME, auction_offer_time_count))
+        "<green>有人拍卖，拍卖标志：{}，当前等待时间：{}，总计拍卖次数：{}</green>".format(
+            auction_offer_flag, auction_offer_all_count * AUCTIONOFFERSLEEPTIME, auction_offer_time_count)
+            )
     if error_msg is None:
         await offer_auction.finish()
     else:
