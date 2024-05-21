@@ -276,7 +276,7 @@ async def set_auction_by_scheduler_():
             msg += "第{}件拍卖品拍卖结束，下一件物品拍卖即将开始！".format(i + 1)
 
         if remaining_items > 0:
-            msg += "\n距离拍卖会结束还有 {} 件拍卖品。".format(remaining_items)
+            msg += "\n距离拍卖会结束还有{}件拍卖品。".format(remaining_items)
 
         auction_results.append((auction_id, user_info['user_id'], auction['group_id'], 
                                 auction_info['type'], auction['now_price'], auction['quantity']))
@@ -304,7 +304,7 @@ async def set_auction_by_scheduler_():
         if user_id:
             sql_message.update_ls(user_id, int(final_price) * quantity, 2)
             sql_message.send_back(user_id, auction_id, item_name, item_type, quantity)
-            end_msg += "{}号拍卖品：{}x{} 由群{}的{}道友成功拍下\n".format(
+            end_msg += "{}号拍卖品：{}x{}由群{}的{}道友成功拍下\n".format(
                 idx + 1, item_name, quantity, group_id, final_user_info['user_name']
             )     
             auction = {}
@@ -324,6 +324,8 @@ async def set_auction_by_scheduler_():
                 await bot.send_group_msg(group_id=int(gid), message=end_msg)
         except ActionFailed:  # 发送群消息失败
             continue
+
+    return
 
 
 @back_help.handle(parameterless=[Cooldown(at_sender=False)])
@@ -1442,7 +1444,7 @@ async def creat_auction_(bot: Bot, event: GroupMessageEvent):
             msg = "第{}件拍卖品为：\n{}\n".format(
                 i + 1, get_auction_msg(auction_id)
                 )
-        msg += "\n底价为 {}，加价不少于 {}".format(
+        msg += "\n底价为{}，加价不少于{}".format(
             start_price, int(start_price * 0.05)
             )
         msg += "\n竞拍时间为:{}秒，请诸位道友发送 拍卖+金额 来进行拍卖吧！".format(AUCTIONSLEEPTIME)
@@ -1549,7 +1551,7 @@ async def creat_auction_(bot: Bot, event: GroupMessageEvent):
             msg += "第{}件拍卖品拍卖结束，下一件物品拍卖即将开始！".format(i + 1)
 
         if remaining_items > 0:
-            msg += "\n距离拍卖会结束还有 {} 件拍卖品。".format(remaining_items)
+            msg += "\n距离拍卖会结束还有{}件拍卖品。".format(remaining_items)
 
         auction_results.append((auction_id, user_info['user_id'], auction['group_id'], 
                                 auction_info['type'], auction['now_price'], auction['quantity']))
@@ -1576,7 +1578,7 @@ async def creat_auction_(bot: Bot, event: GroupMessageEvent):
         if user_id:
             sql_message.update_ls(user_id, int(final_price) * quantity, 2)
             sql_message.send_back(user_id, auction_id, item_name, item_type, quantity)  # 使用保存的数量
-            end_msg += "{}号拍卖品：{}x{} 由群{}的{}道友成功拍下\n".format(
+            end_msg += "{}号拍卖品：{}x{}由群{}的{}道友成功拍下\n".format(
                 idx + 1, item_name, quantity, group_id, final_user_info['user_name']
             )     
             auction = {}
