@@ -292,7 +292,7 @@ async def level_help_(bot: Bot, event: GroupMessageEvent, session_id: int = Comm
         await level_help.finish()
 
 
-@restart.handle(parameterless=[Cooldown(10, at_sender=False)])
+@restart.handle(parameterless=[Cooldown(at_sender=False)])
 async def restart_(bot: Bot, event: GroupMessageEvent, state: T_State):
     """刷新灵根信息"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)

@@ -134,7 +134,9 @@ async def set_boss_():
                 args=[group_id],
                 misfire_grace_time=10
             )
-            logger.opt(colors=True).success("<green>开启群{}boss,每{}小时{}分钟刷新！</green>".format(group_id, groups[str(group_id)]['hours'], groups[str(group_id)]['minutes']))
+            logger.opt(colors=True).success("<green>开启群{}boss,每{}小时{}分钟刷新！</green>".format(
+                group_id, groups[str(group_id)]['hours'], groups[str(group_id)]['minutes'])
+                )
     except Exception as e:
         logger.opt(colors=True).warning(f"<red>警告,定时群boss加载失败!,{e}!</red>")
 
@@ -287,6 +289,7 @@ async def boss_delete_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
         await bot.send_group_msg(group_id=int(send_group_id), message=msg)
     await boss_delete.finish()
 
+
 @boss_delete_all.handle(parameterless=[Cooldown(at_sender=False)])
 async def boss_delete_all_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """天罚全部世界boss"""
@@ -430,8 +433,6 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
     user1_sub_buff_data = UserBuffDate(userinfo['user_id']).get_user_sub_buff_data() #boss战辅修功法信息
     integral_buff = user1_sub_buff_data['integral'] if user1_sub_buff_data is not None else 0
     exp_buff = user1_sub_buff_data['exp'] if user1_sub_buff_data is not None else 0
-    
-    
     
     if  user_main_data != None: #boss战功法会心
         main_crit_buff = user_main_data['crit_buff']
