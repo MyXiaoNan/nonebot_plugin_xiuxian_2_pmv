@@ -305,6 +305,15 @@ async def restart_(bot: Bot, event: GroupMessageEvent, state: T_State):
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await restart.finish()
 
+    if user_info['stone'] < XiuConfig().remake:
+        msg = "你的灵石还不够呢，快去赚点灵石吧！"
+        if XiuConfig().img:
+            pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+        else:
+            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await restart.finish()
+
     state["user_id"] = user_info['user_id']  # 将用户信息存储在状态中
 
     linggen_options = []
@@ -340,7 +349,6 @@ async def handle_user_choice(bot: Bot, event: GroupMessageEvent, state: T_State)
         msg = "输入有误，帮你自动选择最佳灵根了嗷！\n"
 
     msg += sql_message.ramaker(selected_name, selected_root_type, user_id)
-    sql_message.update_power2(user_id)  # 更新战力
 
     try:
         if XiuConfig().img:

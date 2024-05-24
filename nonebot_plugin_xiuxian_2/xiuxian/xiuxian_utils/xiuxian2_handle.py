@@ -330,20 +330,12 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
     def ramaker(self, lg, type, user_id):
         """洗灵根"""
         cur = self.conn.cursor()
+        sql = "UPDATE user_xiuxian SET root=?,root_type=?,stone=stone-? WHERE user_id=?"
+        cur.execute(sql, (lg, type, XiuConfig().remake, user_id))
+        self.conn.commit()
 
-        # 查灵石
-        sql_s = "SELECT stone FROM user_xiuxian WHERE user_id=?"
-        cur.execute(sql_s, (user_id,))
-        result = cur.fetchone()
-        if result[0] >= XiuConfig().remake:
-            sql = "UPDATE user_xiuxian SET root=?,root_type=?,stone=stone-? WHERE user_id=?"
-            cur.execute(sql, (lg, type, XiuConfig().remake, user_id))
-            self.conn.commit()
-
-            self.update_power2(user_id) # 更新战力
-            return "逆天之行，重获新生，新的灵根为：{}，类型为：{}".format(lg, type)
-        else:
-            return "但是你的灵石还不够呢，快去赚点灵石吧！"
+        self.update_power2(user_id) # 更新战力
+        return "逆天之行，重获新生，新的灵根为：{}，类型为：{}".format(lg, type)
 
     def get_root_rate(self, name):
         """获取灵根倍率"""
