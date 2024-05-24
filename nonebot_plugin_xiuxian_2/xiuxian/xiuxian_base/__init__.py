@@ -337,7 +337,6 @@ async def handle_user_choice(bot: Bot, event: GroupMessageEvent, state: T_State)
     user_choice = event.get_plaintext().strip()
     linggen_options = state["linggen_options"]
     user_id = state["user_id"]  # 从状态中获取用户ID
-
     selected_name, selected_root_type = max(linggen_options, key=lambda x: jsondata.root_data()[x[1]]["type_speeds"])
 
     if user_choice.isdigit(): # 判断数字
