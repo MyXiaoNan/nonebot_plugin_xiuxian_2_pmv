@@ -56,86 +56,72 @@ async def check_mix(elixir_config):
 async def get_mix_elixir_msg(yaocai):
     mix_elixir_msg = {}
     num = 0
-    for k, v in yaocai.items():  # 这里是用户所有的药材dict
-        i = 1
-        while i <= v['num'] and i <= 5:  # 尝试第一个药材为主药
-            # _zhuyao = v['主药']['h_a_c']['type'] * v['主药']['h_a_c']['power'] * i
+    
+    # 药材类型字典
+    yaocai_by_type = {}
+    for k, v in yaocai.items():
+        yaocai_by_type.setdefault(v['type'], []).append((k, v))
+    
+    for k, v in yaocai.items():
+        for i in range(1, min(v['num'], 5) + 1):  # 尝试第一个药材为主药
             for kk, vv in yaocai.items():
                 if kk == k:  # 相同的药材不能同时做药引
                     continue
-                o = 1
-                while o <= vv['num'] and o <= 5:
-                    # _yaoyin = vv['药引']['h_a_c']['type'] * vv['药引']['h_a_c']['power'] * o
+                for o in range(1, min(vv['num'], 5) + 1):
                     if await tiaohe(v, i, vv, o):  # 调和失败
-                        # if await absolute(_zhuyao + _yaoyin) > yonhudenji:#调和失败
-                        o += 1
                         continue
-                    else:
-                        elixir_config = {}
-                        zhuyao_type = str(v['主药']['type'])
-                        zhuyao_power = v['主药']['power'] * i
-                        elixir_config[zhuyao_type] = zhuyao_power
-                        for kkk, vvv in yaocai.items():
-                            p = 1
-                            # 尝试加入辅药
-                            while p <= vvv['num'] and p <= 5:
-                                fuyao_type = str(vvv['辅药']['type'])
-                                fuyao_power = vvv['辅药']['power'] * p
-                                elixir_config = {}
-                                zhuyao_type = str(v['主药']['type'])
-                                zhuyao_power = v['主药']['power'] * i
-                                elixir_config[zhuyao_type] = zhuyao_power
-                                elixir_config[fuyao_type] = fuyao_power     
-                                is_mix, id_ = await check_mix(elixir_config)
-                                if is_mix:  # 有可以合成的
-                                    if i + o + p <= Llandudno_info["max_num"]:
-
-                                        mix_elixir_msg[num] = {}
-                                        mix_elixir_msg[num]['id'] = id_
-                                        mix_elixir_msg[num]['配方'] = elixir_config
-                                        mix_elixir_msg[num][
-                                            '配方简写'] = f"主药{v['name']}{i}药引{vv['name']}{o}辅药{vvv['name']}{p}"
-                                        mix_elixir_msg[num]['主药'] = v['name']
-                                        mix_elixir_msg[num]['主药_num'] = i
-                                        mix_elixir_msg[num]['主药_level'] = v['level']
-                                        mix_elixir_msg[num]['药引'] = vv['name']
-                                        mix_elixir_msg[num]['药引_num'] = o
-                                        mix_elixir_msg[num]['药引_level'] = vv['level']
-                                        mix_elixir_msg[num]['辅药'] = vvv['name']
-                                        mix_elixir_msg[num]['辅药_num'] = p
-                                        mix_elixir_msg[num]['辅药_level'] = vvv['level']
-                                        num += 1
-                                        p += 1
-                                        continue
-                                    else:
-                                        p += 1
-                                        continue
-                                else:
-                                    p += 1
-                                    continue
-                            continue
-                    o += 1
-            i += 1
+                    zhuyao_type = str(v['主药']['type'])
+                    zhuyao_power = v['主药']['power'] * i
+                    elixir_config = {zhuyao_type: zhuyao_power}
+                    
+                    for kkk, vvv in yaocai.items():
+                        for p in range(1, min(vvv['num'], 5) + 1):
+                            fuyao_type = str(vvv['辅药']['type'])
+                            fuyao_power = vvv['辅药']['power'] * p
+                            elixir_config[fuyao_type] = fuyao_power
+                            
+                            is_mix, id_ = await check_mix(elixir_config)
+                            if is_mix and i + o + p <= Llandudno_info["max_num"]:  # 有可以合成的
+                                mix_elixir_msg[num] = {
+                                    'id': id_,
+                                    '配方': elixir_config.copy(),  # 复制字典
+                                    '配方简写': f"主药{v['name']}{i}药引{vv['name']}{o}辅药{vvv['name']}{p}",
+                                    '主药': v['name'],
+                                    '主药_num': i,
+                                    '主药_level': v['level'],
+                                    '药引': vv['name'],
+                                    '药引_num': o,
+                                    '药引_level': vv['level'],
+                                    '辅药': vvv['name'],
+                                    '辅药_num': p,
+                                    '辅药_level': vvv['level']
+                                }
+                                num += 1
+                                
+                            if fuyao_type in elixir_config:
+                                del elixir_config[fuyao_type]  # 清除辅药
+                                
+                    if zhuyao_type in elixir_config:
+                        del elixir_config[zhuyao_type]  # 清除主药
+                    
     temp_dict = {}
-    temp_id_list = []
+    temp_id_list = set()
     finall_mix_elixir_msg = {}
-    if mix_elixir_msg == {}:
+    
+    if not mix_elixir_msg:
         return finall_mix_elixir_msg
-    for k, v in mix_elixir_msg.items():
-        temp_id_list.append(v['id'])
-    temp_id_list = set(temp_id_list)
+    
+    for v in mix_elixir_msg.values():
+        temp_id_list.add(v['id'])
+    
     for id_ in temp_id_list:
         temp_dict[id_] = {}
         for k, v in mix_elixir_msg.items():
             if id_ == v['id']:
                 temp_dict[id_][k] = v['主药_num'] + v['药引_num'] + v['辅药_num']
-            else:
-                continue
-        id_ = sorted(temp_dict[id_].items(), key=lambda x: x[1])[0][0]
-        finall_mix_elixir_msg[id_] = {}
-        finall_mix_elixir_msg[id_]['id'] = mix_elixir_msg[id_]['id']
-        finall_mix_elixir_msg[id_]['配方'] = mix_elixir_msg[id_]
-
+        id_ = min(temp_dict[id_], key=temp_dict[id_].get)
+        finall_mix_elixir_msg[id_] = mix_elixir_msg[id_]
+    
     return finall_mix_elixir_msg
 
 

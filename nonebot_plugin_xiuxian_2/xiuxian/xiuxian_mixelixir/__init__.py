@@ -367,7 +367,7 @@ async def mix_elixir_(bot: Bot, event: GroupMessageEvent):
 
     yaocai_dict = await make_dict(yaocai_dict)
     finall_mix_elixir_msg = await get_mix_elixir_msg(yaocai_dict)
-    if finall_mix_elixir_msg == {}:
+    if not finall_mix_elixir_msg:
         msg = "系统未检测到丹方，道友背包内的药材不满足！"
         if XiuConfig().img:
             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
@@ -376,19 +376,18 @@ async def mix_elixir_(bot: Bot, event: GroupMessageEvent):
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await mix_elixir.finish()
     else:
-
         ldl_name = sorted(user_ldl_dict[user_id].items(), key=lambda x: x[0], reverse=False)[0][1]
         l_msg = []
         for k, v in finall_mix_elixir_msg.items():
             goods_info = items.get_data_by_item_id(v['id'])
             msg = f"名字：{goods_info['name']}\n"
             msg += f"效果：{goods_info['desc']}\n"
-            msg += f"配方：{v['配方']['配方简写']}丹炉{ldl_name}\n"
+            msg += f"配方：{v['配方简写']}丹炉{ldl_name}\n"
             msg += f"☆------药材清单------☆\n"
-            msg += f"主药：{v['配方']['主药']},{v['配方']['主药_level']}，数量：{v['配方']['主药_num']}\n"
-            msg += f"药引：{v['配方']['药引']},{v['配方']['药引_level']}，数量：{v['配方']['药引_num']}\n"
-            if v['配方']['辅药_num'] != 0:
-                msg += f"辅药：{v['配方']['辅药']},{v['配方']['辅药_level']}，数量：{v['配方']['辅药_num']}\n"
+            msg += f"主药：{v['主药']},{v['主药_level']}，数量：{v['主药_num']}\n"
+            msg += f"药引：{v['药引']},{v['药引_level']}，数量：{v['药引_num']}\n"
+            if v['辅药_num'] != 0:
+                msg += f"辅药：{v['辅药']},{v['辅药_level']}，数量：{v['辅药_num']}\n"
             l_msg.append(msg)
         if len(l_msg) > 51:
             l_msg = l_msg[:50]

@@ -180,7 +180,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
     user_cd_message = sql_message.get_user_cd(user_id)
     if not os.path.exists(PLAYERSDATA / str(user_id) / "workinfo.json") and user_cd_message['type'] == 2:
         sql_message.do_work(user_id, 0)
-        msg = f"悬赏令已更新，已重置道友的状态！"
+        msg = "悬赏令已更新，已重置道友的状态！"
         if XiuConfig().img:
             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -189,7 +189,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
         await do_work.finish()
     mode = args[0]  # 刷新、终止、结算、接取
     if user_rank <= 14 or user_info['exp'] >= sql_message.get_level_power(user_level):
-        msg = f"道友的境界已过创业初期，悬赏令已经不能满足道友了！"
+        msg = "道友的境界已过创业初期，悬赏令已经不能满足道友了！"
         if XiuConfig().img:
             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -199,7 +199,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
     user_level = user_info['level']
     if int(user_info['exp']) >= int(OtherSet().set_closing_type(user_level)) * XiuConfig().closing_exp_upper_limit:
         # 获取下个境界需要的修为 * 1.5为闭关上限
-        msg = f"道友的修为已经到达上限，悬赏令已无法再获得经验！"
+        msg = "道友的修为已经到达上限，悬赏令已无法再获得经验！"
         if XiuConfig().img:
             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -236,9 +236,13 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
             exp_time = (datetime.now() - work_time).seconds // 60  # 时长计算
             time2 = workhandle().do_work(key=1, name=user_cd_message['scheduled_time'], user_id=user_info['user_id'])
             if exp_time < time2:
-                msg = "进行中的悬赏令【  {}  】，预计{}分钟后可结束".format(user_cd_message['scheduled_time'], time2 - exp_time)
+                msg = "进行中的悬赏令【  {}  】，预计{}分钟后可结束".format(
+                    user_cd_message['scheduled_time'], time2 - exp_time
+                    )
             else:
-                msg = f"进行中的悬赏令【{user_cd_message['scheduled_time']}】，已结束，请输入【悬赏令结算】结算任务信息！"
+                msg = "进行中的悬赏令【{}】，已结束，请输入【悬赏令结算】结算任务信息！".format(
+                    user_cd_message['scheduled_time']
+                )
         else:
             msg = "状态未知错误！"
         if XiuConfig().img:

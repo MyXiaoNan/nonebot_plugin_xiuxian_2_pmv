@@ -340,10 +340,10 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
             cur.execute(sql, (lg, type, XiuConfig().remake, user_id))
             self.conn.commit()
 
-            self.update_power2(user_id)
+            self.update_power2(user_id) # 更新战力
             return "逆天之行，重获新生，新的灵根为：{}，类型为：{}".format(lg, type)
         else:
-            return "你的灵石还不够呢，快去赚点灵石吧！"
+            return "但是你的灵石还不够呢，快去赚点灵石吧！"
 
     def get_root_rate(self, name):
         """获取灵根倍率"""
@@ -1336,6 +1336,7 @@ class XiuxianJsonDate:
         else:
             root = random.choice(data[lgen]["type_list"])
             return root, lgen
+
 
 
 class OtherSet(XiuConfig):

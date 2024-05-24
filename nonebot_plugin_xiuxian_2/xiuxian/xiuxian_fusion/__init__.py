@@ -67,7 +67,7 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
     if in_flag_wz and in_flag_yz:
         sql_message.update_back_j(user_id, 7098)
         sql_message.update_back_j(user_id, 7099)
-        sql_message.send_back(user_id, 7084, '天罪', '装备', 1, 0)
+        sql_message.send_back(user_id, 7084, '天罪', '装备', 1, 1)
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + "道友成功合成了无上仙器天罪！！")
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))

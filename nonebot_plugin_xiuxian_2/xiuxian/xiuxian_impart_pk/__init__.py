@@ -113,14 +113,17 @@ async def impart_pk_list_(bot: Bot, event: GroupMessageEvent):
     win_num = "win_num"
     pk_num = "pk_num"
     for x in range(len(xu_list)):
-        name = sql_message.get_user_message(xu_list[x])['user_name']
-        msg = ""
-        msg += f"道友：{name}\n"
-        msg += f"胜场：{impart_pk.find_user_data(xu_list[x])[win_num]}\n"
-        msg += f"剩余决斗次数：{impart_pk.find_user_data(xu_list[x])[pk_num]}"
-        list_msg.append(
-            {"type": "node", "data": {"name": f"编号 {x}", "uin": bot.self_id,
-                                      "content": msg}})
+        user_data = impart_pk.find_user_data(xu_list[x])
+        if user_data:
+            name = sql_message.get_user_message(xu_list[x])['user_name']
+            msg = ""
+            msg += f"编号：{user_data['number']}\n"
+            msg += f"道友：{name}\n"
+            msg += f"胜场：{user_data[win_num]}\n"
+            msg += f"剩余决斗次数：{user_data[pk_num]}"
+            list_msg.append(
+                {"type": "node", "data": {"name": f"编号 {x}", "uin": bot.self_id,
+                                          "content": msg}})
     try:
         await send_msg_handler(bot, event, list_msg)
     except ActionFailed:
@@ -147,7 +150,7 @@ async def impart_pk_now_(bot: Bot, event: GroupMessageEvent, args: Message = Com
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await impart_pk_now.finish()
     user_id = user_info['user_id']
-    sql_message.update_last_check_info_time(user_id) # 更新查看修仙信息时间
+    sql_message.update_last_check_info_time(user_id)  # 更新查看修仙信息时间
     impart_data_draw = await impart_pk_check(user_id)
     if impart_data_draw is None:
         msg = "发生未知错误，多次尝试无果请找晓楠！"
@@ -157,8 +160,11 @@ async def impart_pk_now_(bot: Bot, event: GroupMessageEvent, args: Message = Com
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await impart_pk_now.finish()
+
     num = args.extract_plain_text().strip()
-    if impart_pk.find_user_data(user_info['user_id'])["pk_num"] <= 0:
+    user_data = impart_pk.find_user_data(user_info['user_id'])
+
+    if user_data["pk_num"] <= 0:
         msg = "道友今日次数耗尽，每天再来吧！"
         if XiuConfig().img:
             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
@@ -166,35 +172,46 @@ async def impart_pk_now_(bot: Bot, event: GroupMessageEvent, args: Message = Com
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await impart_pk_now.finish()
+
+    player_1_stones = 0
+    player_2_stones = 0
+    combined_msg = ""
+    duel_count = 0
+
     if not num:
-        msg, win = await impart_pk_uitls.impart_pk_now_msg_to_bot(user_info['user_name'], NICKNAME)
-        if win == 1:
-            msg += f"战报：道友{user_info['user_name']}获胜,获得思恋结晶10颗\n"
-            impart_pk.update_user_data(user_info['user_id'], True)
-            xiuxian_impart.update_stone_num(10, user_id, 1)
-        if win == 2:
-            msg += f"战报：道友{user_info['user_name']}败了,消耗一次次数,获得思恋结晶5颗\n"
-            impart_pk.update_user_data(user_info['user_id'], False)
-            xiuxian_impart.update_stone_num(5, user_id, 1)
-            if impart_pk.find_user_data(user_id)["pk_num"] <= 0 and xu_world.check_xu_world_user_id(user_id) is True:
-                msg += "检测到道友次数已用尽，已帮助道友退出虚神界！"
-                xu_world.del_xu_world(user_id)
-        if win is None:
-            msg = f"挑战失败"
-            if XiuConfig().img:
-                pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
-                await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+        while user_data["pk_num"] > 0:
+            duel_count += 1
+            msg, win = await impart_pk_uitls.impart_pk_now_msg_to_bot(user_info['user_name'], NICKNAME)
+            if win == 1:
+                msg += f"战报：道友{user_info['user_name']}获胜,获得思恋结晶10颗\n"
+                impart_pk.update_user_data(user_info['user_id'], True)
+                xiuxian_impart.update_stone_num(10, user_id, 1)
+                player_1_stones += 10
+            elif win == 2:
+                msg += f"战报：道友{user_info['user_name']}败了,消耗一次次数,获得思恋结晶5颗\n"
+                impart_pk.update_user_data(user_info['user_id'], False)
+                xiuxian_impart.update_stone_num(5, user_id, 1)
+                player_1_stones += 5
+                if impart_pk.find_user_data(user_id)["pk_num"] <= 0 and xu_world.check_xu_world_user_id(user_id) is True:
+                    msg += "检测到道友次数已用尽，已帮助道友退出虚神界！"
+                    xu_world.del_xu_world(user_id)
             else:
-                await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-            await impart_pk_now.finish()
+                msg = f"挑战失败"
+                combined_msg += f"{msg}\n"
+                break
+
+            combined_msg += f"☆------------第{duel_count}次------------☆\n{msg}\n"
+            user_data = impart_pk.find_user_data(user_info['user_id'])
+
+        combined_msg += f"总计：道友{user_info['user_name']}获得思恋结晶{player_1_stones}颗\n"
+
         if XiuConfig().img:
-            pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+            pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + combined_msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+            await bot.send_group_msg(group_id=int(send_group_id), message=combined_msg)
         await impart_pk_now.finish()
 
-    xu_world_list = xu_world.all_xu_world_user()
     if not num.isdigit():
         msg = "编号解析异常，应全为数字!"
         if XiuConfig().img:
@@ -203,7 +220,10 @@ async def impart_pk_now_(bot: Bot, event: GroupMessageEvent, args: Message = Com
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await impart_pk_now.finish()
-    num = int(num)
+
+    num = int(num) - 1
+    xu_world_list = xu_world.all_xu_world_user()
+
     if num + 1 > len(xu_world_list) or num < 0:
         msg = "编号解析异常，虚神界没有此编号道友!"
         if XiuConfig().img:
@@ -212,36 +232,36 @@ async def impart_pk_now_(bot: Bot, event: GroupMessageEvent, args: Message = Com
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await impart_pk_now.finish()
-    else:
-        player_1 = user_info['user_id']
-        player_2 = xu_world_list[num]
-        if str(player_1) == str(player_2):
-            msg = "道友不能挑战自己的投影!"
-            if XiuConfig().img:
-                pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
-                await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
-            else:
-                await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-            await impart_pk_now.finish()
 
-        player_1_name = user_info['user_name']
-        player_2_name = sql_message.get_user_message(player_2)['user_name']
+    player_1 = user_info['user_id']
+    player_2 = xu_world_list[num]
+    if str(player_1) == str(player_2):
+        msg = "道友不能挑战自己的投影!"
+        if XiuConfig().img:
+            pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+        else:
+            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await impart_pk_now.finish()
 
+    player_1_name = user_info['user_name']
+    player_2_name = sql_message.get_user_message(player_2)['user_name']
+
+    while user_data["pk_num"] > 0:
+        duel_count += 1
         msg_list, win = await impart_pk_uitls.impart_pk_now_msg(player_1, player_1_name, player_2, player_2_name)
         if win is None:
             msg = f"挑战失败"
-            if XiuConfig().img:
-                pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
-                await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
-            else:
-                await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-            await impart_pk_now.finish()
+            combined_msg += f"{msg}\n"
+            break
 
         if win == 1:  # 1号玩家胜利 发起者
             impart_pk.update_user_data(player_1, True)
             impart_pk.update_user_data(player_2, False)
             xiuxian_impart.update_stone_num(10, player_1, 1)
             xiuxian_impart.update_stone_num(5, player_2, 1)
+            player_1_stones += 10
+            player_2_stones += 5
             msg_list.append(
                 {"type": "node", "data": {"name": f"虚神界战报", "uin": bot.self_id,
                                           "content": f"道友{player_1_name}获得了胜利,获得了思恋结晶10!\n"
@@ -251,22 +271,15 @@ async def impart_pk_now_(bot: Bot, event: GroupMessageEvent, args: Message = Com
                     {"type": "node", "data": {"name": f"虚神界变更", "uin": bot.self_id,
                                               "content": f"道友{player_2_name}次数耗尽，离开了虚神界！"}})
                 xu_world.del_xu_world(player_2)
-            try:
-                await send_msg_handler(bot, event, msg_list)
-            except ActionFailed:
-                msg = "未知原因，对决显示失败!"
-                if XiuConfig().img:
-                    pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
-                    await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
-                else:
-                    await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-                await impart_pk_now.finish()
-            await impart_pk_now.finish()
-        if win == 2:  # 2号玩家胜利 被挑战者
+                combined_msg += "\n".join([node['data']['content'] for node in msg_list])
+                break
+        elif win == 2:  # 2号玩家胜利 被挑战者
             impart_pk.update_user_data(player_2, True)
             impart_pk.update_user_data(player_1, False)
             xiuxian_impart.update_stone_num(10, player_2, 1)
             xiuxian_impart.update_stone_num(5, player_1, 1)
+            player_2_stones += 10
+            player_1_stones += 5
             msg_list.append(
                 {"type": "node", "data": {"name": f"虚神界战报", "uin": bot.self_id,
                                           "content": f"道友{player_2_name}获得了胜利,获得了思恋结晶10颗!\n"
@@ -276,17 +289,29 @@ async def impart_pk_now_(bot: Bot, event: GroupMessageEvent, args: Message = Com
                     {"type": "node", "data": {"name": f"虚神界变更", "uin": bot.self_id,
                                               "content": f"道友{player_1_name}次数耗尽，离开了虚神界！"}})
                 xu_world.del_xu_world(player_1)
-            try:
-                await send_msg_handler(bot, event, msg_list)
-            except ActionFailed:
-                msg = "未知原因，对决显示失败!"
-                if XiuConfig().img:
-                    pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
-                    await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
-                else:
-                    await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-                await impart_pk_now.finish()
-            await impart_pk_now.finish()
+                combined_msg += "\n".join([node['data']['content'] for node in msg_list])
+                break
+
+        combined_msg += f"☆------------第{duel_count}次------------☆\n" + "\n".join([node['data']['content'] for node in msg_list]) + "\n"
+
+        try:
+            await send_msg_handler(bot, event, msg_list)
+        except ActionFailed:
+            msg = "未知原因，对决显示失败!"
+            combined_msg += f"{msg}\n"
+            break
+
+        user_data = impart_pk.find_user_data(user_info['user_id'])
+
+    combined_msg += f"总计：道友{player_1_name}获得思恋结晶{player_1_stones}颗, 道友{player_2_name}获得思恋结晶{player_2_stones}颗\n"
+
+    if XiuConfig().img:
+        pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + combined_msg)
+        await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+    else:
+        await bot.send_group_msg(group_id=int(send_group_id), message=combined_msg)
+
+    await impart_pk_now.finish()
 
 
 @impart_pk_exp.handle(parameterless=[Cooldown(at_sender=False)])

@@ -161,22 +161,23 @@ def Cooldown(
             )
         else:
             key = CooldownIsolateLevel.GLOBAL.name
-        if group_id not in conf_data["group"]:
-            if (
-                    event.sender.role == "admin" or
-                    event.sender.role == "owner" or
-                    event.get_user_id() in bot.config.superusers
-            ):
-                bot = await assign_bot_group(group_id=group_id)
-                if at_sender:
-                    await bot.send(event=event, message=MessageSegment.at(event.get_user_id()) + "本群已关闭修仙模组,请联系管理员开启,开启命令为【启用修仙功能】!")
+        if XiuConfig().third_party_bot:
+            if group_id not in conf_data["group"]:
+                if (
+                        event.sender.role == "admin" or
+                        event.sender.role == "owner" or
+                        event.get_user_id() in bot.config.superusers
+                ):
+                    bot = await assign_bot_group(group_id=group_id)
+                    if at_sender:
+                        await bot.send(event=event, message=MessageSegment.at(event.get_user_id()) + "本群已关闭修仙模组,请联系管理员开启,开启命令为【启用修仙功能】!")
+                    else:
+                        await bot.send(event=event, message="本群已关闭修仙模组,请联系管理员开启,开启命令为【启用修仙功能】!")
+                    await matcher.finish()
                 else:
-                    await bot.send(event=event, message="本群已关闭修仙模组,请联系管理员开启,开启命令为【启用修仙功能】!")
-                await matcher.finish()
+                    await matcher.finish()
             else:
-                await matcher.finish()
-        else:
-            pass
+                pass
         if running[key] <= 0:
             if cd_time >= 1.5:
                 time = int(cd_time - (loop.time() - time_sy[key]))

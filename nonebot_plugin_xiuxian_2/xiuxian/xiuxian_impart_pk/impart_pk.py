@@ -38,10 +38,9 @@ class IMPART_PK(object):
         try:
             if self.data[user_id]:
                 return True
-        except:
-            self.data[user_id] = {"pk_num": 3,
-                                  "win_num": 0
-                                  }
+        except KeyError:
+            user_number = len(self.data) + 1
+            self.data[user_id] = {"number": user_number, "pk_num": 3, "win_num": 0}
             self.__save()
             return False
 
@@ -55,12 +54,12 @@ class IMPART_PK(object):
         try:
             data_ = self.data[user_id]
             return data_
-        except:
+        except KeyError:
             return None
 
     def update_user_data(self, user_id, type_):
         """
-        匹配用户数据
+        更新用户数据
         :param type_: TRUE or FALSE
         :param user_id:
         """
@@ -82,7 +81,7 @@ class IMPART_PK(object):
         try:
             dict_ = self.data
             return dict_
-        except:
+        except KeyError:
             return None
 
     def re_data(self):
