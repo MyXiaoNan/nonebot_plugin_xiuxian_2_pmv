@@ -34,7 +34,7 @@ from ..xiuxian_utils.xiuxian2_handle import (
     get_weapon_info_msg, get_armor_info_msg,
     get_sec_msg, get_main_info_msg, get_sub_info_msg, UserBuffDate
 )
-from ..xiuxian_config import XiuConfig, get_user_rank
+from ..xiuxian_config import XiuConfig, convert_rank
 
 items = Items()
 config = get_auction_config()
@@ -175,7 +175,7 @@ async def set_auction_by_scheduler_():
         msg += "\n竞拍时间为:{}秒，请诸位道友发送 拍卖+金额 来进行拍卖吧！".format(AUCTIONSLEEPTIME)
 
         if auction['quantity'] > 1:
-            msg += "\n注意：拍卖的是单件价格，共{}件，最终价格价为{} * 拍卖成交价。\n".format(
+            msg += "\n注意：拍卖品共{}件，最终价为{} * 成交价。\n".format(
                 auction['quantity'], auction['quantity']
             )
 
@@ -242,7 +242,7 @@ async def set_auction_by_scheduler_():
         )
         if auction['user_id'] == 0:
             if i + 1 == len(auction_ids):
-                msg = "很可惜，{}流拍了，拍卖会到此结束。\n拍卖会结束，开始整理拍卖结果，感谢各位道友的参与！".format(
+                msg = "很可惜，{}流拍了，拍卖会到此结束。\n开始整理拍卖结果，感谢各位道友的参与！".format(
                     auction['name']
                 )
             else:
@@ -1262,7 +1262,7 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
             num = 1
         goods_info = items.get_data_by_item_id(goods_id)
         user_info = sql_message.get_user_message(user_id)
-        user_rank = get_user_rank(user_info['level'])[0]
+        user_rank = convert_rank(user_info['level'])[0]
         goods_rank = goods_info['rank']
         goods_name = goods_info['name']
         if goods_rank < user_rank:  # 使用限制
@@ -1304,7 +1304,7 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
             num = 1
         goods_info = items.get_data_by_item_id(goods_id)
         user_info = sql_message.get_user_message(user_id)
-        user_rank = get_user_rank(user_info['level'])[0]
+        user_rank = convert_rank(user_info['level'])[0]
         goods_name = goods_info['name']
         goods_id1 = goods_info['buff_1']
         goods_id2 = goods_info['buff_2']
@@ -1450,7 +1450,7 @@ async def creat_auction_(bot: Bot, event: GroupMessageEvent):
         msg += "\n竞拍时间为:{}秒，请诸位道友发送 拍卖+金额 来进行拍卖吧！".format(AUCTIONSLEEPTIME)
 
         if auction['quantity'] > 1:
-            msg += "\n注意：拍卖的是单件价格，共{}件，最终价格价为{} * 拍卖成交价。\n".format(
+            msg += "\n注意：拍卖品共{}件，最终价为{} * 成交价。\n".format(
                 auction['quantity'], auction['quantity']
             )
 
@@ -1517,7 +1517,7 @@ async def creat_auction_(bot: Bot, event: GroupMessageEvent):
         )
         if auction['user_id'] == 0:
             if i + 1 == len(auction_ids):
-                msg = "很可惜，{}流拍了，拍卖会到此结束。\n拍卖会结束，开始整理拍卖结果，感谢各位道友的参与！".format(
+                msg = "很可惜，{}流拍了，拍卖会到此结束。\n开始整理拍卖结果，感谢各位道友的参与！".format(
                     auction['name']
                 )
             else:

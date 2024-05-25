@@ -23,7 +23,7 @@ from ..xiuxian_utils.xiuxian2_handle import (
     XiuxianDateManage, XiuxianJsonDate, OtherSet, 
     UserBuffDate, XIUXIAN_IMPART_BUFF, leave_harm_time
 )
-from ..xiuxian_config import XiuConfig, JsonConfig, get_user_rank
+from ..xiuxian_config import XiuConfig, JsonConfig, convert_rank
 from ..xiuxian_utils.utils import (
     check_user,
     get_msg_pic, number_to,
@@ -126,7 +126,7 @@ __xiuxian_updata_data__ = """
 3.生成指定境界boss可以指定boss名字了
 4.替换base为io，支持转发消息类型，支持图片压缩率
 5.适配Pydantic,Pillow,更换失效的api
-6.替换数据库元组为字典返回，替换USERRANK为get_user_rank函数
+6.替换数据库元组为字典返回，替换USERRANK为convert_rank函数
 7.群拍卖会可以依次拍卖多个物品了
 """.strip()
 
@@ -357,7 +357,6 @@ async def handle_user_choice(bot: Bot, event: GroupMessageEvent, state: T_State)
             await bot.send_group_msg(group_id=event.group_id, message=msg)
     except ActionFailed:
         await bot.send_group_msg(group_id=event.group_id, message="修仙界网络堵塞，发送失败!")
-
     await restart.finish()
 
 
@@ -1324,7 +1323,7 @@ async def rob_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Command
                 else:
                     await bot.send_group_msg(group_id=int(send_group_id), message=msg)
                 await rob_stone.finish()
-            if get_user_rank(user_2['level'])[0] - get_user_rank(user_info['level'])[0] >= 12:
+            if convert_rank(user_2['level'])[0] - convert_rank(user_info['level'])[0] >= 12:
                 msg = "道友抢劫小辈，可耻！"
                 if XiuConfig().img:
                     pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)

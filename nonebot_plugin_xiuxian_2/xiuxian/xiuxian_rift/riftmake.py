@@ -5,7 +5,7 @@ from .jsondata import read_f
 from ..xiuxian_utils.xiuxian2_handle import XiuxianDateManage, UserBuffDate, XIUXIAN_IMPART_BUFF
 from ..xiuxian_utils.player_fight import Boss_fight
 from ..xiuxian_utils.item_json import Items
-from ..xiuxian_config import get_user_rank
+from ..xiuxian_config import convert_rank
 
 sql_message = XiuxianDateManage()
 xiuxian_impart = XIUXIAN_IMPART_BUFF()
@@ -165,7 +165,7 @@ async def get_boss_battle_info(user_info, rift_rank, bot_id):
     result, victor, bossinfo_new, stone = await Boss_fight(player, boss_info, bot_id=bot_id)  # 未开启，1不写入，2写入
 
     if victor == "群友赢了":  # 获胜
-        user_rank = get_user_rank('洞天境圆满')[0] - get_user_rank(user_info['level'])[0] # 60-用户当前等级 原50
+        user_rank = convert_rank('洞天境圆满')[0] - convert_rank(user_info['level'])[0] # 60-用户当前等级 原50
         success_info = STORY['战斗']['Boss战斗']["success"]
         msg = success_info['desc'].format(boss_info["name"])
         give_exp = int(random.choice(success_info["give"]["exp"]) * user_info['exp'])
@@ -311,7 +311,7 @@ def get_goods_type():
 def get_id_by_rank(dict_data, user_level, rift_rank=0):
     """根据字典的rank、用户等级、秘境等级随机获取key"""
     l_temp = []
-    final_rank = get_user_rank(user_level)[0] - rift_rank  # 秘境等级，会提高用户的等级
+    final_rank = convert_rank(user_level)[0] - rift_rank  # 秘境等级，会提高用户的等级
     pass_rank = 30  # 最终等级超过次等级会抛弃
     for k, v in dict_data.items():
         if v["rank"] >= final_rank and (v["rank"] - final_rank) <= pass_rank:
@@ -396,7 +396,7 @@ def get_sub_info(user_level, rift_rank):
 
 def get_skill_by_rank(user_level, rift_rank):
     """根据用户等级、秘境等级随机获取一个技能"""
-    user_rank = get_user_rank(user_level)[0]  # type=int，用户等级
+    user_rank = convert_rank(user_level)[0]  # type=int，用户等级
     temp_dict = []
     for k, v in skill_data.items():
         if user_rank - rift_rank <= v['rank']:  # 秘境等级会增幅用户等级

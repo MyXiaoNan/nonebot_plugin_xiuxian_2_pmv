@@ -7,11 +7,11 @@ from nonebot.log import logger
 
 DATABASE = Path() / "data" / "xiuxian"
 
-def get_user_rank(rank_name):
+def convert_rank(rank_name):
     """
     获取境界等级，替代原来的USERRANK
-    get_user_rank('江湖好手')[0] 返回江湖好手的境界等级
-    get_user_rank('江湖好手')[1] 返回境界列表
+    convert_rank('江湖好手')[0] 返回江湖好手的境界等级
+    convert_rank('江湖好手')[1] 返回境界列表
     """
     ranks = [
         '江湖好手', # 57
@@ -62,7 +62,7 @@ class XiuConfig:
         self.sql_back = ["user_id", "goods_id", "goods_name", "goods_type", "goods_num", "create_time", "update_time",
                          "remake", "day_num", "all_num", "action_time", "state", "bind_num"]
         
-        self.level = get_user_rank('江湖好手')[1] # 境界列表，别动
+        self.level = convert_rank('江湖好手')[1] # 境界列表，别动
         self.img = True # 是否使用图片发送消息
         self.user_info_image = True # 是否使用图片发送个人信息
         self.user_info_cd = 30  # 我的存档cd/秒
@@ -102,7 +102,7 @@ class XiuConfig:
         self.gen_boss_id = []  # 支持非管理员和超管生成boss
         self.merge_forward_send = False # 消息转发类型,True是合并转发，False是长图发送
         self.img_compression_limit = 80 # 图片压缩率，0为不压缩，最高100
-        self.img_type = "webp" # 图片类型，webp或者jpeg，如果机器人的图片消息不显示请使用jpeg
+        self.img_type = "jpeg" # 图片类型，webp或者jpeg，如果机器人的图片消息不显示请使用jpeg
         self.img_send_type = "io" # 图片发送类型,默认io,官方bot建议base64
         self.third_party_bot = True # 是否是野生机器人，是的话填True，官方bot请填False
         self.version = "xiuxian_2.2" # 修仙插件版本，别动

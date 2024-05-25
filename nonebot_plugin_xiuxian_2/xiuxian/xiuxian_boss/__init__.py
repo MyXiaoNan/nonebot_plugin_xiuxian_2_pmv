@@ -26,7 +26,7 @@ from ..xiuxian_utils.xiuxian2_handle import (
     XiuxianDateManage ,OtherSet, UserBuffDate,
     XIUXIAN_IMPART_BUFF, leave_harm_time
 )
-from ..xiuxian_config import get_user_rank, XiuConfig, JsonConfig
+from ..xiuxian_config import convert_rank, XiuConfig, JsonConfig
 from .makeboss import createboss, createboss_jj
 from .bossconfig import get_boss_config, savef_boss
 from .old_boss_info import old_boss_info
@@ -457,10 +457,10 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
 
     bossinfo = group_boss[group_id][boss_num - 1]
     if bossinfo['jj'] == '零':
-        boss_rank = get_user_rank((bossinfo['jj']))[0]
+        boss_rank = convert_rank((bossinfo['jj']))[0]
     else:
-        boss_rank = get_user_rank((bossinfo['jj'] + '中期'))[0]
-    user_rank = get_user_rank(userinfo['level'])[0]
+        boss_rank = convert_rank((bossinfo['jj'] + '中期'))[0]
+    user_rank = convert_rank(userinfo['level'])[0]
     if boss_rank - user_rank >= 12:
         msg = "道友已是{}之人，妄图抢小辈的Boss，可耻！".format(userinfo['level'])
         if XiuConfig().img:
@@ -494,7 +494,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
         save_user_boss_fight_info(user_id, user_boss_fight_info)
         
         if exp_buff > 0 and user_info['root'] != "器师":
-            now_exp = int(((top_user_exp * 0.1) / user_info['exp']) / (exp_buff * (1 / (get_user_rank(user_info['level'])[0] + 1))))
+            now_exp = int(((top_user_exp * 0.1) / user_info['exp']) / (exp_buff * (1 / (convert_rank(user_info['level'])[0] + 1))))
             if now_exp > 1000000:
                 now_exp = int(1000000 / random.randint(5, 10))
             sql_message.update_exp(user_id, now_exp)
@@ -534,7 +534,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
         top_user_exp = top_user_info['exp']
         
         if exp_buff > 0 and user_info['root'] != "器师":
-            now_exp = int(((top_user_exp * 0.1) / user_info['exp']) / (exp_buff * (1 / (get_user_rank(user_info['level'])[0] + 1))))
+            now_exp = int(((top_user_exp * 0.1) / user_info['exp']) / (exp_buff * (1 / (convert_rank(user_info['level'])[0] + 1))))
             if now_exp > 1000000:
                 now_exp = int(1000000 / random.randint(5, 10))
             sql_message.update_exp(user_id, now_exp)
@@ -545,7 +545,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
         drops_id, drops_info =  boss_drops(user_rank, boss_rank, bossinfo, userinfo)
         if drops_id == None:
             drops_msg = " "
-        elif boss_rank < get_user_rank('遁一境中期')[0]:           
+        elif boss_rank < convert_rank('遁一境中期')[0]:           
             drops_msg = f"boss的尸体上好像有什么东西， 凑近一看居然是{drops_info['name']}！ "
             sql_message.send_back(user_info['user_id'], drops_info['id'],drops_info['name'], drops_info['type'], 1)
         else :
@@ -1086,8 +1086,8 @@ def get_drops(user_info):
 def get_id(dict_data, user_level):
     """根据字典的rank、用户等级、秘境等级随机获取key"""
     l_temp = []
-    final_rank = get_user_rank(user_level)[0]  # 秘境等级，会提高用户的等级
-    pass_rank = get_user_rank('搬血境初期')[0]  # 最终等级超过此等级会抛弃
+    final_rank = convert_rank(user_level)[0]  # 秘境等级，会提高用户的等级
+    pass_rank = convert_rank('搬血境初期')[0]  # 最终等级超过此等级会抛弃
     for k, v in dict_data.items():
         if v["rank"] >= final_rank and (v["rank"] - final_rank) <= pass_rank:
             l_temp.append(k)
