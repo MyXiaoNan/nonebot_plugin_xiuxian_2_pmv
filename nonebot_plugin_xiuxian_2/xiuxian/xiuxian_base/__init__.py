@@ -1407,7 +1407,7 @@ async def rob_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Command
                         sql_message.update_exp(user_id, exps)
                         sql_message.update_j_exp(give_qq, exps / 2)
                         msg = "大战一番，战胜对手，获取灵石{}枚，修为增加{}，对手修为减少{}".format(
-                                            int(number_to(foe_stone * 0.1)), number_to(exps), number_to(exps / 2))
+                                            number_to(foe_stone * 0.1), number_to(exps), number_to(exps / 2))
                         if XiuConfig().img:
                             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
                             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
