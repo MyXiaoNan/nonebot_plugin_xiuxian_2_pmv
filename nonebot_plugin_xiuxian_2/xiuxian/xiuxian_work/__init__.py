@@ -15,7 +15,7 @@ from datetime import datetime
 from ..xiuxian_utils.xiuxian_opertion import do_is_work
 from ..xiuxian_utils.utils import check_user, check_user_type, get_msg_pic
 from nonebot.log import logger
-from .reward_data_source import PLAYERSDATA, WORKDATA
+from .reward_data_source import PLAYERSDATA
 from ..xiuxian_utils.item_json import Items
 from ..xiuxian_config import convert_rank, XiuConfig
 
@@ -27,7 +27,6 @@ sql_message = XiuxianDateManage()  # sql类
 items = Items()
 lscost = 1000000000 # 刷新灵石消耗
 count = 3  # 免费次数
-db_path = str(WORKDATA / "refreshnum.db")
 
 
 # 重置悬赏令刷新次数

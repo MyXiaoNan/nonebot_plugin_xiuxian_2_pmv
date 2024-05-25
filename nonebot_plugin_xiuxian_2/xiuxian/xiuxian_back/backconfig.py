@@ -179,9 +179,12 @@ def get_auction_config():
         for key in configkey:
             if key not in list(config.keys()):
                 config[key] = CONFIG[key]
+        if 'user_auctions' not in config:
+            config['user_auctions'] = []
         savef_auction(config)
     except:
         config = CONFIG
+        config['user_auctions'] = []
         savef_auction(config)
     return config
 
