@@ -101,8 +101,8 @@ class XiuConfig:
         self.del_boss_id = []  # 支持非管理员和超管天罚boss
         self.gen_boss_id = []  # 支持非管理员和超管生成boss
         self.merge_forward_send = False # 消息转发类型,True是合并转发，False是长图发送
-        self.img_compression_limit = 80 # 图片压缩率，0为不压缩，最高100
-        self.img_type = "jpeg" # 图片类型，webp或者jpeg，如果机器人的图片消息不显示请使用jpeg
+        self.img_compression_limit = 90 # 图片压缩率，0为不压缩，最高100
+        self.img_type = "webp" # 图片类型，webp或者jpeg，如果机器人的图片消息不显示请使用jpeg
         self.img_send_type = "io" # 图片发送类型,默认io,官方bot建议base64
         self.third_party_bot = True # 是否是野生机器人，是的话填True，官方bot请填False
         self.version = "xiuxian_2.2" # 修仙插件版本，别动
