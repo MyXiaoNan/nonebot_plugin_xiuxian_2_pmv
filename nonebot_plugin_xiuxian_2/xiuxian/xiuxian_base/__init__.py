@@ -623,9 +623,9 @@ async def level_up_zj_(bot: Bot, event: GroupMessageEvent):
         await level_up_zj.finish()
 
 
-@level_up_dr.handle(parameterless=[Cooldown(at_sender=False)])
-async def level_up_dr_(bot: Bot, event: GroupMessageEvent):
-    """渡厄 突破"""
+@level_up_drjd.handle(parameterless=[Cooldown(at_sender=False)])
+async def level_up_drjd_(bot: Bot, event: GroupMessageEvent):
+    """渡厄 金丹 突破"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = check_user(event)
     if not isUser:
@@ -634,7 +634,7 @@ async def level_up_dr_(bot: Bot, event: GroupMessageEvent):
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-        await level_up_dr.finish()
+        await level_up_drjd.finish()
     user_id = user_info['user_id']
     if user_info['hp'] is None:
         # 判断用户气血是否为空
@@ -653,10 +653,10 @@ async def level_up_dr_(bot: Bot, event: GroupMessageEvent):
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
             else:
                 await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-            await level_up_dr.finish()
+            await level_up_drjd.finish()
     else:
         pass
-    elixir_name = "渡厄丹"
+    elixir_name = "渡厄金丹"
     level_name = user_msg['level']  # 用户境界
     exp = user_msg['exp']  # 用户修为
     level_rate = jsondata.level_rate_data()[level_name]  # 对应境界突破的概率
@@ -668,21 +668,32 @@ async def level_up_dr_(bot: Bot, event: GroupMessageEvent):
     pause_flag = False
     if user_backs is not None:
         for back in user_backs:
-            if int(back['goods_id']) == 1999:  # 检测到有对应丹药
+            if int(back['goods_id']) == 1998:  # 检测到有对应丹药
                 pause_flag = True
                 elixir_name = back['goods_name']
                 break
+
+    if not pause_flag:
+        msg = "道友突破需要使用{}，但您的背包中没有该丹药！".format(elixir_name)
+        if XiuConfig().img:
+            pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+        else:
+            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await level_up_drjd.finish()
 
     if le == "失败":
         # 突破失败
         sql_message.updata_level_cd(user_id)  # 更新突破CD
         if pause_flag:
-            # todu，丹药减少的sql
-            sql_message.update_back_j(user_id, 1999, use_key=1)
+            # 使用丹药减少的sql
+            sql_message.update_back_j(user_id, 1998, use_key=1)
+            now_exp = int(int(exp) * 0.1)
+            sql_message.update_exp(user_id, now_exp)  # 渡厄金丹增加用户修为
             update_rate = 1 if int(level_rate * XiuConfig().level_up_probability) <= 1 else int(
                 level_rate * XiuConfig().level_up_probability)  # 失败增加突破几率
             sql_message.update_levelrate(user_id, user_leveluprate + update_rate)
-            msg = f"道友突破失败，但是使用了丹药{elixir_name}，本次突破失败不扣除修为下次突破成功率增加{update_rate}%，道友不要放弃！"
+            msg = f"道友突破失败，但是使用了丹药{elixir_name}，本次突破失败不扣除修为反而增加了一成，下次突破成功率增加{update_rate}%！！"
         else:
             # 失败惩罚，随机扣减修为
             percentage = random.randint(
@@ -690,7 +701,7 @@ async def level_up_dr_(bot: Bot, event: GroupMessageEvent):
             )
             main_exp_buff = UserBuffDate(user_id).get_user_main_buff_data()#功法突破扣修为减少
             exp_buff = main_exp_buff['exp_buff'] if main_exp_buff is not None else 0
-            now_exp = int(int(exp) * ((percentage / 100) * (1 - exp_buff)))
+            now_exp = int(int(exp) * ((percentage / 100) * exp_buff))
             sql_message.update_j_exp(user_id, now_exp)  # 更新用户修为
             nowhp = user_msg['hp'] - (now_exp / 2) if (user_msg['hp'] - (now_exp / 2)) > 0 else 1
             nowmp = user_msg['mp'] - now_exp if (user_msg['mp'] - now_exp) > 0 else 1
@@ -704,7 +715,7 @@ async def level_up_dr_(bot: Bot, event: GroupMessageEvent):
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-        await level_up_dr.finish()
+        await level_up_drjd.finish()
 
     elif type(le) == list:
         # 突破成功
@@ -713,7 +724,9 @@ async def level_up_dr_(bot: Bot, event: GroupMessageEvent):
         sql_message.updata_level_cd(user_id)  # 更新CD
         sql_message.update_levelrate(user_id, 0)
         sql_message.update_user_hp(user_id)  # 重置用户HP，mp，atk状态
-        msg = "恭喜道友突破{}成功".format(le[0])
+        now_exp = int(int(exp) * 0.1)
+        sql_message.update_exp(user_id, now_exp)  # 渡厄金丹增加用户修为
+        msg = "恭喜道友突破{}成功，因为使用了渡厄金丹，修为也增加了一成！！".format(le[0])
         if XiuConfig().img:
             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))

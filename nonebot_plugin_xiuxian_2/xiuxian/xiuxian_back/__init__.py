@@ -1605,6 +1605,7 @@ async def offer_auction_(bot: Bot, event: GroupMessageEvent, args: Message = Com
     group_id = str(event.group_id)
     bot = await assign_bot_group(group_id=group_id)
     isUser, user_info, msg = check_user(event)
+    global auction, auction_offer_flag, auction_offer_all_count, auction_offer_time_count
     if not isUser:
         if XiuConfig().img:
             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
@@ -1622,7 +1623,6 @@ async def offer_auction_(bot: Bot, event: GroupMessageEvent, args: Message = Com
             await bot.send_group_msg(group_id=int(group_id), message=msg)
         await creat_auction.finish()
 
-    global auction
     if not auction:
         msg = "本群不存在拍卖会，请等待拍卖会开启！"
         if XiuConfig().img:
@@ -1663,7 +1663,6 @@ async def offer_auction_(bot: Bot, event: GroupMessageEvent, args: Message = Com
             await bot.send_group_msg(group_id=int(group_id), message=msg)
         await creat_auction.finish()
 
-    global auction_offer_flag, auction_offer_time_count, auction_offer_all_count
     auction_offer_flag = True  # 有人拍卖
     auction_offer_time_count += 1
     auction_offer_all_count += 1
