@@ -330,7 +330,7 @@ def get_equipment_msg(l_msg, user_id, goods_id, goods_num):
     return l_msg
 
 
-def get_skill_msg(l_msg, user_id, goods_id, goods_num):
+def get_skill_msg(l_msg, goods_id, goods_num):
     """
     获取背包内的技能信息
     """

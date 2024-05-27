@@ -64,6 +64,7 @@ use = on_command("使用", priority=15, permission=GROUP, block=True)
 no_use_zb = on_command("换装", priority=5, permission=GROUP, block=True)
 buy = on_command("坊市购买", priority=5, block=True)
 auction_add = on_command("提交拍卖品", aliases={"拍卖品提交"}, priority=10, permission=GROUP, block=True)
+auction_withdraw = on_command("撤回拍卖品", aliases={"拍卖品撤回"}, priority=10, permission=GROUP, block=True)
 set_auction = on_command("群拍卖会", priority=4, permission=GROUP and (SUPERUSER | GROUP_ADMIN | GROUP_OWNER), block=True)
 creat_auction = on_fullmatch("举行拍卖会", priority=5, permission=GROUP and SUPERUSER, block=True)
 offer_auction = on_command("拍卖", priority=5, permission=GROUP, block=True)
@@ -974,6 +975,101 @@ async def shop_off_(bot: Bot, event: GroupMessageEvent, args: Message = CommandA
         await shop_off.finish()
 
 
+@auction_withdraw.handle(parameterless=[Cooldown(1.4, isolate_level=CooldownIsolateLevel.GROUP)])
+async def auction_withdraw_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
+    """用户撤回拍卖品"""
+    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    isUser, user_info, msg = check_user(event)
+    if not isUser:
+        if XiuConfig().img:
+            pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+        else:
+            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await auction_withdraw.finish()
+
+    group_id = str(event.group_id)
+    if group_id not in groups:
+        msg = '本群尚未开启拍卖会功能，请联系管理员开启！'
+        if XiuConfig().img:
+            pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+            await bot.send_group_msg(group_id=int(group_id), message=MessageSegment.image(pic))
+        else:
+            await bot.send_group_msg(group_id=int(group_id), message=msg)
+        await auction_withdraw.finish()
+
+    config = get_auction_config()
+    user_auctions = config.get('user_auctions', [])
+
+    if not user_auctions:
+        msg = "拍卖会目前没有道友提交的物品！"
+        if XiuConfig().img:
+            pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+        else:
+            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await auction_withdraw.finish()
+
+    arg = args.extract_plain_text().strip()
+    try:
+        auction_index = int(arg) - 1
+        if auction_index < 0 or auction_index >= len(user_auctions):
+            raise ValueError("编号超出范围")
+    except ValueError as e:
+        msg = "请输入正确的编号: {}".format(str(e))
+        if XiuConfig().img:
+            pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+        else:
+            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await auction_withdraw.finish()
+
+    auction = user_auctions[auction_index]
+    goods_name, details = list(auction.items())[0]
+    if details['user_id'] != user_info['user_id']:
+        msg = "这不是你的拍卖品！"
+        if XiuConfig().img:
+            pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+        else:
+            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await auction_withdraw.finish()
+
+    # 获取物品类型
+    back_msg = sql_message.get_back_msg(details['user_id'])
+    goods_type = None
+    for back in back_msg:
+        if goods_name == back['goods_name']:
+            goods_type = back['goods_type']
+            break
+
+    # 如果找不到物品类型
+    if not goods_type:
+        msg = "物品类型未找到，无法撤回拍卖品：{}".format(goods_name)
+        if XiuConfig().img:
+            pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+        else:
+            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await auction_withdraw.finish()
+
+    sql_message.send_back(details['user_id'], details['id'], goods_name, goods_type, details['quantity'])
+    user_auctions.pop(auction_index)
+    config['user_auctions'] = user_auctions
+    savef_auction(config)
+
+    msg = "成功撤回拍卖品：{}x{}！".format(goods_name, details['quantity'])
+    if XiuConfig().img:
+        pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+        await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+    else:
+        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+
+    await auction_withdraw.finish()
+
+
+
+
 @main_back.handle(parameterless=[Cooldown(cd_time=10, at_sender=False)])
 async def main_back_(bot: Bot, event: GroupMessageEvent):
     """我的背包
@@ -1357,11 +1453,11 @@ async def auction_view_(bot: Bot, event: GroupMessageEvent, args: Message = Comm
         await auction_view.finish()
 
     auction_list_msg = "拍卖会物品列表:\n"
-    for auction in user_auctions:
+    for idx, auction in enumerate(user_auctions):
         for goods_name, details in auction.items():
             user_info = sql_message.get_user_message(details['user_id'])
-            auction_list_msg += "物品名称: {}\n所有者：{}\n底价: {} 枚灵石\n数量: {}\n".format(
-                goods_name, user_info['user_name'], details['start_price'], details['quantity']
+            auction_list_msg += "编号: {}\n物品名称: {}\n所有者：{}\n底价: {} 枚灵石\n数量: {}\n".format(
+                idx + 1, goods_name, user_info['user_name'], details['start_price'], details['quantity']
             )
             auction_list_msg += "☆------------------------------☆\n"
 
