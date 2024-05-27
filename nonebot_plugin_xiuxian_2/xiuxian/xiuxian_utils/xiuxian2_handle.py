@@ -9,7 +9,7 @@ from datetime import datetime
 from pathlib import Path
 from nonebot.log import logger
 from .data_source import jsondata
-from ..xiuxian_config import XiuConfig, get_user_rank
+from ..xiuxian_config import XiuConfig, convert_rank
 from .. import DRIVER
 from .item_json import Items
 from .xn_xiuxian_impart_config import config_impart
@@ -23,7 +23,6 @@ WEAPONPATH = DATABASE / "装备"
 xiuxian_num = "578043031" # 这里其实是修仙1作者的QQ号
 impart_num = "123451234"
 items = Items()
-# 获取当前时间并格式化
 current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
 
 
@@ -203,7 +202,6 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
         c.execute(sql, (user_id, root, type, power, create_time, user_name))
         self.conn.commit()
 
-
     def get_user_message(self, user_id):
         """根据USER_ID获取用户信息,不获取功法加成"""
         cur = self.conn.cursor()
@@ -217,7 +215,6 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
         else:
             return None
 
-
     def get_user_real_info(self, user_id):
         """根据USER_ID获取用户信息,获取功法加成"""
         cur = self.conn.cursor()
@@ -230,7 +227,6 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
             return user_data_dict
         else:
             return None
-
 
     def get_sect_info(self, sect_id):
         """
@@ -248,7 +244,6 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
         else:
             return None
         
-
     def get_sect_owners(self):
         """获取所有宗主的 user_id"""
         cur = self.conn.cursor()
@@ -257,7 +252,6 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
         result = cur.fetchall()
         return [row[0] for row in result]
     
-
     def get_elders(self):
         """获取所有长老的 user_id"""
         cur = self.conn.cursor()
@@ -265,7 +259,6 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
         cur.execute(sql)
         result = cur.fetchall()
         return [row[0] for row in result]
-
 
     def get_user_message2(self, user_id):
         """根据user_name获取用户信息"""
@@ -330,20 +323,12 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
     def ramaker(self, lg, type, user_id):
         """洗灵根"""
         cur = self.conn.cursor()
+        sql = "UPDATE user_xiuxian SET root=?,root_type=?,stone=stone-? WHERE user_id=?"
+        cur.execute(sql, (lg, type, XiuConfig().remake, user_id))
+        self.conn.commit()
 
-        # 查灵石
-        sql_s = "SELECT stone FROM user_xiuxian WHERE user_id=?"
-        cur.execute(sql_s, (user_id,))
-        result = cur.fetchone()
-        if result[0] >= XiuConfig().remake:
-            sql = "UPDATE user_xiuxian SET root=?,root_type=?,stone=stone-? WHERE user_id=?"
-            cur.execute(sql, (lg, type, XiuConfig().remake, user_id))
-            self.conn.commit()
-
-            self.update_power2(user_id) # 更新战力
-            return "逆天之行，重获新生，新的灵根为：{}，类型为：{}".format(lg, type)
-        else:
-            return "但是你的灵石还不够呢，快去赚点灵石吧！"
+        self.update_power2(user_id) # 更新战力
+        return "逆天之行，重获新生，新的灵根为：{}，类型为：{}".format(lg, type)
 
     def get_root_rate(self, name):
         """获取灵根倍率"""
@@ -745,7 +730,7 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
     
     def realm_top(self):
         """境界排行榜前50"""
-        rank_mapping = {rank: idx for idx, rank in enumerate(get_user_rank('江湖好手')[1])}
+        rank_mapping = {rank: idx for idx, rank in enumerate(convert_rank('江湖好手')[1])}
     
         sql = """SELECT user_name, level, exp FROM user_xiuxian 
             WHERE user_name IS NOT NULL
@@ -1569,12 +1554,9 @@ def final_user_data(user_data, columns):
     
     return user_dict
 
-    
-
 @DRIVER.on_shutdown
 async def close_db():
     XiuxianDateManage().close()
-
 
 
 # 这里是虚神界部分
@@ -1945,7 +1927,6 @@ async def close_db():
     XIUXIAN_IMPART_BUFF().close()
 
 
-
 # 这里是buff部分
 class BuffJsonDate:
 
@@ -2030,7 +2011,6 @@ class UserBuffDate:
         return armor_buff_data
 
 
-
 def get_weapon_info_msg(weapon_id, weapon_info=None):
     """
     获取一个法器(武器)信息msg
@@ -2069,7 +2049,6 @@ def get_armor_info_msg(armor_id, armor_info=None):
     msg += f"名字：{armor_info['name']}\n"
     msg += f"品阶：{armor_info['level']}\n"
     msg += f"效果：{def_buff_msg}{atk_buff_msg}{crit_buff_msg}"
-    #msg +=f"介绍：{armor_info['']}\n"
     return msg
 
 

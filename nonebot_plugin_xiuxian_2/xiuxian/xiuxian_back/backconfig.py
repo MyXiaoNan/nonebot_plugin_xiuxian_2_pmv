@@ -179,9 +179,12 @@ def get_auction_config():
         for key in configkey:
             if key not in list(config.keys()):
                 config[key] = CONFIG[key]
+        if 'user_auctions' not in config:
+            config['user_auctions'] = []
         savef_auction(config)
     except:
         config = CONFIG
+        config['user_auctions'] = []
         savef_auction(config)
     return config
 
@@ -203,3 +206,23 @@ def savef_auction(data):
         f.write(data)
         f.close()
     return True
+
+
+def remove_auction_item(auction_id):
+    config = get_auction_config()
+    auction_id = int(auction_id)
+    found = False
+    
+    for auction in config['user_auctions']:
+        for key, value in auction.items():
+            if int(value['id']) == auction_id:
+                config['user_auctions'].remove(auction)
+                found = True
+                break
+        if found:
+            break
+
+    savef_auction(config)
+
+
+

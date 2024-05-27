@@ -12,7 +12,7 @@ from ..xiuxian_utils.xiuxian2_handle import (
 from datetime import datetime
 import os
 from pathlib import Path
-from ..xiuxian_config import get_user_rank
+from ..xiuxian_config import convert_rank
 
 items = Items()
 sql_message = XiuxianDateManage()
@@ -217,7 +217,7 @@ def get_user_skill_back_msg(user_id):
         return l_msg
     for user_back in user_backs:
         if user_back['goods_type'] == "技能":
-            l_skill_msg = get_skill_msg(l_skill_msg, user_id, user_back['goods_id'], user_back['goods_num'])
+            l_skill_msg = get_skill_msg(l_skill_msg, user_back['goods_id'], user_back['goods_num'])
     if l_skill_msg:
         l_msg.append("☆------拥有技能书------☆")
         for msg in l_skill_msg:
@@ -330,7 +330,7 @@ def get_equipment_msg(l_msg, user_id, goods_id, goods_num):
     return l_msg
 
 
-def get_skill_msg(l_msg, user_id, goods_id, goods_num):
+def get_skill_msg(l_msg, goods_id, goods_num):
     """
     获取背包内的技能信息
     """
@@ -463,7 +463,7 @@ def get_yaocai_info_msg(goods_id, item_info):
 
 def check_use_elixir(user_id, goods_id, num):
     user_info = sql_message.get_user_message(user_id)
-    user_rank = get_user_rank(user_info['level'])[0]
+    user_rank = convert_rank(user_info['level'])[0]
     goods_info = items.get_data_by_item_id(goods_id)
     goods_rank = goods_info['rank']
     goods_name = goods_info['name']
