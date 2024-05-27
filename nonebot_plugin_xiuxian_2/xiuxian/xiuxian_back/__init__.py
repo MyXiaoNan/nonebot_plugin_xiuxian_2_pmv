@@ -1011,12 +1011,9 @@ async def auction_withdraw_(bot: Bot, event: GroupMessageEvent, args: Message = 
         await auction_withdraw.finish()
 
     arg = args.extract_plain_text().strip()
-    try:
-        auction_index = int(arg) - 1
-        if auction_index < 0 or auction_index >= len(user_auctions):
-            raise ValueError("编号超出范围")
-    except ValueError as e:
-        msg = "请输入正确的编号: {}".format(str(e))
+    auction_index = int(arg) - 1
+    if auction_index < 0 or auction_index >= len(user_auctions):
+        msg = "请输入正确的编号"
         if XiuConfig().img:
             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -1035,7 +1032,6 @@ async def auction_withdraw_(bot: Bot, event: GroupMessageEvent, args: Message = 
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await auction_withdraw.finish()
 
-    # 获取物品类型
     back_msg = sql_message.get_back_msg(details['user_id'])
     goods_type = None
     for back in back_msg:
@@ -1043,7 +1039,6 @@ async def auction_withdraw_(bot: Bot, event: GroupMessageEvent, args: Message = 
             goods_type = back['goods_type']
             break
 
-    # 如果找不到物品类型
     if not goods_type:
         msg = "物品类型未找到，无法撤回拍卖品：{}".format(goods_name)
         if XiuConfig().img:

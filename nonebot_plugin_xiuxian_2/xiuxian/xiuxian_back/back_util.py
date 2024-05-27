@@ -217,7 +217,7 @@ def get_user_skill_back_msg(user_id):
         return l_msg
     for user_back in user_backs:
         if user_back['goods_type'] == "技能":
-            l_skill_msg = get_skill_msg(l_skill_msg, user_id, user_back['goods_id'], user_back['goods_num'])
+            l_skill_msg = get_skill_msg(l_skill_msg, user_back['goods_id'], user_back['goods_num'])
     if l_skill_msg:
         l_msg.append("☆------拥有技能书------☆")
         for msg in l_skill_msg:
