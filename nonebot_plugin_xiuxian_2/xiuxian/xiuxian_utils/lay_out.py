@@ -14,6 +14,7 @@ from ..xiuxian_config import XiuConfig, JsonConfig
 from .xiuxian2_handle import XiuxianDateManage
 from .utils import get_msg_pic
 
+
 sql_message = XiuxianDateManage()
 
 limit_all_message = require("nonebot_plugin_apscheduler").scheduler
@@ -21,17 +22,17 @@ limit_all_stamina = require("nonebot_plugin_apscheduler").scheduler
 
 limit_all_data: Dict[str, Any] = {}
 limit_num = 99999
-max_stamina = 100
-stamina_recovery_rate = 1  # 每分钟恢复一点体力
+max_stamina = XiuConfig().max_stamina
+stamina_recovery_rate = 1
 
-@limit_all_message.scheduled_job('interval', hours=0, minutes=1)
+@limit_all_message.scheduled_job('interval', minutes=1)
 def limit_all_message_():
     # 重置消息字典
     global limit_all_data
     limit_all_data  = {}
     logger.opt(colors=True).success("<green>已重置消息字典！</green>")
 
-@limit_all_stamina.scheduled_job('interval', minutes=1)
+@limit_all_stamina.scheduled_job('interval', minutes=10)
 def limit_all_stamina_():
     sql_message.update_all_users_stamina(max_stamina, stamina_recovery_rate)
 
@@ -108,7 +109,7 @@ def Cooldown(
         at_sender: bool = True,
         isolate_level: CooldownIsolateLevel = CooldownIsolateLevel.USER,
         parallel: int = 1,
-        stamina_cost: int = 0  # 新增参数，表示消耗的体力值，默认为0
+        stamina_cost: int = 0
 ) -> None:
     """依赖注入形式的命令冷却
 
@@ -176,9 +177,14 @@ def Cooldown(
 
         user_id = str(event.get_user_id())
         if stamina_cost > 0:
-            user_data = sql_message.get_user_message(user_id)
+            user_data = sql_message.get_user_info_with_id(user_id)
             if not user_data or user_data['user_stamina'] < stamina_cost:
-                await bot.send(event=event, message=f"你没有足够的体力，请稍后再试！")
+                msg = "你没有足够的体力，请等待体力恢复后再试！"
+                if XiuConfig().img:
+                    pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
+                    await bot.send_group_msg(group_id=int(group_id), message=MessageSegment.image(pic))
+                else:
+                    await bot.send_group_msg(group_id=int(group_id), message=msg)
                 await matcher.finish()
             sql_message.update_user_stamina(user_id, stamina_cost, 2)  # 减少体力
 

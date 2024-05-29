@@ -252,7 +252,7 @@ async def sign_in_(bot: Bot, event: GroupMessageEvent):
         await sign_in.finish("修仙界网络堵塞，发送失败!", reply_message=True)
 
 
-@help_in.handle(parameterless=[Cooldown(at_sender=False)])
+@help_in.handle(parameterless=[Cooldown(at_sender=False, stamina_cost = 100)])
 async def help_in_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
     """修仙帮助"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
