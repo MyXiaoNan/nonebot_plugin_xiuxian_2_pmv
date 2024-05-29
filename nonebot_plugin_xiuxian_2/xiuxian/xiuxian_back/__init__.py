@@ -30,8 +30,7 @@ from ..xiuxian_utils.utils import (
     Txt2Img, number_to
 )
 from ..xiuxian_utils.xiuxian2_handle import (
-    XiuxianDateManage, OtherSet,
-    get_weapon_info_msg, get_armor_info_msg,
+    XiuxianDateManage, get_weapon_info_msg, get_armor_info_msg,
     get_sec_msg, get_main_info_msg, get_sub_info_msg, UserBuffDate
 )
 from ..xiuxian_config import XiuConfig, convert_rank
@@ -79,15 +78,17 @@ __back_help__ = """
 3、换装+装备名字：卸载目标装备
 4、坊市购买+物品编号:购买坊市内的物品，可批量购买
 5、坊市查看、查看坊市:查询坊市在售物品
-6、坊市上架:坊市上架 物品 金额，上架背包内的物品,最低金额50w，可批量上架
-7、系统坊市上架:系统坊市上架 物品 金额，上架任意存在的物品，超管权限
-8、坊市下架+物品编号：下架坊市内的物品，管理员和群主可以下架任意编号的物品！
-9、群交流会开启、关闭:开启拍卖行功能，管理员指令，注意：会在机器人所在的全部已开启此功能的群内通报拍卖消息
-10、拍卖+金额：对本次拍卖会的物品进行拍卖
-11、炼金+物品名字：将物品炼化为灵石,支持批量炼金和绑定丹药炼金
-12、背包帮助:获取背包帮助指令
-13、查看修仙界物品:支持类型【功法|神通|丹药|合成丹药|法器|防具】
-14、清空坊市:清空本群坊市,管理员权限
+6、查看拍卖品、拍卖品查看:查询将在拍卖品拍卖的玩家物品
+7、坊市上架:坊市上架 物品 金额，上架背包内的物品,最低金额50w，可批量上架
+8、提交拍卖品:提交拍卖品 物品 金额，上架背包内的物品,最低金额随意，可批量上架
+9、系统坊市上架:系统坊市上架 物品 金额，上架任意存在的物品，超管权限
+10、坊市下架+物品编号：下架坊市内的物品，管理员和群主可以下架任意编号的物品！
+11、群交流会开启、关闭:开启拍卖行功能，管理员指令，注意：会在机器人所在的全部已开启此功能的群内通报拍卖消息
+12、拍卖+金额：对本次拍卖会的物品进行拍卖
+13、炼金+物品名字：将物品炼化为灵石,支持批量炼金和绑定丹药炼金
+14、背包帮助:获取背包帮助指令
+15、查看修仙界物品:支持类型【功法|神通|丹药|合成丹药|法器|防具】
+16、清空坊市:清空本群坊市,管理员权限
 非指令：
 1、定时生成拍卖会,每天{}点每整点生成一场拍卖会
 """.format(auction_time_config['hours']).strip()
@@ -1827,8 +1828,8 @@ async def auction_add_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
     user_id = user_info['user_id']
     args = args.extract_plain_text().split()
     goods_name = args[0] if len(args) > 0 else None
-    price_str = args[1] if len(args) > 1 else "500000"  # 默认底价为500000
-    quantity_str = args[2] if len(args) > 2 else "1"  # 默认数量为1
+    price_str = args[1] if len(args) > 1 else "1"
+    quantity_str = args[2] if len(args) > 2 else "1"
 
     if not goods_name:
         msg = "请输入正确指令！例如：提交拍卖品 物品 可选参数为(金额 数量)"

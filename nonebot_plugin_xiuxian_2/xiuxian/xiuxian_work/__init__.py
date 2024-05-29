@@ -349,7 +349,6 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
             )
             exp_time = (datetime.now() - work_time).seconds // 60  # 时长计算
             time2 = workhandle().do_work(
-                # key=1, name=user_cd_message.scheduled_time  修改点
                 key=1, name=user_cd_message['scheduled_time'], level=user_level, exp=user_info['exp'],
                 user_id=user_info['user_id']
             )
