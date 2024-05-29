@@ -275,14 +275,9 @@ async def impart_back_(bot: Bot, event: GroupMessageEvent):
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await impart_back.finish()
-    img_tp = impart_data_json.data_person_list(user_id)
+
     list_tp = []
     img = None
-    for x in range(len(img_tp)):
-        if XiuConfig().merge_forward_send:
-            img += MessageSegment.image(img_path / str(img_tp[x] + ".png"))
-        else:
-            img = str(img_tp[x])
     txt_back = f"""--道友{user_info['user_name']}的传承物资--
 思恋结晶：{impart_data_draw['stone_num']}颗
 抽卡次数：{impart_data_draw['wish']}/90次
@@ -307,9 +302,19 @@ boss战攻击提升:{int(impart_data_draw['boss_atk'] * 100)}%
     list_tp.append(
         {"type": "node", "data": {"name": f"道友{user_info['user_name']}的传承背包", "uin": bot.self_id,
                                   "content": txt_tp}})
-    list_tp.append(
+
+    img_tp = impart_data_json.data_person_list(user_id)
+    
+    for x in range(len(img_tp)):
+        if XiuConfig().merge_forward_send:
+            img = MessageSegment.image(img_path / str(img_tp[x] + ".png"))
+        else:
+            img = str(img_tp[x])
+        list_tp.append(
         {"type": "node", "data": {"name": f"道友{user_info['user_name']}的传承背包", "uin": bot.self_id,
-                                  "content": img}})
+                                  "content": img}}
+    )
+    
     try:
         await send_msg_handler(bot, event, list_tp)
     except ActionFailed:

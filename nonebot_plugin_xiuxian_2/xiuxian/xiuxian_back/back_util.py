@@ -17,6 +17,17 @@ from ..xiuxian_config import convert_rank
 items = Items()
 sql_message = XiuxianDateManage()
 
+YAOCAIINFOMSG = {
+    "-1": "性寒",
+    "0": "性平",
+    "1": "性热",
+    "2": "生息",
+    "3": "养气",
+    "4": "炼气",
+    "5": "聚元",
+    "6": "凝神",
+}
+
 
 def check_equipment_can_use(user_id, goods_id):
     """
@@ -278,18 +289,6 @@ def get_ldl_msg(l_msg, goods_id, goods_num):
     msg += f"\n拥有数量:{goods_num}"
     l_msg.append(msg)
     return l_msg
-
-
-YAOCAIINFOMSG = {
-    "-1": "性寒",
-    "0": "性平",
-    "1": "性热",
-    "2": "生息",
-    "3": "养气",
-    "4": "炼气",
-    "5": "聚元",
-    "6": "凝神",
-}
 
 
 def get_yaocai_info(yaocai_info):
