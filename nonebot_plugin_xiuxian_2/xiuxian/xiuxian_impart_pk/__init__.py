@@ -115,7 +115,7 @@ async def impart_pk_list_(bot: Bot, event: GroupMessageEvent):
     for x in range(len(xu_list)):
         user_data = impart_pk.find_user_data(xu_list[x])
         if user_data:
-            name = sql_message.get_user_message(xu_list[x])['user_name']
+            name = sql_message.get_user_info_with_id(xu_list[x])['user_name']
             msg = ""
             msg += f"编号：{user_data['number']}\n"
             msg += f"道友：{name}\n"
@@ -245,7 +245,7 @@ async def impart_pk_now_(bot: Bot, event: GroupMessageEvent, args: Message = Com
         await impart_pk_now.finish()
 
     player_1_name = user_info['user_name']
-    player_2_name = sql_message.get_user_message(player_2)['user_name']
+    player_2_name = sql_message.get_user_info_with_id(player_2)['user_name']
 
     while user_data["pk_num"] > 0:
         duel_count += 1

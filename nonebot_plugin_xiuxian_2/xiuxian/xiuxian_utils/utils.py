@@ -85,7 +85,7 @@ def check_user(event: GroupMessageEvent):
 
     isUser = False
     user_id = event.get_user_id()
-    user_info = sql_message.get_user_message(user_id)
+    user_info = sql_message.get_user_info_with_id(user_id)
     if user_info is None:
         msg = "修仙界没有道友的信息，请输入【我要修仙】加入！"
     else:

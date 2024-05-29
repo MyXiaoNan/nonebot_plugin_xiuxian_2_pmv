@@ -406,7 +406,7 @@ async def two_exp_(bot: Bot, event: GroupMessageEvent, args: Message = CommandAr
         if arg.type == "at":
             two_qq = arg.data.get("qq", "")
     
-    user_2 = sql_message.get_user_message(two_qq)
+    user_2 = sql_message.get_user_info_with_id(two_qq)
     
     if user_1 and user_2:
         if two_qq is None:
@@ -443,8 +443,8 @@ async def two_exp_(bot: Bot, event: GroupMessageEvent, args: Message = CommandAr
                 limt_2 = two_exp_cd.find_user(user_2['user_id'])
                 sql_message.update_last_check_info_time(user_1['user_id']) # 更新查看修仙信息时间
                 # 加入传承
-                impart_data_1 = xiuxian_impart.get_user_message(user_1['user_id'])
-                impart_data_2 = xiuxian_impart.get_user_message(user_2['user_id'])
+                impart_data_1 = xiuxian_impart.get_user_info_with_id(user_1['user_id'])
+                impart_data_2 = xiuxian_impart.get_user_info_with_id(user_2['user_id'])
                 impart_two_exp_1 = impart_data_1['impart_two_exp'] if impart_data_1 is not None else 0
                 impart_two_exp_2 = impart_data_2['impart_two_exp'] if impart_data_2 is not None else 0
                 
@@ -599,7 +599,7 @@ async def stone_exp_(bot: Bot, event: GroupMessageEvent, args: Message = Command
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await stone_exp.finish()
     user_id = user_info['user_id']
-    user_mes = sql_message.get_user_message(user_id)  # 获取用户信息
+    user_mes = sql_message.get_user_info_with_id(user_id)  # 获取用户信息
     level = user_mes['level']
     use_exp = user_mes['exp']
     use_stone = user_mes['stone']
@@ -708,7 +708,7 @@ async def out_closing_(bot: Bot, event: GroupMessageEvent):
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await out_closing.finish()
     user_id = user_info['user_id']
-    user_mes = sql_message.get_user_message(user_id)  # 获取用户信息
+    user_mes = sql_message.get_user_info_with_id(user_id)  # 获取用户信息
     level = user_mes['level']
     use_exp = user_mes['exp']
     hp_speed = 25
@@ -754,7 +754,7 @@ async def out_closing_(bot: Bot, event: GroupMessageEvent):
             # 洞天福地为加法
         )  # 本次闭关获取的修为
         # 计算传承增益
-        impart_data = xiuxian_impart.get_user_message(user_id)
+        impart_data = xiuxian_impart.get_user_info_with_id(user_id)
         impart_exp_up = impart_data['impart_exp_up'] if impart_data is not None else 0
         exp = int(exp * (1 + impart_exp_up))
         if exp >= user_get_exp_max:
@@ -893,7 +893,7 @@ async def mind_state_(bot: Bot, event: GroupMessageEvent):
     main_buff_rate_buff = main_buff_data['ratebuff'] if main_buff_data is not None else 0
     main_hp_buff = main_buff_data['hpbuff'] if main_buff_data is not None else 0
     main_mp_buff = main_buff_data['mpbuff'] if main_buff_data is not None else 0
-    impart_data = xiuxian_impart.get_user_message(user_id)
+    impart_data = xiuxian_impart.get_user_info_with_id(user_id)
     impart_hp_per = impart_data['impart_hp_per'] if impart_data is not None else 0
     impart_mp_per = impart_data['impart_mp_per'] if impart_data is not None else 0
     impart_know_per = impart_data['impart_know_per'] if impart_data is not None else 0
@@ -1012,7 +1012,7 @@ async def my_exp_num_(bot: Bot, event: GroupMessageEvent):
         await my_exp_num.finish()
     user_id = user_info['user_id']
     limt = two_exp_cd.find_user(user_id)
-    impart_data = xiuxian_impart.get_user_message(user_id)
+    impart_data = xiuxian_impart.get_user_info_with_id(user_id)
     impart_two_exp = impart_data['impart_two_exp'] if impart_data is not None else 0
     
     main_two_data = UserBuffDate(user_id).get_user_main_buff_data()

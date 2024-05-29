@@ -142,7 +142,7 @@ async def set_auction_by_scheduler_():
     for idx, (auction_id, item_quantity, start_price, is_user_auction) in enumerate(auction_items):
         item_name = items.get_data_by_item_id(auction_id)['name']
         if is_user_auction:
-            owner_info = sql_message.get_user_message(get_user_auction_price_by_id(auction_id)['user_id'])
+            owner_info = sql_message.get_user_info_with_id(get_user_auction_price_by_id(auction_id)['user_id'])
             owner_name = owner_info['user_name']
             msg += f"{idx + 1}号：{item_name}x{item_quantity}（由{owner_name}道友提供）\n"
         else:
@@ -239,7 +239,7 @@ async def set_auction_by_scheduler_():
             auction = {}
             continue
         
-        user_info = sql_message.get_user_message(auction['user_id'])
+        user_info = sql_message.get_user_info_with_id(auction['user_id'])
         msg = "(拍卖锤落下)！！！\n"
         msg += "恭喜来自群{}的{}道友成功拍下：{}-{}x{}，将在拍卖会结算后送到您手中。\n".format(
             auction['group_id'], user_info['user_name'], auction['type'], auction['name'], auction['quantity'])
@@ -269,7 +269,7 @@ async def set_auction_by_scheduler_():
     end_msg = "本场拍卖会结束！感谢各位道友的参与。\n拍卖结果整理如下：\n"
     for idx, (auction_id, user_id, group_id, item_type, final_price, quantity) in enumerate(auction_results):
         item_name = items.get_data_by_item_id(auction_id)['name']
-        final_user_info = sql_message.get_user_message(user_id)
+        final_user_info = sql_message.get_user_info_with_id(user_id)
         if user_id:
             sql_message.update_ls(user_id, int(final_price) * quantity, 2)
             sql_message.send_back(user_id, auction_id, item_name, item_type, quantity)
@@ -351,7 +351,7 @@ async def xiuxian_sone_(bot: Bot, event: GroupMessageEvent):
 buy_lock = asyncio.Lock()
 
 
-@buy.handle(parameterless=[Cooldown(1.4, isolate_level=CooldownIsolateLevel.GROUP)])
+@buy.handle(parameterless=[Cooldown(1.4, at_sender=False, isolate_level=CooldownIsolateLevel.GROUP)])
 async def buy_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """购物"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -513,7 +513,7 @@ async def shop_(bot: Bot, event: GroupMessageEvent):
     await shop.finish()
 
 
-@shop_added_by_admin.handle(parameterless=[Cooldown(1.4, isolate_level=CooldownIsolateLevel.GROUP, parallel=1)])
+@shop_added_by_admin.handle(parameterless=[Cooldown(1.4, at_sender=False, isolate_level=CooldownIsolateLevel.GROUP, parallel=1)])
 async def shop_added_by_admin_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """系统上架坊市"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -609,7 +609,7 @@ async def shop_added_by_admin_(bot: Bot, event: GroupMessageEvent, args: Message
     await shop_added_by_admin.finish()
 
 
-@shop_added.handle(parameterless=[Cooldown(1.4, isolate_level=CooldownIsolateLevel.GROUP)])
+@shop_added.handle(parameterless=[Cooldown(1.4, at_sender=False, isolate_level=CooldownIsolateLevel.GROUP)])
 async def shop_added_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """用户上架坊市"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -876,7 +876,7 @@ async def goods_re_root_(bot: Bot, event: GroupMessageEvent, args: Message = Com
     await goods_re_root.finish()
 
 
-@shop_off.handle(parameterless=[Cooldown(1.4, isolate_level=CooldownIsolateLevel.GROUP, parallel=1)])
+@shop_off.handle(parameterless=[Cooldown(1.4, at_sender=False, isolate_level=CooldownIsolateLevel.GROUP, parallel=1)])
 async def shop_off_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """下架商品"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -976,7 +976,7 @@ async def shop_off_(bot: Bot, event: GroupMessageEvent, args: Message = CommandA
         await shop_off.finish()
 
 
-@auction_withdraw.handle(parameterless=[Cooldown(1.4, isolate_level=CooldownIsolateLevel.GROUP)])
+@auction_withdraw.handle(parameterless=[Cooldown(1.4, at_sender=False, isolate_level=CooldownIsolateLevel.GROUP)])
 async def auction_withdraw_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """用户撤回拍卖品"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -1329,7 +1329,7 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
         except ValueError:
             num = 1
         goods_info = items.get_data_by_item_id(goods_id)
-        user_info = sql_message.get_user_message(user_id)
+        user_info = sql_message.get_user_info_with_id(user_id)
         user_rank = convert_rank(user_info['level'])[0]
         goods_rank = goods_info['rank']
         goods_name = goods_info['name']
@@ -1371,7 +1371,7 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
             # 如果用户输入的数量不是一个合法的数字，则默认使用1个，并继续后续操作
             num = 1
         goods_info = items.get_data_by_item_id(goods_id)
-        user_info = sql_message.get_user_message(user_id)
+        user_info = sql_message.get_user_info_with_id(user_id)
         user_rank = convert_rank(user_info['level'])[0]
         goods_name = goods_info['name']
         goods_id1 = goods_info['buff_1']
@@ -1451,7 +1451,7 @@ async def auction_view_(bot: Bot, event: GroupMessageEvent, args: Message = Comm
     auction_list_msg = "拍卖会物品列表:\n"
     for idx, auction in enumerate(user_auctions):
         for goods_name, details in auction.items():
-            user_info = sql_message.get_user_message(details['user_id'])
+            user_info = sql_message.get_user_info_with_id(details['user_id'])
             auction_list_msg += "编号: {}\n物品名称: {}\n所有者：{}\n底价: {} 枚灵石\n数量: {}\n".format(
                 idx + 1, goods_name, user_info['user_name'], details['start_price'], details['quantity']
             )
@@ -1533,7 +1533,7 @@ async def creat_auction_(bot: Bot, event: GroupMessageEvent):
     for idx, (auction_id, item_quantity, start_price, is_user_auction) in enumerate(auction_items):
         item_name = items.get_data_by_item_id(auction_id)['name']
         if is_user_auction:
-            owner_info = sql_message.get_user_message(get_user_auction_price_by_id(auction_id)['user_id'])
+            owner_info = sql_message.get_user_info_with_id(get_user_auction_price_by_id(auction_id)['user_id'])
             owner_name = owner_info['user_name']
             msg += f"{idx + 1}号：{item_name}x{item_quantity}（由{owner_name}道友提供）\n"
         else:
@@ -1627,7 +1627,7 @@ async def creat_auction_(bot: Bot, event: GroupMessageEvent):
             auction = {}
             continue
         
-        user_info = sql_message.get_user_message(auction['user_id'])
+        user_info = sql_message.get_user_info_with_id(auction['user_id'])
         msg = "(拍卖锤落下)！！！\n"
         msg += "恭喜来自群{}的{}道友成功拍下：{}-{}x{}，将在拍卖会结算后送到您手中。\n".format(
             auction['group_id'], user_info['user_name'], auction['type'], auction['name'], auction['quantity'])
@@ -1654,7 +1654,7 @@ async def creat_auction_(bot: Bot, event: GroupMessageEvent):
     print(auction_results)
     for idx, (auction_id, user_id, group_id, item_type, final_price, quantity) in enumerate(auction_results):
         item_name = items.get_data_by_item_id(auction_id)['name']
-        final_user_info = sql_message.get_user_message(user_id)
+        final_user_info = sql_message.get_user_info_with_id(user_id)
         print(auction_id)
         if user_id:
             sql_message.update_ls(user_id, int(final_price) * quantity, 2)

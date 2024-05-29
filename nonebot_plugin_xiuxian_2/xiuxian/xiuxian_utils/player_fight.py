@@ -32,7 +32,7 @@ def Player_fight(player1: dict, player2: dict, type_in, bot_id):
     user1_hp_buff = user1_main_buff_data['hpbuff'] if user1_main_buff_data is not None else 0
     user1_mp_buff = user1_main_buff_data['mpbuff'] if user1_main_buff_data is not None else 0
     try:
-        user_1_impart_data = xiuxian_impart.get_user_message(player1['user_id'])
+        user_1_impart_data = xiuxian_impart.get_user_info_with_id(player1['user_id'])
     except:
         user_1_impart_data = None
     user_1_impart_hp = user_1_impart_data['impart_hp_per'] if user_1_impart_data is not None else 0
@@ -45,7 +45,7 @@ def Player_fight(player1: dict, player2: dict, type_in, bot_id):
     user2_hp_buff = user2_main_buff_data['hpbuff'] if user2_main_buff_data is not None else 0
     user2_mp_buff = user2_main_buff_data['mpbuff'] if user2_main_buff_data is not None else 0
     try:
-        user_2_impart_data = xiuxian_impart.get_user_message(player2['user_id'])
+        user_2_impart_data = xiuxian_impart.get_user_info_with_id(player2['user_id'])
     except:
         user_2_impart_data = None
     user_2_impart_hp = user_1_impart_data['impart_hp_per'] if user_2_impart_data is not None else 0
@@ -588,7 +588,7 @@ async def Boss_fight(player1: dict, boss: dict, type_in=2, bot_id=0):
         stone_buff = user1_sub_buff_data['stone'] if user1_sub_buff_data is not None else 0
         integral_buff = user1_sub_buff_data['integral'] if user1_sub_buff_data is not None else 0
         sub_break = user1_sub_buff_data['break'] if user1_sub_buff_data is not None else 0
-    impart_data = xiuxian_impart.get_user_message(player1['user_id'])
+    impart_data = xiuxian_impart.get_user_info_with_id(player1['user_id'])
     impart_hp_per = impart_data['impart_hp_per'] if impart_data is not None else 0
     impart_mp_per = impart_data['impart_mp_per'] if impart_data is not None else 0
     user1_hp_buff = user1_hp_buff + impart_hp_per
@@ -1467,7 +1467,7 @@ def get_turnatk(player, buff=0, user_battle_buff_date={}): #辅修功法14
     zwsh =0
     try:
         user_id = player['user_id']
-        impart_data = xiuxian_impart.get_user_message(user_id)
+        impart_data = xiuxian_impart.get_user_info_with_id(user_id)
         user_buff_data = UserBuffDate(user_id)
         weapon_critatk_data = UserBuffDate(user_id).get_user_weapon_data() #武器会心伤害
         weapon_zw = UserBuffDate(user_id).get_user_weapon_data()

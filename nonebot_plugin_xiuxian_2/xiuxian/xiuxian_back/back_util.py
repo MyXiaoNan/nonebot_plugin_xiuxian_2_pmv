@@ -459,7 +459,7 @@ def get_yaocai_info_msg(goods_id, item_info):
 
 
 def check_use_elixir(user_id, goods_id, num):
-    user_info = sql_message.get_user_message(user_id)
+    user_info = sql_message.get_user_info_with_id(user_id)
     user_rank = convert_rank(user_info['level'])[0]
     goods_info = items.get_data_by_item_id(goods_id)
     goods_rank = goods_info['rank']
@@ -591,7 +591,7 @@ def check_use_elixir(user_id, goods_id, num):
 
 
 def get_use_jlq_msg(user_id, goods_id):
-    user_info = sql_message.get_user_message(user_id)
+    user_info = sql_message.get_user_info_with_id(user_id)
     if user_info['blessed_spot_flag'] == 0:
         msg = f"道友还未拥有洞天福地，无法使用该物品"
     else:

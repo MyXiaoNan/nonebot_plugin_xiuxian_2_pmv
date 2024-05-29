@@ -43,10 +43,10 @@ class XiuxianDateManage:
             if not self.database_path.exists():
                 self.database_path.mkdir(parents=True)
                 self.database_path /= "xiuxian.db"
-                self.conn = sqlite3.connect(self.database_path)
+                self.conn = sqlite3.connect(self.database_path, check_same_thread=False)
             else:
                 self.database_path /= "xiuxian.db"
-                self.conn = sqlite3.connect(self.database_path)
+                self.conn = sqlite3.connect(self.database_path, check_same_thread=False)
             logger.opt(colors=True).info(f"<green>修仙数据库已连接！</green>")
             self._check_data()
 
@@ -202,7 +202,7 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
         c.execute(sql, (user_id, root, type, power, create_time, user_name))
         self.conn.commit()
 
-    def get_user_message(self, user_id):
+    def get_user_info_with_id(self, user_id):
         """根据USER_ID获取用户信息,不获取功法加成"""
         cur = self.conn.cursor()
         sql = "select * from user_xiuxian WHERE user_id=?"
@@ -214,7 +214,44 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
             return user_dict
         else:
             return None
+        
+    def get_user_info_with_name(self, user_id):
+        """根据user_name获取用户信息"""
+        cur = self.conn.cursor()
+        sql = "select * from user_xiuxian WHERE user_name=?"
+        cur.execute(sql, (user_id,))
+        result = cur.fetchone()
+        if result:
+            columns = [column[0] for column in cur.description]
+            user_dict = dict(zip(columns, result))
+            return user_dict
+        else:
+            return None
+        
+    def update_all_users_stamina(self, max_stamina, stamina_recovery_rate):
+        """体力未满用户更新体力值"""
+        cur = self.conn.cursor()
+        sql = """
+            UPDATE user_xiuxian
+            SET user_stamina = MIN(user_stamina + ?, ?)
+            WHERE user_stamina < ?
+        """
+        cur.execute(sql, (stamina_recovery_rate, max_stamina, max_stamina))
+        self.conn.commit()
 
+    def update_user_stamina(self, user_id, stamina_change, key):
+        """更新用户体力值 1为增加，2为减少"""
+        cur = self.conn.cursor()
+
+        if key == 1:
+            sql = "UPDATE user_xiuxian SET user_stamina=user_stamina+? WHERE user_id=?"
+            cur.execute(sql, (stamina_change, user_id))
+            self.conn.commit()
+        elif key == 2:
+            sql = "UPDATE user_xiuxian SET user_stamina=user_stamina-? WHERE user_id=?"
+            cur.execute(sql, (stamina_change, user_id))
+            self.conn.commit()
+ 
     def get_user_real_info(self, user_id):
         """根据USER_ID获取用户信息,获取功法加成"""
         cur = self.conn.cursor()
@@ -259,20 +296,6 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
         cur.execute(sql)
         result = cur.fetchall()
         return [row[0] for row in result]
-
-    def get_user_message2(self, user_id):
-        """根据user_name获取用户信息"""
-        cur = self.conn.cursor()
-        sql = "select * from user_xiuxian WHERE user_name=?"
-        cur.execute(sql, (user_id,))
-        result = cur.fetchone()
-        if result:
-            columns = [column[0] for column in cur.description]
-            user_dict = dict(zip(columns, result))
-            return user_dict
-        else:
-            return None
-        
 
     def create_user(self, user_id, *args):
         """校验用户是否存在"""
@@ -347,7 +370,7 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
 
     def update_power2(self, user_id) -> None:
         """更新战力"""
-        UserMessage = self.get_user_message(user_id)
+        UserMessage = self.get_user_info_with_id(user_id)
         cur = self.conn.cursor()
         level = jsondata.level_data()
         root = jsondata.root_data()
@@ -1473,7 +1496,7 @@ class OtherSet(XiuConfig):
         return play_list, suc
 
     def send_hp_mp(self, user_id, hp, mp):
-        user_msg = XiuxianDateManage().get_user_message(user_id)
+        user_msg = XiuxianDateManage().get_user_info_with_id(user_id)
         max_hp = int(user_msg['exp'] / 2)
         max_mp = int(user_msg['exp'])
 
@@ -1519,12 +1542,12 @@ def final_user_data(user_data, columns):
     user_dict = dict(zip((col[0] for col in columns), user_data))
     
     # 通过字段名称获取相应的值
-    impart_data = xiuxian_impart.get_user_message(user_dict['user_id'])
+    impart_data = xiuxian_impart.get_user_info_with_id(user_dict['user_id'])
     if impart_data:
         pass
     else:
         xiuxian_impart._create_user(user_dict['user_id'])
-    impart_data = xiuxian_impart.get_user_message(user_dict['user_id'])
+    impart_data = xiuxian_impart.get_user_info_with_id(user_dict['user_id'])
     impart_hp_per = impart_data['impart_hp_per'] if impart_data is not None else 0
     impart_mp_per = impart_data['impart_mp_per'] if impart_data is not None else 0
     impart_atk_per = impart_data['impart_atk_per'] if impart_data is not None else 0
@@ -1665,7 +1688,7 @@ class XIUXIAN_IMPART_BUFF:
             c.execute(sql, (user_id,))
             self.conn.commit()
 
-    def get_user_message(self, user_id):
+    def get_user_info_with_id(self, user_id):
         """根据USER_ID获取用户impart_buff信息"""
         cur = self.conn.cursor()
         sql = "select * from xiuxian_impart WHERE user_id=?"
@@ -1896,7 +1919,7 @@ class XIUXIAN_IMPART_BUFF:
 
 def leave_harm_time(user_id):
     hp_speed = 25
-    user_mes = sql_message.get_user_message(user_id)
+    user_mes = sql_message.get_user_info_with_id(user_id)
     level = user_mes['level']
     level_rate = sql_message.get_root_rate(user_mes['root_type']) # 灵根倍率
     realm_rate = jsondata.level_data()[level]["spend"] # 境界倍率
@@ -1914,11 +1937,11 @@ def leave_harm_time(user_id):
 
 
 async def impart_check(user_id):
-    if XIUXIAN_IMPART_BUFF().get_user_message(user_id) is None:
+    if XIUXIAN_IMPART_BUFF().get_user_info_with_id(user_id) is None:
         XIUXIAN_IMPART_BUFF()._create_user(user_id)
-        return XIUXIAN_IMPART_BUFF().get_user_message(user_id)
+        return XIUXIAN_IMPART_BUFF().get_user_info_with_id(user_id)
     else:
-        return XIUXIAN_IMPART_BUFF().get_user_message(user_id)
+        return XIUXIAN_IMPART_BUFF().get_user_info_with_id(user_id)
     
 xiuxian_impart = XIUXIAN_IMPART_BUFF()
 
