@@ -468,7 +468,6 @@ def check_use_elixir(user_id, goods_id, num):
     goods_rank = goods_info['rank']
     goods_name = goods_info['name']
     back = sql_message.get_item_by_good_id_and_user_id(user_id, goods_id)
-    # goods_day_num = back['day_num']
     goods_all_num = back['all_num']
     if goods_info['buff_type'] == "level_up_rate":  # 增加突破概率的丹药
         if goods_rank < user_rank:  # 最低使用限制
@@ -476,7 +475,7 @@ def check_use_elixir(user_id, goods_id, num):
         elif goods_rank - user_rank > 18:  # 最高使用限制
             msg = f"道友当前境界为：{user_info['level']}，丹药：{goods_name}已不能满足道友，请寻找适合道友的丹药吧！"    
         else:  # 检查完毕
-            sql_message.update_back_j(user_id, goods_id, num=num, use_key=1)
+            sql_message.update_back_j(user_id, goods_id, num, 1)
             sql_message.update_levelrate(user_id, user_info['level_up_rate'] + goods_info['buff'] * num)
             msg = f"道友成功使用丹药：{goods_name}{num}颗，下一次突破的成功概率提高{goods_info['buff'] * num}%!"
 
@@ -487,9 +486,9 @@ def check_use_elixir(user_id, goods_id, num):
             if goods_all_num >= goods_info['all_num']:
                 msg = f"道友使用的丹药：{goods_name}已经达到丹药的耐药性上限！已经无法使用该丹药了！"    
             else:  # 检查完毕
-                sql_message.update_back_j(user_id, goods_id, use_key=1)
-                sql_message.update_levelrate(user_id, user_info['level_up_rate'] + goods_info['buff'])
-                msg = f"道友成功使用丹药：{goods_name}1颗,下一次突破的成功概率提高{goods_info['buff']}%!"
+                sql_message.update_back_j(user_id, goods_id, num, 1)
+                sql_message.update_levelrate(user_id, user_info['level_up_rate'] + goods_info['buff'] * num)
+                msg = f"道友成功使用丹药：{goods_name}{num}颗,下一次突破的成功概率提高{goods_info['buff'] * num}%!"
 
     elif goods_info['buff_type'] == "hp":  # 回复状态的丹药
         if user_info['root'] == "器师":
