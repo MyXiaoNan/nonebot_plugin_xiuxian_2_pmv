@@ -44,7 +44,6 @@ run_xiuxian = on_fullmatch("我要修仙", priority=8, permission=GROUP, block=T
 restart = on_fullmatch("重入仙途", permission=GROUP, priority=7, block=True)
 sign_in = on_fullmatch("修仙签到", priority=13, permission=GROUP, block=True)
 help_in = on_fullmatch("修仙帮助", priority=12, permission=GROUP, block=True)
-
 rank = on_command("排行榜", aliases={"修仙排行榜", "灵石排行榜", "战力排行榜", "境界排行榜", "宗门排行榜"},
                   priority=7, permission=GROUP, block=True)
 remaname = on_command("改名", priority=5, permission=GROUP, block=True)
@@ -61,6 +60,7 @@ rob_stone = on_command("抢劫", aliases={"抢灵石","拿来吧你"}, priority=
 restate = on_command("重置状态", permission=SUPERUSER, priority=12, block=True)
 set_xiuxian = on_command("启用修仙功能", aliases={'禁用修仙功能'}, permission=GROUP and (SUPERUSER | GROUP_ADMIN | GROUP_OWNER), priority=5, block=True)
 user_leveluprate = on_command('我的突破概率', aliases={'突破概率'}, priority=5, permission=GROUP, block=True)
+user_stamina = on_command('我的体力', aliases={'体力'}, priority=5, permission=GROUP, block=True)
 xiuxian_updata_level = on_fullmatch('修仙适配', priority=15, permission=GROUP, block=True)
 xiuxian_uodata_data = on_fullmatch('更新记录', priority=15, permission=GROUP, block=True)
 lunhui = on_fullmatch('轮回重修帮助', priority=15, permission=GROUP, block=True)
@@ -464,7 +464,7 @@ async def remaname_(bot: Bot, event: GroupMessageEvent, args: Message = CommandA
         await remaname.finish()
 
 
-@level_up.handle(parameterless=[Cooldown(at_sender=False)])
+@level_up.handle(parameterless=[Cooldown(stamina_cost=12, at_sender=False)])
 async def level_up_(bot: Bot, event: GroupMessageEvent):
     """突破"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -533,7 +533,7 @@ async def level_up_(bot: Bot, event: GroupMessageEvent):
         await level_up.finish()
 
 
-@level_up_zj.handle(parameterless=[Cooldown(at_sender=False)])
+@level_up_zj.handle(parameterless=[Cooldown(stamina_cost=6, at_sender=False)])
 async def level_up_zj_(bot: Bot, event: GroupMessageEvent):
     """直接突破"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -623,7 +623,7 @@ async def level_up_zj_(bot: Bot, event: GroupMessageEvent):
         await level_up_zj.finish()
 
 
-@level_up_drjd.handle(parameterless=[Cooldown(at_sender=False)])
+@level_up_drjd.handle(parameterless=[Cooldown(stamina_cost=4, at_sender=False)])
 async def level_up_drjd_(bot: Bot, event: GroupMessageEvent):
     """渡厄 金丹 突破"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -744,7 +744,7 @@ async def level_up_drjd_(bot: Bot, event: GroupMessageEvent):
         await level_up_drjd.finish()
 
 
-@level_up_dr.handle(parameterless=[Cooldown(at_sender=False)])
+@level_up_dr.handle(parameterless=[Cooldown(stamina_cost=8, at_sender=False)])
 async def level_up_dr_(bot: Bot, event: GroupMessageEvent):
     """渡厄 突破"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -878,6 +878,27 @@ async def user_leveluprate_(bot: Bot, event: GroupMessageEvent):
     else:
         await bot.send_group_msg(group_id=int(send_group_id), message=msg)
     await user_leveluprate.finish()
+
+
+@user_stamina.handle(parameterless=[Cooldown(at_sender=False)])
+async def user_stamina_(bot: Bot, event: GroupMessageEvent):
+    """我的体力信息"""
+    bot, send_group_id = await assign_bot(bot=bot, event=event)
+    isUser, user_info, msg = check_user(event)
+    if not isUser:
+        if XiuConfig().img:
+            pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+        else:
+            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await user_stamina.finish()
+    msg = "当前体力：{}".format((user_info['user_stamina']))
+    if XiuConfig().img:
+        pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+        await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+    else:
+        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+    await user_stamina.finish()
 
 
 @give_stone.handle(parameterless=[Cooldown(at_sender=False)])

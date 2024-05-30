@@ -128,6 +128,7 @@ def Cooldown(
         )
     running: DefaultDict[str, int] = defaultdict(lambda: parallel)
     time_sy: Dict[str, int] = {}
+    
 
     def increase(key: str, value: int = 1):
         running[key] += value
@@ -168,20 +169,6 @@ def Cooldown(
             )
         else:
             key = CooldownIsolateLevel.GLOBAL.name
-
-        user_id = str(event.get_user_id())
-        if stamina_cost > 0:
-            user_data = sql_message.get_user_info_with_id(user_id)
-            if not user_data or user_data['user_stamina'] < stamina_cost:
-                msg = "你没有足够的体力，请等待体力恢复后再试！"
-                if XiuConfig().img:
-                    pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
-                    await bot.send_group_msg(group_id=int(group_id), message=MessageSegment.image(pic))
-                else:
-                    await bot.send_group_msg(group_id=int(group_id), message=msg)
-                await matcher.finish()
-            sql_message.update_user_stamina(user_id, stamina_cost, 2)  # 减少体力
-
         if XiuConfig().third_party_bot:
             if group_id not in conf_data["group"]:
                 if (
@@ -199,6 +186,18 @@ def Cooldown(
                     await matcher.finish()
             else:
                 pass
+        user_id = str(event.get_user_id())
+        if stamina_cost > 0:
+            user_data = sql_message.get_user_info_with_id(user_id)
+            if not user_data or user_data['user_stamina'] < stamina_cost:
+                msg = "你没有足够的体力，请等待体力恢复后再试！"
+                if XiuConfig().img:
+                    pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
+                    await bot.send_group_msg(group_id=int(group_id), message=MessageSegment.image(pic))
+                else:
+                    await bot.send_group_msg(group_id=int(group_id), message=msg)
+                await matcher.finish()
+            sql_message.update_user_stamina(user_id, stamina_cost, 2)  # 减少体力
         if running[key] <= 0:
             if cd_time >= 1.5:
                 time = int(cd_time - (loop.time() - time_sy[key]))
