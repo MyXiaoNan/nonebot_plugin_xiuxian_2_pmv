@@ -252,7 +252,7 @@ async def sign_in_(bot: Bot, event: GroupMessageEvent):
         await sign_in.finish("修仙界网络堵塞，发送失败!", reply_message=True)
 
 
-@help_in.handle(parameterless=[Cooldown(at_sender=False, stamina_cost = 100)])
+@help_in.handle(parameterless=[Cooldown(at_sender=False)])
 async def help_in_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandObjectID()):
     """修仙帮助"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -999,7 +999,7 @@ async def give_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
 
 
 # 偷灵石
-@steal_stone.handle(parameterless=[Cooldown(XiuConfig().tou_cd, at_sender=False)])
+@steal_stone.handle(parameterless=[Cooldown(stamina_cost = 10, at_sender=False)])
 async def steal_stone_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = check_user(event)
@@ -1277,7 +1277,7 @@ async def gmm_command_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
             await gmm_command.finish(MessageSegment.image(pic))
 
 
-@rob_stone.handle(parameterless=[Cooldown(cd_time=0 ,at_sender=False)])
+@rob_stone.handle(parameterless=[Cooldown(stamina_cost = 15, at_sender=False)])
 async def rob_stone_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """抢灵石
             player1 = {

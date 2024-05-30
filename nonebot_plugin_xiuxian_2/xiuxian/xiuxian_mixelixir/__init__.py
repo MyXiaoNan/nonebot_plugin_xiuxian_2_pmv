@@ -164,7 +164,7 @@ async def mix_elixir_dykh_up_(bot: Bot, event: GroupMessageEvent):
     await mix_elixir_dykh_up.finish()
 
 
-@yaocai_get.handle(parameterless=[Cooldown(at_sender=False)])
+@yaocai_get.handle(parameterless=[Cooldown(stamina_cost = 1, at_sender=False)])
 async def yaocai_get_(bot: Bot, event: GroupMessageEvent):
     """灵田收取"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -400,7 +400,7 @@ async def mix_elixir_(bot: Bot, event: GroupMessageEvent):
 
 
 # 配方
-@mix_make.handle(parameterless=[Cooldown(at_sender=False)])
+@mix_make.handle(parameterless=[Cooldown(stamina_cost = 3, at_sender=False)])
 async def mix_elixir_(bot: Bot, event: GroupMessageEvent, mode: str = EventPlainText()):
     """配方"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)

@@ -180,7 +180,7 @@ async def sect_help_(bot: Bot, event: GroupMessageEvent, session_id: int = Comma
         await sect_help.finish()
 
 
-@sect_elixir_room_make.handle(parameterless=[Cooldown(at_sender=False)])
+@sect_elixir_room_make.handle(parameterless=[Cooldown(stamina_cost=2, at_sender=False)])
 async def sect_elixir_room_make_(bot: Bot, event: GroupMessageEvent):
     """宗门丹房建设"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -462,7 +462,7 @@ async def sect_buff_info_(bot: Bot, event: GroupMessageEvent):
         await sect_buff_info.finish()
 
 
-@sect_mainbuff_learn.handle(parameterless=[Cooldown(at_sender=False)])
+@sect_mainbuff_learn.handle(parameterless=[Cooldown(stamina_cost = 1, cd_time=10, at_sender=False)])
 async def sect_mainbuff_learn_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """学习宗门功法"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -555,7 +555,7 @@ async def sect_mainbuff_learn_(bot: Bot, event: GroupMessageEvent, args: Message
         await sect_mainbuff_learn.finish()
 
 
-@sect_mainbuff_get.handle(parameterless=[Cooldown(at_sender=False)])
+@sect_mainbuff_get.handle(parameterless=[Cooldown(stamina_cost=8, at_sender=False)])
 async def sect_mainbuff_get_(bot: Bot, event: GroupMessageEvent):
     """搜寻宗门功法"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -648,7 +648,7 @@ async def sect_mainbuff_get_(bot: Bot, event: GroupMessageEvent):
         await sect_mainbuff_get.finish()
 
 
-@sect_secbuff_get.handle(parameterless=[Cooldown(at_sender=False)])
+@sect_secbuff_get.handle(parameterless=[Cooldown(stamina_cost=8, at_sender=False)])
 async def sect_secbuff_get_(bot: Bot, event: GroupMessageEvent):
     """搜寻宗门神通"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -741,7 +741,7 @@ async def sect_secbuff_get_(bot: Bot, event: GroupMessageEvent):
         await sect_secbuff_get.finish()
 
 
-@sect_secbuff_learn.handle(parameterless=[Cooldown(at_sender=False)])
+@sect_secbuff_learn.handle(parameterless=[Cooldown(stamina_cost=1, cd_time=10, at_sender=False)])
 async def sect_secbuff_learn_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """学习宗门神通"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -1093,7 +1093,7 @@ async def sect_task_(bot: Bot, event: GroupMessageEvent):
         await sect_task.finish()
 
 
-@sect_task_complete.handle(parameterless=[Cooldown(config['宗门任务完成cd'], at_sender=False)])
+@sect_task_complete.handle(parameterless=[Cooldown(cd_time=config['宗门任务完成cd'], stamina_cost = 3,at_sender=False)])
 async def sect_task_complete_(bot: Bot, event: GroupMessageEvent):
     """完成宗门任务"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)

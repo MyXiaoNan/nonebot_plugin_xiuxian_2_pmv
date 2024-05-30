@@ -336,7 +336,7 @@ async def boss_delete_all_(bot: Bot, event: GroupMessageEvent, args: Message = C
     await boss_delete_all.finish()
 
 
-@battle.handle(parameterless=[Cooldown(cd_time=XiuConfig().battle_boss_cd,at_sender=False)])
+@battle.handle(parameterless=[Cooldown(stamina_cost = 20, at_sender=False)])
 async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """讨伐世界boss"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)

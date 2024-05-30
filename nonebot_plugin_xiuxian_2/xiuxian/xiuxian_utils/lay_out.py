@@ -34,6 +34,7 @@ def limit_all_message_():
 
 @limit_all_stamina.scheduled_job('interval', minutes=10)
 def limit_all_stamina_():
+    # 恢复体力，10分钟回一点
     sql_message.update_all_users_stamina(max_stamina, stamina_recovery_rate)
 
 def limit_all_run(user_id: str):
@@ -88,13 +89,6 @@ def get_random_chat_notice():
 
 bu_ji_notice = random.choice(["别急！","急也没用!","让我先急!"])
 
-class CooldownIsolateLevel(IntEnum):
-    """命令冷却的隔离级别"""
-
-    GLOBAL = auto()
-    GROUP = auto()
-    USER = auto()
-    GROUP_USER = auto()
 
 class CooldownIsolateLevel(IntEnum):
     """命令冷却的隔离级别"""

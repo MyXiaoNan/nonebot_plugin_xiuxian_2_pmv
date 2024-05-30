@@ -91,7 +91,6 @@ class XiuConfig:
         self.beg_lingshi_upper_limit = 5000000  # 仙途奇缘灵石上限
         self.tou = 1000000  # 偷灵石惩罚
         self.tou_cd = 30  # 偷灵石cd/秒
-        self.battle_boss_cd = 0  # 讨伐bosscd/秒
         self.dufang_cd = 10  # 金银阁cd/秒
         self.tou_lower_limit = 0.01  # 偷灵石下限(百分比)
         self.tou_upper_limit = 0.50  # 偷灵石上限(百分比)

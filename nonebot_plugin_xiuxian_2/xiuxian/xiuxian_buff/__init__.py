@@ -279,7 +279,7 @@ async def blessed_spot_rename_(bot: Bot, event: GroupMessageEvent, args: Message
     await blessed_spot_rename.finish()
 
 
-@qc.handle(parameterless=[Cooldown(cd_time=300, at_sender=False)])
+@qc.handle(parameterless=[Cooldown(stamina_cost = 5, at_sender=False)])
 async def qc_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """切磋，不会掉血"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -387,7 +387,7 @@ async def qc_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
         await qc.finish()
 
 
-@two_exp.handle(parameterless=[Cooldown(at_sender=False)])
+@two_exp.handle(parameterless=[Cooldown(stamina_cost = 10, at_sender=False)])
 async def two_exp_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """双修"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
