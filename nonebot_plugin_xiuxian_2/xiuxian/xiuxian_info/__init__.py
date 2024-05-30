@@ -16,7 +16,7 @@ xiuxian_message = on_command("我的修仙信息", aliases={"我的存档"}, pri
 sql_message = XiuxianDateManage()  # sql类
 
 
-@xiuxian_message.handle(parameterless=[Cooldown(cd_time=XiuConfig().user_info_cd, at_sender=False)])
+@xiuxian_message.handle(parameterless=[Cooldown(at_sender=False)])
 async def xiuxian_message_(bot: Bot, event: GroupMessageEvent):
     """我的修仙信息"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)

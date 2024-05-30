@@ -890,6 +890,19 @@ async def mind_state_(bot: Bot, event: GroupMessageEvent):
     else:
         main_crit_buff = 0
     
+    list_all = len(OtherSet().level) - 1
+    now_index = OtherSet().level.index(user_msg['level'])
+    if list_all == now_index:
+        exp_meg = "位面至高"
+    else:
+        is_updata_level = OtherSet().level[now_index + 1]
+        need_exp = sql_message.get_level_power(is_updata_level)
+        get_exp = need_exp - user_msg['exp']
+        if get_exp > 0:
+            exp_meg = "还需{}修为可突破！".format(number_to(get_exp))
+        else:
+            exp_meg = "可突破！"
+    
     main_buff_rate_buff = main_buff_data['ratebuff'] if main_buff_data is not None else 0
     main_hp_buff = main_buff_data['hpbuff'] if main_buff_data is not None else 0
     main_mp_buff = main_buff_data['mpbuff'] if main_buff_data is not None else 0
@@ -903,12 +916,15 @@ async def mind_state_(bot: Bot, event: GroupMessageEvent):
     weapon_critatk = weapon_critatk_data['critatk'] if weapon_critatk_data is not None else 0 #我的状态武器会心伤害
     user_main_critatk = UserBuffDate(user_id).get_user_main_buff_data() #我的状态功法会心伤害
     main_critatk =  user_main_critatk['critatk'] if  user_main_critatk is not None else 0 #我的状态功法会心伤害
+    leveluprate = int(user_msg['level_up_rate'])  # 用户失败次数加成
+    number =  user_main_critatk["number"] if user_main_critatk is not None else 0
     
     msg = f"""
 道号：{user_msg['user_name']}
 气血:{number_to(user_msg['hp'])}/{number_to(int((user_msg['exp'] / 2) * (1 + main_hp_buff + impart_hp_per)))}
 真元:{number_to(user_msg['mp'])}/{number_to(user_msg['exp'])}({int((user_msg['mp'] / user_msg['exp']) * 100)}%)
 攻击:{number_to(user_msg['atk'])}
+突破状态: "{exp_meg}概率：{jsondata.level_rate_data()[user_msg['level']] + leveluprate + number}%"
 攻击修炼:{user_msg['atkpractice']}级(提升攻击力{user_msg['atkpractice'] * 4}%)
 修炼效率:{int(((level_rate * realm_rate) * (1 + main_buff_rate_buff)) * 100)}%
 会心:{crit_buff + int(impart_know_per * 100) + armor_crit_buff + main_crit_buff}%
