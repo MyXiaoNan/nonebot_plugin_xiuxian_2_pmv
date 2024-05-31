@@ -1945,7 +1945,7 @@ def leave_harm_time(user_id):
         time = "无穷大"
     except OverflowError:
         time = "溢出"
-    return max(0, time)
+    return time
 
 
 async def impart_check(user_id):
