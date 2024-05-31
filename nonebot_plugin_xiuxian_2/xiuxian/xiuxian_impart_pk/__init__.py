@@ -382,7 +382,7 @@ async def impart_pk_exp_(bot: Bot, event: GroupMessageEvent, args: Message = Com
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await impart_pk_exp.finish()
     else:
-        msg = "修炼时长过长导致超出上限，此次修炼失败！"
+        msg = "修炼时长过长导致超出上限，此次修炼失败，最多可修炼{}分钟".format(max_exp - int(user_info['exp'] + exp))
         if XiuConfig().img:
             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))

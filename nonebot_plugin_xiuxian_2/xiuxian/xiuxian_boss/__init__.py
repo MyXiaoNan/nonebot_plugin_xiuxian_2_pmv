@@ -358,6 +358,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
     isInGroup = isInGroups(event)
     if not isInGroup:  # 不在配置表内
         msg = f"本群尚未开启世界Boss,请联系管理员开启!"
+        sql_message.update_user_stamina(user_id, 20, 1)
         if XiuConfig().img:
             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -369,6 +370,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
         boss_num = int(boss_num[0])
     else:
         msg = f"请输入正确的世界Boss编号!"
+        sql_message.update_user_stamina(user_id, 20, 1)
         if XiuConfig().img:
             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -380,6 +382,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
         bosss = group_boss[group_id]
     except:
         msg = f"本群尚未生成世界Boss,请等待世界boss刷新!"
+        sql_message.update_user_stamina(user_id, 20, 1)
         if XiuConfig().img:
             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -389,6 +392,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
 
     if not bosss:
         msg = f"本群尚未生成世界Boss,请等待世界boss刷新!"
+        sql_message.update_user_stamina(user_id, 20, 1)
         if XiuConfig().img:
             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -415,6 +419,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
         time = leave_harm_time(user_id)
         msg = "重伤未愈，动弹不得！距离脱离危险还需要{}分钟！\n".format(time)
         msg += "请道友进行闭关，或者使用药品恢复气血，不要干等，没有自动回血！！！"
+        sql_message.update_user_stamina(user_id, 20, 1)
         if XiuConfig().img:
             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))

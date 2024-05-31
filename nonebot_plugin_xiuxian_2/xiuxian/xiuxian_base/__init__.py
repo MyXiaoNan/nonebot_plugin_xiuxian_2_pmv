@@ -490,6 +490,7 @@ async def level_up_(bot: Bot, event: GroupMessageEvent):
         if cd < XiuConfig().level_up_cd * 60:
             # 如果cd小于配置的cd，返回等待时间
             msg = "目前无法突破，还需要{}分钟".format(XiuConfig().level_up_cd - (cd // 60))
+            sql_message.update_user_stamina(user_id, 12, 1)
             if XiuConfig().img:
                 pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -558,6 +559,7 @@ async def level_up_zj_(bot: Bot, event: GroupMessageEvent):
         if cd < XiuConfig().level_up_cd * 60:
             # 如果cd小于配置的cd，返回等待时间
             msg = "目前无法突破，还需要{}分钟".format(XiuConfig().level_up_cd - (cd // 60))
+            sql_message.update_user_stamina(user_id, 6, 1)
             if XiuConfig().img:
                 pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -648,6 +650,7 @@ async def level_up_drjd_(bot: Bot, event: GroupMessageEvent):
         if cd < XiuConfig().level_up_cd * 60:
             # 如果cd小于配置的cd，返回等待时间
             msg = "目前无法突破，还需要{}分钟".format(XiuConfig().level_up_cd - (cd // 60))
+            sql_message.update_user_stamina(user_id, 4, 1)
             if XiuConfig().img:
                 pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -675,6 +678,7 @@ async def level_up_drjd_(bot: Bot, event: GroupMessageEvent):
 
     if not pause_flag:
         msg = "道友突破需要使用{}，但您的背包中没有该丹药！".format(elixir_name)
+        sql_message.update_user_stamina(user_id, 4, 1)
         if XiuConfig().img:
             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -769,6 +773,7 @@ async def level_up_dr_(bot: Bot, event: GroupMessageEvent):
         if cd < XiuConfig().level_up_cd * 60:
             # 如果cd小于配置的cd，返回等待时间
             msg = "目前无法突破，还需要{}分钟".format(XiuConfig().level_up_cd - (cd // 60))
+            sql_message.update_user_stamina(user_id, 8, 1)
             if XiuConfig().img:
                 pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -793,6 +798,16 @@ async def level_up_dr_(bot: Bot, event: GroupMessageEvent):
                 pause_flag = True
                 elixir_name = back['goods_name']
                 break
+    
+    if not pause_flag:
+        msg = "道友突破需要使用{}，但您的背包中没有该丹药！".format(elixir_name)
+        sql_message.update_user_stamina(user_id, 8, 1)
+        if XiuConfig().img:
+            pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+        else:
+            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await level_up_dr.finish()
 
     if le == "失败":
         # 突破失败
@@ -1038,7 +1053,8 @@ async def steal_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
     steal_qq = None  # 艾特的时候存到这里, 要偷的人
     coststone_num = XiuConfig().tou
     if int(coststone_num) > int(user_stone_num):
-        msg = '道友的偷窃准备(灵石)不足，请打工之后再切格瓦拉！'
+        msg = "道友的偷窃准备(灵石)不足，请打工之后再切格瓦拉！"
+        sql_message.update_user_stamina(user_id, 10, 1)
         if XiuConfig().img:
             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -1051,6 +1067,7 @@ async def steal_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
     if steal_qq:
         if steal_qq == user_id:
             msg = "请不要偷自己刷成就！"
+            sql_message.update_user_stamina(user_id, 10, 1)
             if XiuConfig().img:
                 pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -1328,6 +1345,7 @@ async def rob_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Command
     if user_mes and user_2:
         if user_info['root'] == "器师":
             msg = "目前职业无法抢劫！"
+            sql_message.update_user_stamina(user_id, 15, 1)
             if XiuConfig().img:
                 pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -1337,7 +1355,8 @@ async def rob_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Command
        
         if give_qq:
             if str(give_qq) == str(user_id):
-                msg = "请不要偷自己刷成就！"
+                msg = "请不要抢自己刷成就！"
+                sql_message.update_user_stamina(user_id, 15, 1)
                 if XiuConfig().img:
                     pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
                     await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -1347,6 +1366,7 @@ async def rob_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Command
 
             if user_2['root'] == "器师":
                 msg = "对方职业无法被抢劫！"
+                sql_message.update_user_stamina(user_id, 15, 1)
                 if XiuConfig().img:
                     pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
                     await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -1355,6 +1375,7 @@ async def rob_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Command
                 await rob_stone.finish()
             if convert_rank(user_2['level'])[0] - convert_rank(user_info['level'])[0] >= 12:
                 msg = "道友抢劫小辈，可耻！"
+                sql_message.update_user_stamina(user_id, 15, 1)
                 if XiuConfig().img:
                     pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
                     await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -1373,6 +1394,7 @@ async def rob_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Command
                 if user_2['hp'] <= user_2['exp'] / 10:
                     time_2 = leave_harm_time(give_qq)
                     msg = f"对方重伤藏匿了，无法抢劫！距离对方脱离生命危险还需要{time_2}分钟！"
+                    sql_message.update_user_stamina(user_id, 15, 1)
                     if XiuConfig().img:
                         pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
                         await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -1384,6 +1406,7 @@ async def rob_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Command
                     time_msg = leave_harm_time(user_id)
                     msg = "重伤未愈，动弹不得！距离脱离生命危险还需要{}分钟！".format(time_msg)
                     msg += "请道友进行闭关，或者使用药品恢复气血，不要干等，没有自动回血！！！"
+                    sql_message.update_user_stamina(user_id, 15, 1)
                     if XiuConfig().img:
                         pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
                         await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -1516,7 +1539,7 @@ async def restate_(bot: Bot, event: GroupMessageEvent, args: Message = CommandAr
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-        await steal_stone.finish()
+        await restate.finish()
     give_qq = None  # 艾特的时候存到这里
     for arg in args:
         if arg.type == "at":

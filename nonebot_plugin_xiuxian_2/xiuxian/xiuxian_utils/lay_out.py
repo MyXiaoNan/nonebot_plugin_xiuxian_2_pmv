@@ -19,11 +19,16 @@ sql_message = XiuxianDateManage()
 
 limit_all_message = require("nonebot_plugin_apscheduler").scheduler
 limit_all_stamina = require("nonebot_plugin_apscheduler").scheduler
+auto_recover_hp = require("nonebot_plugin_apscheduler").scheduler
 
 limit_all_data: Dict[str, Any] = {}
 limit_num = 99999
 max_stamina = XiuConfig().max_stamina
 stamina_recovery_rate = 1
+
+@auto_recover_hp.scheduled_job('interval', minutes=1)
+def auto_recover_hp_():
+    sql_message.auto_recover_hp
 
 @limit_all_message.scheduled_job('interval', minutes=1)
 def limit_all_message_():
@@ -138,6 +143,7 @@ def Cooldown(
         return
 
     async def dependency(bot: Bot, matcher: Matcher, event: MessageEvent):
+        user_id = str(event.get_user_id())
         group_id = str(event.group_id)
         conf_data = JsonConfig().read_data()
 
@@ -186,7 +192,6 @@ def Cooldown(
                     await matcher.finish()
             else:
                 pass
-        user_id = str(event.get_user_id())
         if stamina_cost > 0:
             user_data = sql_message.get_user_info_with_id(user_id)
             if not user_data or user_data['user_stamina'] < stamina_cost:
