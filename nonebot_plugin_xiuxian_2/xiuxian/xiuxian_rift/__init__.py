@@ -147,7 +147,7 @@ async def create_rift_(bot: Bot, event: GroupMessageEvent):
         await create_rift.finish()
 
 
-@explore_rift.handle(parameterless=[Cooldown(at_sender=False)])
+@explore_rift.handle(parameterless=[Cooldown(stamina_cost = 6, at_sender=False)])
 async def _(bot: Bot, event: GroupMessageEvent):
     """探索秘境"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)

@@ -164,7 +164,7 @@ async def mix_elixir_dykh_up_(bot: Bot, event: GroupMessageEvent):
     await mix_elixir_dykh_up.finish()
 
 
-@yaocai_get.handle(parameterless=[Cooldown(at_sender=False)])
+@yaocai_get.handle(parameterless=[Cooldown(stamina_cost = 1, at_sender=False)])
 async def yaocai_get_(bot: Bot, event: GroupMessageEvent):
     """灵田收取"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -200,7 +200,7 @@ async def yaocai_get_(bot: Bot, event: GroupMessageEvent):
         if timedeff >= round(GETCONFIG['time_cost'] * (1 - (GETCONFIG['加速基数'] * mix_elixir_info['药材速度'])), 2):
             yaocai_id_list = items.get_random_id_list_by_rank_and_item_type(convert_rank(user_info['level'])[0], ['药材'])
             # 加入传承
-            impart_data = xiuxian_impart.get_user_message(user_id)
+            impart_data = xiuxian_impart.get_user_info_with_id(user_id)
             impart_reap_per = impart_data['impart_reap_per'] if impart_data is not None else 0
             #功法灵田收取加成
             main_reap = UserBuffDate(user_id).get_user_main_buff_data()
@@ -309,68 +309,72 @@ user_ldl_dict = {}
 user_ldl_flag = {}
 
 
-@mix_elixir.handle(parameterless=[Cooldown(cd_time=10, at_sender=False)])
+@mix_elixir.handle(parameterless=[Cooldown(cd_time=30, at_sender=False)])
 async def mix_elixir_(bot: Bot, event: GroupMessageEvent):
-    """炼丹"""
     global user_ldl_dict, user_ldl_flag
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = check_user(event)
     if not isUser:
         if XiuConfig().img:
-            pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await mix_elixir.finish()
     user_id = user_info['user_id']
     user_back = sql_message.get_back_msg(user_id)
-    if user_back is None:
-        msg = "道友的背包空空如也，无法炼丹"
-        if XiuConfig().img:
-            pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
-            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
-        else:
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-        await mix_elixir.finish()
     yaocai_dict = {}
+    user_ldl_flag[user_id] = False  # 初始化炼丹炉标志
     for back in user_back:
         if back['goods_type'] == "药材":
             yaocai_dict[back['goods_id']] = items.get_data_by_item_id(back['goods_id'])
             yaocai_dict[back['goods_id']]['num'] = back['goods_num']
-            continue
-        if back['goods_type'] == "炼丹炉":
-            user_ldl_dict[user_id] = {}
-            user_ldl_dict[user_id][back['goods_id']] = back['goods_id']
+        elif back['goods_type'] == "炼丹炉":
+            if user_id not in user_ldl_dict:
+                user_ldl_dict[user_id] = {}
             user_ldl_dict[user_id][back['goods_id']] = back['goods_name']
             user_ldl_flag[user_id] = True
-            continue
-        else:
-            continue
-    if yaocai_dict == {}:
-        msg = f"道友的背包内没有药材，无法炼丹！"
+
+    if user_back is None:
+        msg = "道友的背包空空如也，无法炼丹"
         if XiuConfig().img:
-            pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await mix_elixir.finish()
-    try:
-        var = user_ldl_flag[user_id]
-    except KeyError:
-        msg = f"道友背包内没有炼丹炉，无法炼丹！先去世界积分商店兑换吧！"
+    
+    if yaocai_dict == {}:
+        msg = "道友的背包内没有药材，无法炼丹！"
         if XiuConfig().img:
-            pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await mix_elixir.finish()
 
+    if not user_ldl_flag[user_id]:
+        msg = "道友背包内没有炼丹炉，无法炼丹！"
+        if XiuConfig().img:
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
+            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+        else:
+            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await mix_elixir.finish()
+
+    msg = "正在生成丹方，请稍候..."
+    if XiuConfig().img:
+        pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
+        await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+    else:
+        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+
     yaocai_dict = await make_dict(yaocai_dict)
     finall_mix_elixir_msg = await get_mix_elixir_msg(yaocai_dict)
-    if not finall_mix_elixir_msg:
+    if finall_mix_elixir_msg == {}:
         msg = "系统未检测到丹方，道友背包内的药材不满足！"
         if XiuConfig().img:
-            pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
@@ -382,12 +386,12 @@ async def mix_elixir_(bot: Bot, event: GroupMessageEvent):
             goods_info = items.get_data_by_item_id(v['id'])
             msg = f"名字：{goods_info['name']}\n"
             msg += f"效果：{goods_info['desc']}\n"
-            msg += f"配方：{v['配方简写']}丹炉{ldl_name}\n"
+            msg += f"配方：{v['配方']['配方简写']}丹炉{ldl_name}\n"
             msg += f"☆------药材清单------☆\n"
-            msg += f"主药：{v['主药']},{v['主药_level']}，数量：{v['主药_num']}\n"
-            msg += f"药引：{v['药引']},{v['药引_level']}，数量：{v['药引_num']}\n"
-            if v['辅药_num'] != 0:
-                msg += f"辅药：{v['辅药']},{v['辅药_level']}，数量：{v['辅药_num']}\n"
+            msg += f"主药：{v['配方']['主药']},{v['配方']['主药_level']}，数量：{v['配方']['主药_num']}\n"
+            msg += f"药引：{v['配方']['药引']},{v['配方']['药引_level']}，数量：{v['配方']['药引_num']}\n"
+            if v['配方']['辅药_num'] != 0:
+                msg += f"辅药：{v['配方']['辅药']},{v['配方']['辅药_level']}，数量：{v['配方']['辅药_num']}\n"
             l_msg.append(msg)
         if len(l_msg) > 51:
             l_msg = l_msg[:50]
@@ -396,7 +400,7 @@ async def mix_elixir_(bot: Bot, event: GroupMessageEvent):
 
 
 # 配方
-@mix_make.handle(parameterless=[Cooldown(at_sender=False)])
+@mix_make.handle(parameterless=[Cooldown(stamina_cost = 3, at_sender=False)])
 async def mix_elixir_(bot: Bot, event: GroupMessageEvent, mode: str = EventPlainText()):
     """配方"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -498,7 +502,7 @@ async def mix_elixir_(bot: Bot, event: GroupMessageEvent, mode: str = EventPlain
                 mix_elixir_info = get_player_info(user_id, 'mix_elixir_info')
                 goods_info = Items().get_data_by_item_id(id)
                 # 加入传承
-                impart_data = xiuxian_impart.get_user_message(user_id)
+                impart_data = xiuxian_impart.get_user_info_with_id(user_id)
                 impart_mix_per = impart_data['impart_mix_per'] if impart_data is not None else 0
                 #功法炼丹数加成
                 main_dan_data = UserBuffDate(user_id).get_user_main_buff_data()

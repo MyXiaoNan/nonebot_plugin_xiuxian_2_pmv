@@ -1,5 +1,3 @@
-#!usr/bin/env python3
-# -*- coding: utf-8 -*-
 import random
 from nonebot.log import logger
 from nonebot.rule import Rule
@@ -13,20 +11,36 @@ from nonebot.params import Depends
 from nonebot.adapters.onebot.v11.event import MessageEvent, GroupMessageEvent
 from nonebot.adapters.onebot.v11 import Bot, MessageSegment
 from ..xiuxian_config import XiuConfig, JsonConfig
+from .xiuxian2_handle import XiuxianDateManage
 from .utils import get_msg_pic
 
 
-limit_all = require("nonebot_plugin_apscheduler").scheduler
+sql_message = XiuxianDateManage()
+
+limit_all_message = require("nonebot_plugin_apscheduler").scheduler
+limit_all_stamina = require("nonebot_plugin_apscheduler").scheduler
+auto_recover_hp = require("nonebot_plugin_apscheduler").scheduler
+
 limit_all_data: Dict[str, Any] = {}
 limit_num = 99999
+max_stamina = XiuConfig().max_stamina
+stamina_recovery_rate = 1
 
-@limit_all.scheduled_job('interval', hours=0, minutes=1)
-def limit_all():
+@auto_recover_hp.scheduled_job('interval', minutes=1)
+def auto_recover_hp_():
+    sql_message.auto_recover_hp
+
+@limit_all_message.scheduled_job('interval', minutes=1)
+def limit_all_message_():
     # 重置消息字典
     global limit_all_data
     limit_all_data  = {}
     logger.opt(colors=True).success("<green>已重置消息字典！</green>")
 
+@limit_all_stamina.scheduled_job('interval', minutes=10)
+def limit_all_stamina_():
+    # 恢复体力，10分钟回一点
+    sql_message.update_all_users_stamina(max_stamina, stamina_recovery_rate)
 
 def limit_all_run(user_id: str):
     global limit_all_data
@@ -80,24 +94,21 @@ def get_random_chat_notice():
 
 bu_ji_notice = random.choice(["别急！","急也没用!","让我先急!"])
 
+
 class CooldownIsolateLevel(IntEnum):
     """命令冷却的隔离级别"""
 
     GLOBAL = auto()
-    """全局使用同一个冷却计时"""
     GROUP = auto()
-    """群组内使用同一个冷却计时"""
     USER = auto()
-    """按用户使用同一个冷却计时"""
     GROUP_USER = auto()
-    """群组内每个用户使用同一个冷却计时"""
-
 
 def Cooldown(
         cd_time: float = 0.5,
         at_sender: bool = True,
         isolate_level: CooldownIsolateLevel = CooldownIsolateLevel.USER,
         parallel: int = 1,
+        stamina_cost: int = 0
 ) -> None:
     """依赖注入形式的命令冷却
 
@@ -113,6 +124,7 @@ def Cooldown(
         at_sender: 是否at
         isolate_level: 命令冷却的隔离级别, 参考 `CooldownIsolateLevel`
         parallel: 并行执行的命令数量
+        stamina_cost: 每次执行命令消耗的体力值
     """
     if not isinstance(isolate_level, CooldownIsolateLevel):
         raise ValueError(
@@ -121,6 +133,7 @@ def Cooldown(
         )
     running: DefaultDict[str, int] = defaultdict(lambda: parallel)
     time_sy: Dict[str, int] = {}
+    
 
     def increase(key: str, value: int = 1):
         running[key] += value
@@ -130,6 +143,7 @@ def Cooldown(
         return
 
     async def dependency(bot: Bot, matcher: Matcher, event: MessageEvent):
+        user_id = str(event.get_user_id())
         group_id = str(event.group_id)
         conf_data = JsonConfig().read_data()
 
@@ -178,6 +192,17 @@ def Cooldown(
                     await matcher.finish()
             else:
                 pass
+        if stamina_cost > 0:
+            user_data = sql_message.get_user_info_with_id(user_id)
+            if not user_data or user_data['user_stamina'] < stamina_cost:
+                msg = "你没有足够的体力，请等待体力恢复后再试！"
+                if XiuConfig().img:
+                    pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
+                    await bot.send_group_msg(group_id=int(group_id), message=MessageSegment.image(pic))
+                else:
+                    await bot.send_group_msg(group_id=int(group_id), message=msg)
+                await matcher.finish()
+            sql_message.update_user_stamina(user_id, stamina_cost, 2)  # 减少体力
         if running[key] <= 0:
             if cd_time >= 1.5:
                 time = int(cd_time - (loop.time() - time_sy[key]))

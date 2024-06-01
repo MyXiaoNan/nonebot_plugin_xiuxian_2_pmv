@@ -17,6 +17,17 @@ from ..xiuxian_config import convert_rank
 items = Items()
 sql_message = XiuxianDateManage()
 
+YAOCAIINFOMSG = {
+    "-1": "性寒",
+    "0": "性平",
+    "1": "性热",
+    "2": "生息",
+    "3": "养气",
+    "4": "炼气",
+    "5": "聚元",
+    "6": "凝神",
+}
+
 
 def check_equipment_can_use(user_id, goods_id):
     """
@@ -111,8 +122,6 @@ def check_equipment_use_msg(user_id, goods_id):
     检测装备是否已用
     """
     user_back = sql_message.get_item_by_good_id_and_user_id(user_id, goods_id)
-    now_num = user_back['goods_num']
-    all_num = user_back['all_num']
     state = user_back['state']
     is_use = False
     if state == 0:
@@ -142,7 +151,7 @@ def get_user_main_back_msg(user_id):
             l_shenwu_msg = get_shenwu_msg(l_shenwu_msg, user_back['goods_id'], user_back['goods_num'])
 
         elif user_back['goods_type'] == "聚灵旗":
-            l_xiulianitem_msg = get_jlq_msg(l_xiulianitem_msg, user_id, user_back['goods_id'], user_back['goods_num'])
+            l_xiulianitem_msg = get_jlq_msg(l_xiulianitem_msg, user_back['goods_id'], user_back['goods_num'])
 
         elif user_back['goods_type'] == "礼包":
             l_libao_msg = get_libao_msg(l_libao_msg, user_back['goods_id'], user_back['goods_num'])
@@ -183,7 +192,7 @@ def get_user_elixir_back_msg(user_id):
         if user_back['goods_type'] == "丹药":
             l_elixir_msg = get_elixir_msg(l_elixir_msg, user_back['goods_id'], user_back['goods_num'])
         elif user_back['goods_type'] == "炼丹炉":
-            l_ldl_msg = get_ldl_msg(l_ldl_msg, user_id, user_back['goods_id'], user_back['goods_num'])
+            l_ldl_msg = get_ldl_msg(l_ldl_msg, user_back['goods_id'], user_back['goods_num'])
 
     if l_ldl_msg:
         l_msg.append("☆------炼丹炉------☆")
@@ -236,7 +245,7 @@ def get_user_yaocai_back_msg(user_id):
         return l_msg
     for user_back in user_backs:
         if user_back['goods_type'] == "药材":
-            l_yaocai_msg = get_yaocai_msg(l_yaocai_msg, user_id, user_back['goods_id'], user_back['goods_num'])
+            l_yaocai_msg = get_yaocai_msg(l_yaocai_msg, user_back['goods_id'], user_back['goods_num'])
             
     if l_yaocai_msg:
         l_msg.append("☆------拥有药材------☆")
@@ -245,7 +254,7 @@ def get_user_yaocai_back_msg(user_id):
     return l_msg
 
 
-def get_yaocai_msg(l_msg, user_id, goods_id, goods_num):
+def get_yaocai_msg(l_msg, goods_id, goods_num):
     """
     获取背包内的药材信息
     """
@@ -258,7 +267,7 @@ def get_yaocai_msg(l_msg, user_id, goods_id, goods_num):
     return l_msg
 
 
-def get_jlq_msg(l_msg, user_id, goods_id, goods_num):
+def get_jlq_msg(l_msg, goods_id, goods_num):
     """
     获取背包内的修炼物品信息，聚灵旗
     """
@@ -270,7 +279,7 @@ def get_jlq_msg(l_msg, user_id, goods_id, goods_num):
     return l_msg
 
 
-def get_ldl_msg(l_msg, user_id, goods_id, goods_num):
+def get_ldl_msg(l_msg, goods_id, goods_num):
     """
     获取背包内的炼丹炉信息
     """
@@ -280,18 +289,6 @@ def get_ldl_msg(l_msg, user_id, goods_id, goods_num):
     msg += f"\n拥有数量:{goods_num}"
     l_msg.append(msg)
     return l_msg
-
-
-YAOCAIINFOMSG = {
-    "-1": "性寒",
-    "0": "性平",
-    "1": "性热",
-    "2": "生息",
-    "3": "养气",
-    "4": "炼气",
-    "5": "聚元",
-    "6": "凝神",
-}
 
 
 def get_yaocai_info(yaocai_info):
@@ -462,13 +459,12 @@ def get_yaocai_info_msg(goods_id, item_info):
 
 
 def check_use_elixir(user_id, goods_id, num):
-    user_info = sql_message.get_user_message(user_id)
+    user_info = sql_message.get_user_info_with_id(user_id)
     user_rank = convert_rank(user_info['level'])[0]
     goods_info = items.get_data_by_item_id(goods_id)
     goods_rank = goods_info['rank']
     goods_name = goods_info['name']
     back = sql_message.get_item_by_good_id_and_user_id(user_id, goods_id)
-    # goods_day_num = back['day_num']
     goods_all_num = back['all_num']
     if goods_info['buff_type'] == "level_up_rate":  # 增加突破概率的丹药
         if goods_rank < user_rank:  # 最低使用限制
@@ -476,7 +472,7 @@ def check_use_elixir(user_id, goods_id, num):
         elif goods_rank - user_rank > 18:  # 最高使用限制
             msg = f"道友当前境界为：{user_info['level']}，丹药：{goods_name}已不能满足道友，请寻找适合道友的丹药吧！"    
         else:  # 检查完毕
-            sql_message.update_back_j(user_id, goods_id, num=num, use_key=1)
+            sql_message.update_back_j(user_id, goods_id, num, 1)
             sql_message.update_levelrate(user_id, user_info['level_up_rate'] + goods_info['buff'] * num)
             msg = f"道友成功使用丹药：{goods_name}{num}颗，下一次突破的成功概率提高{goods_info['buff'] * num}%!"
 
@@ -487,9 +483,9 @@ def check_use_elixir(user_id, goods_id, num):
             if goods_all_num >= goods_info['all_num']:
                 msg = f"道友使用的丹药：{goods_name}已经达到丹药的耐药性上限！已经无法使用该丹药了！"    
             else:  # 检查完毕
-                sql_message.update_back_j(user_id, goods_id, use_key=1)
-                sql_message.update_levelrate(user_id, user_info['level_up_rate'] + goods_info['buff'])
-                msg = f"道友成功使用丹药：{goods_name}1颗,下一次突破的成功概率提高{goods_info['buff']}%!"
+                sql_message.update_back_j(user_id, goods_id, num, 1)
+                sql_message.update_levelrate(user_id, user_info['level_up_rate'] + goods_info['buff'] * num)
+                msg = f"道友成功使用丹药：{goods_name}{num}颗,下一次突破的成功概率提高{goods_info['buff'] * num}%!"
 
     elif goods_info['buff_type'] == "hp":  # 回复状态的丹药
         if user_info['root'] == "器师":
@@ -595,7 +591,7 @@ def check_use_elixir(user_id, goods_id, num):
 
 
 def get_use_jlq_msg(user_id, goods_id):
-    user_info = sql_message.get_user_message(user_id)
+    user_info = sql_message.get_user_info_with_id(user_id)
     if user_info['blessed_spot_flag'] == 0:
         msg = f"道友还未拥有洞天福地，无法使用该物品"
     else:

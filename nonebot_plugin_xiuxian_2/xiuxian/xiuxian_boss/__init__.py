@@ -336,7 +336,7 @@ async def boss_delete_all_(bot: Bot, event: GroupMessageEvent, args: Message = C
     await boss_delete_all.finish()
 
 
-@battle.handle(parameterless=[Cooldown(cd_time=XiuConfig().battle_boss_cd,at_sender=False)])
+@battle.handle(parameterless=[Cooldown(stamina_cost = 20, at_sender=False)])
 async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """讨伐世界boss"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -358,6 +358,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
     isInGroup = isInGroups(event)
     if not isInGroup:  # 不在配置表内
         msg = f"本群尚未开启世界Boss,请联系管理员开启!"
+        sql_message.update_user_stamina(user_id, 20, 1)
         if XiuConfig().img:
             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -369,6 +370,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
         boss_num = int(boss_num[0])
     else:
         msg = f"请输入正确的世界Boss编号!"
+        sql_message.update_user_stamina(user_id, 20, 1)
         if XiuConfig().img:
             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -380,6 +382,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
         bosss = group_boss[group_id]
     except:
         msg = f"本群尚未生成世界Boss,请等待世界boss刷新!"
+        sql_message.update_user_stamina(user_id, 20, 1)
         if XiuConfig().img:
             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -389,6 +392,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
 
     if not bosss:
         msg = f"本群尚未生成世界Boss,请等待世界boss刷新!"
+        sql_message.update_user_stamina(user_id, 20, 1)
         if XiuConfig().img:
             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -415,6 +419,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
         time = leave_harm_time(user_id)
         msg = "重伤未愈，动弹不得！距离脱离危险还需要{}分钟！\n".format(time)
         msg += "请道友进行闭关，或者使用药品恢复气血，不要干等，没有自动回血！！！"
+        sql_message.update_user_stamina(user_id, 20, 1)
         if XiuConfig().img:
             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -426,7 +431,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
     userinfo = sql_message.get_user_real_info(user_id)
     user_weapon_data = UserBuffDate(userinfo['user_id']).get_user_weapon_data()
 
-    impart_data = xiuxian_impart.get_user_message(user_id)
+    impart_data = xiuxian_impart.get_user_info_with_id(user_id)
     boss_atk = impart_data['boss_atk'] if impart_data['boss_atk'] is not None else 0
     user_armor_data = UserBuffDate(userinfo['user_id']).get_user_armor_buff_data() #boss战防具会心
     user_main_data = UserBuffDate(userinfo['user_id']).get_user_main_buff_data() #boss战功法会心

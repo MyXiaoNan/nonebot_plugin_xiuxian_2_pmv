@@ -38,7 +38,7 @@ def convert_rank(rank_name):
     
     if rank_name in ranks:
         rank_number = len(ranks) - ranks.index(rank_name) - 1
-        return rank_number, ranks # 返回境界等级和境界列表
+        return rank_number, ranks
     else:
         return None, ranks
 
@@ -53,7 +53,7 @@ class XiuConfig:
                                  "level_up_rate", "sect_id",
                                  "sect_position", "hp", "mp", "atk",
                                  "atkpractice", "sect_task", "sect_contribution",
-                                 "sect_elixir_get", "blessed_spot_flag", "blessed_spot_name"]
+                                 "sect_elixir_get", "blessed_spot_flag", "blessed_spot_name", "user_stamina"]
         self.sql_user_cd = ["user_id", "type", "create_time", "scheduled_time", "last_check_info_time"]
         self.sql_sects = ["sect_id", "sect_name", "sect_owner", "sect_scale", "sect_used_stone", "sect_fairyland",
                           "sect_materials", "mainbuff", "secbuff", "elixir_room_level"]
@@ -65,7 +65,6 @@ class XiuConfig:
         self.level = convert_rank('江湖好手')[1] # 境界列表，别动
         self.img = True # 是否使用图片发送消息
         self.user_info_image = True # 是否使用图片发送个人信息
-        self.user_info_cd = 30  # 我的存档cd/秒
         self.level_up_cd = 0  # 突破CD(分钟)
         self.closing_exp = 60  # 闭关每分钟获取的修为
         self.put_bot = []  # 接收消息qq,主qq，框架将只处理此qq的消息
@@ -87,15 +86,14 @@ class XiuConfig:
         self.sign_in_lingshi_upper_limit = 50000  # 每日签到灵石上限
         self.beg_max_level = "铭纹境圆满" # 仙途奇缘能领灵石最高境界
         self.beg_max_days = 3 # 仙途奇缘能领灵石最多天数
-        self.beg_lingshi_lower_limit = 2000000  # 仙途奇缘灵石下限
-        self.beg_lingshi_upper_limit = 5000000  # 仙途奇缘灵石上限
-        self.tou = 1000000  # 偷灵石惩罚
-        self.tou_cd = 30  # 偷灵石cd/秒
-        self.battle_boss_cd = 0  # 讨伐bosscd/秒
+        self.beg_lingshi_lower_limit = 200000  # 仙途奇缘灵石下限
+        self.beg_lingshi_upper_limit = 500000  # 仙途奇缘灵石上限
+        self.tou = 100000  # 偷灵石惩罚
         self.dufang_cd = 10  # 金银阁cd/秒
         self.tou_lower_limit = 0.01  # 偷灵石下限(百分比)
         self.tou_upper_limit = 0.50  # 偷灵石上限(百分比)
-        self.remake = 1000000  # 重入仙途的消费
+        self.remake = 100000  # 重入仙途的消费
+        self.max_stamina = 240 # 体力上限
         self.lunhui_min_level = "祭道境圆满" # 千世轮回最低境界
         self.twolun_min_level = "祭道境圆满" # 万世轮回最低境界
         self.del_boss_id = []  # 支持非管理员和超管天罚boss

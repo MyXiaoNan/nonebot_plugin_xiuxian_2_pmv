@@ -56,7 +56,7 @@ __work_help__ = f"""
 """.strip()
 
 
-@last_work.handle(parameterless=[Cooldown(cd_time=1.3,at_sender=False)])
+@last_work.handle(parameterless=[Cooldown(stamina_cost = 1, at_sender=False)])
 async def last_work_(bot: Bot, event: GroupMessageEvent):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = check_user(event)
@@ -160,7 +160,7 @@ async def last_work_(bot: Bot, event: GroupMessageEvent):
         await last_work.finish()
 
 
-@do_work.handle(parameterless=[Cooldown(cd_time=1.3, at_sender=False)])
+@do_work.handle(parameterless=[Cooldown(stamina_cost = 1, at_sender=False)])
 async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = RegexGroup()):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     user_level = "仙王境初期"
@@ -187,7 +187,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await do_work.finish()
     mode = args[0]  # 刷新、终止、结算、接取
-    if user_rank <= 14 or user_info['exp'] >= sql_message.get_level_power(user_level):
+    if user_rank <= convert_rank('仙王境初期')[0] or user_info['exp'] >= sql_message.get_level_power(user_level):
         msg = "道友的境界已过创业初期，悬赏令已经不能满足道友了！"
         if XiuConfig().img:
             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
@@ -349,7 +349,6 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
             )
             exp_time = (datetime.now() - work_time).seconds // 60  # 时长计算
             time2 = workhandle().do_work(
-                # key=1, name=user_cd_message.scheduled_time  修改点
                 key=1, name=user_cd_message['scheduled_time'], level=user_level, exp=user_info['exp'],
                 user_id=user_info['user_id']
             )

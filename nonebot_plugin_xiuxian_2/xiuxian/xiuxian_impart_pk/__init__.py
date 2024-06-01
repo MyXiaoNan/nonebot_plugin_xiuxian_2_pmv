@@ -38,7 +38,7 @@ async def impart_re_():
     logger.opt(colors=True).info("<green>已重置虚神界次数</green>")
 
 
-@impart_pk_project.handle(parameterless=[Cooldown(at_sender=False)])
+@impart_pk_project.handle(parameterless=[Cooldown(stamina_cost = 1, at_sender=False)])
 async def impart_pk_project_(bot: Bot, event: GroupMessageEvent):
     """投影虚神界"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -115,7 +115,7 @@ async def impart_pk_list_(bot: Bot, event: GroupMessageEvent):
     for x in range(len(xu_list)):
         user_data = impart_pk.find_user_data(xu_list[x])
         if user_data:
-            name = sql_message.get_user_message(xu_list[x])['user_name']
+            name = sql_message.get_user_info_with_id(xu_list[x])['user_name']
             msg = ""
             msg += f"编号：{user_data['number']}\n"
             msg += f"道友：{name}\n"
@@ -137,7 +137,7 @@ async def impart_pk_list_(bot: Bot, event: GroupMessageEvent):
     await impart_pk_list.finish()
 
 
-@impart_pk_now.handle(parameterless=[Cooldown(cd_time=3, at_sender=False)])
+@impart_pk_now.handle(parameterless=[Cooldown(stamina_cost = 3, at_sender=False)])
 async def impart_pk_now_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """虚神界对决"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -245,7 +245,7 @@ async def impart_pk_now_(bot: Bot, event: GroupMessageEvent, args: Message = Com
         await impart_pk_now.finish()
 
     player_1_name = user_info['user_name']
-    player_2_name = sql_message.get_user_message(player_2)['user_name']
+    player_2_name = sql_message.get_user_info_with_id(player_2)['user_name']
 
     while user_data["pk_num"] > 0:
         duel_count += 1
@@ -382,7 +382,7 @@ async def impart_pk_exp_(bot: Bot, event: GroupMessageEvent, args: Message = Com
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await impart_pk_exp.finish()
     else:
-        msg = "修炼时长过长导致超出上限，此次修炼失败！"
+        msg = "修炼时长过长导致超出上限，此次修炼失败，最多可修炼{}分钟".format(max_exp - int(user_info['exp'] + exp))
         if XiuConfig().img:
             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))

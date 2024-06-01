@@ -20,7 +20,6 @@ from nonebot.adapters.onebot.v11 import MessageSegment
 from .data_source import jsondata
 from pathlib import Path
 from base64 import b64encode
-from concurrent.futures import ThreadPoolExecutor
 
 sql_message = XiuxianDateManage()  # sql类
 boss_img_path = Path() / "data" / "xiuxian" / "boss_img"
@@ -85,7 +84,7 @@ def check_user(event: GroupMessageEvent):
 
     isUser = False
     user_id = event.get_user_id()
-    user_info = sql_message.get_user_message(user_id)
+    user_info = sql_message.get_user_info_with_id(user_id)
     if user_info is None:
         msg = "修仙界没有道友的信息，请输入【我要修仙】加入！"
     else:
@@ -496,7 +495,7 @@ def number_to(num):
     递归实现，精确为最大单位值 + 小数点后一位
     '''
     def strofsize(num, level):
-        if level >= 11:
+        if level >= 12:
             return num, level
         elif num >= 10000:
             num /= 10000
@@ -504,7 +503,7 @@ def number_to(num):
             return strofsize(num, level)
         else:
             return num, level
-    units = ['', '万', '亿', '兆', '京', '垓', '秭', '穰', '沟', '涧', '正', '载'] # 真的有这么多单位吗？
+    units = ['', '万', '亿', '兆', '京', '垓', '秭', '穰', '沟', '涧', '正', '载', '极'] # 真的有这么多单位吗？
     num, level = strofsize(num, 0)
     if level >= len(units):
         level = len(units) - 1

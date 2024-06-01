@@ -279,7 +279,7 @@ async def blessed_spot_rename_(bot: Bot, event: GroupMessageEvent, args: Message
     await blessed_spot_rename.finish()
 
 
-@qc.handle(parameterless=[Cooldown(cd_time=300, at_sender=False)])
+@qc.handle(parameterless=[Cooldown(stamina_cost = 5, at_sender=False)])
 async def qc_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """切磋，不会掉血"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -387,7 +387,7 @@ async def qc_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
         await qc.finish()
 
 
-@two_exp.handle(parameterless=[Cooldown(at_sender=False)])
+@two_exp.handle(parameterless=[Cooldown(stamina_cost = 10, at_sender=False)])
 async def two_exp_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """双修"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -406,7 +406,7 @@ async def two_exp_(bot: Bot, event: GroupMessageEvent, args: Message = CommandAr
         if arg.type == "at":
             two_qq = arg.data.get("qq", "")
     
-    user_2 = sql_message.get_user_message(two_qq)
+    user_2 = sql_message.get_user_info_with_id(two_qq)
     
     if user_1 and user_2:
         if two_qq is None:
@@ -443,8 +443,8 @@ async def two_exp_(bot: Bot, event: GroupMessageEvent, args: Message = CommandAr
                 limt_2 = two_exp_cd.find_user(user_2['user_id'])
                 sql_message.update_last_check_info_time(user_1['user_id']) # 更新查看修仙信息时间
                 # 加入传承
-                impart_data_1 = xiuxian_impart.get_user_message(user_1['user_id'])
-                impart_data_2 = xiuxian_impart.get_user_message(user_2['user_id'])
+                impart_data_1 = xiuxian_impart.get_user_info_with_id(user_1['user_id'])
+                impart_data_2 = xiuxian_impart.get_user_info_with_id(user_2['user_id'])
                 impart_two_exp_1 = impart_data_1['impart_two_exp'] if impart_data_1 is not None else 0
                 impart_two_exp_2 = impart_data_2['impart_two_exp'] if impart_data_2 is not None else 0
                 
@@ -599,7 +599,7 @@ async def stone_exp_(bot: Bot, event: GroupMessageEvent, args: Message = Command
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await stone_exp.finish()
     user_id = user_info['user_id']
-    user_mes = sql_message.get_user_message(user_id)  # 获取用户信息
+    user_mes = sql_message.get_user_info_with_id(user_id)  # 获取用户信息
     level = user_mes['level']
     use_exp = user_mes['exp']
     use_stone = user_mes['stone']
@@ -708,7 +708,7 @@ async def out_closing_(bot: Bot, event: GroupMessageEvent):
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await out_closing.finish()
     user_id = user_info['user_id']
-    user_mes = sql_message.get_user_message(user_id)  # 获取用户信息
+    user_mes = sql_message.get_user_info_with_id(user_id)  # 获取用户信息
     level = user_mes['level']
     use_exp = user_mes['exp']
     hp_speed = 25
@@ -754,7 +754,7 @@ async def out_closing_(bot: Bot, event: GroupMessageEvent):
             # 洞天福地为加法
         )  # 本次闭关获取的修为
         # 计算传承增益
-        impart_data = xiuxian_impart.get_user_message(user_id)
+        impart_data = xiuxian_impart.get_user_info_with_id(user_id)
         impart_exp_up = impart_data['impart_exp_up'] if impart_data is not None else 0
         exp = int(exp * (1 + impart_exp_up))
         if exp >= user_get_exp_max:
@@ -890,10 +890,23 @@ async def mind_state_(bot: Bot, event: GroupMessageEvent):
     else:
         main_crit_buff = 0
     
+    list_all = len(OtherSet().level) - 1
+    now_index = OtherSet().level.index(user_msg['level'])
+    if list_all == now_index:
+        exp_meg = "位面至高"
+    else:
+        is_updata_level = OtherSet().level[now_index + 1]
+        need_exp = sql_message.get_level_power(is_updata_level)
+        get_exp = need_exp - user_msg['exp']
+        if get_exp > 0:
+            exp_meg = "还需{}修为可突破！".format(number_to(get_exp))
+        else:
+            exp_meg = "可突破！"
+    
     main_buff_rate_buff = main_buff_data['ratebuff'] if main_buff_data is not None else 0
     main_hp_buff = main_buff_data['hpbuff'] if main_buff_data is not None else 0
     main_mp_buff = main_buff_data['mpbuff'] if main_buff_data is not None else 0
-    impart_data = xiuxian_impart.get_user_message(user_id)
+    impart_data = xiuxian_impart.get_user_info_with_id(user_id)
     impart_hp_per = impart_data['impart_hp_per'] if impart_data is not None else 0
     impart_mp_per = impart_data['impart_mp_per'] if impart_data is not None else 0
     impart_know_per = impart_data['impart_know_per'] if impart_data is not None else 0
@@ -903,12 +916,15 @@ async def mind_state_(bot: Bot, event: GroupMessageEvent):
     weapon_critatk = weapon_critatk_data['critatk'] if weapon_critatk_data is not None else 0 #我的状态武器会心伤害
     user_main_critatk = UserBuffDate(user_id).get_user_main_buff_data() #我的状态功法会心伤害
     main_critatk =  user_main_critatk['critatk'] if  user_main_critatk is not None else 0 #我的状态功法会心伤害
+    leveluprate = int(user_msg['level_up_rate'])  # 用户失败次数加成
+    number =  user_main_critatk["number"] if user_main_critatk is not None else 0
     
     msg = f"""
 道号：{user_msg['user_name']}
 气血:{number_to(user_msg['hp'])}/{number_to(int((user_msg['exp'] / 2) * (1 + main_hp_buff + impart_hp_per)))}
 真元:{number_to(user_msg['mp'])}/{number_to(user_msg['exp'])}({int((user_msg['mp'] / user_msg['exp']) * 100)}%)
 攻击:{number_to(user_msg['atk'])}
+突破状态: {exp_meg}概率：({jsondata.level_rate_data()[user_msg['level']] + leveluprate + number}%)
 攻击修炼:{user_msg['atkpractice']}级(提升攻击力{user_msg['atkpractice'] * 4}%)
 修炼效率:{int(((level_rate * realm_rate) * (1 + main_buff_rate_buff)) * 100)}%
 会心:{crit_buff + int(impart_know_per * 100) + armor_crit_buff + main_crit_buff}%
@@ -1012,7 +1028,7 @@ async def my_exp_num_(bot: Bot, event: GroupMessageEvent):
         await my_exp_num.finish()
     user_id = user_info['user_id']
     limt = two_exp_cd.find_user(user_id)
-    impart_data = xiuxian_impart.get_user_message(user_id)
+    impart_data = xiuxian_impart.get_user_info_with_id(user_id)
     impart_two_exp = impart_data['impart_two_exp'] if impart_data is not None else 0
     
     main_two_data = UserBuffDate(user_id).get_user_main_buff_data()

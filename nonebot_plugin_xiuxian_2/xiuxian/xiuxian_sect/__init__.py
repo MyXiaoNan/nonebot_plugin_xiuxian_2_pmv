@@ -146,11 +146,11 @@ async def auto_sect_owner_change_():
         if last_check_time is None or datetime.now() - last_check_time < timedelta(days=XiuConfig().auto_change_sect_owner_cd):
             continue
 
-        user_info = sql_message.get_user_message(owner_id)
+        user_info = sql_message.get_user_info_with_id(owner_id)
         sect_id = user_info['sect_id']
         logger.opt(colors=True).info("<red>{}离线时间超过{}天，开始自动换宗主</red>".format(user_info['user_name'], XiuConfig().auto_change_sect_owner_cd))
         new_owner_id = sql_message.get_highest_contrib_user_except_current(sect_id, owner_id)
-        new_owner_info = sql_message.get_user_message(new_owner_id[0])
+        new_owner_info = sql_message.get_user_info_with_id(new_owner_id[0])
         
         sql_message.update_usr_sect(owner_id, sect_id, 1)
         sql_message.update_usr_sect(new_owner_id[0], sect_id, 0)
@@ -180,7 +180,7 @@ async def sect_help_(bot: Bot, event: GroupMessageEvent, session_id: int = Comma
         await sect_help.finish()
 
 
-@sect_elixir_room_make.handle(parameterless=[Cooldown(at_sender=False)])
+@sect_elixir_room_make.handle(parameterless=[Cooldown(stamina_cost=2, at_sender=False)])
 async def sect_elixir_room_make_(bot: Bot, event: GroupMessageEvent):
     """宗门丹房建设"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -462,7 +462,7 @@ async def sect_buff_info_(bot: Bot, event: GroupMessageEvent):
         await sect_buff_info.finish()
 
 
-@sect_mainbuff_learn.handle(parameterless=[Cooldown(at_sender=False)])
+@sect_mainbuff_learn.handle(parameterless=[Cooldown(stamina_cost = 1, cd_time=10, at_sender=False)])
 async def sect_mainbuff_learn_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """学习宗门功法"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -555,7 +555,7 @@ async def sect_mainbuff_learn_(bot: Bot, event: GroupMessageEvent, args: Message
         await sect_mainbuff_learn.finish()
 
 
-@sect_mainbuff_get.handle(parameterless=[Cooldown(at_sender=False)])
+@sect_mainbuff_get.handle(parameterless=[Cooldown(stamina_cost=8, at_sender=False)])
 async def sect_mainbuff_get_(bot: Bot, event: GroupMessageEvent):
     """搜寻宗门功法"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -648,7 +648,7 @@ async def sect_mainbuff_get_(bot: Bot, event: GroupMessageEvent):
         await sect_mainbuff_get.finish()
 
 
-@sect_secbuff_get.handle(parameterless=[Cooldown(at_sender=False)])
+@sect_secbuff_get.handle(parameterless=[Cooldown(stamina_cost=8, at_sender=False)])
 async def sect_secbuff_get_(bot: Bot, event: GroupMessageEvent):
     """搜寻宗门神通"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -741,7 +741,7 @@ async def sect_secbuff_get_(bot: Bot, event: GroupMessageEvent):
         await sect_secbuff_get.finish()
 
 
-@sect_secbuff_learn.handle(parameterless=[Cooldown(at_sender=False)])
+@sect_secbuff_learn.handle(parameterless=[Cooldown(stamina_cost=1, cd_time=10, at_sender=False)])
 async def sect_secbuff_learn_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     """学习宗门神通"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -1093,7 +1093,7 @@ async def sect_task_(bot: Bot, event: GroupMessageEvent):
         await sect_task.finish()
 
 
-@sect_task_complete.handle(parameterless=[Cooldown(config['宗门任务完成cd'], at_sender=False)])
+@sect_task_complete.handle(parameterless=[Cooldown(cd_time=config['宗门任务完成cd'], stamina_cost = 3,at_sender=False)])
 async def sect_task_complete_(bot: Bot, event: GroupMessageEvent):
     """完成宗门任务"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -1261,7 +1261,7 @@ async def sect_owner_change_(bot: Bot, event: GroupMessageEvent, args: Message =
                 await bot.send_group_msg(group_id=int(send_group_id), message=msg)
             await sect_owner_change.finish()
         else:
-            give_user = sql_message.get_user_message(give_qq)
+            give_user = sql_message.get_user_info_with_id(give_qq)
             if give_user['sect_id'] == user_info['sect_id']:
                 sql_message.update_usr_sect(give_user['user_id'], give_user['sect_id'], owner_position)
                 sql_message.update_usr_sect(user_info['user_id'], user_info['sect_id'], owner_position + 1)
@@ -1471,7 +1471,7 @@ async def sect_kick_out_(bot: Bot, event: GroupMessageEvent, args: Message = Com
     if bool(give_qq) is False:
         msg = args.extract_plain_text().strip()
         give_qq = re.findall(r"\d+", msg)[0]  # QQ_ID
-    if sql_message.get_user_message(give_qq) is None:
+    if sql_message.get_user_info_with_id(give_qq) is None:
         msg = "修仙界没有此人,请输入正确QQ_ID或正规at!"
         if XiuConfig().img:
             pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
@@ -1489,7 +1489,7 @@ async def sect_kick_out_(bot: Bot, event: GroupMessageEvent, args: Message = Com
                 await bot.send_group_msg(group_id=int(send_group_id), message=msg)
             await sect_kick_out.finish()
         else:
-            give_user = sql_message.get_user_message(give_qq)
+            give_user = sql_message.get_user_info_with_id(give_qq)
             if give_user['sect_id'] == user_info['sect_id']:
                 position_zhanglao = [k for k, v in jsondata.sect_config_data().items() if v.get("title", "") == "长老"]
                 idx_position = int(position_zhanglao[0]) if len(position_zhanglao) == 1 else 1
@@ -1687,7 +1687,7 @@ async def sect_position_update_(bot: Bot, event: GroupMessageEvent, args: Messag
             await sect_position_update.finish()
         else:
             if len(position_num) > 0 and position_num[0] in list(jsondata.sect_config_data().keys()):
-                give_user = sql_message.get_user_message(give_qq)
+                give_user = sql_message.get_user_info_with_id(give_qq)
                 if give_user['sect_id'] == user_info['sect_id'] and give_user['sect_position'] > user_info['sect_position']:
                     if int(position_num[0]) > user_info['sect_position']:
                         sql_message.update_usr_sect(give_user['user_id'], give_user['sect_id'], int(position_num[0]))
@@ -1813,7 +1813,7 @@ async def my_sect_(bot: Bot, event: GroupMessageEvent):
 宗门拥有资材：{}
 宗门贡献度：{}
 宗门丹房：{}
-""".format(user_name, sect_info['sect_name'], sect_id, sql_message.get_user_message(sect_info['sect_owner'])['user_name'], 
+""".format(user_name, sect_info['sect_name'], sect_id, sql_message.get_user_info_with_id(sect_info['sect_owner'])['user_name'], 
            jsondata.sect_config_data()["{}".format(sect_position)]["title"], number_to(sect_info['sect_scale']), 
            sect_info['sect_fairyland'] if sect_info['sect_fairyland'] else "暂无", top_idx_list.index(sect_id) + 1, 
            number_to(sect_info['sect_materials']), number_to(user_info['sect_contribution']), elixir_room_name)

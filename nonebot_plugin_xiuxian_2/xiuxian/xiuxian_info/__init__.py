@@ -16,7 +16,7 @@ xiuxian_message = on_command("我的修仙信息", aliases={"我的存档"}, pri
 sql_message = XiuxianDateManage()  # sql类
 
 
-@xiuxian_message.handle(parameterless=[Cooldown(cd_time=XiuConfig().user_info_cd, at_sender=False)])
+@xiuxian_message.handle(parameterless=[Cooldown(at_sender=False)])
 async def xiuxian_message_(bot: Bot, event: GroupMessageEvent):
     """我的修仙信息"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
@@ -60,7 +60,7 @@ async def xiuxian_message_(bot: Bot, event: GroupMessageEvent):
     list_all = len(OtherSet().level) - 1
     now_index = OtherSet().level.index(user_info['level'])
     if list_all == now_index:
-        exp_meg = "零"
+        exp_meg = "位面至高"
     else:
         is_updata_level = OtherSet().level[now_index + 1]
         need_exp = sql_message.get_level_power(is_updata_level)
