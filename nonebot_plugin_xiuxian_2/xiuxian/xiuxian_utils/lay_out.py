@@ -35,7 +35,7 @@ def limit_all_message_():
     # 重置消息字典
     global limit_all_data
     limit_all_data  = {}
-    logger.opt(colors=True).success("<green>已重置消息字典！</green>")
+    logger.opt(colors=True).success(f"<green>已重置消息字典！</green>")
 
 @limit_all_stamina.scheduled_job('interval', minutes=10)
 def limit_all_stamina_():

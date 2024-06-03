@@ -144,7 +144,7 @@ class XiuxianDateManage:
             except sqlite3.OperationalError:
                 logger.opt(colors=True).info("<yellow>sql_user_xiuxian有字段不存在，开始创建\n</yellow>")
                 sql = "ALTER TABLE user_xiuxian ADD COLUMN {} INTEGER DEFAULT 0;".format(i)
-                logger.opt(colors=True).info("<green>{}</green>".format(sql))
+                logger.opt(colors=True).info(f"<green>{sql}</green>")
                 c.execute(sql)
 
         for d in XiuConfig().sql_user_cd:
@@ -153,7 +153,7 @@ class XiuxianDateManage:
             except sqlite3.OperationalError:
                 logger.opt(colors=True).info("<yellow>sql_user_cd有字段不存在，开始创建</yellow>")
                 sql = "ALTER TABLE user_cd ADD COLUMN {} INTEGER DEFAULT 0;".format(d)
-                logger.opt(colors=True).info("<green>{}</green>".format(sql))
+                logger.opt(colors=True).info(f"<green>{sql}</green>")
                 c.execute(sql)
 
         for s in XiuConfig().sql_sects:
@@ -162,7 +162,7 @@ class XiuxianDateManage:
             except sqlite3.OperationalError:
                 logger.opt(colors=True).info("<yellow>sql_sects有字段不存在，开始创建</yellow>")
                 sql = "ALTER TABLE sects ADD COLUMN {} INTEGER DEFAULT 0;".format(s)
-                logger.opt(colors=True).info("<green>{}</green>".format(sql))
+                logger.opt(colors=True).info(f"<green>{sql}</green>")
                 c.execute(sql)
 
         for m in XiuConfig().sql_buff:
@@ -170,8 +170,8 @@ class XiuxianDateManage:
                 c.execute(f"select {m} from BuffInfo")
             except sqlite3.OperationalError:
                 logger.opt(colors=True).info("<yellow>sql_buff有字段不存在，开始创建</yellow>")
-                sql = "ALTER TABLE BuffInfo ADD COLUMN {} INTEGER DEFAULT 0;".format(m)
-                logger.opt(colors=True).info("<green>{}</green>".format(sql))
+                sql = f"ALTER TABLE BuffInfo ADD COLUMN {m} INTEGER DEFAULT 0;"
+                logger.opt(colors=True).info(f"<green>{sql}</green>")
                 c.execute(sql)
 
         for b in XiuConfig().sql_back:
@@ -180,7 +180,7 @@ class XiuxianDateManage:
             except sqlite3.OperationalError:
                 logger.opt(colors=True).info("<yellow>sql_back有字段不存在，开始创建</yellow>")
                 sql = "ALTER TABLE back ADD COLUMN {} INTEGER DEFAULT 0;".format(b)
-                logger.opt(colors=True).info("<green>{}</green>".format(sql))
+                logger.opt(colors=True).info(f"<green>{sql}</green>")
                 c.execute(sql)
         
         # 检查并更新 last_check_info_time 列的记录
@@ -1286,7 +1286,7 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
 
     def update_back_equipment(self, sql_str):
         """更新背包,传入sql"""
-        logger.opt(colors=True).info("<green>执行的sql:{}</green>".format(sql_str))
+        logger.opt(colors=True).info(f"<green>执行的sql:{sql_str}</green>")
         cur = self.conn.cursor()
         cur.execute(sql_str)
         self.conn.commit()
@@ -1669,7 +1669,7 @@ class XIUXIAN_IMPART_BUFF:
                 c.execute(f"select {s} from xiuxian_impart")
             except sqlite3.OperationalError:
                 sql = f"ALTER TABLE xiuxian_impart ADD COLUMN {s} integer DEFAULT 0;"
-                logger.opt(colors=True).info("<green>{}</green>".format(sql))
+                logger.opt(colors=True).info(f"<green>{sql}</green>")
                 logger.opt(colors=True).info(f"<green>xiuxian_impart数据库核对成功!</green>")
                 c.execute(sql)
 
@@ -2230,7 +2230,7 @@ def save_player_info(user_id, data, info_name):
     user_id = str(user_id)
 
     if not os.path.exists(PLAYERSDATA / user_id):
-        logger.opt(colors=True).info("<green>用户目录不存在，创建目录</green>")
+        logger.opt(colors=True).info(f"<green>用户目录不存在，创建目录</green>")
         os.makedirs(PLAYERSDATA / user_id)
 
     FILEPATH = PLAYERSDATA / user_id / f"{info_name}.json"

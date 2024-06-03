@@ -60,7 +60,7 @@ def savef(user_id, data):
     user_id = str(user_id)
 
     if not os.path.exists(PLAYERSDATA / user_id):
-        logger.opt(colors=True).info("<green>用户目录不存在，创建目录</green>")
+        logger.opt(colors=True).info(f"<green>用户目录不存在，创建目录</green>")
         os.makedirs(PLAYERSDATA / user_id)
 
     FILEPATH = PLAYERSDATA / user_id / "workinfo.json"

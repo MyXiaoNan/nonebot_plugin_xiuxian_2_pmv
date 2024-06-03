@@ -55,7 +55,7 @@ async def lunhui_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandO
     isUser, user_info, msg = check_user(event)
     if not isUser:
         if XiuConfig().img:
-            pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
@@ -71,7 +71,7 @@ async def lunhui_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandO
     if user_root == '轮回道果' :
         msg = "道友已是千世轮回之身！"
         if XiuConfig().img:
-            pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
@@ -80,7 +80,7 @@ async def lunhui_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandO
     if user_root == '真·轮回道果' :
         msg = "道友已是万世轮回之身！"
         if XiuConfig().img:
-            pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
@@ -100,7 +100,7 @@ async def lunhui_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandO
         sql_message.update_root(user_id, 6) #更换轮回灵根
         msg = f"千世轮回磨不灭，重回绝颠谁能敌，恭喜大能{user_name}轮回成功！"
         if XiuConfig().img:
-            pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
@@ -108,7 +108,7 @@ async def lunhui_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandO
     else:
         msg = f"道友境界未达要求，进入千世轮回的最低境界为{XiuConfig().lunhui_min_level}"
         if XiuConfig().img:
-            pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
@@ -120,7 +120,7 @@ async def twolun_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandO
     isUser, user_info, msg = check_user(event)
     if not isUser:
         if XiuConfig().img:
-            pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
@@ -136,7 +136,7 @@ async def twolun_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandO
     if user_root == '真·轮回道果':
         msg = "道友已是万世轮回之身！"
         if XiuConfig().img:
-            pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
@@ -145,7 +145,7 @@ async def twolun_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandO
     if user_root != '轮回道果':
         msg = "道友还未轮回过，请先进入千世轮回！"
         if XiuConfig().img:
-            pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
@@ -161,7 +161,7 @@ async def twolun_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandO
         sql_message.update_root(user_id, 7) #更换轮回灵根
         msg = f"万世道果集一身，脱出凡道入仙道，恭喜大能{user_name}万世轮回成功！"
         if XiuConfig().img:
-            pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
@@ -169,7 +169,7 @@ async def twolun_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandO
     else:
         msg = f"道友境界未达要求，万世轮回的最低境界为{XiuConfig().twolun_min_level}！"
         if XiuConfig().img:
-            pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
@@ -181,7 +181,7 @@ async def resetting_(bot: Bot, event: GroupMessageEvent, session_id: int = Comma
     isUser, user_info, msg = check_user(event)
     if not isUser:
         if XiuConfig().img:
-            pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
@@ -201,7 +201,7 @@ async def resetting_(bot: Bot, event: GroupMessageEvent, session_id: int = Comma
         sql_message.update_user_hp(user_id)  # 重置用户HP，mp，atk状态
         msg = f"{user_name}现在是一介凡人了！！"
         if XiuConfig().img:
-            pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
@@ -209,7 +209,7 @@ async def resetting_(bot: Bot, event: GroupMessageEvent, session_id: int = Comma
     else:
         msg = f"道友境界未达要求，自废修为的最低境界为搬血境！"
         if XiuConfig().img:
-            pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)

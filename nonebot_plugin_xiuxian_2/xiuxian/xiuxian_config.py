@@ -142,7 +142,7 @@ class JsonConfig:
                     group_list.append(group_id)
                     json_data['group'] = group_list
                 except Exception as e:
-                    logger.opt(colors=True).info("<red>错误:{}</red>".format(e))
+                    logger.opt(colors=True).info(f"<red>错误:{e}</red>")
                     return False
         elif key == 2:
             if group_id in group_list:
@@ -150,7 +150,7 @@ class JsonConfig:
                     group_list.remove(group_id)
                     json_data['group'] = group_list
                 except Exception as e:
-                    logger.opt(colors=True).info("<red>错误:{}</ewd>".format(e))
+                    logger.opt(colors=True).info(f"<red>错误:{e}</ewd>")
                     return False
         else:
             logger.opt(colors=True).info("<red>未知key</red>")
