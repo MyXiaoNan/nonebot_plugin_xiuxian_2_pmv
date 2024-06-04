@@ -13,6 +13,8 @@ from ..xiuxian_config import XiuConfig, convert_rank
 from .. import DRIVER
 from .item_json import Items
 from .xn_xiuxian_impart_config import config_impart
+from .xn_xiuxian_impart_config import config_impart
+from .xiuxian_data import 灵根_data ,突破概率_data
 
 WORKDATA = Path() / "data" / "xiuxian" / "work"
 PLAYERSDATA = Path() / "data" / "xiuxian" / "players"
@@ -1319,25 +1321,18 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
 
 class XiuxianJsonDate:
     def __init__(self):
-        self.root_jsonpath = DATABASE / "灵根.json"
-        self.level_jsonpath = DATABASE / "突破概率.json"
+        pass
 
     def beifen_linggen_get(self):
-        with open(self.root_jsonpath, 'r', encoding='utf-8') as e:
-            a = e.read()
-            data = json.loads(a)
-            lg = random.choice(data)
-            return lg['name'], lg['type']
+        lg = random.choice(灵根_data)
+        return lg['name'], lg['type']
 
     def level_rate(self, level):
-        with open(self.level_jsonpath, 'r', encoding='utf-8') as e:
-            a = e.read()
-            data = json.loads(a)
-            return data[0][level]
+        return 突破概率_data[0][level]
 
     def linggen_get(self):
         """获取灵根信息"""
-        data = jsondata.root_data()
+        data = 灵根_data
         rate_dict = {}
         for i, v in data.items():
             rate_dict[i] = v["type_rate"]
@@ -1961,38 +1956,6 @@ xiuxian_impart = XIUXIAN_IMPART_BUFF()
 async def close_db():
     XIUXIAN_IMPART_BUFF().close()
 
-
-# 这里是buff部分
-class BuffJsonDate:
-
-    def __init__(self):
-        """json文件路径"""
-        self.mainbuff_jsonpath = SKILLPATHH / "主功法.json"
-        self.secbuff_jsonpath = SKILLPATHH / "神通.json"
-        self.gfpeizhi_jsonpath = SKILLPATHH / "功法概率设置.json"
-        self.weapon_jsonpath = WEAPONPATH / "法器.json"
-        self.armor_jsonpath = WEAPONPATH / "防具.json"
-
-    def get_main_buff(self, id):
-        return readf(self.mainbuff_jsonpath)[str(id)]
-
-    def get_sec_buff(self, id):
-        return readf(self.secbuff_jsonpath)[str(id)]
-
-    def get_gfpeizhi(self):
-        return readf(self.gfpeizhi_jsonpath)
-
-    def get_weapon_data(self):
-        return readf(self.weapon_jsonpath)
-
-    def get_weapon_info(self, id):
-        return readf(self.weapon_jsonpath)[str(id)]
-
-    def get_armor_data(self):
-        return readf(self.armor_jsonpath)
-
-    def get_armor_info(self, id):
-        return readf(self.armor_jsonpath)[str(id)]
 
 
 class UserBuffDate:

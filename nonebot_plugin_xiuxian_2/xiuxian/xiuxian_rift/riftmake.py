@@ -1,7 +1,7 @@
 import random
 from .riftconfig import get_rift_config
 from ..xiuxian_utils.xiuxian2_handle import OtherSet
-from ..buff_data import gfpeizhi_data
+from ..xiuxian_data import 功法_data
 from ..xiuxian_utils.xiuxian2_handle import XiuxianDateManage, UserBuffDate, XIUXIAN_IMPART_BUFF
 from ..xiuxian_utils.player_fight import Boss_fight
 from ..xiuxian_utils.item_json import Items
@@ -350,7 +350,8 @@ def get_armor(user_info, rift_rank=0):
 def get_main_info(user_level, rift_rank):
     """获取功法的信息"""
     main_buff_type = get_skill_by_rank(user_level, rift_rank)  # 天地玄黄
-    main_buff_id_list = gfpeizhi_data[main_buff_type]['gf_list']
+    main_buff_id_list = 功法_data[main_buff_type]['gf_list']
+
     init_rate = 60  # 初始概率为60
     finall_rate = init_rate + rift_rank * 5
     finall_rate = finall_rate if finall_rate <= 100 else 100
@@ -366,7 +367,9 @@ def get_main_info(user_level, rift_rank):
 def get_sec_info(user_level, rift_rank):
     """获取神通的信息"""
     sec_buff_type = get_skill_by_rank(user_level, rift_rank)  # 天地玄黄
-    sec_buff_id_list = gfpeizhi_data[sec_buff_type]['st_list']
+
+    sec_buff_id_list = 功法_data[sec_buff_type]['st_list']
+
     init_rate = 60  # 初始概率为60
     finall_rate = init_rate + rift_rank * 5
     finall_rate = finall_rate if finall_rate <= 100 else 100
@@ -381,7 +384,9 @@ def get_sec_info(user_level, rift_rank):
 def get_sub_info(user_level, rift_rank):
     """获取辅修功法的信息"""
     sub_buff_type = get_skill_by_rank(user_level, rift_rank)  # 天地玄黄
-    sub_buff_id_list = gfpeizhi_data[sub_buff_type]['fx_list']
+
+    sub_buff_id_list = 功法_data[sub_buff_type]['fx_list']
+
     init_rate = 60  # 初始概率为60
     finall_rate = init_rate + rift_rank * 5
     finall_rate = finall_rate if finall_rate <= 100 else 100
@@ -399,7 +404,9 @@ def get_skill_by_rank(user_level, rift_rank):
     """根据用户等级、秘境等级随机获取一个技能"""
     user_rank = convert_rank(user_level)[0]  # type=int，用户等级
     temp_dict = []
-    for k, v in gfpeizhi_data.items():
+
+    for k, v in 功法_data.items():
+
         if user_rank - rift_rank <= v['rank']:  # 秘境等级会增幅用户等级
             temp_dict.append(k)
     return random.choice(temp_dict)

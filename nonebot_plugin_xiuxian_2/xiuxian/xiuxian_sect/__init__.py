@@ -26,6 +26,7 @@ from ..xiuxian_utils.utils import (
     Txt2Img
 )
 from ..xiuxian_utils.item_json import Items
+from ..buff_data import gfpeizhi_data
 
 items = Items()
 sql_message = XiuxianDateManage()  # sql类
@@ -590,7 +591,7 @@ async def sect_mainbuff_get_(bot: Bot, event: GroupMessageEvent):
 
                 for i in range(100):
                     if random.randint(0, 100) <= mainbuffconfig['获取到功法的概率']:
-                        mainbuffid = random.choice(BuffJsonDate().get_gfpeizhi()[mainbufftype]['gf_list'])
+                        mainbuffid = random.choice(gfpeizhi_data[mainbufftype]['gf_list'])
                         if mainbuffid in mainbuffidlist:
                             mainbuff, mainbuffmsg = get_main_info_msg(mainbuffid)
                             repeat_count += 1
@@ -683,7 +684,7 @@ async def sect_secbuff_get_(bot: Bot, event: GroupMessageEvent):
 
                 for i in range(100):
                     if random.randint(0, 100) <= secbuffconfig['获取到神通的概率']:
-                        secbuffid = random.choice(BuffJsonDate().get_gfpeizhi()[secbufftype]['st_list'])
+                        secbuffid = random.choice(gfpeizhi_data[secbufftype]['st_list'])
                         if secbuffid in secbuffidlist:
                             secbuff = items.get_data_by_item_id(secbuffid)
                             repeat_count += 1
