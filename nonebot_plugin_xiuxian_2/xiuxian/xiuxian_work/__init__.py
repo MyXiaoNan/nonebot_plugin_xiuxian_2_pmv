@@ -15,7 +15,7 @@ from datetime import datetime
 from ..xiuxian_utils.xiuxian_opertion import do_is_work
 from ..xiuxian_utils.utils import check_user, check_user_type, get_msg_pic
 from nonebot.log import logger
-from .reward_data_source import PLAYERSDATA
+from ..data_source import *
 from ..xiuxian_utils.item_json import Items
 from ..xiuxian_config import convert_rank, XiuConfig
 
@@ -28,6 +28,7 @@ items = Items()
 lscost = 1000000000 # 刷新灵石消耗
 count = 3  # 免费次数
 
+PLAYERSDATA = Path('/root/xiuxiannb/xiuxiannb/wfbot/plugins/nonebot_plugin_xiuxian_2_pmv/xiuxian') / "data" / "xiuxian" / "players"
 
 # 重置悬赏令刷新次数
 @resetrefreshnum.scheduled_job("cron", hour=0, minute=0)
