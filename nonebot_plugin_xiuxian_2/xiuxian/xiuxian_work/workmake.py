@@ -1,9 +1,8 @@
-from .reward_data_source import *
 import random
 from ..xiuxian_utils.item_json import Items
 from ..xiuxian_config import convert_rank
 from ..xiuxian_utils.xiuxian2_handle import OtherSet
-
+from ..xiuxian_data import 暗杀_data,等级奖励稿_data,灵材_data,镇妖_data
 
 def workmake(work_level, exp, user_level):
     if work_level == '江湖好手':
@@ -11,12 +10,11 @@ def workmake(work_level, exp, user_level):
     else:
         work_level = work_level[:3]  # 取境界前3位，补全初期、中期、圆满任务可不取
 
-    jsondata_ = reward()
     item_s = Items()
-    yaocai_data = jsondata_.reward_yaocai_data()
-    levelpricedata = jsondata_.reward_levelprice_data()
-    ansha_data = jsondata_.reward_ansa_data()
-    zuoyao_data = jsondata_.reward_zuoyao_data()
+    yaocai_data = 灵材_data
+    levelpricedata = 等级奖励稿_data
+    ansha_data = 暗杀_data
+    zuoyao_data = 镇妖_data
     work_json = {}
     work_list = [yaocai_data[work_level], ansha_data[work_level], zuoyao_data[work_level]]
     i = 1
