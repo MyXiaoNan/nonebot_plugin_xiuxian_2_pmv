@@ -13,6 +13,8 @@ from ..xiuxian_config import XiuConfig, convert_rank
 from .. import DRIVER
 from .item_json import Items
 from .xn_xiuxian_impart_config import config_impart
+from .xn_xiuxian_impart_config import config_impart
+from .xiuxian_data import 灵根_data ,突破概率_data
 
 WORKDATA = Path() / "data" / "xiuxian" / "work"
 PLAYERSDATA = Path() / "data" / "xiuxian" / "players"
@@ -1319,25 +1321,18 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
 
 class XiuxianJsonDate:
     def __init__(self):
-        self.root_jsonpath = DATABASE / "灵根.json"
-        self.level_jsonpath = DATABASE / "突破概率.json"
+        pass
 
     def beifen_linggen_get(self):
-        with open(self.root_jsonpath, 'r', encoding='utf-8') as e:
-            a = e.read()
-            data = json.loads(a)
-            lg = random.choice(data)
-            return lg['name'], lg['type']
+        lg = random.choice(灵根_data)
+        return lg['name'], lg['type']
 
     def level_rate(self, level):
-        with open(self.level_jsonpath, 'r', encoding='utf-8') as e:
-            a = e.read()
-            data = json.loads(a)
-            return data[0][level]
+        return 突破概率_data[0][level]
 
     def linggen_get(self):
         """获取灵根信息"""
-        data = jsondata.root_data()
+        data = 灵根_data
         rate_dict = {}
         for i, v in data.items():
             rate_dict[i] = v["type_rate"]
