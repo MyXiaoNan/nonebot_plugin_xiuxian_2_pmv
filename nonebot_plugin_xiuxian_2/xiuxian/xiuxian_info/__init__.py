@@ -42,7 +42,7 @@ async def xiuxian_message_(bot: Bot, event: GroupMessageEvent):
     if user_name:
         pass
     else:
-        user_name = "无名氏(发送改名+道号更新)"
+        user_name = f"无名氏(发送改名+道号更新)"
 
     level_rate = sql_message.get_root_rate(user_info['root_type'])  # 灵根倍率
     realm_rate = jsondata.level_data()[user_info['level']]["spend"]  # 境界倍率
@@ -52,23 +52,23 @@ async def xiuxian_message_(bot: Bot, event: GroupMessageEvent):
         sectmsg = sect_info['sect_name']
         sectzw = jsondata.sect_config_data()[f"{user_info['sect_position']}"]["title"]
     else:
-        sectmsg = "无宗门"
-        sectzw = "无"
+        sectmsg = f"无宗门"
+        sectzw = f"无"
 
     
     # 判断突破的修为
     list_all = len(OtherSet().level) - 1
     now_index = OtherSet().level.index(user_info['level'])
     if list_all == now_index:
-        exp_meg = "位面至高"
+        exp_meg = f"位面至高"
     else:
         is_updata_level = OtherSet().level[now_index + 1]
         need_exp = sql_message.get_level_power(is_updata_level)
         get_exp = need_exp - user_info['exp']
         if get_exp > 0:
-            exp_meg = "还需{}修为可突破！".format(number_to(get_exp))
+            exp_meg = f"还需{number_to(get_exp)}修为可突破！"
         else:
-            exp_meg = "可突破！"
+            exp_meg = f"可突破！"
 
     user_buff_data = UserBuffDate(user_id)
     user_main_buff_date = user_buff_data.get_user_main_buff_data()
@@ -76,11 +76,11 @@ async def xiuxian_message_(bot: Bot, event: GroupMessageEvent):
     user_sec_buff_date = user_buff_data.get_user_sec_buff_data()
     user_weapon_data = user_buff_data.get_user_weapon_data()
     user_armor_data = user_buff_data.get_user_armor_buff_data()
-    main_buff_name = "无"
-    sub_buff_name = "无"
-    sec_buff_name = "无"
-    weapon_name = "无"
-    armor_name = "无"
+    main_buff_name = f"无"
+    sub_buff_name = f"无"
+    sec_buff_name = f"无"
+    weapon_name = f"无"
+    armor_name = f"无"
     if user_main_buff_date is not None:
         main_buff_name = f"{user_main_buff_date['name']}({user_main_buff_date['level']})"
     if user_sub_buff_date != None:

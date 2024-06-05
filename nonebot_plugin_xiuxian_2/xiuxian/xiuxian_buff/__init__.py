@@ -127,8 +127,8 @@ async def blessed_spot_creat_(bot: Bot, event: GroupMessageEvent):
         mix_elixir_info['收取时间'] = str(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
         save_player_info(user_id, mix_elixir_info, 'mix_elixir_info')
         msg = f"恭喜道友拥有了自己的洞天福地，请收集聚灵旗来提升洞天福地的等级吧~\n"
-        msg += "默认名称为：{}道友的家".format(user_info['user_name'])
-        sql_message.update_user_blessed_spot_name(user_id, "{}道友的家".format(user_info['user_name']))
+        msg += f"默认名称为：{user_info['user_name']}道友的家"
+        sql_message.update_user_blessed_spot_name(user_id, f"{user_info['user_name']}道友的家")
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -765,7 +765,7 @@ async def out_closing_(bot: Bot, event: GroupMessageEvent):
 
             result_msg, result_hp_mp = OtherSet().send_hp_mp(user_id, int(exp * hp_speed * (1 + mainbuffclors)), int(exp * mp_speed))
             sql_message.update_user_attribute(user_id, result_hp_mp[0], result_hp_mp[1], int(result_hp_mp[2] / 10))
-            msg = "闭关结束，本次闭关到达上限，共增加修为：{}{}{}".format(user_get_exp_max, result_msg[0], result_msg[1])
+            msg = f"闭关结束，本次闭关到达上限，共增加修为：{user_get_exp_max}{result_msg[0]}{result_msg[1]}"
             if XiuConfig().img:
                 pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -788,8 +788,7 @@ async def out_closing_(bot: Bot, event: GroupMessageEvent):
                     result_msg, result_hp_mp = OtherSet().send_hp_mp(user_id, int(exp * hp_speed * (1 + mainbuffclors)), int(exp * mp_speed))
                     sql_message.update_user_attribute(user_id, result_hp_mp[0], result_hp_mp[1],
                                                       int(result_hp_mp[2] / 10))
-                    msg = "闭关结束，共闭关{}分钟，本次闭关增加修为：{}，消耗灵石{}枚{}{}".format(exp_time, exp, int(exp / 2),
-                                                                        result_msg[0], result_msg[1])
+                    msg = f"闭关结束，共闭关{exp_time}分钟，本次闭关增加修为：{exp}，消耗灵石{int(exp / 2)}枚{result_msg[0]}{result_msg[1]}"
                     if XiuConfig().img:
                         pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                         await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -805,9 +804,7 @@ async def out_closing_(bot: Bot, event: GroupMessageEvent):
                     result_msg, result_hp_mp = OtherSet().send_hp_mp(user_id, int(exp * hp_speed * (1 + mainbuffclors)), int(exp * mp_speed))
                     sql_message.update_user_attribute(user_id, result_hp_mp[0], result_hp_mp[1],
                                                       int(result_hp_mp[2] / 10))
-                    msg = "闭关结束，共闭关{}分钟，本次闭关增加修为：{}，消耗灵石{}枚{}{}".format(exp_time, exp, user_stone,
-                                                                        result_msg[0], result_msg[1])
-
+                    msg = f"闭关结束，共闭关{exp_time}分钟，本次闭关增加修为：{exp}，消耗灵石{user_stone}枚{result_msg[0]}{result_msg[1]}"
                     if XiuConfig().img:
                         pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                         await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -820,8 +817,7 @@ async def out_closing_(bot: Bot, event: GroupMessageEvent):
                 sql_message.update_power2(user_id)  # 更新战力
                 result_msg, result_hp_mp = OtherSet().send_hp_mp(user_id, int(exp * hp_speed * (1 + mainbuffclors)), int(exp * mp_speed))
                 sql_message.update_user_attribute(user_id, result_hp_mp[0], result_hp_mp[1], int(result_hp_mp[2] / 10))
-                msg = "闭关结束，共闭关{}分钟，本次闭关增加修为：{}{}{}".format(exp_time, exp, result_msg[0],
-                                                            result_msg[1])
+                msg = f"闭关结束，共闭关{exp_time}分钟，本次闭关增加修为：{exp}{result_msg[0]}{result_msg[1]}"
                 if XiuConfig().img:
                     pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                     await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -893,15 +889,15 @@ async def mind_state_(bot: Bot, event: GroupMessageEvent):
     list_all = len(OtherSet().level) - 1
     now_index = OtherSet().level.index(user_msg['level'])
     if list_all == now_index:
-        exp_meg = "位面至高"
+        exp_meg = f"位面至高"
     else:
         is_updata_level = OtherSet().level[now_index + 1]
         need_exp = sql_message.get_level_power(is_updata_level)
         get_exp = need_exp - user_msg['exp']
         if get_exp > 0:
-            exp_meg = "还需{}修为可突破！".format(number_to(get_exp))
+            exp_meg = f"还需{number_to(get_exp)}修为可突破！"
         else:
-            exp_meg = "可突破！"
+            exp_meg = f"可突破！"
     
     main_buff_rate_buff = main_buff_data['ratebuff'] if main_buff_data is not None else 0
     main_hp_buff = main_buff_data['hpbuff'] if main_buff_data is not None else 0
@@ -1004,7 +1000,7 @@ async def del_exp_decimal_(bot: Bot, event: GroupMessageEvent):
     user_id = user_info['user_id']
     exp = user_info['exp']
     sql_message.del_exp_decimal(user_id, exp)
-    msg = "黑暗动乱暂时抑制成功！"
+    msg = f"黑暗动乱暂时抑制成功！"
     if XiuConfig().img:
         pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
         await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))

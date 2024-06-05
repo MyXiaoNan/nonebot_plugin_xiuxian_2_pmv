@@ -130,7 +130,7 @@ async def set_boss_():
                 trigger='interval',
                 hours=groups[str(group_id)]["hours"],
                 minutes=groups[str(group_id)]['minutes'],
-                id="set_boss_{}".format(group_id),
+                id=f"set_boss_{group_id}",
                 args=[group_id],
                 misfire_grace_time=10
             )
@@ -159,7 +159,7 @@ async def send_bot(group_id:str):
     
     bossinfo = createboss()
     group_boss[group_id].append(bossinfo)
-    msg = "野生的{}Boss:{}出现了,诸位道友请击Boss得奖励吧!".format(bossinfo['jj'], bossinfo['name'])
+    msg = f"野生的{bossinfo['jj']}Boss:{bossinfo['name']}出现了,诸位道友请击Boss得奖励吧!"
     if XiuConfig().img:
         pic = await get_msg_pic(f"@全体修仙者\n" + msg)
         data['message'] = MessageSegment.image(pic)
@@ -205,9 +205,7 @@ async def boss_help_(bot: Bot, event: GroupMessageEvent, session_id: int = Comma
         await boss_help.finish()
     else:
         if str(send_group_id) in groups:
-            msg = __boss_help__ + "\n非指令:1、拥有定时任务:每{}小时{}分钟生成一只随机大境界的世界Boss".format(
-            groups[str(send_group_id)]["hours"], groups[str(send_group_id)]["minutes"]
-            )
+            msg = __boss_help__ + f"\n非指令:1、拥有定时任务:每{groups[str(send_group_id)]["hours"]}小时{groups[str(send_group_id)]["minutes"]}分钟生成一只随机大境界的世界Boss"
         else:
             msg = __boss_help__ 
         if XiuConfig().img:
@@ -415,8 +413,8 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
 
     if user_info['hp'] <= user_info['exp'] / 10:
         time = leave_harm_time(user_id)
-        msg = "重伤未愈，动弹不得！距离脱离危险还需要{}分钟！\n".format(time)
-        msg += "请道友进行闭关，或者使用药品恢复气血，不要干等，没有自动回血！！！"
+        msg = f"重伤未愈，动弹不得！距离脱离危险还需要{time}分钟！\n"
+        msg += f"请道友进行闭关，或者使用药品恢复气血，不要干等，没有自动回血！！！"
         sql_message.update_user_stamina(user_id, 20, 1)
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
@@ -465,7 +463,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
         boss_rank = convert_rank((bossinfo['jj'] + '中期'))[0]
     user_rank = convert_rank(userinfo['level'])[0]
     if boss_rank - user_rank >= 12:
-        msg = "道友已是{}之人，妄图抢小辈的Boss，可耻！".format(userinfo['level'])
+        msg = f"道友已是{userinfo['level']}之人，妄图抢小辈的Boss，可耻！"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -488,7 +486,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
         if user_info['root'] == "器师":
             boss_integral = int(boss_integral * (1 + (user_rank - boss_rank)))
             points_bonus = int(80 * (user_rank - boss_rank))
-            more_msg = "道友低boss境界{}层，获得{}%积分加成！".format(user_rank - boss_rank, points_bonus)
+            more_msg = f"道友低boss境界{user_rank - boss_rank}层，获得{points_bonus}%积分加成！"
 
         user_boss_fight_info = get_user_boss_fight_info(user_id)
         user_boss_fight_info['boss_integral'] += boss_integral
@@ -501,18 +499,18 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
             if now_exp > 1000000:
                 now_exp = int(1000000 / random.randint(5, 10))
             sql_message.update_exp(user_id, now_exp)
-            exp_msg = "，获得修为{}点！".format(int(now_exp))
+            exp_msg = f"，获得修为{int(now_exp)}点！"
         else:
-            exp_msg =" "
+            exp_msg = f" "
             
         msg = f"道友不敌{bossinfo['name']}，重伤逃遁，临逃前收获灵石{get_stone}枚，{more_msg}获得世界积分：{boss_integral}点{exp_msg} "
         if user_info['root'] == "器师" and boss_integral < 0:
-            msg += "\n如果出现负积分，说明你境界太高了，玩器师就不要那么高境界了！！！"
+            msg += f"\n如果出现负积分，说明你境界太高了，玩器师就不要那么高境界了！！！"
         battle_flag[group_id] = False
         try:
             await send_msg_handler(bot, event, result)
         except ActionFailed:
-            msg += "Boss战消息发送错误,可能被风控!"
+            msg += f"Boss战消息发送错误,可能被风控!"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -527,11 +525,11 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
         if user_info['root'] == "器师":
             boss_integral = int(boss_integral * (1 + (user_rank - boss_rank)))
             points_bonus = int(80 * (user_rank - boss_rank))
-            more_msg = "道友低boss境界{}层，获得{}%积分加成！".format(user_rank - boss_rank, points_bonus)
+            more_msg = f"道友低boss境界{user_rank - boss_rank}层，获得{points_bonus}%积分加成！"
         else:
             if boss_rank - user_rank >= 9:  # 超过太多不给
                 boss_integral = 0
-                more_msg = "道友的境界超过boss太多了,不齿！"
+                more_msg = f"道友的境界超过boss太多了,不齿！"
                 
         top_user_info = sql_message.get_top1_user()
         top_user_exp = top_user_info['exp']
@@ -541,9 +539,9 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
             if now_exp > 1000000:
                 now_exp = int(1000000 / random.randint(5, 10))
             sql_message.update_exp(user_id, now_exp)
-            exp_msg = "，获得修为{}点！".format(int(now_exp))
+            exp_msg = f"，获得修为{int(now_exp)}点！"
         else:
-            exp_msg =" "
+            exp_msg = f" "
                 
         drops_id, drops_info =  boss_drops(user_rank, boss_rank, bossinfo, userinfo)
         if drops_id == None:
@@ -560,14 +558,13 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
         user_boss_fight_info = get_user_boss_fight_info(user_id)
         user_boss_fight_info['boss_integral'] += boss_integral
         save_user_boss_fight_info(user_id, user_boss_fight_info)
-        msg = "恭喜道友击败{}，收获灵石{}枚，{}获得世界积分：{}点!{} {}".format(bossinfo['name'], get_stone, 
-                                                           more_msg, boss_integral, exp_msg, drops_msg)
+        msg = f"恭喜道友击败{bossinfo['name']}，收获灵石{get_stone}枚，{more_msg}获得世界积分：{boss_integral}点!{exp_msg} {drops_msg}"
         if user_info['root'] == "器师" and boss_integral < 0:
-           msg += "\n如果出现负积分，说明你这器师境界太高了(如果总世界积分为负数，会帮你重置成0)，玩器师就不要那么高境界了！！！"
+           msg += f"\n如果出现负积分，说明你这器师境界太高了(如果总世界积分为负数，会帮你重置成0)，玩器师就不要那么高境界了！！！"
         try:
             await send_msg_handler(bot, event, result)
         except ActionFailed:
-            msg += "Boss战消息发送错,可能被风控!"
+            msg += f"Boss战消息发送错,可能被风控!"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -722,7 +719,7 @@ async def _(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     except:
         group_boss[group_id] = []
     if len(group_boss[group_id]) >= config['Boss个数上限']:
-        msg = "本群世界Boss已达到上限{}个，无法继续生成".format(config['Boss个数上限'])
+        msg = f"本群世界Boss已达到上限{config['Boss个数上限']}个，无法继续生成"
         if XiuConfig().img:
             msg = await pic_msg_format(msg, event)
             pic = await get_msg_pic(msg)
@@ -731,7 +728,7 @@ async def _(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
             await create_appoint.finish(msg, at_sender=False)
     arg_list = args.extract_plain_text().split()
     if len(arg_list) < 1:
-        msg = "请输入正确的指令，例如：生成指定世界boss 祭道境 少姜"
+        msg = f"请输入正确的指令，例如：生成指定世界boss 祭道境 少姜"
         if XiuConfig().img:
             msg = await pic_msg_format(msg, event)
             pic = await get_msg_pic(msg)
@@ -745,7 +742,7 @@ async def _(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     # 使用提供的境界和名称生成boss信息
     bossinfo = createboss_jj(boss_jj, boss_name)
     if bossinfo is None:
-        msg = "请输入正确的境界，例如：生成指定世界boss 祭道境"
+        msg = f"请输入正确的境界，例如：生成指定世界boss 祭道境"
         if XiuConfig().img:
             msg = await pic_msg_format(msg, event)
             pic = await get_msg_pic(msg)
@@ -821,9 +818,7 @@ async def set_group_boss_(bot: Bot, event: GroupMessageEvent, args: Message = Co
 
     elif mode == '':
         if str(send_group_id) in groups:
-            msg = __boss_help__ + "非指令:1、拥有定时任务:每{}小时{}分钟生成一只随机大境界的世界Boss".format(
-            groups[str(send_group_id)]["hours"], groups[str(send_group_id)]["minutes"]
-            )
+            msg = __boss_help__ + f"非指令:1、拥有定时任务:每{groups[str(send_group_id)]["hours"]}小时{groups[str(send_group_id)]["minutes"]}分钟生成一只随机大境界的世界Boss"
         else:
             msg = __boss_help__ 
         if XiuConfig().img:
@@ -912,7 +907,7 @@ async def boss_integral_use_(bot: Bot, event: GroupMessageEvent, args: Message =
         shop_id = int(shop_info[0][0])
         quantity = int(shop_info[0][1]) if shop_info[0][1] else 1
     else:
-        msg = "请输入正确的商品编号！"
+        msg = f"请输入正确的商品编号！"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -932,7 +927,7 @@ async def boss_integral_use_(bot: Bot, event: GroupMessageEvent, args: Message =
                 item_id = v['id']
                 break
     else:
-        msg = "世界积分商店内空空如也！"
+        msg = f"世界积分商店内空空如也！"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -943,7 +938,7 @@ async def boss_integral_use_(bot: Bot, event: GroupMessageEvent, args: Message =
         user_boss_fight_info = get_user_boss_fight_info(user_id)
         total_cost = cost * quantity
         if user_boss_fight_info['boss_integral'] < total_cost:
-            msg = "道友的世界积分不满足兑换条件呢"
+            msg = f"道友的世界积分不满足兑换条件呢"
             if XiuConfig().img:
                 pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -955,7 +950,7 @@ async def boss_integral_use_(bot: Bot, event: GroupMessageEvent, args: Message =
             save_user_boss_fight_info(user_id, user_boss_fight_info)
             item_info = Items().get_data_by_item_id(item_id)
             sql_message.send_back(user_id, item_id, item_info['name'], item_info['type'], quantity)  # 兑换指定数量
-            msg = "道友成功兑换获得：{}{}个".format(item_info['name'], quantity)
+            msg = f"道友成功兑换获得：{item_info['name']}{quantity}个"
             if XiuConfig().img:
                 pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -963,7 +958,7 @@ async def boss_integral_use_(bot: Bot, event: GroupMessageEvent, args: Message =
                 await bot.send_group_msg(group_id=int(send_group_id), message=msg)
             await boss_integral_use.finish()
     else:
-        msg = "该编号不在商品列表内哦，请检查后再兑换"
+        msg = f"该编号不在商品列表内哦，请检查后再兑换"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))

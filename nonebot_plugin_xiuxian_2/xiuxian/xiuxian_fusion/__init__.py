@@ -50,7 +50,8 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
     
     if not in_flag_wz:
         if XiuConfig().img:
-            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + "请检查 {} 是否在背包内！".format(wz))
+            msg = f"请检查 {wz} 是否在背包内！"
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
@@ -58,7 +59,8 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
     
     if not in_flag_yz:
         if XiuConfig().img:
-            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + "请检查 {} 是否在背包内！".format(yz))
+            msg = f"请检查 {yz} 是否在背包内！"
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
