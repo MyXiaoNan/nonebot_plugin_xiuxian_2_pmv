@@ -205,7 +205,7 @@ async def boss_help_(bot: Bot, event: GroupMessageEvent, session_id: int = Comma
         await boss_help.finish()
     else:
         if str(send_group_id) in groups:
-            msg = __boss_help__ + f"\n非指令:1、拥有定时任务:每{groups[str(send_group_id)]["hours"]}小时{groups[str(send_group_id)]["minutes"]}分钟生成一只随机大境界的世界Boss"
+            msg = __boss_help__ + f"\n非指令:1、拥有定时任务:每{groups[str(send_group_id)]['hours']}小时{groups[str(send_group_id)]['minutes']}分钟生成一只随机大境界的世界Boss"
         else:
             msg = __boss_help__ 
         if XiuConfig().img:
@@ -818,7 +818,7 @@ async def set_group_boss_(bot: Bot, event: GroupMessageEvent, args: Message = Co
 
     elif mode == '':
         if str(send_group_id) in groups:
-            msg = __boss_help__ + f"非指令:1、拥有定时任务:每{groups[str(send_group_id)]["hours"]}小时{groups[str(send_group_id)]["minutes"]}分钟生成一只随机大境界的世界Boss"
+            msg = __boss_help__ + f"非指令:1、拥有定时任务:每{groups[str(send_group_id)]['hours']}小时{groups[str(send_group_id)]['minutes']}分钟生成一只随机大境界的世界Boss"
         else:
             msg = __boss_help__ 
         if XiuConfig().img:

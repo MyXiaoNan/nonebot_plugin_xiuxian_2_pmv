@@ -174,6 +174,7 @@ async def _draw_sect_info_line(img: Image.Image, key, value, DETAIL_MAP):
     line_draw.text((100, h), word, first_color, font_36, 'lm')
     img.paste(line, (100, 1647 + list(DETAIL_MAP.keys()).index(key) * 103), line)
 
+
 async def _draw_ph_info_line(img: Image.Image, key, value, DETAIL_MAP):
 
     line = Image.open(TEXT_PATH / 'line4.png').resize((900, 100))
@@ -183,6 +184,7 @@ async def _draw_ph_info_line(img: Image.Image, key, value, DETAIL_MAP):
 
     line_draw.text((100, h), word, first_color, font_36, 'lm')
     img.paste(line, (100, 1978 + list(DETAIL_MAP.keys()).index(key) * 103), line)
+
 
 async def img_author(img, bg):
     w, h = img.size
@@ -203,12 +205,11 @@ async def linewh(line, word):
     return (lw - w) / 2, lh / 2
 
 
-
-
 async def async_request(url, *args, is_text=False, **kwargs):
     async with ClientSession() as c:
         async with c.get(url, *args, **kwargs) as r:
             return (await r.text()) if is_text else (await r.read())
+
 
 async def get_anime_pic():
     r: str = await async_request(
