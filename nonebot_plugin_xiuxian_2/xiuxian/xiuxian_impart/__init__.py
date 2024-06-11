@@ -82,9 +82,9 @@ async def impart_img_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
     img_name = args.extract_plain_text().strip()
     img = img_path / str(img_name + ".png")
     if not os.path.exists(img):
-        msg = "没有找到此卡图！"
+        msg = f"没有找到此卡图！"
         if XiuConfig().img:
-            pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
@@ -101,7 +101,7 @@ async def impart_draw_(bot: Bot, event: GroupMessageEvent):
     isUser, user_info, msg = check_user(event)
     if not isUser:
         if XiuConfig().img:
-            pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
@@ -110,17 +110,17 @@ async def impart_draw_(bot: Bot, event: GroupMessageEvent):
     user_id = user_info['user_id']
     impart_data_draw = await impart_check(user_id)
     if impart_data_draw is None:
-        msg = "发生未知错误，多次尝试无果请找晓楠！"
+        msg = f"发生未知错误，多次尝试无果请找晓楠！"
         if XiuConfig().img:
-            pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await impart_draw.finish()
     if impart_data_draw['stone_num'] < 10:
-        msg = "思恋结晶数量不足10个,无法抽卡!"
+        msg = f"思恋结晶数量不足10个,无法抽卡!"
         if XiuConfig().img:
-            pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
@@ -132,20 +132,20 @@ async def impart_draw_(bot: Bot, event: GroupMessageEvent):
             try:
                 reap_img = random.choice(img_list)
             except:
-                msg = "请检查卡图数据完整！"
+                msg = f"请检查卡图数据完整！"
                 if XiuConfig().img:
-                    pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+                    pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                     await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
                 else:
                     await bot.send_group_msg(group_id=int(send_group_id), message=msg)
                 await impart_draw.finish()
             list_tp = []
             if impart_data_json.data_person_add(user_id, reap_img):
-                msg = ""
-                msg += "检测到传承背包已经存在卡片{}\n".format(reap_img)
-                msg += "已转化为2880分钟闭关时间\n"
-                msg += "累计共获得3540分钟闭关时间!"
-                msg += "抽卡10次结果如下\n"
+                msg = f""
+                msg += f"检测到传承背包已经存在卡片{reap_img}\n"
+                msg += f"已转化为2880分钟闭关时间\n"
+                msg += f"累计共获得3540分钟闭关时间!"
+                msg += f"抽卡10次结果如下\n"
 
                 list_tp.append(
                     {"type": "node", "data": {"name": f"道友{user_info['user_name']}的传承抽卡", "uin": bot.self_id,
@@ -169,9 +169,9 @@ async def impart_draw_(bot: Bot, event: GroupMessageEvent):
                 try:
                     await send_msg_handler(bot, event, list_tp)
                 except ActionFailed:
-                    msg = "未知原因，抽卡失败!"
+                    msg = f"未知原因，抽卡失败!"
                     if XiuConfig().img:
-                        pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+                        pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                         await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
                     else:
                         await bot.send_group_msg(group_id=int(send_group_id), message=msg)
@@ -183,9 +183,9 @@ async def impart_draw_(bot: Bot, event: GroupMessageEvent):
                 await re_impart_data(user_id)
                 await impart_draw.finish()
             else:
-                msg = ""
-                msg += "累计共获得660分钟闭关时间!"
-                msg += "抽卡10次结果如下,获得新的传承卡片{}\n".format(reap_img)
+                msg = f""
+                msg += f"累计共获得660分钟闭关时间!"
+                msg += f"抽卡10次结果如下,获得新的传承卡片{reap_img}\n"
                 list_tp.append(
                     {"type": "node", "data": {"name": f"道友{user_info['user_name']}的传承抽卡", "uin": bot.self_id,
                                               "content": msg}})
@@ -208,9 +208,9 @@ async def impart_draw_(bot: Bot, event: GroupMessageEvent):
                 try:
                     await send_msg_handler(bot, event, list_tp)
                 except ActionFailed:
-                    msg = "消息发送失败，抽卡失败!"
+                    msg = f"消息发送失败，抽卡失败!"
                     if XiuConfig().img:
-                        pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+                        pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                         await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
                     else:
                         await bot.send_group_msg(group_id=int(send_group_id), message=msg)
@@ -223,9 +223,9 @@ async def impart_draw_(bot: Bot, event: GroupMessageEvent):
                 await impart_draw.finish()
         else:
             list_tp = []
-            msg = ""
-            msg += "累计共获得660分钟闭关时间!"
-            msg += "抽卡10次结果如下!\n"
+            msg = f""
+            msg += f"累计共获得660分钟闭关时间!"
+            msg += f"抽卡10次结果如下!\n"
             list_tp.append(
                 {"type": "node", "data": {"name": f"道友{user_info['user_name']}的传承抽卡", "uin": bot.self_id,
                                           "content": msg}})
@@ -241,9 +241,9 @@ async def impart_draw_(bot: Bot, event: GroupMessageEvent):
             try:
                 await send_msg_handler(bot, event, list_tp)
             except ActionFailed:
-                msg = "未知原因，抽卡失败!"
+                msg = f"未知原因，抽卡失败!"
                 if XiuConfig().img:
-                    pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+                    pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                     await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
                 else:
                     await bot.send_group_msg(group_id=int(send_group_id), message=msg)
@@ -260,7 +260,7 @@ async def impart_back_(bot: Bot, event: GroupMessageEvent):
     isUser, user_info, msg = check_user(event)
     if not isUser:
         if XiuConfig().img:
-            pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
@@ -268,9 +268,9 @@ async def impart_back_(bot: Bot, event: GroupMessageEvent):
     user_id = user_info['user_id']
     impart_data_draw = await impart_check(user_id)
     if impart_data_draw is None:
-        msg = "发生未知错误，多次尝试无果请找晓楠！"
+        msg = f"发生未知错误，多次尝试无果请找晓楠！"
         if XiuConfig().img:
-            pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
@@ -318,9 +318,9 @@ boss战攻击提升:{int(impart_data_draw['boss_atk'] * 100)}%
     try:
         await send_msg_handler(bot, event, list_tp)
     except ActionFailed:
-        msg = "获取传承背包数据失败！"
+        msg = f"获取传承背包数据失败！"
         if XiuConfig().img:
-            pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
@@ -335,7 +335,7 @@ async def re_impart_load_(bot: Bot, event: GroupMessageEvent):
     isUser, user_info, msg = check_user(event)
     if not isUser:
         if XiuConfig().img:
-            pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
@@ -343,9 +343,9 @@ async def re_impart_load_(bot: Bot, event: GroupMessageEvent):
     user_id = user_info['user_id']
     impart_data_draw = await impart_check(user_id)
     if impart_data_draw is None:
-        msg = "发生未知错误，多次尝试无果请找晓楠！"
+        msg = f"发生未知错误，多次尝试无果请找晓楠！"
         if XiuConfig().img:
-            pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
@@ -353,11 +353,11 @@ async def re_impart_load_(bot: Bot, event: GroupMessageEvent):
     # 更新传承数据
     info = await re_impart_data(user_id)
     if info:
-        msg = "传承数据加载完成！"
+        msg = f"传承数据加载完成！"
     else:
-        msg = "传承数据加载失败！"
+        msg = f"传承数据加载失败！"
     if XiuConfig().img:
-        pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+        pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
         await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
     else:
         await bot.send_group_msg(group_id=int(send_group_id), message=msg)
@@ -371,7 +371,7 @@ async def impart_info_(bot: Bot, event: GroupMessageEvent):
     isUser, user_info, msg = check_user(event)
     if not isUser:
         if XiuConfig().img:
-            pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
@@ -379,9 +379,9 @@ async def impart_info_(bot: Bot, event: GroupMessageEvent):
     user_id = user_info['user_id']
     impart_data_draw = await impart_check(user_id)
     if impart_data_draw is None:
-        msg = "发生未知错误，多次尝试无果请找晓楠！"
+        msg = f"发生未知错误，多次尝试无果请找晓楠！"
         if XiuConfig().img:
-            pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
@@ -393,7 +393,7 @@ async def impart_info_(bot: Bot, event: GroupMessageEvent):
 累计闭关时间：{impart_data_draw['exp_day']}分钟
     """
     if XiuConfig().img:
-        pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+        pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
         await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
     else:
         await bot.send_group_msg(group_id=int(send_group_id), message=msg)

@@ -27,9 +27,9 @@ def download_xiuxian_data():
         except:
             pass
         if str(data) == str(XiuConfig().version):
-            logger.opt(colors=True).info("<green>修仙配置校核完成！</green>")
+            logger.opt(colors=True).info(f"<green>修仙配置校核完成！</green>")
         else:
-            logger.opt(colors=True).info("<green>正在更新修仙配置文件，请等待！</green>")
+            logger.opt(colors=True).info(f"<green>正在更新修仙配置文件，请等待！</green>")
             try:
                 get_data()  # data为byte字节
                 logger.opt(colors=True).info(f"<green>正在解压修仙配置文件！</green>")

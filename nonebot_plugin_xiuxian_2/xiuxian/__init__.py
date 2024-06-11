@@ -43,7 +43,7 @@ except:
 require('nonebot_plugin_apscheduler')
 
 if get_plugin_by_module_name("xiuxian"):
-    logger.opt(colors=True).info("<green>推荐直接加载 xiuxian 仓库文件夹</green>")
+    logger.opt(colors=True).info(f"<green>推荐直接加载 xiuxian 仓库文件夹</green>")
     load_all_plugins(
         [
             f"xiuxian.{module.name}"

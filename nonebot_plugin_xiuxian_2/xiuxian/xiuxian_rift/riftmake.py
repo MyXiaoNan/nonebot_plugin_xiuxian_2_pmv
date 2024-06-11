@@ -167,8 +167,8 @@ async def get_boss_battle_info(user_info, rift_rank, bot_id):
 
     if victor == "群友赢了":  # 获胜
         user_rank = convert_rank('洞天境圆满')[0] - convert_rank(user_info['level'])[0] # 60-用户当前等级 原50
-        success_info = STORY['战斗']['Boss战斗']["success"]
-        msg = success_info['desc'].format(boss_info["name"])
+        success_info = STORY['战斗']['Boss战斗']['success']
+        msg = success_info['desc'].format(boss_info['name'])
         give_exp = int(random.choice(success_info["give"]["exp"]) * user_info['exp'])
         give_stone = (rift_rank + user_rank) * success_info["give"]["stone"]
         sql_message.update_exp(user_info['user_id'], give_exp)

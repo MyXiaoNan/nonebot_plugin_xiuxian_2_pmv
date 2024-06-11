@@ -51,7 +51,7 @@ async def bank_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Rege
     isUser, user_info, msg = check_user(event)
     if not isUser:
         if XiuConfig().img:
-            pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
@@ -182,11 +182,7 @@ async def bank_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Rege
         sql_message.update_ls(user_id, stonecost, 2)
         bankinfo['banklevel'] = f"{int(userlevel) + 1}"
         savef(user_id, bankinfo)
-        msg = "道友成功升级灵庄会员等级，消耗灵石{}枚，当前为：{}，灵庄可存有灵石上限{}枚".format(
-        stonecost,
-        BANKLEVEL[str(int(userlevel) + 1)]['level'],
-        BANKLEVEL[str(int(userlevel) + 1)]['savemax']
-        )
+        msg = f"道友成功升级灵庄会员等级，消耗灵石{stonecost}枚，当前为：{BANKLEVEL[str(int(userlevel) + 1)]['level']}，灵庄可存有灵石上限{BANKLEVEL[str(int(userlevel) + 1)]['savemax']}枚"
 
         if XiuConfig().img:
             pic = await get_msg_pic(msg)
@@ -247,7 +243,7 @@ def readf(user_id):
 def savef(user_id, data):
     user_id = str(user_id)
     if not os.path.exists(PLAYERSDATA / user_id):
-        logger.opt(colors=True).info("<green>用户目录不存在，创建目录</green>")
+        logger.opt(colors=True).info(f"<green>用户目录不存在，创建目录</green>")
         os.makedirs(PLAYERSDATA / user_id)
     FILEPATH = PLAYERSDATA / user_id / "bankinfo.json"
     data = json.dumps(data, ensure_ascii=False, indent=3)

@@ -60,7 +60,7 @@ async def dufang_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Re
     user_id = user_info['user_id']
     if not isUser:
         if XiuConfig().img:
-            pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
@@ -71,7 +71,7 @@ async def dufang_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Re
     if args[2] is None:
         msg = f"请输入正确的指令，例如金银阁10大、金银阁10奇、金银阁10猜3"
         if XiuConfig().img:
-            pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
@@ -85,7 +85,7 @@ async def dufang_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Re
         if str(mode_num) not in ['1', '2', '3', '4', '5', '6']:
             msg = f"请输入正确的指令，例如金银阁10大、、金银阁10奇、金银阁10猜3"
             if XiuConfig().img:
-                pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+                pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
             else:
                 await bot.send_group_msg(group_id=int(send_group_id), message=msg)
@@ -95,27 +95,27 @@ async def dufang_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Re
     if int(user_message['stone']) < price_num:
         msg = "道友的金额不足，请重新输入！"
         if XiuConfig().img:
-            pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
     elif price_num == 0:
         msg = "走开走开，没钱也敢来这赌！"
         if XiuConfig().img:
-            pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
 
     value = random.randint(1, 6)
-    result = "[CQ:dice,value={}]".format(value)
+    result = f"[CQ:dice,value={value}]"
 
     if value >= 4 and str(mode) == "大":
         sql_message.update_ls(user_id, price_num, 1)
         await bot.send_group_msg(group_id=int(send_group_id), message=result)
-        msg = "最终结果为{}，你猜对了，收获灵石{}块".format(value, price_num)
+        msg = f"最终结果为{value}，你猜对了，收获灵石{price_num}块"
         if XiuConfig().img:
-            pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
@@ -123,44 +123,44 @@ async def dufang_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Re
     elif value <= 3 and str(mode) == "小":
         sql_message.update_ls(user_id, price_num, 1)
         await bot.send_group_msg(group_id=int(send_group_id), message=result)
-        msg = "最终结果为{}，你猜对了，收获灵石{}块".format(value, price_num)
+        msg = f"最终结果为{value}，你猜对了，收获灵石{price_num}块"
         if XiuConfig().img:
-            pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
     elif value %2==1 and str(mode) == "奇":
         sql_message.update_ls(user_id, price_num, 1)
         await bot.send_group_msg(group_id=int(send_group_id), message=result)
-        msg = "最终结果为{}，你猜对了，收获灵石{}块".format(value, price_num)
+        msg = f"最终结果为{value}，你猜对了，收获灵石{price_num}块"
         if XiuConfig().img:
-            pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
     elif value %2==0 and str(mode) == "偶":
         sql_message.update_ls(user_id, price_num, 1)
-        msg = "最终结果为{}，你猜对了，收获灵石{}块".format(value, price_num)
+        msg = f"最终结果为{value}，你猜对了，收获灵石{price_num}块"
         if XiuConfig().img:
-            pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
 
     elif str(value) == str(mode_num) and str(mode) == "猜":
         sql_message.update_ls(user_id, price_num * 5, 1)
-        msg = "最终结果为{}，你猜对了，收获灵石{}块".format(value, price_num * 5)
+        msg = f"最终结果为{value}，你猜对了，收获灵石{price_num * 5}块"
         if XiuConfig().img:
-            pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
 
     else:
         sql_message.update_ls(user_id, price_num, 2)
-        msg = "最终结果为{}，你猜错了，损失灵石{}块".format(value, price_num)
+        msg = f"最终结果为{value}，你猜错了，损失灵石{price_num}块"
         if XiuConfig().img:
-            pic = await get_msg_pic("@{}\n".format(event.sender.nickname) + msg)
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
