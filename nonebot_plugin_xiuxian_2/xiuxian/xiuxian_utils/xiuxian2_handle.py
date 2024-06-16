@@ -326,17 +326,17 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
             self.conn.commit()
             return f"签到成功，获取{ls}块灵石!"
         elif result[0] == 1:
-            return "贪心的人是不会有好运的！"
+            return f"贪心的人是不会有好运的！"
         
     def get_beg(self, user_id):
-        """获取今日奇缘信息"""
+        """获取仙途奇缘信息"""
         cur = self.conn.cursor()
-        sql = "select is_beg from user_xiuxian WHERE user_id=?"
+        sql = f"select is_beg from user_xiuxian WHERE user_id=?"
         cur.execute(sql, (user_id,))
         result = cur.fetchone()
         if result[0] == 0:
             ls = random.randint(XiuConfig().beg_lingshi_lower_limit, XiuConfig().beg_lingshi_upper_limit)
-            sql2 = "UPDATE user_xiuxian SET is_beg=1,stone=stone+? WHERE user_id=?"
+            sql2 = f"UPDATE user_xiuxian SET is_beg=1,stone=stone+? WHERE user_id=?"
             cur.execute(sql2, (ls,user_id))
             self.conn.commit()
             return ls
@@ -346,7 +346,7 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
     def ramaker(self, lg, type, user_id):
         """洗灵根"""
         cur = self.conn.cursor()
-        sql = "UPDATE user_xiuxian SET root=?,root_type=?,stone=stone-? WHERE user_id=?"
+        sql = f"UPDATE user_xiuxian SET root=?,root_type=?,stone=stone-? WHERE user_id=?"
         cur.execute(sql, (lg, type, XiuConfig().remake, user_id))
         self.conn.commit()
 

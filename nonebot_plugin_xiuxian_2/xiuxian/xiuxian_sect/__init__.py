@@ -123,7 +123,7 @@ async def resetusertask_():
             elixir_room_cost = config['宗门丹房参数']['elixir_room_level'][str(sect_info['elixir_room_level'])]['level_up_cost'][
                 '建设度']
             if sect_info['sect_materials'] < elixir_room_cost:
-                logger.opt(colors=True).info("<red>宗门：{}的资材无法维持丹房</red>".format(sect_info['sect_name']))
+                logger.opt(colors=True).info(f"<red>宗门：{sect_info['sect_name']}的资材无法维持丹房</red>")
                 continue
             else:
                 sql_message.update_sect_materials(sect_id=sect_info['sect_id'], sect_materials=elixir_room_cost, key=2)
@@ -281,7 +281,7 @@ async def sect_elixir_get_(bot: Bot, event: GroupMessageEvent):
         sect_position = user_info['sect_position']
         elixir_room_config = config['宗门丹房参数']
         if sect_position == 4:
-            msg = f"道友所在宗门的职位为：{jsondata.sect_config_data()[f"{sect_position}"]['title']}，不满足领取要求!".format()
+            msg = f"道友所在宗门的职位为：{jsondata.sect_config_data()[f"{sect_position}"]['title']}，不满足领取要求!"
             if XiuConfig().img:
                 pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -417,14 +417,14 @@ async def sect_buff_info_(bot: Bot, event: GroupMessageEvent):
             main_msg = f"\n☆------宗门功法------☆\n"
             msg += main_msg
             list_tp.append(
-                {"type": "node", "data": {"name": "道友{}的宗门功法信息".format(user_info['user_name']), "uin": bot.self_id,
+                {"type": "node", "data": {"name": f"道友{user_info['user_name']}的宗门功法信息", "uin": bot.self_id,
                                           "content": main_msg}})
             for main in mainbufflist:
                 mainbuff, mainbuffmsg = get_main_info_msg(str(main))
                 mainmsg = f"{mainbuff['level']}:{mainbuffmsg}\n"
                 msg += mainmsg
                 list_tp.append(
-                    {"type": "node", "data": {"name": "道友{}的宗门秘籍信息".format(user_info['user_name']), "uin": bot.self_id,
+                    {"type": "node", "data": {"name": f"道友{user_info['user_name']}的宗门秘籍信息", "uin": bot.self_id,
                                               "content": mainmsg}})
 
         if sect_info['secbuff'] != 0:
@@ -432,7 +432,7 @@ async def sect_buff_info_(bot: Bot, event: GroupMessageEvent):
             sec_msg = f"☆------宗门神通------☆\n"
             msg += sec_msg
             list_tp.append(
-                {"type": "node", "data": {"name": "道友{}的宗门神通信息".format(user_info['user_name']), "uin": bot.self_id,
+                {"type": "node", "data": {"name": f"道友{user_info['user_name']}的宗门神通信息", "uin": bot.self_id,
                                           "content": sec_msg}})
             for sec in secbufflist:
                 secbuff = items.get_data_by_item_id(sec)
@@ -440,7 +440,7 @@ async def sect_buff_info_(bot: Bot, event: GroupMessageEvent):
                 secmsg = f"{secbuff['level']}:{secbuff['name']} {secbuffmsg}\n"
                 msg += secmsg
                 list_tp.append(
-                    {"type": "node", "data": {"name": "道友{}的宗门神通信息".format(user_info['user_name']), "uin": bot.self_id,
+                    {"type": "node", "data": {"name": f"道友{user_info['user_name']}的宗门神通信息", "uin": bot.self_id,
                                               "content": secmsg}})
         try:
             await send_msg_handler(bot, event, list_tp)
@@ -593,7 +593,7 @@ async def sect_mainbuff_get_(bot: Bot, event: GroupMessageEvent):
                         if mainbuffid in mainbuffidlist:
                             mainbuff, mainbuffmsg = get_main_info_msg(mainbuffid)
                             repeat_count += 1
-                            results.append(f"第{i + 1}次获取到重复功法：{mainbuff['name']}".format((), ))
+                            results.append(f"第{i + 1}次获取到重复功法：{mainbuff['name']}")
                         else:
                             mainbuffidlist.append(mainbuffid)
                             mainbuff, mainbuffmsg = get_main_info_msg(mainbuffid)
