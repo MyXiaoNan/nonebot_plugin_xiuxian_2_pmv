@@ -184,7 +184,7 @@ class XiuxianDateManage:
                 c.execute(sql)
         
         # 检查并更新 last_check_info_time 列的记录
-        c.execute("""UPDATE user_cd
+        c.execute(f"""UPDATE user_cd
 SET last_check_info_time = ?
 WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
         """, (current_time,))
@@ -198,14 +198,14 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
     def _create_user(self, user_id: str, root: str, type: str, power: str, create_time, user_name) -> None:
         """在数据库中创建用户并初始化"""
         c = self.conn.cursor()
-        sql = "INSERT INTO user_xiuxian (user_id,stone,root,root_type,level,power,create_time,user_name,exp,sect_id,sect_position) VALUES (?,0,?,?,'江湖好手',?,?,?,100,NULL,NULL)"
+        sql = f"INSERT INTO user_xiuxian (user_id,stone,root,root_type,level,power,create_time,user_name,exp,sect_id,sect_position) VALUES (?,0,?,?,'江湖好手',?,?,?,100,NULL,NULL)"
         c.execute(sql, (user_id, root, type, power, create_time, user_name))
         self.conn.commit()
 
     def get_user_info_with_id(self, user_id):
         """根据USER_ID获取用户信息,不获取功法加成"""
         cur = self.conn.cursor()
-        sql = "select * from user_xiuxian WHERE user_id=?"
+        sql = f"select * from user_xiuxian WHERE user_id=?"
         cur.execute(sql, (user_id,))
         result = cur.fetchone()
         if result:
@@ -218,7 +218,7 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
     def get_user_info_with_name(self, user_id):
         """根据user_name获取用户信息"""
         cur = self.conn.cursor()
-        sql = "select * from user_xiuxian WHERE user_name=?"
+        sql = f"select * from user_xiuxian WHERE user_name=?"
         cur.execute(sql, (user_id,))
         result = cur.fetchone()
         if result:
@@ -231,7 +231,7 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
     def update_all_users_stamina(self, max_stamina, stamina_recovery_rate):
         """体力未满用户更新体力值"""
         cur = self.conn.cursor()
-        sql = """
+        sql = f"""
             UPDATE user_xiuxian
             SET user_stamina = MIN(user_stamina + ?, ?)
             WHERE user_stamina < ?
@@ -244,18 +244,18 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
         cur = self.conn.cursor()
 
         if key == 1:
-            sql = "UPDATE user_xiuxian SET user_stamina=user_stamina+? WHERE user_id=?"
+            sql = f"UPDATE user_xiuxian SET user_stamina=user_stamina+? WHERE user_id=?"
             cur.execute(sql, (stamina_change, user_id))
             self.conn.commit()
         elif key == 2:
-            sql = "UPDATE user_xiuxian SET user_stamina=user_stamina-? WHERE user_id=?"
+            sql = f"UPDATE user_xiuxian SET user_stamina=user_stamina-? WHERE user_id=?"
             cur.execute(sql, (stamina_change, user_id))
             self.conn.commit()
  
     def get_user_real_info(self, user_id):
         """根据USER_ID获取用户信息,获取功法加成"""
         cur = self.conn.cursor()
-        sql = "select * from user_xiuxian WHERE user_id=?"
+        sql = f"select * from user_xiuxian WHERE user_id=?"
         cur.execute(sql, (user_id,))
         result = cur.fetchone()
         if result:
@@ -272,7 +272,7 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
         :return:
         """
         cur = self.conn.cursor()
-        sql = "select * from sects WHERE sect_id=?"
+        sql = f"select * from sects WHERE sect_id=?"
         cur.execute(sql, (sect_id,))
         result = cur.fetchone()
         if result:
@@ -284,7 +284,7 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
     def get_sect_owners(self):
         """获取所有宗主的 user_id"""
         cur = self.conn.cursor()
-        sql = "SELECT user_id FROM user_xiuxian WHERE sect_position = 0"
+        sql = f"SELECT user_id FROM user_xiuxian WHERE sect_position = 0"
         cur.execute(sql)
         result = cur.fetchall()
         return [row[0] for row in result]
@@ -292,7 +292,7 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
     def get_elders(self):
         """获取所有长老的 user_id"""
         cur = self.conn.cursor()
-        sql = "SELECT user_id FROM user_xiuxian WHERE sect_position = 1"
+        sql = f"SELECT user_id FROM user_xiuxian WHERE sect_position = 1"
         cur.execute(sql)
         result = cur.fetchall()
         return [row[0] for row in result]
@@ -304,12 +304,12 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
         cur.execute(sql, (user_id,))
         result = cur.fetchone()
         if not result:
-            self._create_user(user_id, args[0], args[1], args[2], args[3], args[4])
+            self._create_user(user_id, args[0], args[1], args[2], args[3], args[4]) # root, type, power, create_time, user_name
             self.conn.commit()
-            welcome_msg = "欢迎进入修仙世界的，你的灵根为：{},类型是：{},你的战力为：{},当前境界：江湖好手".format(args[0], args[1], args[2], args[3])
+            welcome_msg = f"欢迎进入修仙世界的，你的灵根为：{args[0]},类型是：{args[1]},你的战力为：{args[2]},当前境界：江湖好手"
             return True, welcome_msg
         else:
-            return False, "您已迈入修仙世界，输入【我的修仙信息】获取数据吧！"
+            return False, f"您已迈入修仙世界，输入【我的修仙信息】获取数据吧！"
 
     def get_sign(self, user_id):
         """获取用户签到信息"""
@@ -318,15 +318,15 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
         cur.execute(sql, (user_id,))
         result = cur.fetchone()
         if not result:
-            return "修仙界没有你的足迹，输入 我要修仙 加入修仙世界吧！"
+            return f"修仙界没有你的足迹，输入 我要修仙 加入修仙世界吧！"
         elif result[0] == 0:
             ls = random.randint(XiuConfig().sign_in_lingshi_lower_limit, XiuConfig().sign_in_lingshi_upper_limit)
             sql2 = f"UPDATE user_xiuxian SET is_sign=1,stone=stone+? WHERE user_id=?"
             cur.execute(sql2, (ls,user_id))
             self.conn.commit()
-            return '签到成功，获取{}块灵石!'.format(ls)
+            return f"签到成功，获取{ls}块灵石!"
         elif result[0] == 1:
-            return '贪心的人是不会有好运的！'
+            return "贪心的人是不会有好运的！"
         
     def get_beg(self, user_id):
         """获取今日奇缘信息"""
@@ -351,7 +351,7 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
         self.conn.commit()
 
         self.update_power2(user_id) # 更新战力
-        return "逆天之行，重获新生，新的灵根为：{}，类型为：{}".format(lg, type)
+        return f"逆天之行，重获新生，新的灵根为：{lg}，类型为：{type}"
 
     def get_root_rate(self, name):
         """获取灵根倍率"""
