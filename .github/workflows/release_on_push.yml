@@ -36,6 +36,10 @@ jobs:
         echo "Current date (UTC+8): $current_date"
         echo "date=$current_date" >> $GITHUB_ENV
 
+    - name: Get Current Time
+      id: get_time
+      run: echo "time=$(date +'%H%M%S')" >> $GITHUB_ENV
+
     - name: Create tar.gz Archive
       run: tar -czvf release_data.tar.gz data nonebot_plugin_xiuxian_2
 
@@ -45,8 +49,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.ORGANIZATION_ACCESS_TOKEN }}
       with:
-        tag_name: ${{ env.new_version }}.${{ env.date }}_release
-        release_name: Release ${{ env.new_version }}.${{ env.date }}
+        tag_name: ${{ env.new_version }}.${{ env.date }}${{ env.time }}_release
+        release_name: Release ${{ env.new_version }}.${{ env.date }}${{ env.time }}
         body: "Automated release for commit ${{ github.sha }} on branch master"
         draft: false
         prerelease: false
