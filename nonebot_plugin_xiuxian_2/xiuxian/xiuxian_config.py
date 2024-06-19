@@ -104,7 +104,6 @@ class XiuConfig:
         self.img_send_type = "io" # 图片发送类型,默认io,官方bot建议base64
         self.third_party_bot = True # 是否是野生机器人，是的话填True，官方bot请填False
         self.version = "xiuxian_2.2" # 修仙插件版本，别动
-        # 测试发布
 
 
 class JsonConfig:
