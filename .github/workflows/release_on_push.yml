@@ -15,7 +15,7 @@ jobs:
 
     - name: Get Current Version
       id: get_version
-      run: echo ::set-output name=version::$(git describe --tags --abbrev=0)
+      run: echo ::set-output name=version::$(git describe --tags --abbrev=0 || echo "V2.2.0")
 
     - name: Increment Patch Version
       id: increment_version
@@ -43,7 +43,7 @@ jobs:
       id: create_release
       uses: actions/create-release@v1
       env:
-        GITHUB_TOKEN: ${{ secrets.ORGANIZATION_ACCESS_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: ${{ steps.increment_version.outputs.new_version }}.${{ steps.get_date.outputs.date }}_release
         release_name: Release ${{ steps.increment_version.outputs.new_version }}.${{ steps.get_date.outputs.date }}
@@ -54,7 +54,7 @@ jobs:
     - name: Upload Release Asset
       uses: actions/upload-release-asset@v1
       env:
-        GITHUB_TOKEN: ${{ secrets.ORGANIZATION_ACCESS_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: release_data.tar.gz
