@@ -26,14 +26,12 @@ jobs:
         patch=$(echo $current_version | cut -d. -f3 | cut -d'_' -f1)
         patch=$((patch + 1))
         new_version="V${major}.${minor}.${patch}"
-        echo "New version: $new_version"
         echo "new_version=$new_version" >> $GITHUB_ENV
 
     - name: Get Current Date (UTC+8)
       id: get_date
       run: |
         current_date=$(TZ=Asia/Shanghai date +'%m%d%y')
-        echo "Current date (UTC+8): $current_date"
         echo "date=$current_date" >> $GITHUB_ENV
 
     - name: Get Current Time
