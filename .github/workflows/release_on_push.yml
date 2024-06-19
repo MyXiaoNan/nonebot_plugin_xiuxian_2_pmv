@@ -1,0 +1,63 @@
+name: Create Release on Push to Master
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  create_release:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Get Current Version
+      id: get_version
+      run: echo ::set-output name=version::$(git describe --tags --abbrev=0)
+
+    - name: Increment Patch Version
+      id: increment_version
+      run: |
+        current_version=${{ steps.get_version.outputs.version }}
+        major=$(echo $current_version | cut -d. -f1 | cut -d'V' -f2)
+        minor=$(echo $current_version | cut -d. -f2)
+        patch=$(echo $current_version | cut -d. -f3 | cut -d'_' -f1)
+        patch=$((patch + 1))
+        new_version="V${major}.${minor}.${patch}"
+        echo "New version: $new_version"
+        echo ::set-output name=new_version::$new_version
+
+    - name: Get Current Date (UTC+8)
+      id: get_date
+      run: |
+        current_date=$(TZ=Asia/Shanghai date +'%m%d%y')
+        echo "Current date (UTC+8): $current_date"
+        echo ::set-output name=date::$current_date
+
+    - name: Create tar.gz Archive
+      run: tar -czvf release_data.tar.gz data nonebot_plugin_xiuxian_2
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.increment_version.outputs.new_version }}.${{ steps.get_date.outputs.date }}_release
+        release_name: Release ${{ steps.increment_version.outputs.new_version }}.${{ steps.get_date.outputs.date }}
+        body: "Automated release for commit ${{ github.sha }} on branch master"
+        draft: false
+        prerelease: false
+
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: release_data.tar.gz
+        asset_name: release_data.tar.gz
+        asset_content_type: application/gzip
+
