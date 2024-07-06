@@ -1420,9 +1420,8 @@ async def auction_view_(bot: Bot, event: GroupMessageEvent, args: Message = Comm
     
     for idx, auction in enumerate(user_auctions):
         for goods_name, details in auction.items():
-            goods_type = details['goods_type']
             user_info = sql_message.get_user_info_with_id(details['user_id'])
-            auction_list_msg += f"编号: {idx + 1}\n物品名称: {goods_name}\n物品类型：{goods_type}\n所有者：{user_info['user_name']}\n底价: {details['start_price']} 枚灵石\n数量: {details['quantity']}\n"
+            auction_list_msg += f"编号: {idx + 1}\n物品名称: {goods_name}\n物品类型：{details['goods_type']}\n所有者：{user_info['user_name']}\n底价: {details['start_price']} 枚灵石\n数量: {details['quantity']}\n"
             auction_list_msg += "☆------------------------------☆\n"
 
     if XiuConfig().img:
