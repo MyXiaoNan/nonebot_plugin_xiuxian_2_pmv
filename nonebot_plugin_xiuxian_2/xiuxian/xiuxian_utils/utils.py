@@ -329,7 +329,6 @@ class Txt2Img:
         )
 
         if title:
-            # 替换textsize为textbbox
             tmp_img = Image.new("RGB", (1, 1))
             tmp_draw = ImageDraw.Draw(tmp_img)
             user_bbox = tmp_draw.textbbox((0, 0), title, font=user_font, spacing=self.line_space)

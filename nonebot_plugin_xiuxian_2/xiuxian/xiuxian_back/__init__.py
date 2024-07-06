@@ -1021,23 +1021,7 @@ async def auction_withdraw_(bot: Bot, event: GroupMessageEvent, args: Message = 
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await auction_withdraw.finish()
 
-    back_msg = sql_message.get_back_msg(details['user_id'])
-    goods_type = None
-    for back in back_msg:
-        if goods_name == back['goods_name']:
-            goods_type = back['goods_type']
-            break
-
-    if not goods_type:
-        msg = f"物品类型未找到，无法撤回拍卖品：{goods_name}"
-        if XiuConfig().img:
-            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
-            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
-        else:
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-        await auction_withdraw.finish()
-
-    sql_message.send_back(details['user_id'], details['id'], goods_name, goods_type, details['quantity'])
+    sql_message.send_back(details['user_id'], details['id'], goods_name, details['goods_type'], details['quantity'])
     user_auctions.pop(auction_index)
     config['user_auctions'] = user_auctions
     savef_auction(config)
@@ -1421,6 +1405,7 @@ async def auction_view_(bot: Bot, event: GroupMessageEvent, args: Message = Comm
 
     config = get_auction_config()
     user_auctions = config.get('user_auctions', [])
+   
 
     if not user_auctions:
         msg = "拍卖会目前没有道友提交的物品！"
@@ -1432,10 +1417,11 @@ async def auction_view_(bot: Bot, event: GroupMessageEvent, args: Message = Comm
         await auction_view.finish()
 
     auction_list_msg = "拍卖会物品列表:\n"
+    
     for idx, auction in enumerate(user_auctions):
         for goods_name, details in auction.items():
             user_info = sql_message.get_user_info_with_id(details['user_id'])
-            auction_list_msg += f"编号: {idx + 1}\n物品名称: {goods_name}\n所有者：{user_info['user_name']}\n底价: {details['start_price']} 枚灵石\n数量: {details['quantity']}\n"
+            auction_list_msg += f"编号: {idx + 1}\n物品名称: {goods_name}\n物品类型：{details['goods_type']}\n所有者：{user_info['user_name']}\n底价: {details['start_price']} 枚灵石\n数量: {details['quantity']}\n"
             auction_list_msg += "☆------------------------------☆\n"
 
     if XiuConfig().img:
@@ -1897,6 +1883,7 @@ async def auction_added_(bot: Bot, event: GroupMessageEvent, args: Message = Com
     user_auction = {
         goods_name: {
             'id': goods_id,
+            'goods_type': goods_type,
             'user_id': user_id,
             'start_price': price,
             'quantity': quantity
