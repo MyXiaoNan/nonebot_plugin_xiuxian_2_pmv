@@ -915,10 +915,10 @@ async def mind_state_(bot: Bot, event: GroupMessageEvent):
     leveluprate = int(user_msg['level_up_rate'])  # 用户失败次数加成
     number =  user_main_critatk["number"] if user_main_critatk is not None else 0
     
-    msg = f"""
-道号：{user_msg['user_name']}
-气血:{number_to(user_msg['hp'])}/{number_to(int((user_msg['exp'] / 2) * (1 + main_hp_buff + impart_hp_per)))}
-真元:{number_to(user_msg['mp'])}/{number_to(user_msg['exp'])}({int((user_msg['mp'] / user_msg['exp']) * 100)}%)
+    msg = f"""      
+道号：{user_msg['user_name']}               
+气血:{number_to(user_msg['hp'])}/{number_to(int((user_msg['exp'] / 2) * (1 + main_hp_buff + impart_hp_per)))}({((user_msg['hp'] / ((user_msg['exp'] / 2) * (1 + main_hp_buff + impart_hp_per)))) * 100:.2f}%)
+真元:{number_to(user_msg['mp'])}/{number_to(user_msg['exp'])}({((user_msg['mp'] / user_msg['exp']) * 100):.2f}%)
 攻击:{number_to(user_msg['atk'])}
 突破状态: {exp_meg}(概率：{jsondata.level_rate_data()[user_msg['level']] + leveluprate + number}%)
 攻击修炼:{user_msg['atkpractice']}级(提升攻击力{user_msg['atkpractice'] * 4}%)
