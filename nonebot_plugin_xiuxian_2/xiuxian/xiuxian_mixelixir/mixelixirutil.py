@@ -91,10 +91,11 @@ async def get_mix_elixir_msg(yaocai):
                                 if is_mix:  # 有可以合成的
                                     if i + o + p <= Llandudno_info["max_num"]:
                                         # 判断背包里药材是否足够(同个药材多种类型)
-                                        num_dict = Counter([*[v["name"]]*i, *[vv["name"]]*o, *[vvv["name"]]*p])
-                                        if any(num_dict[yao["name"]] > yao["num"] for yao in [v, vv, vvv]):
-                                            p += 1
-                                            continue
+                                        if len({v["name"], vv["name"], vvv["name"]}) != 3:
+                                            num_dict = Counter([*[v["name"]]*i, *[vv["name"]]*o, *[vvv["name"]]*p])
+                                            if any(num_dict[yao["name"]] > yao["num"] for yao in [v, vv, vvv]):
+                                                p += 1
+                                                continue
 
                                         mix_elixir_msg[num] = {}
                                         mix_elixir_msg[num]['id'] = id_
