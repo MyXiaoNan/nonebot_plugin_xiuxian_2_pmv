@@ -1,5 +1,6 @@
 from ..xiuxian_utils.item_json import Items
 from random import shuffle
+from collections import Counter
 
 mix_config = Items().get_data_by_item_type(['合成丹药'])
 mix_configs = {}
