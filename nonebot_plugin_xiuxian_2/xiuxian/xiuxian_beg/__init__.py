@@ -31,7 +31,7 @@ async def xiuxian_beg_():
     sql_message.beg_remake()
     logger.opt(colors=True).info(f"<green>仙途奇缘重置成功！</green>")
 
-__beg_help__ = """
+__beg_help__ = f"""
 详情:
 为了让初入仙途的道友们更顺利地踏上修炼之路，特别开辟了额外的机缘
 天降灵石，助君一臂之力。
