@@ -56,7 +56,7 @@ steal_stone = on_command("偷灵石", aliases={"飞龙探云手"}, priority=4, p
 gm_command = on_command("神秘力量", permission=SUPERUSER, priority=10, block=True)
 gmm_command = on_command("轮回力量", permission=SUPERUSER, priority=10, block=True)
 cz = on_command('创造力量', permission=SUPERUSER, priority=15,block=True)
-rob_stone = on_command("抢劫", aliases={"抢灵石","拿来吧你"}, priority=5, permission=GROUP, block=True)
+rob_stone = on_command("抢劫", aliases={"拿来吧你"}, priority=5, permission=GROUP, block=True)
 restate = on_command("重置状态", permission=SUPERUSER, priority=12, block=True)
 set_xiuxian = on_command("启用修仙功能", aliases={'禁用修仙功能'}, permission=GROUP and (SUPERUSER | GROUP_ADMIN | GROUP_OWNER), priority=5, block=True)
 user_leveluprate = on_command('我的突破概率', aliases={'突破概率'}, priority=5, permission=GROUP, block=True)
@@ -99,7 +99,7 @@ __xiuxian_notes__ = f"""
 
 
 
-__xiuxian_updata_data__ = """
+__xiuxian_updata_data__ = f"""
 详情：
 #更新2023.6.14
 1.修复已知bug
@@ -132,7 +132,7 @@ __xiuxian_updata_data__ = """
 9.逐步实现体力系统
 """.strip()
 
-__level_help__ = """
+__level_help__ = f"""
 详情：
                        --灵根帮助--
                轮回——异界——机械——混沌
@@ -1314,7 +1314,7 @@ async def gmm_command_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
 
 @rob_stone.handle(parameterless=[Cooldown(stamina_cost = 15, at_sender=False)])
 async def rob_stone_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
-    """抢灵石
+    """抢劫
             player1 = {
             "NAME": player,
             "HP": player,
@@ -1370,15 +1370,7 @@ async def rob_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Command
                 else:
                     await bot.send_group_msg(group_id=int(send_group_id), message=msg)
                 await rob_stone.finish()
-            if convert_rank(user_2['level'])[0] - convert_rank(user_info['level'])[0] >= 12:
-                msg = f"道友抢劫小辈，可耻！"
-                sql_message.update_user_stamina(user_id, 15, 1)
-                if XiuConfig().img:
-                    pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
-                    await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
-                else:
-                    await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-                await rob_stone.finish()
+
             if user_2:
                 if user_info['hp'] is None:
                     # 判断用户气血是否为None
@@ -1410,6 +1402,7 @@ async def rob_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Command
                     else:
                         await bot.send_group_msg(group_id=int(send_group_id), message=msg)
                     await rob_stone.finish()
+                    
                 impart_data_1 = xiuxian_impart.get_user_info_with_id(user_id)
                 player1['user_id'] = user_info['user_id']
                 player1['道号'] = user_info['user_name']

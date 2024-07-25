@@ -159,7 +159,7 @@ async def send_bot(group_id:str):
     
     bossinfo = createboss()
     group_boss[group_id].append(bossinfo)
-    msg = f"野生的{bossinfo['jj']}Boss:{bossinfo['name']}出现了,诸位道友请击Boss得奖励吧!"
+    msg = f"野生的{bossinfo['jj']}Boss:{bossinfo['name']}出现了,诸位道友请击败Boss获得奖励吧!"
     if XiuConfig().img:
         pic = await get_msg_pic(f"@全体修仙者\n" + msg)
         data['message'] = MessageSegment.image(pic)
