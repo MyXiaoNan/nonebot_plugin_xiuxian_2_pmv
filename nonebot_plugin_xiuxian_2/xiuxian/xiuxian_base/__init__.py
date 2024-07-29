@@ -1273,7 +1273,7 @@ async def cz_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
 
 
 #GM改灵根
-@gmm_command.handle()
+@gmm_command.handle(parameterless=[Cooldown(at_sender=False)])
 async def gmm_command_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     give_qq = None  # 艾特的时候存到这里
