@@ -53,7 +53,7 @@ SUPERUSERS = ["xxxxx"]
 NICKNAME = ["xx"]
 ```
 
-5、在xiuxian_config.py中配置好各种选项
+5、在xiuxian_config.py中配置好各种选项,官方bot仅试过使用 [Gensokyo](https://github.com/Hoshinonyaruko/Gensokyo) 正常运行
 ```
 一般来说，只需要关注下面几项：
 self.merge_forward_send = False # 消息转发类型,True是合并转发，False是长图发送
@@ -61,6 +61,16 @@ self.img_compression_limit = 80 # 图片压缩率，0为不压缩，最高100
 self.img_type = "webp" # 图片类型，webp或者jpeg，如果机器人的图片消息不显示请使用jpeg
 self.img_send_type = "io" # 图片发送类型,默认io,官方bot建议base64
 self.third_party_bot = True # 是否是野生机器人，是的话填True，官方bot请填False
+self.put_bot = []  # 接收消息qq,主qq,框架将只处理此qq的消息，不配置将默认设置第一个链接的qq为主qq
+self.main_bo = []  # 负责发送消息的qq,调用lay_out.py 下range_bot函数的情况下需要填写
+self.shield_group = []  # 屏蔽的群聊
+self.layout_bot_dict = {{}}  # QQ所负责的群聊{{群 :bot}}   其中 bot类型 []或str
+示例：
+{
+    "群123群号" : "对应发送消息的qq号"
+    "群456群号" ： ["对应发送消息的qq号1","对应发送消息的qq号2"]
+}
+当后面qq号为一个字符串时为一对一，为列表时为多对一
 ```
 
 5、如解决不了进交流群：[760517008](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=zIKrPPqNStgZnRtuLhiOv9woBQSMQurq&authKey=Nrqm0zDxYKP2Fon2MskbNRmZ588Rqm79lJvQyVYWtkh9vDFK1RGBK0UhqzehVyDw&noverify=0&group_code=760517008) 提问，提问请贴上完整的日志
@@ -76,20 +86,6 @@ self.third_party_bot = True # 是否是野生机器人，是的话填True，官�
 4、总的参数配置在xiuxian_config.py中<br>
 5、更多详情可见 [文档](https://xiuxian.netlify.app/) (仅供参考)<br>
 
-# 💿 风控配置
-```
-配置地址:修仙插件下xiuxian_config.py
-在只有一个qq链接的情况下风控配置应该全部为空，即不配置
-self.put_bot = []  # 接收消息qq,主qq,框架将只处理此qq的消息，不配置将默认设置第一个链接的qq为主qq
-self.main_bo = []  # 负责发送消息的qq,调用lay_out.py 下range_bot函数的情况下需要填写
-self.shield_group = []  # 屏蔽的群聊
-self.layout_bot_dict = {{}}  # QQ所负责的群聊{{群 :bot}}   其中 bot类型 []或str
-示例： {
-    "群123群号" : "对应发送消息的qq号"
-    "群456群号" ： ["对应发送消息的qq号1","对应发送消息的qq号2"]
-}
-当后面qq号为一个字符串时为一对一，为列表时为多对一
-```
 
 # 🎉 特别感谢
 - [NoneBot2](https://github.com/nonebot/nonebot2)：本插件实装的开发框架，NB天下第一可爱。
