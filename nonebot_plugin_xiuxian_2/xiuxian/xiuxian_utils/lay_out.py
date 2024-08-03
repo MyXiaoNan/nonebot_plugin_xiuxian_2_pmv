@@ -23,8 +23,6 @@ auto_recover_hp = require("nonebot_plugin_apscheduler").scheduler
 
 limit_all_data: Dict[str, Any] = {}
 limit_num = 99999
-max_stamina = XiuConfig().max_stamina
-stamina_recovery_rate = 1
 
 @auto_recover_hp.scheduled_job('interval', minutes=1)
 def auto_recover_hp_():
@@ -37,10 +35,10 @@ def limit_all_message_():
     limit_all_data  = {}
     logger.opt(colors=True).success(f"<green>已重置消息字典！</green>")
 
-@limit_all_stamina.scheduled_job('interval', minutes=10)
+@limit_all_stamina.scheduled_job('interval', minutes=1)
 def limit_all_stamina_():
-    # 恢复体力，10分钟回一点
-    sql_message.update_all_users_stamina(max_stamina, stamina_recovery_rate)
+    # 恢复体力
+    sql_message.update_all_users_stamina(XiuConfig().max_stamina, XiuConfig().stamina_recovery_points)
 
 def limit_all_run(user_id: str):
     global limit_all_data

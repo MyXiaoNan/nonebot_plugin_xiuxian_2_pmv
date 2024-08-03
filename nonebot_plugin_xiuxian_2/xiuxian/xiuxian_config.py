@@ -95,6 +95,7 @@ class XiuConfig:
         self.tou_upper_limit = 0.50  # 偷灵石上限(百分比)
         self.remake = 100000  # 重入仙途的消费
         self.max_stamina = 240 # 体力上限
+        self.stamina_recovery_points = 1 # 体力恢复点数/分钟
         self.lunhui_min_level = "祭道境圆满" # 千世轮回最低境界
         self.twolun_min_level = "祭道境圆满" # 万世轮回最低境界
         self.del_boss_id = []  # 支持非管理员和超管天罚boss
