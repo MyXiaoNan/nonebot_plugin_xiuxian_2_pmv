@@ -173,23 +173,22 @@ def Cooldown(
             )
         else:
             key = CooldownIsolateLevel.GLOBAL.name
-        if XiuConfig().third_party_bot:
-            if group_id not in conf_data["group"]:
-                if (
-                        event.sender.role == "admin" or
-                        event.sender.role == "owner" or
-                        event.get_user_id() in bot.config.superusers
-                ):
-                    bot = await assign_bot_group(group_id=group_id)
-                    if at_sender:
-                        await bot.send(event=event, message=MessageSegment.at(event.get_user_id()) + "本群已关闭修仙模组,请联系管理员开启,开启命令为【启用修仙功能】!")
-                    else:
-                        await bot.send(event=event, message="本群已关闭修仙模组,请联系管理员开启,开启命令为【启用修仙功能】!")
-                    await matcher.finish()
+        if group_id not in conf_data["group"]:
+            if (
+                    event.sender.role == "admin" or
+                    event.sender.role == "owner" or
+                    event.get_user_id() in bot.config.superusers
+            ):
+                bot = await assign_bot_group(group_id=group_id)
+                if at_sender:
+                    await bot.send(event=event, message=MessageSegment.at(event.get_user_id()) + "本群已关闭修仙模组,请联系管理员开启,开启命令为【启用修仙功能】!")
                 else:
-                    await matcher.finish()
+                    await bot.send(event=event, message="本群已关闭修仙模组,请联系管理员开启,开启命令为【启用修仙功能】!")
+                await matcher.finish()
             else:
-                pass
+                await matcher.finish()
+        else:
+            pass
         if stamina_cost > 0:
             user_data = sql_message.get_user_info_with_id(user_id)
             if not user_data or user_data['user_stamina'] < stamina_cost:
