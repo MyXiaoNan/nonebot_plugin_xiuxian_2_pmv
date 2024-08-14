@@ -189,26 +189,18 @@ def Cooldown(
                 await matcher.finish()
         else:
             pass
-        isUser, user_info, msg = check_user(event)
-        if not isUser:
-            if XiuConfig().img:
-                pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
-                await bot.send_group_msg(group_id=int(group_id), message=MessageSegment.image(pic))
-            else:
-                await bot.send_group_msg(group_id=int(group_id), message=msg)
-            await matcher.finish()
-        
         if stamina_cost > 0:
             user_data = sql_message.get_user_info_with_id(user_id)
-            if user_data['user_stamina'] < stamina_cost:
-                msg = "你没有足够的体力，请等待体力恢复后再试！"
-                if XiuConfig().img:
-                    pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
-                    await bot.send_group_msg(group_id=int(group_id), message=MessageSegment.image(pic))
-                else:
-                    await bot.send_group_msg(group_id=int(group_id), message=msg)
-                await matcher.finish()
-            sql_message.update_user_stamina(user_id, stamina_cost, 2)  # 减少体力
+            if user_data:
+                if user_data['user_stamina'] < stamina_cost:
+                    msg = "你没有足够的体力，请等待体力恢复后再试！"
+                    if XiuConfig().img:
+                        pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
+                        await bot.send_group_msg(group_id=int(group_id), message=MessageSegment.image(pic))
+                    else:
+                        await bot.send_group_msg(group_id=int(group_id), message=msg)
+                    await matcher.finish()
+                sql_message.update_user_stamina(user_id, stamina_cost, 2)  # 减少体力
         if running[key] <= 0:
             if cd_time >= 1.5:
                 time = int(cd_time - (loop.time() - time_sy[key]))
