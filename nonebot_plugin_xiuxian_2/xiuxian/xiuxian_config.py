@@ -95,6 +95,7 @@ class XiuConfig:
         self.tou_upper_limit = 0.50  # 偷灵石上限(百分比)
         self.remake = 100000  # 重入仙途的消费
         self.max_stamina = 240 # 体力上限
+        self.stamina_recovery_points = 1 # 体力恢复点数/分钟
         self.lunhui_min_level = "祭道境圆满" # 千世轮回最低境界
         self.twolun_min_level = "祭道境圆满" # 万世轮回最低境界
         self.del_boss_id = []  # 支持非管理员和超管天罚boss
@@ -103,7 +104,6 @@ class XiuConfig:
         self.img_compression_limit = 90 # 图片压缩率，0为不压缩，最高100
         self.img_type = "webp" # 图片类型，webp或者jpeg，如果机器人的图片消息不显示请使用jpeg，jpeg请调低压缩率
         self.img_send_type = "io" # 图片发送类型,默认io,官方bot建议base64
-        self.third_party_bot = True # 是否是野生机器人，是的话填True，官方bot请填False
         self.version = "xiuxian_2.2" # 修仙插件版本，别动
 
 

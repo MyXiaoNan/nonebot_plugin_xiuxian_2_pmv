@@ -228,7 +228,7 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
         else:
             return None
         
-    def update_all_users_stamina(self, max_stamina, stamina_recovery_rate):
+    def update_all_users_stamina(self, max_stamina, stamina):
         """体力未满用户更新体力值"""
         cur = self.conn.cursor()
         sql = f"""
@@ -236,7 +236,7 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
             SET user_stamina = MIN(user_stamina + ?, ?)
             WHERE user_stamina < ?
         """
-        cur.execute(sql, (stamina_recovery_rate, max_stamina, max_stamina))
+        cur.execute(sql, (stamina, max_stamina, max_stamina))
         self.conn.commit()
 
     def update_user_stamina(self, user_id, stamina_change, key):

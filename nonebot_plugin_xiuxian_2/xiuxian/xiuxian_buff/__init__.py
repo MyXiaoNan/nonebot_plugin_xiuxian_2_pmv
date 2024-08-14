@@ -394,7 +394,7 @@ async def two_exp_(bot: Bot, event: GroupMessageEvent, args: Message = CommandAr
     global two_exp_limit
     isUser, user_1, msg = check_user(event)
     if not isUser:
-        if XiuConfig().img:
+        if XiuConfig().img:     
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:

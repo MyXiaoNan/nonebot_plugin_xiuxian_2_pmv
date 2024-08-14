@@ -12,7 +12,7 @@ from nonebot.adapters.onebot.v11.event import MessageEvent, GroupMessageEvent
 from nonebot.adapters.onebot.v11 import Bot, MessageSegment
 from ..xiuxian_config import XiuConfig, JsonConfig
 from .xiuxian2_handle import XiuxianDateManage
-from .utils import get_msg_pic
+from .utils import get_msg_pic, check_user
 
 
 sql_message = XiuxianDateManage()
@@ -23,8 +23,6 @@ auto_recover_hp = require("nonebot_plugin_apscheduler").scheduler
 
 limit_all_data: Dict[str, Any] = {}
 limit_num = 99999
-max_stamina = XiuConfig().max_stamina
-stamina_recovery_rate = 1
 
 @auto_recover_hp.scheduled_job('interval', minutes=1)
 def auto_recover_hp_():
@@ -37,10 +35,10 @@ def limit_all_message_():
     limit_all_data  = {}
     logger.opt(colors=True).success(f"<green>已重置消息字典！</green>")
 
-@limit_all_stamina.scheduled_job('interval', minutes=10)
+@limit_all_stamina.scheduled_job('interval', minutes=1)
 def limit_all_stamina_():
-    # 恢复体力，10分钟回一点
-    sql_message.update_all_users_stamina(max_stamina, stamina_recovery_rate)
+    # 恢复体力
+    sql_message.update_all_users_stamina(XiuConfig().max_stamina, XiuConfig().stamina_recovery_points)
 
 def limit_all_run(user_id: str):
     global limit_all_data
@@ -175,34 +173,34 @@ def Cooldown(
             )
         else:
             key = CooldownIsolateLevel.GLOBAL.name
-        if XiuConfig().third_party_bot:
-            if group_id not in conf_data["group"]:
-                if (
-                        event.sender.role == "admin" or
-                        event.sender.role == "owner" or
-                        event.get_user_id() in bot.config.superusers
-                ):
-                    bot = await assign_bot_group(group_id=group_id)
-                    if at_sender:
-                        await bot.send(event=event, message=MessageSegment.at(event.get_user_id()) + "本群已关闭修仙模组,请联系管理员开启,开启命令为【启用修仙功能】!")
-                    else:
-                        await bot.send(event=event, message="本群已关闭修仙模组,请联系管理员开启,开启命令为【启用修仙功能】!")
-                    await matcher.finish()
+        if group_id not in conf_data["group"]:
+            if (
+                    event.sender.role == "admin" or
+                    event.sender.role == "owner" or
+                    event.get_user_id() in bot.config.superusers
+            ):
+                bot = await assign_bot_group(group_id=group_id)
+                if at_sender:
+                    await bot.send(event=event, message=MessageSegment.at(event.get_user_id()) + "本群已关闭修仙模组,请联系管理员开启,开启命令为【启用修仙功能】!")
                 else:
-                    await matcher.finish()
+                    await bot.send(event=event, message="本群已关闭修仙模组,请联系管理员开启,开启命令为【启用修仙功能】!")
+                await matcher.finish()
             else:
-                pass
+                await matcher.finish()
+        else:
+            pass
         if stamina_cost > 0:
             user_data = sql_message.get_user_info_with_id(user_id)
-            if not user_data or user_data['user_stamina'] < stamina_cost:
-                msg = "你没有足够的体力，请等待体力恢复后再试！"
-                if XiuConfig().img:
-                    pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
-                    await bot.send_group_msg(group_id=int(group_id), message=MessageSegment.image(pic))
-                else:
-                    await bot.send_group_msg(group_id=int(group_id), message=msg)
-                await matcher.finish()
-            sql_message.update_user_stamina(user_id, stamina_cost, 2)  # 减少体力
+            if user_data:
+                if user_data['user_stamina'] < stamina_cost:
+                    msg = "你没有足够的体力，请等待体力恢复后再试！"
+                    if XiuConfig().img:
+                        pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
+                        await bot.send_group_msg(group_id=int(group_id), message=MessageSegment.image(pic))
+                    else:
+                        await bot.send_group_msg(group_id=int(group_id), message=msg)
+                    await matcher.finish()
+                sql_message.update_user_stamina(user_id, stamina_cost, 2)  # 减少体力
         if running[key] <= 0:
             if cd_time >= 1.5:
                 time = int(cd_time - (loop.time() - time_sy[key]))
