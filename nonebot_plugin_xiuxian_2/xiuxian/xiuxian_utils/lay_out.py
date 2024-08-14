@@ -12,7 +12,7 @@ from nonebot.adapters.onebot.v11.event import MessageEvent, GroupMessageEvent
 from nonebot.adapters.onebot.v11 import Bot, MessageSegment
 from ..xiuxian_config import XiuConfig, JsonConfig
 from .xiuxian2_handle import XiuxianDateManage
-from .utils import get_msg_pic
+from .utils import get_msg_pic, check_user
 
 
 sql_message = XiuxianDateManage()
@@ -189,9 +189,18 @@ def Cooldown(
                 await matcher.finish()
         else:
             pass
+        isUser, user_info, msg = check_user(event)
+        if not isUser:
+            if XiuConfig().img:
+                pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
+                await bot.send_group_msg(group_id=int(group_id), message=MessageSegment.image(pic))
+            else:
+                await bot.send_group_msg(group_id=int(group_id), message=msg)
+            await matcher.finish()
+        
         if stamina_cost > 0:
             user_data = sql_message.get_user_info_with_id(user_id)
-            if not user_data or user_data['user_stamina'] < stamina_cost:
+            if user_data['user_stamina'] < stamina_cost:
                 msg = "你没有足够的体力，请等待体力恢复后再试！"
                 if XiuConfig().img:
                     pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
