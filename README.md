@@ -19,6 +19,8 @@ _✨ QQ群聊修仙文字游戏✨_
 
 原插件地址：https://github.com/QingMuCat/nonebot_plugin_xiuxian_2
 
+修仙3.0地址在这，欢迎pr：https://github.com/MyXiaoNan/nonebot-plugin-ascension
+
 # 🎉 和原版有什么区别？
 1、修复了许多Bug，报错与原版相比少很多，以及更多功能优化
 
