@@ -18,6 +18,7 @@ _✨ QQ群聊修仙文字游戏✨_
 一款适用于QQ群的修仙插件,设定征集中，有好的想法可以推送给我哦~~~
 
 原插件地址：https://github.com/QingMuCat/nonebot_plugin_xiuxian_2
+
 修仙3.0地址在这，欢迎pr：https://github.com/MyXiaoNan/nonebot-plugin-ascension
 
 # 🎉 和原版有什么区别？
