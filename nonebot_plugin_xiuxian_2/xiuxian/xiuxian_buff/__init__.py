@@ -916,7 +916,7 @@ async def mind_state_(bot: Bot, event: GroupMessageEvent):
     number =  user_main_critatk["number"] if user_main_critatk is not None else 0
     
     msg = f"""
-道号：{user_msg['user_name']}               
+道号：{user_msg['user_name']}
 气血:{number_to(user_msg['hp'])}/{number_to(int((user_msg['exp'] / 2) * (1 + main_hp_buff + impart_hp_per)))}({((user_msg['hp'] / ((user_msg['exp'] / 2) * (1 + main_hp_buff + impart_hp_per)))) * 100:.2f}%)
 真元:{number_to(user_msg['mp'])}/{number_to(user_msg['exp'])}({((user_msg['mp'] / user_msg['exp']) * 100):.2f}%)
 攻击:{number_to(user_msg['atk'])}
