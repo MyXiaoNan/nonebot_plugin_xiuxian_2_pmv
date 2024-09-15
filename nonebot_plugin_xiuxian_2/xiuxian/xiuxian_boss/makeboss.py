@@ -56,7 +56,7 @@ def get_boss_exp(boss_jj):
 
 
 def createboss():
-    top_user_info = sql_message.get_top1_user()
+    top_user_info = sql_message.get_realm_top1_user() # 改成了境界第一
     top_user_level = top_user_info['level']
     if len(top_user_level) == 5:
         level = top_user_level[:3] 

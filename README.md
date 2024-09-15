@@ -68,15 +68,12 @@ HOST = 127.0.0.1
 PORT = 8080 # 默认开8080端口，有需要自己改
 ```
 
-
-
 5、.env文件配置
 
 ```
 ENVIRONMENT=dev
 DRIVER=~fastapi+~websockets+~httpx # 这里用的是反代+http正向调试
 ```
-
 
 6、在xiuxian_config.py中配置好各种选项,官方bot仅试过使用 [Gensokyo](https://github.com/Hoshinonyaruko/Gensokyo) 正常运行
 
@@ -100,18 +97,11 @@ self.layout_bot_dict = {{}}  # QQ所负责的群聊{{群 :bot}}   其中 bot类�
 
 7、如解决不了进交流群：[760517008](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=zIKrPPqNStgZnRtuLhiOv9woBQSMQurq&authKey=Nrqm0zDxYKP2Fon2MskbNRmZ588Rqm79lJvQyVYWtkh9vDFK1RGBK0UhqzehVyDw&noverify=0&group_code=760517008) 提问，提问请贴上完整的日志
 
+
 # 💿 使用
 
 群聊发送 启用修仙功能 后根据引导来即可，不支持私聊
 如果你使用的是官方机器人记得改配置
-
-# 💿 配置文件
-
-1、配置文件一般在data/xiuxian文件夹下，自行按照json格式修改即可，一些字段的含义可以进群交流`<br>`
-2、子插件的配置会在插件运行后在子插件文件中生成config.json文件，该文件字段含义在同级目录的xxxconfig.py有备注。注意：修改配置只需要修改json即可，修改.py文件的话需要删除json文件才会生效，任何修改都需要重启bot`<br>`
-3、记得将git下来的data文件夹放置于bot根目录下`<br>`
-4、总的参数配置在xiuxian_config.py中`<br>`
-5、更多详情可见 [文档](https://xiuxian.netlify.app/) (仅供参考)`<br>`
 
 # 🎉 特别感谢
 

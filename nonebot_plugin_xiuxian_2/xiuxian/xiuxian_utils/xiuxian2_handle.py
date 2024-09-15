@@ -770,8 +770,6 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
         return result
 
 
-
-
     def stone_top(self):
         """这也是灵石排行榜"""
         sql = f"SELECT user_name,stone FROM user_xiuxian WHERE user_name is NOT NULL ORDER BY stone DESC LIMIT 50"
@@ -850,6 +848,31 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
         cur = self.conn.cursor()
         sql = f"select * from user_xiuxian ORDER BY exp DESC LIMIT 1"
         cur.execute(sql)
+        result = cur.fetchone()
+        if result:
+            columns = [column[0] for column in cur.description]
+            top1_dict = dict(zip(columns, result))
+            return top1_dict
+        else:
+            return None
+        
+    def get_realm_top1_user(self):
+        """
+        获取境界第一的用户
+        """
+        rank_mapping = {rank: idx for idx, rank in enumerate(convert_rank('江湖好手')[1])}
+    
+        sql = """SELECT user_name, level, exp FROM user_xiuxian 
+            WHERE user_name IS NOT NULL
+            ORDER BY exp DESC, (CASE level """
+    
+        for level, value in sorted(rank_mapping.items(), key=lambda x: x[1], reverse=True):
+            sql += f"WHEN '{level}' THEN '{value:02}' "
+    
+        sql += """ELSE level END) ASC LIMIT 1"""
+    
+        cur = self.conn.cursor()
+        cur.execute(sql, )
         result = cur.fetchone()
         if result:
             columns = [column[0] for column in cur.description]
