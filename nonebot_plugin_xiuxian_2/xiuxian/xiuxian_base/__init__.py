@@ -1238,7 +1238,7 @@ async def cz_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
         give_user = sql_message.get_user_info_with_id(give_qq)
         if give_user:
             sql_message.send_back(give_qq, goods_id, goods_name, goods_type, goods_num, 1)
-            msg = f"{give_user['user_name']}道友获得了系统赠送的{goods_name}个{goods_num}！"
+            msg = f"{give_user['user_name']}道友获得了系统赠送的{goods_num}个{goods_name}！"
             if XiuConfig().img:
                 pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
