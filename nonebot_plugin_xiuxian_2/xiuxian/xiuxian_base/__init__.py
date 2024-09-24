@@ -1257,7 +1257,7 @@ async def cz_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
         all_users = sql_message.get_all_user_id()
         for user_id in all_users:
             sql_message.send_back(user_id, goods_id, goods_name, goods_type, goods_num, 1)  # 给每个用户发送物品
-        msg = f"全服通告：赠送所有用户{goods_name}{goods_num}个,请注意查收！"
+        msg = f"全服通告：赠送所有用户{goods_num}个{goods_name},请注意查收！"
         enabled_groups = JsonConfig().get_enabled_groups()
         for group_id in enabled_groups:
             bot = await assign_bot_group(group_id=group_id)
