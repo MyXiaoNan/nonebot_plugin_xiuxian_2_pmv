@@ -59,7 +59,8 @@ pip install -r requirements.txt
 ```
 LOG_LEVEL=INFO # 日志等级INFO就行
 
-SUPERUSERS = [""] # 野生bot填自己QQ号(不是机器人的QQ)，官方bot下的用户id自行获取
+SUPERUSERS = [""] # 野生bot填自己QQ号(不是机器人的QQ)，官方bot下的用户id自行获取，填的不对的话会出现指令无响应的情况
+
 COMMAND_START = [""] # 指令前缀，默认空
 NICKNAME = [""] # 机器人昵称
 
