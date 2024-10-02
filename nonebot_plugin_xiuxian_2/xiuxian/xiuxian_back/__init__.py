@@ -112,13 +112,13 @@ async def set_auction_by_scheduler_():
 
     auction_items = []
     try:
-        # 获取用户拍卖品
+        # 用户拍卖品
         user_auction_id_list = get_user_auction_id_list()
         for auction_id in user_auction_id_list:
             user_auction_info = get_user_auction_price_by_id(auction_id)
             auction_items.append((auction_id, user_auction_info['quantity'], user_auction_info['start_price'], True))
 
-        # 获取系统拍卖品
+        # 系统拍卖品
         auction_id_list = get_auction_id_list()
         auction_count = random.randint(3, 8)  # 随机挑选系统拍卖品数量
         auction_ids = random.sample(auction_id_list, auction_count)
@@ -126,7 +126,7 @@ async def set_auction_by_scheduler_():
             item_info = items.get_data_by_item_id(auction_id)
             item_quantity = 1
             if item_info['type'] in ['神物', '丹药']:
-                item_quantity = random.randint(1, 3) # 如果是丹药的话随机挑1-3个
+                item_quantity = random.randint(1, 3) # 丹药的话随机挑1-3个
             auction_items.append((auction_id, item_quantity, get_auction_price_by_id(auction_id)['start_price'], False))
     except LookupError:
         logger.opt(colors=True).info("<red>获取不到拍卖物品的信息，请检查配置文件！</red>")
@@ -156,10 +156,10 @@ async def set_auction_by_scheduler_():
                 await bot.send_group_msg(group_id=int(gid), message=MessageSegment.image(pic))
             else:
                 await bot.send_group_msg(group_id=int(gid), message=msg)
-        except ActionFailed:  # 发送群消息失败
+        except ActionFailed:
             continue
     
-    auction_results = []  # 存储拍卖结果
+    auction_results = []  # 拍卖结果
     for i, (auction_id, item_quantity, start_price, is_user_auction) in enumerate(auction_items):
         auction_info = items.get_data_by_item_id(auction_id)
 
@@ -183,7 +183,7 @@ async def set_auction_by_scheduler_():
         msg += f"\n竞拍时间为:{AUCTIONSLEEPTIME}秒，请诸位道友发送 拍卖+金额 来进行拍卖吧！"
 
         if auction['quantity'] > 1:
-            msg += f"\n注意：拍卖品共{auction['quantity']}件，最终价为{auction['quantity']} * 成交价。\n"
+            msg += f"\n注意：拍卖品共{auction['quantity']}件，最终价为{auction['quantity']}x成交价。\n"
 
         if i + 1 < len(auction_items):
             next_item_name = items.get_data_by_item_id(auction_items[i + 1][0])['name']
@@ -197,7 +197,7 @@ async def set_auction_by_scheduler_():
                     await bot.send_group_msg(group_id=int(gid), message=MessageSegment.image(pic))
                 else:
                     await bot.send_group_msg(group_id=int(gid), message=msg)
-            except ActionFailed:  # 发送群消息失败
+            except ActionFailed:
                 continue
 
      
@@ -258,7 +258,7 @@ async def set_auction_by_scheduler_():
                     await bot.send_group_msg(group_id=int(gid), message=MessageSegment.image(pic))
                 else:
                     await bot.send_group_msg(group_id=int(gid), message=msg)
-            except ActionFailed:  # 发送群消息失败
+            except ActionFailed:
                 continue
 
         await asyncio.sleep(random.randint(5, 30))
@@ -277,7 +277,7 @@ async def set_auction_by_scheduler_():
             user_auction_info = get_user_auction_price_by_id(auction_id)
             if user_auction_info:
                 seller_id = user_auction_info['user_id']
-                auction_earnings = int(final_price) * quantity * 0.7
+                auction_earnings = int(final_price) * quantity * 0.7 # 收个手续费
                 sql_message.update_ls(seller_id, auction_earnings, 1)
 
             remove_auction_item(auction_id)
@@ -1467,13 +1467,13 @@ async def creat_auction_(bot: Bot, event: GroupMessageEvent):
 
     auction_items = []
     try:
-        # 获取用户拍卖品
+        # 用户拍卖品
         user_auction_id_list = get_user_auction_id_list()
         for auction_id in user_auction_id_list:
             user_auction_info = get_user_auction_price_by_id(auction_id)
             auction_items.append((auction_id, user_auction_info['quantity'], user_auction_info['start_price'], True))
 
-        # 获取系统拍卖品
+        # 系统拍卖品
         auction_id_list = get_auction_id_list()
         auction_count = random.randint(3, 8)  # 随机挑选系统拍卖品数量
         auction_ids = random.sample(auction_id_list, auction_count)
@@ -1514,10 +1514,10 @@ async def creat_auction_(bot: Bot, event: GroupMessageEvent):
                 await bot.send_group_msg(group_id=int(gid), message=MessageSegment.image(pic))
             else:
                 await bot.send_group_msg(group_id=int(gid), message=msg)
-        except ActionFailed:  # 发送群消息失败
+        except ActionFailed:
             continue
     
-    auction_results = []  # 存储拍卖结果
+    auction_results = []  # 拍卖结果
     for i, (auction_id, item_quantity, start_price, is_user_auction) in enumerate(auction_items):
         auction_info = items.get_data_by_item_id(auction_id)
 
@@ -1540,7 +1540,7 @@ async def creat_auction_(bot: Bot, event: GroupMessageEvent):
         msg += f"\n竞拍时间为:{AUCTIONSLEEPTIME}秒，请诸位道友发送 拍卖+金额 来进行拍卖吧！"
 
         if auction['quantity'] > 1:
-            msg += f"\n注意：拍卖品共{auction['quantity']}件，最终价为{auction['quantity']} * 成交价。\n"
+            msg += f"\n注意：拍卖品共{auction['quantity']}件，最终价为{auction['quantity']}x成交价。\n"
 
         if i + 1 < len(auction_items):
             next_item_name = items.get_data_by_item_id(auction_items[i + 1][0])['name']
@@ -1554,7 +1554,7 @@ async def creat_auction_(bot: Bot, event: GroupMessageEvent):
                     await bot.send_group_msg(group_id=int(gid), message=MessageSegment.image(pic))
                 else:
                     await bot.send_group_msg(group_id=int(gid), message=msg)
-            except ActionFailed:  # 发送群消息失败
+            except ActionFailed:
                 continue
         
         remaining_time = AUCTIONSLEEPTIME # 第一轮定时
@@ -1588,7 +1588,7 @@ async def creat_auction_(bot: Bot, event: GroupMessageEvent):
                         await bot.send_group_msg(group_id=int(gid), message=MessageSegment.image(pic))
                     else:
                         await bot.send_group_msg(group_id=int(gid), message=msg)
-                except ActionFailed:  # 发送群消息失败
+                except ActionFailed:
                     continue
             auction_results.append((auction_id, None, auction['group_id'], auction_info['type'], auction['now_price'], auction['quantity']))
             auction = {}
@@ -1612,7 +1612,7 @@ async def creat_auction_(bot: Bot, event: GroupMessageEvent):
                     await bot.send_group_msg(group_id=int(gid), message=MessageSegment.image(pic))
                 else:
                     await bot.send_group_msg(group_id=int(gid), message=msg)
-            except ActionFailed:  # 发送群消息失败
+            except ActionFailed:
                 continue
         
     # 拍卖会结算
@@ -1621,8 +1621,7 @@ async def creat_auction_(bot: Bot, event: GroupMessageEvent):
     for idx, (auction_id, user_id, group_id, item_type, final_price, quantity) in enumerate(auction_results):
         item_name = items.get_data_by_item_id(auction_id)['name']
         final_user_info = sql_message.get_user_info_with_id(user_id)
-        print(auction_id)
-        if user_id:
+        if user_id and (final_user_info['stone'] >= (int(final_price) * quantity)):
             sql_message.update_ls(user_id, int(final_price) * quantity, 2)
             sql_message.send_back(user_id, auction_id, item_name, item_type, quantity)
             end_msg += f"{idx + 1}号拍卖品：{item_name}x{quantity}由群{group_id}的{final_user_info['user_name']}道友成功拍下\n"
@@ -1667,7 +1666,7 @@ async def offer_auction_(bot: Bot, event: GroupMessageEvent, args: Message = Com
             await bot.send_group_msg(group_id=int(group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(group_id), message=msg)
-        await creat_auction.finish()
+        await offer_auction.finish()
 
     if group_id not in groups:
         msg = f"本群尚未开启拍卖会功能，请联系管理员开启！"
@@ -1676,7 +1675,7 @@ async def offer_auction_(bot: Bot, event: GroupMessageEvent, args: Message = Com
             await bot.send_group_msg(group_id=int(group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(group_id), message=msg)
-        await creat_auction.finish()
+        await offer_auction.finish()
 
     if not auction:
         msg = f"本群不存在拍卖会，请等待拍卖会开启！"
@@ -1685,7 +1684,7 @@ async def offer_auction_(bot: Bot, event: GroupMessageEvent, args: Message = Com
             await bot.send_group_msg(group_id=int(group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(group_id), message=msg)
-        await creat_auction.finish()
+        await offer_auction.finish()
 
     price = args.extract_plain_text().strip()
     try:
@@ -1697,7 +1696,7 @@ async def offer_auction_(bot: Bot, event: GroupMessageEvent, args: Message = Com
             await bot.send_group_msg(group_id=int(group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(group_id), message=msg)
-        await creat_auction.finish()
+        await offer_auction.finish()
 
     now_price = auction['now_price']
     min_price = int(now_price * 0.05)  # 最低加价5%
@@ -1708,7 +1707,7 @@ async def offer_auction_(bot: Bot, event: GroupMessageEvent, args: Message = Com
             await bot.send_group_msg(group_id=int(group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(group_id), message=msg)
-        await creat_auction.finish()
+        await offer_auction.finish()
     if price - now_price < min_price:
         msg = f"拍卖不得少于当前竞拍价的5%，目前最少加价为：{min_price}灵石，目前竞拍价为：{now_price}!"
         if XiuConfig().img:
@@ -1716,7 +1715,7 @@ async def offer_auction_(bot: Bot, event: GroupMessageEvent, args: Message = Com
             await bot.send_group_msg(group_id=int(group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(group_id), message=msg)
-        await creat_auction.finish()
+        await offer_auction.finish()
 
     auction_offer_flag = True  # 有人拍卖
     auction_offer_time_count += 1
@@ -1758,7 +1757,7 @@ async def offer_auction_(bot: Bot, event: GroupMessageEvent, args: Message = Com
             await bot.send_group_msg(group_id=int(group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(group_id), message=msg)
-        await creat_auction.finish()
+        await offer_auction.finish()
 
 
 @auction_added.handle(parameterless=[Cooldown(1.4, isolate_level=CooldownIsolateLevel.GROUP)])

@@ -63,7 +63,6 @@ user_leveluprate = on_command('我的突破概率', aliases={'突破概率'}, pr
 user_stamina = on_command('我的体力', aliases={'体力'}, priority=5, permission=GROUP, block=True)
 xiuxian_updata_level = on_fullmatch('修仙适配', priority=15, permission=GROUP, block=True)
 xiuxian_uodata_data = on_fullmatch('更新记录', priority=15, permission=GROUP, block=True)
-lunhui = on_fullmatch('轮回重修帮助', priority=15, permission=GROUP, block=True)
 level_help = on_command('境界帮助', aliases={"灵根帮助", "品阶帮助"}, priority=15, permission=GROUP,block=True)
 
 __xiuxian_notes__ = f"""
@@ -1238,7 +1237,7 @@ async def cz_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
         give_user = sql_message.get_user_info_with_id(give_qq)
         if give_user:
             sql_message.send_back(give_qq, goods_id, goods_name, goods_type, goods_num, 1)
-            msg = f"{give_user['user_name']}道友获得了系统赠送的{goods_name}个{goods_num}！"
+            msg = f"{give_user['user_name']}道友获得了系统赠送的{goods_num}个{goods_name}！"
             if XiuConfig().img:
                 pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -1257,7 +1256,7 @@ async def cz_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
         all_users = sql_message.get_all_user_id()
         for user_id in all_users:
             sql_message.send_back(user_id, goods_id, goods_name, goods_type, goods_num, 1)  # 给每个用户发送物品
-        msg = f"全服通告：赠送所有用户{goods_name}{goods_num}个,请注意查收！"
+        msg = f"全服通告：赠送所有用户{goods_num}个{goods_name},请注意查收！"
         enabled_groups = JsonConfig().get_enabled_groups()
         for group_id in enabled_groups:
             bot = await assign_bot_group(group_id=group_id)
@@ -1285,7 +1284,7 @@ async def gmm_command_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-        await gm_command.finish()
+        await gmm_command.finish()
 
     for arg in args:
         if arg.type == "at":
@@ -1329,7 +1328,7 @@ async def rob_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Command
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-        await give_stone.finish()
+        await rob_stone.finish()
     user_id = user_info["user_id"]
     user_mes = sql_message.get_user_info_with_id(user_id)
     give_qq = None  # 艾特的时候存到这里

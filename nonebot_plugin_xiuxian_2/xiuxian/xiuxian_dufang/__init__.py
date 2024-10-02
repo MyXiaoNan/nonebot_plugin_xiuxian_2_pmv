@@ -7,8 +7,6 @@ from nonebot.permission import SUPERUSER
 from nonebot.adapters.onebot.v11 import (
     Bot,
     GROUP,
-    Message,
-    MessageEvent,
     GroupMessageEvent,
     MessageSegment
 )
