@@ -676,6 +676,14 @@ async def in_closing_(bot: Bot, event: GroupMessageEvent):
         await out_closing.finish()
     user_id = user_info['user_id']
     is_type, msg = check_user_type(user_id, 0)
+    if user_info['root_type'] == '伪灵根':
+        msg = "器师无法闭关！"
+        if XiuConfig().img:
+            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
+            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+        else:
+            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await in_closing.finish()
     if is_type:  # 符合
         sql_message.in_closing(user_id, user_type)
         msg = "进入闭关状态，如需出关，发送【出关】！"
