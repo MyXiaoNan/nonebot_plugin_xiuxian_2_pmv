@@ -1577,12 +1577,11 @@ def final_user_data(user_data, columns):
     user_dict = dict(zip((col[0] for col in columns), user_data))
     
     # 通过字段名称获取相应的值
-    impart_data = xiuxian_impart.get_user_info_with_id(user_dict['user_id'])
-    if impart_data:
-        pass
-    else:
+    impart_data = xiuxian_impart.get_user_impart_info_with_id(user_dict['user_id'])
+    if impart_data is None:
         xiuxian_impart._create_user(user_dict['user_id'])
-    impart_data = xiuxian_impart.get_user_info_with_id(user_dict['user_id'])
+  
+    impart_data = xiuxian_impart.get_user_impart_info_with_id(user_dict['user_id'])
     impart_hp_per = impart_data['impart_hp_per'] if impart_data is not None else 0
     impart_mp_per = impart_data['impart_mp_per'] if impart_data is not None else 0
     impart_atk_per = impart_data['impart_atk_per'] if impart_data is not None else 0
@@ -1723,7 +1722,7 @@ class XIUXIAN_IMPART_BUFF:
             c.execute(sql, (user_id,))
             self.conn.commit()
 
-    def get_user_info_with_id(self, user_id):
+    def get_user_impart_info_with_id(self, user_id):
         """根据USER_ID获取用户impart_buff信息"""
         cur = self.conn.cursor()
         sql = f"select * from xiuxian_impart WHERE user_id=?"
@@ -1936,7 +1935,7 @@ class XIUXIAN_IMPART_BUFF:
         self.conn.commit()
 
     def add_impart_exp_day(self, impart_num, user_id):
-        """add  impart_exp_day"""
+        """add impart_exp_day"""
         cur = self.conn.cursor()
         sql = "UPDATE xiuxian_impart SET exp_day=exp_day+? WHERE user_id=?"
         cur.execute(sql, (impart_num, user_id))
@@ -1944,7 +1943,7 @@ class XIUXIAN_IMPART_BUFF:
         return True
 
     def use_impart_exp_day(self, impart_num, user_id):
-        """use  impart_exp_day"""
+        """use impart_exp_day"""
         cur = self.conn.cursor()
         sql = "UPDATE xiuxian_impart SET exp_day=exp_day-? WHERE user_id=?"
         cur.execute(sql, (impart_num, user_id))
@@ -1953,6 +1952,7 @@ class XIUXIAN_IMPART_BUFF:
 
 
 def leave_harm_time(user_id):
+    """重伤恢复时间"""
     hp_speed = 25
     user_mes = sql_message.get_user_info_with_id(user_id)
     level = user_mes['level']
@@ -1972,11 +1972,11 @@ def leave_harm_time(user_id):
 
 
 async def impart_check(user_id):
-    if XIUXIAN_IMPART_BUFF().get_user_info_with_id(user_id) is None:
+    if XIUXIAN_IMPART_BUFF().get_user_impart_info_with_id(user_id) is None:
         XIUXIAN_IMPART_BUFF()._create_user(user_id)
-        return XIUXIAN_IMPART_BUFF().get_user_info_with_id(user_id)
+        return XIUXIAN_IMPART_BUFF().get_user_impart_info_with_id(user_id)
     else:
-        return XIUXIAN_IMPART_BUFF().get_user_info_with_id(user_id)
+        return XIUXIAN_IMPART_BUFF().get_user_impart_info_with_id(user_id)
     
 xiuxian_impart = XIUXIAN_IMPART_BUFF()
 
@@ -2029,6 +2029,7 @@ class UserBuffDate:
         return get_user_buff(self.user_id)
 
     def get_user_main_buff_data(self):
+        """获取用户主功法数据"""
         main_buff_data = None
         buff_info = self.BuffInfo
         main_buff_id = buff_info.get('main_buff', 0)
@@ -2037,6 +2038,7 @@ class UserBuffDate:
         return main_buff_data
     
     def get_user_sub_buff_data(self):
+        """获取用户辅修功法数据"""
         sub_buff_data = None
         buff_info = self.BuffInfo
         sub_buff_id = buff_info.get('sub_buff', 0)
@@ -2045,6 +2047,7 @@ class UserBuffDate:
         return sub_buff_data
 
     def get_user_sec_buff_data(self):
+        """获取用户神通数据"""
         sec_buff_data = None
         buff_info = self.BuffInfo
         sec_buff_id = buff_info.get('sec_buff', 0)
@@ -2053,6 +2056,7 @@ class UserBuffDate:
         return sec_buff_data
 
     def get_user_weapon_data(self):
+        """获取用户法器数据"""
         weapon_data = None
         buff_info = self.BuffInfo
         weapon_id = buff_info.get('faqi_buff', 0)
@@ -2061,6 +2065,7 @@ class UserBuffDate:
         return weapon_data
 
     def get_user_armor_buff_data(self):
+        """获取用户防具数据"""
         armor_buff_data = None
         buff_info = self.BuffInfo
         armor_buff_id = buff_info.get('armor_buff', 0)
@@ -2111,6 +2116,7 @@ def get_armor_info_msg(armor_id, armor_info=None):
 
 
 def get_main_info_msg(id):
+    """获取一个主功法信息msg"""
     mainbuff = items.get_data_by_item_id(id)
     hpmsg = f"提升{round(mainbuff['hpbuff'] * 100, 0)}%气血" if mainbuff['hpbuff'] != 0 else ''
     mpmsg = f"，提升{round(mainbuff['mpbuff'] * 100, 0)}%真元" if mainbuff['mpbuff'] != 0 else ''
@@ -2135,6 +2141,7 @@ def get_main_info_msg(id):
     return mainbuff, msg
 
 def get_sub_info_msg(id): #辅修功法8
+    """获取辅修信息msg"""
     subbuff = items.get_data_by_item_id(id)
     submsg = ""
     if subbuff['buff_type'] == '1':

@@ -299,6 +299,7 @@ async def qc_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
         if arg.type == "at":
             give_qq = arg.data.get("qq", "")
     user2 = sql_message.get_user_real_info(give_qq)
+    print(user1, user2)
     if give_qq:
         if give_qq == str(user_id):
             msg = "道友不会左右互搏之术！"
@@ -316,8 +317,8 @@ async def qc_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
                    "攻击": None, "真元": None, '会心': None, '防御': 0, 'exp': 0}
         
 
-        user1_weapon_data = UserBuffDate(user_id).get_user_weapon_data()
-        user1_armor_crit_buff = UserBuffDate(user_id).get_user_armor_buff_data()
+        user1_weapon_data = UserBuffDate(user_id).get_user_weapon_data() #玩家1武器会心
+        user1_armor_crit_buff = UserBuffDate(user_id).get_user_armor_buff_data() #玩家1防具会心
         user1_main_data = UserBuffDate(user_id).get_user_main_buff_data() #玩家1功法会心
         
         if  user1_main_data != None: #玩家1功法会心
@@ -330,15 +331,15 @@ async def qc_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
         else:
             armor_crit_buff = 0
             
-        if user1_weapon_data is not None:
+        if user1_weapon_data is not None: #玩家1武器会心
             player1['会心'] = int(((user1_weapon_data['crit_buff']) + (armor_crit_buff) + (main_crit_buff))* 100)
         else:
             player1['会心'] = (armor_crit_buff + main_crit_buff) * 100
 
         
-        user2_weapon_data = UserBuffDate(user2['user_id']).get_user_weapon_data()
-        user2_armor_crit_buff = UserBuffDate(user_id).get_user_armor_buff_data()
-        user2_main_data = UserBuffDate(user_id).get_user_main_buff_data() #玩家2功法会心
+        user2_weapon_data = UserBuffDate(user2['user_id']).get_user_weapon_data() #玩家2武器会心
+        user2_armor_crit_buff = UserBuffDate(user2['user_id']).get_user_armor_buff_data() #玩家2防具会心
+        user2_main_data = UserBuffDate(user2['user_id']).get_user_main_buff_data() #玩家2功法会心
         
         if  user2_main_data != None: #玩家2功法会心
             main_crit_buff2 = user2_main_data['crit_buff']
@@ -350,10 +351,11 @@ async def qc_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
         else:
             armor_crit_buff2 = 0
             
-        if user2_weapon_data is not None:
+        if user2_weapon_data is not None: #玩家2武器会心
             player2['会心'] = int(((user2_weapon_data['crit_buff']) + (armor_crit_buff2) + (main_crit_buff2) * 100))
         else:
             player2['会心'] = (armor_crit_buff2 + main_crit_buff2) * 100
+
         player1['user_id'] = user1['user_id']
         player1['道号'] = user1['user_name']
         player1['气血'] = user1['hp']
@@ -443,8 +445,8 @@ async def two_exp_(bot: Bot, event: GroupMessageEvent, args: Message = CommandAr
                 limt_2 = two_exp_cd.find_user(user_2['user_id'])
                 sql_message.update_last_check_info_time(user_1['user_id']) # 更新查看修仙信息时间
                 # 加入传承
-                impart_data_1 = xiuxian_impart.get_user_info_with_id(user_1['user_id'])
-                impart_data_2 = xiuxian_impart.get_user_info_with_id(user_2['user_id'])
+                impart_data_1 = xiuxian_impart.get_user_impart_info_with_id(user_1['user_id'])
+                impart_data_2 = xiuxian_impart.get_user_impart_info_with_id(user_2['user_id'])
                 impart_two_exp_1 = impart_data_1['impart_two_exp'] if impart_data_1 is not None else 0
                 impart_two_exp_2 = impart_data_2['impart_two_exp'] if impart_data_2 is not None else 0
                 
@@ -762,7 +764,7 @@ async def out_closing_(bot: Bot, event: GroupMessageEvent):
             # 洞天福地为加法
         )  # 本次闭关获取的修为
         # 计算传承增益
-        impart_data = xiuxian_impart.get_user_info_with_id(user_id)
+        impart_data = xiuxian_impart.get_user_impart_info_with_id(user_id)
         impart_exp_up = impart_data['impart_exp_up'] if impart_data is not None else 0
         exp = int(exp * (1 + impart_exp_up))
         if exp >= user_get_exp_max:
@@ -910,7 +912,7 @@ async def mind_state_(bot: Bot, event: GroupMessageEvent):
     main_buff_rate_buff = main_buff_data['ratebuff'] if main_buff_data is not None else 0
     main_hp_buff = main_buff_data['hpbuff'] if main_buff_data is not None else 0
     main_mp_buff = main_buff_data['mpbuff'] if main_buff_data is not None else 0
-    impart_data = xiuxian_impart.get_user_info_with_id(user_id)
+    impart_data = xiuxian_impart.get_user_impart_info_with_id(user_id)
     impart_hp_per = impart_data['impart_hp_per'] if impart_data is not None else 0
     impart_mp_per = impart_data['impart_mp_per'] if impart_data is not None else 0
     impart_know_per = impart_data['impart_know_per'] if impart_data is not None else 0
@@ -1032,7 +1034,7 @@ async def my_exp_num_(bot: Bot, event: GroupMessageEvent):
         await my_exp_num.finish()
     user_id = user_info['user_id']
     limt = two_exp_cd.find_user(user_id)
-    impart_data = xiuxian_impart.get_user_info_with_id(user_id)
+    impart_data = xiuxian_impart.get_user_impart_info_with_id(user_id)
     impart_two_exp = impart_data['impart_two_exp'] if impart_data is not None else 0
     
     main_two_data = UserBuffDate(user_id).get_user_main_buff_data()

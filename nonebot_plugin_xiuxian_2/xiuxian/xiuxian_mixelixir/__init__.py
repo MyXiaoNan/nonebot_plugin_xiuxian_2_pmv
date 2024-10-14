@@ -200,7 +200,7 @@ async def yaocai_get_(bot: Bot, event: GroupMessageEvent):
         if timedeff >= round(GETCONFIG['time_cost'] * (1 - (GETCONFIG['加速基数'] * mix_elixir_info['药材速度'])), 2):
             yaocai_id_list = items.get_random_id_list_by_rank_and_item_type(convert_rank(user_info['level'])[0], ['药材'])
             # 加入传承
-            impart_data = xiuxian_impart.get_user_info_with_id(user_id)
+            impart_data = xiuxian_impart.get_user_impart_info_with_id(user_id)
             impart_reap_per = impart_data['impart_reap_per'] if impart_data is not None else 0
             #功法灵田收取加成
             main_reap = UserBuffDate(user_id).get_user_main_buff_data()
@@ -502,7 +502,7 @@ async def mix_elixir_(bot: Bot, event: GroupMessageEvent, mode: str = EventPlain
                 mix_elixir_info = get_player_info(user_id, 'mix_elixir_info')
                 goods_info = Items().get_data_by_item_id(id)
                 # 加入传承
-                impart_data = xiuxian_impart.get_user_info_with_id(user_id)
+                impart_data = xiuxian_impart.get_user_impart_info_with_id(user_id)
                 impart_mix_per = impart_data['impart_mix_per'] if impart_data is not None else 0
                 #功法炼丹数加成
                 main_dan_data = UserBuffDate(user_id).get_user_main_buff_data()

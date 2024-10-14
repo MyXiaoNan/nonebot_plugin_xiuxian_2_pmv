@@ -251,7 +251,7 @@ async def impart_draw_(bot: Bot, event: GroupMessageEvent):
                     await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
                 else:
                     await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-                await impart_draw.finish()
+            await impart_draw.finish()
                 
 
 @impart_back.handle(parameterless=[Cooldown(at_sender=False)])

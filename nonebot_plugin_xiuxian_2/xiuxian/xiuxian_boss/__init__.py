@@ -427,12 +427,12 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
     userinfo = sql_message.get_user_real_info(user_id)
     user_weapon_data = UserBuffDate(userinfo['user_id']).get_user_weapon_data()
 
-    impart_data = xiuxian_impart.get_user_info_with_id(user_id)
+    impart_data = xiuxian_impart.get_user_impart_info_with_id(user_id)
     boss_atk = impart_data['boss_atk'] if impart_data['boss_atk'] is not None else 0
     user_armor_data = UserBuffDate(userinfo['user_id']).get_user_armor_buff_data() #boss战防具会心
     user_main_data = UserBuffDate(userinfo['user_id']).get_user_main_buff_data() #boss战功法会心
     user1_sub_buff_data = UserBuffDate(userinfo['user_id']).get_user_sub_buff_data() #boss战辅修功法信息
-    integral_buff = user1_sub_buff_data['integral'] if user1_sub_buff_data is not None else 0
+    integral_buff = user1_sub_buff_data['integral'] if user1_sub_buff_data is not None else 0 #boss战积分加成
     exp_buff = user1_sub_buff_data['exp'] if user1_sub_buff_data is not None else 0
     
     if  user_main_data != None: #boss战功法会心
@@ -445,10 +445,11 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
     else:
         armor_crit_buff = 0
     
-    if user_weapon_data != None:
+    if user_weapon_data != None: #boss战武器会心
         player['会心'] = int(((user_weapon_data['crit_buff']) + (armor_crit_buff) + (main_crit_buff)) * 100)
     else:
         player['会心'] = (armor_crit_buff + main_crit_buff) * 100
+
     player['user_id'] = userinfo['user_id']
     player['道号'] = userinfo['user_name']
     player['气血'] = userinfo['hp']

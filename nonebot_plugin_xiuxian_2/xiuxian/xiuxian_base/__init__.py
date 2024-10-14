@@ -1402,7 +1402,7 @@ async def rob_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Command
                         await bot.send_group_msg(group_id=int(send_group_id), message=msg)
                     await rob_stone.finish()
                     
-                impart_data_1 = xiuxian_impart.get_user_info_with_id(user_id)
+                impart_data_1 = xiuxian_impart.get_user_impart_info_with_id(user_id)
                 player1['user_id'] = user_info['user_id']
                 player1['道号'] = user_info['user_name']
                 player1['气血'] = user_info['hp']
@@ -1420,7 +1420,7 @@ async def rob_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Command
                     def_buff = 0
                 player1['防御'] = def_buff
 
-                impart_data_2 = xiuxian_impart.get_user_info_with_id(user_2['user_id'])
+                impart_data_2 = xiuxian_impart.get_user_impart_info_with_id(user_2['user_id'])
                 player2['user_id'] = user_2['user_id']
                 player2['道号'] = user_2['user_name']
                 player2['气血'] = user_2['hp']

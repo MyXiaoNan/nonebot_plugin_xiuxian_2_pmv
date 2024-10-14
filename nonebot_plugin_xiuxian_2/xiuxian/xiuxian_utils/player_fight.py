@@ -27,12 +27,12 @@ def Player_fight(player1: dict, player2: dict, type_in, bot_id):
     数据示例：
     {"user_id": None,"道号": None, "气血": None, "攻击": None, "真元": None, '会心':None, 'exp':None}
     """
-    user1_buff_date = UserBuffDate(player1['user_id'])  # 1号的buff信息
-    user1_main_buff_data = user1_buff_date.get_user_main_buff_data()
+    user1_buff_data = UserBuffDate(player1['user_id'])  # 1号的buff信息
+    user1_main_buff_data = user1_buff_data.get_user_main_buff_data()
     user1_hp_buff = user1_main_buff_data['hpbuff'] if user1_main_buff_data is not None else 0
     user1_mp_buff = user1_main_buff_data['mpbuff'] if user1_main_buff_data is not None else 0
     try:
-        user_1_impart_data = xiuxian_impart.get_user_info_with_id(player1['user_id'])
+        user_1_impart_data = xiuxian_impart.get_user_impart_info_with_id(player1['user_id'])
     except:
         user_1_impart_data = None
     user_1_impart_hp = user_1_impart_data['impart_hp_per'] if user_1_impart_data is not None else 0
@@ -40,39 +40,39 @@ def Player_fight(player1: dict, player2: dict, type_in, bot_id):
     user1_hp_buff = user1_hp_buff + user_1_impart_hp
     user1_mp_buff = user1_mp_buff + user_1_impart_mp
 
-    user2_buff_date = UserBuffDate(player2['user_id'])  # 2号的buff信息
-    user2_main_buff_data = user2_buff_date.get_user_main_buff_data()
+    user2_buff_data = UserBuffDate(player2['user_id'])  # 2号的buff信息
+    user2_main_buff_data = user2_buff_data.get_user_main_buff_data()
     user2_hp_buff = user2_main_buff_data['hpbuff'] if user2_main_buff_data is not None else 0
     user2_mp_buff = user2_main_buff_data['mpbuff'] if user2_main_buff_data is not None else 0
     try:
-        user_2_impart_data = xiuxian_impart.get_user_info_with_id(player2['user_id'])
+        user_2_impart_data = xiuxian_impart.get_user_impart_info_with_id(player2['user_id'])
     except:
         user_2_impart_data = None
-    user_2_impart_hp = user_1_impart_data['impart_hp_per'] if user_2_impart_data is not None else 0
-    user_2_impart_mp = user_1_impart_data['impart_mp_per'] if user_2_impart_data is not None else 0
+    user_2_impart_hp = user_2_impart_data['impart_hp_per'] if user_2_impart_data is not None else 0
+    user_2_impart_mp = user_2_impart_data['impart_mp_per'] if user_2_impart_data is not None else 0
     user2_hp_buff = user2_hp_buff + user_2_impart_hp
     user2_mp_buff = user2_mp_buff + user_2_impart_mp
 
     player1_skil_open = False
     player2_skil_open = False
-    user1_skill_date = None
-    if user1_buff_date.get_user_sec_buff_data() is not None:
-        user1_skill_date = user1_buff_date.get_user_sec_buff_data()
+    user1_skill_data = None
+    if user1_buff_data.get_user_sec_buff_data() is not None:
+        user1_skill_data = user1_buff_data.get_user_sec_buff_data()
         player1_skil_open = True
     user2_skill_date = None
-    if user2_buff_date.get_user_sec_buff_data() is not None:
-        user2_skill_date = user2_buff_date.get_user_sec_buff_data()
+    if user2_buff_data.get_user_sec_buff_data() is not None:
+        user2_skill_date = user2_buff_data.get_user_sec_buff_data()
         player2_skil_open = True
         
     player1_sub_open = False #辅修功法14
     player2_sub_open = False
     user1_sub_buff_date = {}
     user2_sub_buff_date = {}
-    if user1_buff_date.get_user_sub_buff_data() != None:
-        user1_sub_buff_date = user1_buff_date.get_user_sub_buff_data()
+    if user1_buff_data.get_user_sub_buff_data() != None:
+        user1_sub_buff_date = user1_buff_data.get_user_sub_buff_data()
         player1_sub_open = True
-    if user2_buff_date.get_user_sub_buff_data() != None:
-        user2_sub_buff_date = user2_buff_date.get_user_sub_buff_data()
+    if user2_buff_data.get_user_sub_buff_data() != None:
+        user2_sub_buff_date = user2_buff_data.get_user_sub_buff_data()
         player2_sub_open = True    
 
     play_list = []
@@ -111,12 +111,12 @@ def Player_fight(player1: dict, player2: dict, type_in, bot_id):
             if user1_turn_skip:  # 无需跳过回合
                 play_list.append(get_msg_dict(player1, player1_init_hp, f"☆------{player1['道号']}的回合------☆"))
                 user1_hp_cost, user1_mp_cost, user1_skill_type, skill_rate = get_skill_hp_mp_data(player1,
-                                                                                                  user1_skill_date)
+                                                                                                  user1_skill_data)
                 if player1_turn_cost == 0:  # 没有持续性技能生效
                     player1_js = player1_f_js  # 没有持续性技能生效,减伤恢复
                     if isEnableUserSikll(player1, user1_hp_cost, user1_mp_cost, player1_turn_cost,
                                          skill_rate):  # 满足技能要求，#此处为技能的第一次释放
-                        skill_msg, user1_skill_sh, player1_turn_cost = get_skill_sh_data(player1, user1_skill_date)
+                        skill_msg, user1_skill_sh, player1_turn_cost = get_skill_sh_data(player1, user1_skill_data)
                         if user1_skill_type == 1:  # 直接伤害类技能
                             play_list.append(get_msg_dict(player1, player1_init_hp, skill_msg))
                             player1 = calculate_skill_cost(player1, user1_hp_cost, user1_mp_cost)
@@ -132,7 +132,7 @@ def Player_fight(player1: dict, player2: dict, type_in, bot_id):
                                 get_msg_dict(player1, player1_init_hp, f"{player2['道号']}剩余血量{player2['气血']}"))
 
                         elif user1_skill_type == 3:  # buff类技能
-                            user1_buff_type = user1_skill_date['bufftype']
+                            user1_buff_type = user1_skill_data['bufftype']
                             if user1_buff_type == 1:  # 攻击类buff
                                 isCrit, player1_sh = get_turnatk(player1, user1_skill_sh,
                                                                  user1_battle_buff_date)  # 判定是否暴击 辅修功法14
@@ -185,7 +185,7 @@ def Player_fight(player1: dict, player2: dict, type_in, bot_id):
                 else:  # 持续性技能判断,不是第一次
                     if user1_skill_type == 2:  # 持续性伤害技能
                         player1_turn_cost = player1_turn_cost - 1
-                        skill_msg = get_persistent_skill_msg(player1['道号'], user1_skill_date['name'], user1_skill_sh,
+                        skill_msg = get_persistent_skill_msg(player1['道号'], user1_skill_data['name'], user1_skill_sh,
                                                              player1_turn_cost)
                         play_list.append(get_msg_dict(player1, player1_init_hp, skill_msg))
                         isCrit, player1_sh = get_turnatk(player1, 0, user1_battle_buff_date)  # 判定是否暴击 辅修功法14
@@ -199,7 +199,7 @@ def Player_fight(player1: dict, player2: dict, type_in, bot_id):
                         play_list.append(get_msg_dict(player1, player1_init_hp, f"{player2['道号']}剩余血量{player2['气血']}"))
 
                     elif user1_skill_type == 3:  # buff类技能
-                        user1_buff_type = user1_skill_date['bufftype']
+                        user1_buff_type = user1_skill_data['bufftype']
                         if user1_buff_type == 1:  # 攻击类buff
                             isCrit, player1_sh = get_turnatk(player1, user1_skill_sh,user1_battle_buff_date)  # 判定是否暴击 辅修功法14
 
@@ -210,7 +210,7 @@ def Player_fight(player1: dict, player2: dict, type_in, bot_id):
 
                             player1_turn_cost = player1_turn_cost - 1
                             play_list.append(get_msg_dict(player1, player1_init_hp,
-                                                          f"{user1_skill_date['name']}增伤剩余:{player1_turn_cost}回合"))
+                                                          f"{user1_skill_data['name']}增伤剩余:{player1_turn_cost}回合"))
                             play_list.append(
                                 get_msg_dict(player1, player1_init_hp, msg1.format(player1['道号'], player1_sh)))
                             player2['气血'] = player2['气血'] - int(player1_sh * player2_js)  # 玩家1的伤害 * 玩家2的减伤
@@ -226,7 +226,7 @@ def Player_fight(player1: dict, player2: dict, type_in, bot_id):
 
                             player1_turn_cost = player1_turn_cost - 1
                             play_list.append(get_msg_dict(player1, player1_init_hp,
-                                                          f"{user1_skill_date['name']}减伤剩余{player1_turn_cost}回合"))
+                                                          f"{user1_skill_data['name']}减伤剩余{player1_turn_cost}回合"))
                             play_list.append(
                                 get_msg_dict(player1, player1_init_hp, msg1.format(player1['道号'], player1_sh)))
                             player2['气血'] = player2['气血'] - int(player1_sh * player2_js)  # 玩家1的伤害 * 玩家2的减伤
@@ -236,7 +236,7 @@ def Player_fight(player1: dict, player2: dict, type_in, bot_id):
 
                     elif user1_skill_type == 4:  # 封印类技能
                         player1_turn_cost = player1_turn_cost - 1
-                        skill_msg = get_persistent_skill_msg(player1['道号'], user1_skill_date['name'], user1_skill_sh,
+                        skill_msg = get_persistent_skill_msg(player1['道号'], user1_skill_data['name'], user1_skill_sh,
                                                              player1_turn_cost)
                         play_list.append(get_msg_dict(player1, player1_init_hp, skill_msg))
                         isCrit, player1_sh = get_turnatk(player1, 0, user1_battle_buff_date)  # 判定是否暴击 辅修功法14
@@ -587,7 +587,7 @@ async def Boss_fight(player1: dict, boss: dict, type_in=2, bot_id=0):
         stone_buff = user1_sub_buff_data['stone'] if user1_sub_buff_data is not None else 0
         integral_buff = user1_sub_buff_data['integral'] if user1_sub_buff_data is not None else 0
         sub_break = user1_sub_buff_data['break'] if user1_sub_buff_data is not None else 0
-    impart_data = xiuxian_impart.get_user_info_with_id(player1['user_id'])
+    impart_data = xiuxian_impart.get_user_impart_info_with_id(player1['user_id'])
     impart_hp_per = impart_data['impart_hp_per'] if impart_data is not None else 0
     impart_mp_per = impart_data['impart_mp_per'] if impart_data is not None else 0
     user1_hp_buff = user1_hp_buff + impart_hp_per
@@ -1466,12 +1466,12 @@ def get_turnatk(player, buff=0, user_battle_buff_date={}): #辅修功法14
     zwsh = 0
     try:
         user_id = player['user_id']
-        impart_data = xiuxian_impart.get_user_info_with_id(user_id)
+        impart_data = xiuxian_impart.get_user_impart_info_with_id(user_id)
         user_buff_data = UserBuffDate(user_id)
         weapon_critatk_data = UserBuffDate(user_id).get_user_weapon_data() #武器会心伤害
         weapon_zw = UserBuffDate(user_id).get_user_weapon_data()
         main_zw = user_buff_data.get_user_main_buff_data()
-        # 专武伤害，其实叫伴生武器伤害更好。。。
+        # 专武伤害，其实叫伴生武器更好。。。
         zwsh = 0.5 if main_zw["ew"] != 0 and weapon_zw["zw"] != 0 and main_zw["ew"] == weapon_zw["zw"] else 0
         
         
@@ -1532,6 +1532,7 @@ def isEnableUserSikll(player, hpcost, mpcost, turncost, skillrate):  # 是否满
 
 
 def get_skill_hp_mp_data(player, secbuffdata):
+    """获取技能消耗气血、真元、技能类型、技能释放概率"""
     user_id = player['user_id']
     weapon_data = UserBuffDate(user_id).get_user_weapon_data()
     if weapon_data is not None and "mp_buff" in weapon_data:
@@ -1659,48 +1660,55 @@ def after_atk_sub_buff_handle(player1_sub_open, player1, user1_main_buff_data, s
     if not player1_sub_open:
         return player1, player2, msg
 
+    impart_player1_data = xiuxian_impart.get_user_impart_info_with_id(player1['user_id'])
+    impart_hp_per_1 = impart_player1_data['impart_hp_per'] if impart_player1_data is not None else 0
+    impart_mp_per_1 = impart_player1_data['impart_mp_per'] if impart_player1_data is not None else 0
+
+    if 'max_hp' not in player1:
+        exp = int(player1['exp'])
+        player1['max_hp'] = int(exp / 2) * (1 + user1_main_buff_data.get('hpbuff', 0) + impart_hp_per_1 if user1_main_buff_data is not None else 0)
+        player1['max_mp'] = exp * (1 + user1_main_buff_data.get('mpbuff', 0) + impart_mp_per_1 if user1_main_buff_data is not None else 0)
+
     buff_value = int(subbuffdata1['buff'])
     buff_tow = int(subbuffdata1['buff2'])
     buff_type = subbuffdata1['buff_type']
-    exp = int(player1['exp'])
-    max_hp = int(exp / 2) * (1 + user1_main_buff_data.get('hpbuff', 0) if user1_main_buff_data is not None else 0)
-    max_mp = exp * (1 + user1_main_buff_data.get('mpbuff', 0) if user1_main_buff_data is not None else 0)
-    
+
     if buff_type == '4':
-        restore_health = int(exp/2) * (1 + user1_main_buff_data['hpbuff']) * buff_value // 100
+        restore_health = int(player1['exp'] / 2) * (1 + user1_main_buff_data['hpbuff'] + impart_hp_per_1) * buff_value // 100
         player1['气血'] += restore_health
-        player1['气血'] = min(player1['气血'], max_hp)
+        player1['气血'] = min(player1['气血'], player1['max_hp'])
         msg = "回复气血:" + str(restore_health)
     elif buff_type == '5':
-        restore_mana = exp * (1 + user1_main_buff_data['mpbuff']) * buff_value // 100
+        restore_mana = player1['exp'] * (1 + user1_main_buff_data['mpbuff'] + impart_mp_per_1) * buff_value // 100
         player1['真元'] += restore_mana
-        player1['真元'] = min(player1['真元'], max_mp)
+        player1['真元'] = min(player1['真元'], player1['max_mp'])
         msg = "回复真元:" + str(restore_mana)
     elif buff_type == '6':
         health_stolen = (damage1 * (buff_value + random_xx) // 100) * (1 - boss_xx)
         player1['气血'] += health_stolen
-        player1['气血'] = min(player1['气血'], max_hp)
+        player1['气血'] = min(player1['气血'], player1['max_hp'])
         msg = "吸取气血:" + str(health_stolen)
     elif buff_type == '7':
         mana_stolen = (damage1 * buff_value // 100) * (1 - boss_xl)
         player1['真元'] += mana_stolen
-        player1['真元'] = min(player1['真元'], max_mp)
+        player1['真元'] = min(player1['真元'], player1['max_mp'])
         msg = "吸取真元:" + str(mana_stolen)
     elif buff_type == '8':
         poison_damage = player2['气血'] * buff_value // 100
         player2['气血'] -= poison_damage
+        player2['气血'] = max(player2['气血'], player2['max_hp'])
         msg = "对手中毒消耗血量:" + str(poison_damage)
-        
     elif buff_type == '9':
         health_stolen = (damage1 * (buff_value + random_xx) // 100) * (1 - boss_xx)
         mana_stolen = (damage1 * buff_tow // 100) * (1 - boss_xl)
         player1['气血'] += health_stolen
-        player1['气血'] = min(player1['气血'], max_hp)
+        player1['气血'] = min(player1['气血'], player1['max_hp'])
         player1['真元'] += mana_stolen
-        player1['真元'] = min(player1['真元'], max_mp)
+        player1['真元'] = min(player1['真元'], player1['max_mp'])
         msg = f"吸取气血: {str(health_stolen)}, 吸取真元: {str(mana_stolen)}"
 
     return player1, player2, msg
+
 
 
 class UserBattleBuffDate: #辅修功法14
