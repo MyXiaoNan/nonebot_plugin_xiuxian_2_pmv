@@ -844,7 +844,7 @@ async def goods_re_root_(bot: Bot, event: GroupMessageEvent, args: Message = Com
             num = int(args[1])
     except:
             num = 1 
-    price = int(6000000 - get_item_msg_rank(goods_id) * 100000) * num
+    price = int((convert_rank('江湖好手')[0] + 5) * 100000 - get_item_msg_rank(goods_id) * 100000) * num
     if price <= 0:
         msg = f"物品：{goods_name}炼金失败，凝聚{price}枚灵石，记得通知晓楠！"
         if XiuConfig().img:
