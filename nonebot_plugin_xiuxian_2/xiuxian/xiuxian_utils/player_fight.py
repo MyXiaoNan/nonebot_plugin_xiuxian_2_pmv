@@ -50,8 +50,8 @@ def Player_fight(player1: dict, player2: dict, type_in, bot_id):
         user_2_impart_data = None
     user_2_impart_hp = user_1_impart_data['impart_hp_per'] if user_2_impart_data is not None else 0
     user_2_impart_mp = user_1_impart_data['impart_mp_per'] if user_2_impart_data is not None else 0
-    user1_hp_buff = user1_hp_buff + user_2_impart_hp
-    user1_mp_buff = user1_mp_buff + user_2_impart_mp
+    user2_hp_buff = user2_hp_buff + user_2_impart_hp
+    user2_mp_buff = user2_mp_buff + user_2_impart_mp
 
     player1_skil_open = False
     player2_skil_open = False
@@ -500,7 +500,6 @@ def Player_fight(player1: dict, player2: dict, type_in, bot_id):
             break
 
         
-
         if player2_turn_cost < 0:  # 休息为负数，如果休息，则跳过回合，正常是0
             user2_turn_skip = False
             player2_turn_cost += 1
@@ -1464,7 +1463,7 @@ def get_turnatk(player, buff=0, user_battle_buff_date={}): #辅修功法14
     sub_atk = 0
     sub_crit = 0
     sub_dmg = 0
-    zwsh =0
+    zwsh = 0
     try:
         user_id = player['user_id']
         impart_data = xiuxian_impart.get_user_info_with_id(user_id)
@@ -1472,10 +1471,8 @@ def get_turnatk(player, buff=0, user_battle_buff_date={}): #辅修功法14
         weapon_critatk_data = UserBuffDate(user_id).get_user_weapon_data() #武器会心伤害
         weapon_zw = UserBuffDate(user_id).get_user_weapon_data()
         main_zw = user_buff_data.get_user_main_buff_data()
-        if main_zw["ew"] == weapon_zw["zw"] :
-            zwsh = 0.5
-        else:
-            zwsh =0
+        # 专武伤害，其实叫伴生武器伤害更好。。。
+        zwsh = 0.5 if main_zw["ew"] != 0 and weapon_zw["zw"] != 0 and main_zw["ew"] == weapon_zw["zw"] else 0
         
         
         main_critatk_data = user_buff_data.get_user_main_buff_data() #功法会心伤害

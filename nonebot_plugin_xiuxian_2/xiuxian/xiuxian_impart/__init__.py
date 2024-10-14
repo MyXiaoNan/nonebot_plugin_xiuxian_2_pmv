@@ -238,6 +238,10 @@ async def impart_draw_(bot: Bot, event: GroupMessageEvent):
                 list_tp.append(
                     {"type": "node", "data": {"name": f"道友{user_info['user_name']}的传承抽卡", "uin": bot.self_id,
                                               "content": img}})
+                
+            xiuxian_impart.add_impart_exp_day(660, user_id)
+            xiuxian_impart.update_stone_num(10, user_id, 2)
+            xiuxian_impart.add_impart_wish(10, user_id)
             try:
                 await send_msg_handler(bot, event, list_tp)
             except ActionFailed:
@@ -248,10 +252,7 @@ async def impart_draw_(bot: Bot, event: GroupMessageEvent):
                 else:
                     await bot.send_group_msg(group_id=int(send_group_id), message=msg)
                 await impart_draw.finish()
-            xiuxian_impart.add_impart_exp_day(660, user_id)
-            xiuxian_impart.update_stone_num(10, user_id, 2)
-            xiuxian_impart.add_impart_wish(10, user_id)
-            await impart_draw.finish()
+                
 
 @impart_back.handle(parameterless=[Cooldown(at_sender=False)])
 async def impart_back_(bot: Bot, event: GroupMessageEvent):
