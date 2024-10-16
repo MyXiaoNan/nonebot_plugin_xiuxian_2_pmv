@@ -104,6 +104,7 @@ class XiuConfig:
         self.img_compression_limit = 90 # 图片压缩率，0为不压缩，最高100
         self.img_type = "webp" # 图片类型，webp或者jpeg，如果机器人的图片消息不显示请使用jpeg，jpeg请调低压缩率
         self.img_send_type = "io" # 图片发送类型,默认io,官方bot建议base64
+        self.admin_debug = False # 管理员调试模式
         self.version = "xiuxian_2.2" # 修仙插件版本，别动
 
 

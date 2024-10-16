@@ -1617,7 +1617,6 @@ async def creat_auction_(bot: Bot, event: GroupMessageEvent):
         
     # 拍卖会结算
     end_msg = f"本场拍卖会结束！感谢各位道友的参与。\n拍卖结果整理如下：\n"
-    print(auction_results)
     for idx, (auction_id, user_id, group_id, item_type, final_price, quantity) in enumerate(auction_results):
         item_name = items.get_data_by_item_id(auction_id)['name']
         final_user_info = sql_message.get_user_info_with_id(user_id)

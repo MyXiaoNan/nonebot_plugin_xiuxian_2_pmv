@@ -299,7 +299,6 @@ async def qc_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
         if arg.type == "at":
             give_qq = arg.data.get("qq", "")
     user2 = sql_message.get_user_real_info(give_qq)
-    print(user1, user2)
     if give_qq:
         if give_qq == str(user_id):
             msg = "道友不会左右互搏之术！"

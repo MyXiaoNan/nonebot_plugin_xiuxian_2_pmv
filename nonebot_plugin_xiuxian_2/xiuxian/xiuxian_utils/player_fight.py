@@ -1511,6 +1511,7 @@ def get_turnatk(player, buff=0, user_battle_buff_date={}): #辅修功法14
         isCrit = True
     return isCrit, turnatk
 
+
 def get_turnatk_boss(player, buff=0, user_battle_buff_date={}): #boss伤害计算公式
     isCrit = False
     turnatk = int(round(random.uniform(0.95, 1.05), 2) 
