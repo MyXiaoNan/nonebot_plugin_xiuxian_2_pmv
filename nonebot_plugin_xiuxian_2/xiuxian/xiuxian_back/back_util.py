@@ -3,6 +3,7 @@ try:
 except ImportError:
     import json
 from ..xiuxian_utils.item_json import Items
+from ..xiuxian_utils.utils import number_to
 from ..xiuxian_utils.xiuxian2_handle import (
     XiuxianDateManage, UserBuffDate, 
     get_weapon_info_msg, get_armor_info_msg,
@@ -422,6 +423,19 @@ def get_item_msg(goods_id):
 
     else:
         msg = '不支持的物品'
+
+    if 'fusion' in item_info:
+        fusion_info = item_info['fusion']
+        msg += "\n合成相关信息:\n"
+        needed_items = fusion_info.get('need_item', {})
+        for item_id, amount_needed in needed_items.items():
+            item_name = items.get_data_by_item_id(int(item_id))['name']
+            msg += f"需要{amount_needed}个{item_name}\n"
+        msg += f"需要灵石：{number_to(int(fusion_info.get('need_stone', 0)))}\n"
+        msg += f"需要境界：{fusion_info.get('need_rank', '无')}\n"
+        msg += f"需要修为：{number_to(int(fusion_info.get('need_exp', 0)))}\n"
+        msg += f"数量限制：{fusion_info.get('limit', '无')}"
+
     return msg
 
 

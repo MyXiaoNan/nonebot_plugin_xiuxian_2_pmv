@@ -1343,32 +1343,37 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
         goods_name = goods_info['name']
 
         msg_parts = []
-        for i in range(1, 7):
+        i = 1
+        while True:
             buff_key = f'buff_{i}'
             name_key = f'name_{i}'
             type_key = f'type_{i}'
             amount_key = f'amount_{i}'
 
-            if name_key in goods_info:
-                goods_name = goods_info[name_key]
-                goods_amount = goods_info.get(amount_key, 1) * num
+            if name_key not in goods_info:
+                break
 
-                if goods_name == "灵石":
-                    key = 1 if goods_amount > 0 else 2
-                    sql_message.update_ls(user_id, abs(goods_amount), key)
-                    if goods_amount > 0:
-                        msg_parts.append(f"获得灵石{goods_amount}枚")
-                    else:
-                        msg_parts.append(f"灵石被收走了{abs(goods_amount)}枚呢，好可惜！")
+            goods_name = goods_info[name_key]
+            goods_amount = goods_info.get(amount_key, 1) * num
+
+            if goods_name == "灵石":
+                key = 1 if goods_amount > 0 else 2
+                sql_message.update_ls(user_id, abs(goods_amount), key)
+                if goods_amount > 0:
+                    msg_parts.append(f"获得灵石{number_to(goods_amount)}枚！\n")
                 else:
-                    buff_id = goods_info.get(buff_key)
-                    goods_type = goods_info.get(type_key, "未知类型")
-                    if buff_id is not None:
-                        sql_message.send_back(user_id, buff_id, goods_name, goods_type, goods_amount, 1)
-                    msg_parts.append(f"{goods_name}{goods_amount}个")
+                    msg_parts.append(f"灵石被收走了{number_to(abs(goods_amount))}枚！\n")
+            else:
+                buff_id = goods_info.get(buff_key)
+                goods_type = goods_info.get(type_key)
+                if buff_id is not None:
+                    sql_message.send_back(user_id, buff_id, goods_name, goods_type, goods_amount, 1)
+                msg_parts.append(f"获得{goods_name}{goods_amount}个\n")
+
+            i += 1
 
         sql_message.update_back_j(user_id, goods_id, num, 0)
-        msg = f"道友打开了{num}个{goods_info['name']},里面居然是" + "、".join(msg_parts)
+        msg = f"道友打开了{num}个{goods_info['name']}:\n" + "".join(msg_parts)
 
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
