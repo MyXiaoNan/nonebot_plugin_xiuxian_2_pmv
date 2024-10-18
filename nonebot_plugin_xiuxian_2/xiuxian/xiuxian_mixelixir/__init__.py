@@ -311,6 +311,7 @@ user_ldl_flag = {}
 
 @mix_elixir.handle(parameterless=[Cooldown(cd_time=30, at_sender=False)])
 async def mix_elixir_(bot: Bot, event: GroupMessageEvent):
+    """炼丹,用来生成配方"""
     global user_ldl_dict, user_ldl_flag
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = check_user(event)
@@ -387,7 +388,7 @@ async def mix_elixir_(bot: Bot, event: GroupMessageEvent):
             msg = f"名字：{goods_info['name']}\n"
             msg += f"效果：{goods_info['desc']}\n"
             msg += f"配方：{v['配方']['配方简写']}丹炉{ldl_name}\n"
-            msg += f"☆------药材清单------☆\n"
+            msg += f"\n☆------药材清单------☆\n"
             msg += f"主药：{v['配方']['主药']},{v['配方']['主药_level']}，数量：{v['配方']['主药_num']}\n"
             msg += f"药引：{v['配方']['药引']},{v['配方']['药引_level']}，数量：{v['配方']['药引_num']}\n"
             if v['配方']['辅药_num'] != 0:
@@ -402,7 +403,7 @@ async def mix_elixir_(bot: Bot, event: GroupMessageEvent):
 # 配方
 @mix_make.handle(parameterless=[Cooldown(stamina_cost = 3, at_sender=False)])
 async def mix_elixir_(bot: Bot, event: GroupMessageEvent, mode: str = EventPlainText()):
-    """配方"""
+    """配方,用来炼制丹药"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     user_id = event.user_id
     pattern = r"主药([\u4e00-\u9fa5]+)(\d+)药引([\u4e00-\u9fa5]+)(\d+)辅药([\u4e00-\u9fa5]+)(\d+)丹炉([\u4e00-\u9fa5]+)+"
