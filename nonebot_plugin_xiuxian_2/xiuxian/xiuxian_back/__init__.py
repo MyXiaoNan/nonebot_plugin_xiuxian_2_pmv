@@ -269,10 +269,13 @@ async def set_auction_by_scheduler_():
     for idx, (auction_id, user_id, group_id, item_type, final_price, quantity) in enumerate(auction_results):
         item_name = items.get_data_by_item_id(auction_id)['name']
         final_user_info = sql_message.get_user_info_with_id(user_id)
-        if user_id and (final_user_info['stone'] >= (int(final_price) * quantity)):
-            sql_message.update_ls(user_id, int(final_price) * quantity, 2)
-            sql_message.send_back(user_id, auction_id, item_name, item_type, quantity)
-            end_msg += f"{idx + 1}号拍卖品：{item_name}x{quantity}由群{group_id}的{final_user_info['user_name']}道友成功拍下\n"
+        if user_id:
+            if final_user_info['stone'] < (int(final_price) * quantity):
+                end_msg += f"{idx + 1}号拍卖品：{item_name}x{quantity} - 道友{final_user_info['user_name']}的灵石不足，流拍了\n"
+            else:
+                sql_message.update_ls(user_id, int(final_price) * quantity, 2)
+                sql_message.send_back(user_id, auction_id, item_name, item_type, quantity)
+                end_msg += f"{idx + 1}号拍卖品：{item_name}x{quantity}由群{group_id}的{final_user_info['user_name']}道友成功拍下\n"
 
             user_auction_info = get_user_auction_price_by_id(auction_id)
             if user_auction_info:
@@ -1494,7 +1497,7 @@ async def creat_auction_(bot: Bot, event: GroupMessageEvent):
 
         # 系统拍卖品
         auction_id_list = get_auction_id_list()
-        auction_count = random.randint(3, 8)  # 随机挑选系统拍卖品数量
+        auction_count = random.randint(1, 2)  # 随机挑选系统拍卖品数量
         auction_ids = random.sample(auction_id_list, auction_count)
         for auction_id in auction_ids:
             item_info = items.get_data_by_item_id(auction_id)
@@ -1639,10 +1642,13 @@ async def creat_auction_(bot: Bot, event: GroupMessageEvent):
     for idx, (auction_id, user_id, group_id, item_type, final_price, quantity) in enumerate(auction_results):
         item_name = items.get_data_by_item_id(auction_id)['name']
         final_user_info = sql_message.get_user_info_with_id(user_id)
-        if user_id and (final_user_info['stone'] >= (int(final_price) * quantity)):
-            sql_message.update_ls(user_id, int(final_price) * quantity, 2)
-            sql_message.send_back(user_id, auction_id, item_name, item_type, quantity)
-            end_msg += f"{idx + 1}号拍卖品：{item_name}x{quantity}由群{group_id}的{final_user_info['user_name']}道友成功拍下\n"
+        if user_id:
+            if final_user_info['stone'] < (int(final_price) * quantity):
+                end_msg += f"{idx + 1}号拍卖品：{item_name}x{quantity} - 道友{final_user_info['user_name']}的灵石不足，流拍了\n"
+            else:
+                sql_message.update_ls(user_id, int(final_price) * quantity, 2)
+                sql_message.send_back(user_id, auction_id, item_name, item_type, quantity)
+                end_msg += f"{idx + 1}号拍卖品：{item_name}x{quantity}由群{group_id}的{final_user_info['user_name']}道友成功拍下\n"
 
             user_auction_info = get_user_auction_price_by_id(auction_id)
             if user_auction_info:
@@ -1762,7 +1768,6 @@ async def offer_auction_(bot: Bot, event: GroupMessageEvent, args: Message = Com
             else:
                 await bot.send_group_msg(group_id=int(group_id), message=msg)
         except ActionFailed:
-            error_msg = f"消息发送失败，可能被风控，当前拍卖物品金额为：{auction['now_price']}！"
             continue
     logger.opt(colors=True).info(
         f"<green>有人拍卖，拍卖标志：{auction_offer_flag}，当前等待时间：{auction_offer_all_count * AUCTIONOFFERSLEEPTIME}，总计拍卖次数：{auction_offer_time_count}</green>")
