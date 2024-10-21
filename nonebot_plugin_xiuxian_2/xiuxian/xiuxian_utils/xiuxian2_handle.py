@@ -1314,6 +1314,13 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
         cur.execute(sql_str)
         self.conn.commit()
 
+    def reset_user_drug_resistance(self, user_id):
+        """重置用户耐药性"""
+        sql = f"UPDATE back SET all_num=0 where goods_type='丹药' and user_id={user_id}"
+        cur = self.conn.cursor()
+        cur.execute(sql, )
+        self.conn.commit()
+
     def update_back_j(self, user_id, goods_id, num=1, use_key=0):
         """
         使用物品

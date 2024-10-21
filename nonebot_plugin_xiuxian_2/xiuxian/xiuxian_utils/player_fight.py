@@ -87,8 +87,8 @@ def Player_fight(player1: dict, player2: dict, type_in, bot_id):
 
     player1_turn_cost = 0  # 先设定为初始值 0
     player2_turn_cost = 0
-    player1_f_js = get_user_def_buff(player1['user_id'])
-    player2_f_js = get_user_def_buff(player2['user_id'])
+    player1_f_js = get_user_def_buff(player1['user_id']) # 玩家1减伤
+    player2_f_js = get_user_def_buff(player2['user_id']) # 玩家2减伤
     player1_js = player1_f_js
     player2_js = player2_f_js
     user1_skill_sh = 0
@@ -1442,7 +1442,7 @@ def get_boss_dict(boss, boss_init_hp, msg, bot_id):
 
 
 def get_user_def_buff(user_id):
-    user_armor_data = UserBuffDate(user_id).get_user_armor_buff_data()
+    user_armor_data = UserBuffDate(user_id).get_user_armor_buff_data() #防具减伤
     user_weapon_data = UserBuffDate(user_id).get_user_weapon_data() #武器减伤
     user_main_data = UserBuffDate(user_id).get_user_main_buff_data() #功法减伤
     if user_weapon_data is not None:
@@ -1454,7 +1454,7 @@ def get_user_def_buff(user_id):
     else:
         main_def =0
     if user_armor_data is not None:
-        def_buff = user_armor_data['def_buff']  #减伤公式
+        def_buff = user_armor_data['def_buff']  #防具减伤
     else:
         def_buff = 0
     return round(1 - (def_buff + weapon_def + main_def ), 2)  # 初始减伤率
@@ -1473,8 +1473,6 @@ def get_turnatk(player, buff=0, user_battle_buff_date={}): #辅修功法14
         main_zw = user_buff_data.get_user_main_buff_data()
         # 专武伤害，其实叫伴生武器更好。。。
         zwsh = 0.5 if main_zw["ew"] != 0 and weapon_zw["zw"] != 0 and main_zw["ew"] == weapon_zw["zw"] else 0
-        
-        
         main_critatk_data = user_buff_data.get_user_main_buff_data() #功法会心伤害
         player_sub_open = False #辅修功法14
         user_sub_buff_date = {}
