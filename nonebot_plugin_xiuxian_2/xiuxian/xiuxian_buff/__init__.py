@@ -32,7 +32,7 @@ from .two_exp_cd import two_exp_cd
 cache_help = {}
 sql_message = XiuxianDateManage()  # sql类
 xiuxian_impart = XIUXIAN_IMPART_BUFF()
-BLESSEDSPOTCOST = 3500000
+BLESSEDSPOTCOST = 3500000 # 洞天福地购买消耗
 two_exp_limit = 3 # 默认双修次数上限，修仙之人一天3次也不奇怪（
 
 two_exp_cd_up = require("nonebot_plugin_apscheduler").scheduler
@@ -753,13 +753,14 @@ async def out_closing_(bot: Bot, event: GroupMessageEvent):
         level_rate = sql_message.get_root_rate(user_mes['root_type'])  # 灵根倍率
         realm_rate = jsondata.level_data()[level]["spend"]  # 境界倍率
         user_buff_data = UserBuffDate(user_id)
+        user_blessed_spot_data = UserBuffDate(user_id).BuffInfo['blessed_spot']
         mainbuffdata = user_buff_data.get_user_main_buff_data()
         mainbuffratebuff = mainbuffdata['ratebuff'] if mainbuffdata != None else 0  # 功法修炼倍率
         mainbuffcloexp = mainbuffdata['clo_exp'] if mainbuffdata != None else 0  # 功法闭关经验
         mainbuffclors = mainbuffdata['clo_rs'] if mainbuffdata != None else 0  # 功法闭关回复
         
         exp = int(
-            (exp_time * XiuConfig().closing_exp) * ((level_rate * realm_rate * (1 + mainbuffratebuff) * (1 + mainbuffcloexp)))
+            (exp_time * XiuConfig().closing_exp) * ((level_rate * realm_rate * (1 + mainbuffratebuff) * (1 + mainbuffcloexp) * (1 + user_blessed_spot_data)))
             # 洞天福地为加法
         )  # 本次闭关获取的修为
         # 计算传承增益
@@ -856,6 +857,7 @@ async def mind_state_(bot: Bot, event: GroupMessageEvent):
     level_rate = sql_message.get_root_rate(user_msg['root_type'])  # 灵根倍率
     realm_rate = jsondata.level_data()[user_msg['level']]["spend"]  # 境界倍率
     user_buff_data = UserBuffDate(user_id)
+    user_blessed_spot_data = UserBuffDate(user_id).BuffInfo['blessed_spot']
     main_buff_data = user_buff_data.get_user_main_buff_data()
     user_armor_crit_data = user_buff_data.get_user_armor_buff_data() #我的状态防具会心
     user_weapon_data = UserBuffDate(user_id).get_user_weapon_data() #我的状态武器减伤
@@ -931,7 +933,7 @@ async def mind_state_(bot: Bot, event: GroupMessageEvent):
 攻击:{number_to(user_msg['atk'])}
 突破状态: {exp_meg}(概率：{jsondata.level_rate_data()[user_msg['level']] + leveluprate + number}%)
 攻击修炼:{user_msg['atkpractice']}级(提升攻击力{user_msg['atkpractice'] * 4}%)
-修炼效率:{int(((level_rate * realm_rate) * (1 + main_buff_rate_buff)) * 100)}%
+修炼效率:{int(((level_rate * realm_rate) + main_buff_rate_buff + user_blessed_spot_data) * 100)}%
 会心:{crit_buff + int(impart_know_per * 100) + armor_crit_buff + main_crit_buff}%
 减伤率:{def_buff + weapon_def + main_def}%
 boss战增益:{int(boss_atk * 100)}%
