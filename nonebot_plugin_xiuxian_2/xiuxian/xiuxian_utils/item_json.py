@@ -7,27 +7,28 @@ from pathlib import Path
 from typing import List
 
 READPATH = Path() / "data" / "xiuxian"
-SKILLPATHH = READPATH / "功法"
+SKILLPATH = READPATH / "功法"
 WEAPONPATH = READPATH / "装备"
 ELIXIRPATH = READPATH / "丹药"
+PACKAGESPATH = READPATH / "礼包"
 XIULIANITEMPATH = READPATH / "修炼物品"
-BOSSDROPS = READPATH / "boss掉落物"
+BOSSDROPSPATH = READPATH / "boss掉落物"
 
 
 class Items:
     def __init__(self) -> None:
-        self.mainbuff_jsonpath = SKILLPATHH / "主功法.json"
-        self.subbuff_jsonpath = SKILLPATHH / "辅修功法.json" 
-        self.secbuff_jsonpath = SKILLPATHH / "神通.json"
+        self.mainbuff_jsonpath = SKILLPATH / "主功法.json"
+        self.subbuff_jsonpath = SKILLPATH / "辅修功法.json" 
+        self.secbuff_jsonpath = SKILLPATH / "神通.json"
         self.weapon_jsonpath = WEAPONPATH / "法器.json"
         self.armor_jsonpath = WEAPONPATH / "防具.json"
         self.elixir_jsonpath = ELIXIRPATH / "丹药.json"
-        self.lb_jsonpath = ELIXIRPATH / "礼包.json"
+        self.lb_jsonpath = PACKAGESPATH / "礼包.json"
         self.yaocai_jsonpath = ELIXIRPATH / "药材.json"
         self.mix_elixir_type_jsonpath = ELIXIRPATH / "炼丹丹药.json"
         self.ldl_jsonpath = ELIXIRPATH / "炼丹炉.json"
         self.jlq_jsonpath = XIULIANITEMPATH / "聚灵旗.json"
-        self.dlw_jsonpath = BOSSDROPS / "boss掉落物.json"
+        self.dlw_jsonpath = BOSSDROPSPATH / "boss掉落物.json"
         self.sw_jsonpath = ELIXIRPATH / "神物.json"
         self.items = {}
         self.set_item_data(self.get_armor_data(), "防具")
@@ -98,9 +99,26 @@ class Items:
         return self.readf(self.sw_jsonpath)
 
     def get_data_by_item_id(self, item_id):
+        """通过物品ID获取物品数据"""
         if item_id is None:
             return None
         return self.items[str(item_id)]
+    
+    def get_data_by_item_name(self, item_name):
+        """通过物品名称获取物品ID和物品数据"""
+        for item_id, item in self.items.items():
+            if item['name'] == item_name:
+                return item_id, item
+        return None, None
+    
+
+    def get_fusion_items(self):
+        """获取所有可合成的物品名称和类型"""
+        fusion_items = []
+        for item_id, item_data in self.items.items():
+            if 'fusion' in item_data:
+                fusion_items.append(f"{item_data['name']} ({item_data['type']})")
+        return fusion_items
 
 
     def set_item_data(self, dict_data, item_type):

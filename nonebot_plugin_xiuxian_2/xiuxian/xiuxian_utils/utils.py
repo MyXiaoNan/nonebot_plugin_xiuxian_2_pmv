@@ -374,18 +374,29 @@ class Txt2Img:
     def save_image_with_compression(self, out_img):
         """对传入图片进行压缩"""
         img_byte_arr = io.BytesIO()
-        compression_quality = 100 - XiuConfig().img_compression_limit # 质量从100到0
-        if not (0 <= XiuConfig().img_compression_limit <= 100):
-            compression_quality = 0
+        compression_quality = max(1, min(100, 100 - XiuConfig().img_compression_limit))  # 质量从100到1
 
-        if XiuConfig().img_type == "webp":
-            out_img.save(img_byte_arr, format = "WebP", quality = compression_quality)
-        elif XiuConfig().img_type == "jpeg":
-            out_img.save(img_byte_arr, format = "JPEG", quality = compression_quality)
-        else:
-            out_img.save(img_byte_arr, format = "WebP", quality = compression_quality)
+        if not (0 <= XiuConfig().img_compression_limit <= 100):
+            compression_quality = 50
+
+        # 转换为 RGB
+        if out_img.mode in ("RGBA", "P"):
+            out_img = out_img.convert("RGB")
+
+        try:
+            if XiuConfig().img_type == "webp":
+                out_img.save(img_byte_arr, format="WebP", quality=compression_quality)
+            elif XiuConfig().img_type == "jpeg":
+                out_img.save(img_byte_arr, format="JPEG", quality=compression_quality)
+            else:
+                out_img.save(img_byte_arr, format="WebP", quality=compression_quality)
+        except:
+            # 尝试降级为 JPEG
+            out_img.save(img_byte_arr, format="JPEG", quality=compression_quality)
+
         img_byte_arr.seek(0)
         return img_byte_arr
+
 
     def wrap(self, string):
         max_width = int(1850 / self.lrc_font_size)

@@ -681,7 +681,17 @@
         "mp_buff": 0,
         "rank": -5,
         "level": "无上仙器",
-        "type": "装备"
+        "type": "装备",
+        "fusion": {
+            "need_item": {
+                "7098": 1,
+                "7099": 1
+            },
+            "need_rank": "祭道境圆满",
+            "need_exp": "0",
+            "need_stone": "0",
+            "limit": 1
+        }
     },
     "7085": {
         "name": "冲天槊",
@@ -768,7 +778,7 @@
         "type": "装备"
     },
     "15459": {
-        "name": "穿心枪盖博尔格",
+        "name": "穿心枪·盖博尔格",
         "atk_buff": 0.5,
         "crit_buff": 0.5,
         "def_buff": 0,
@@ -840,7 +850,7 @@
         "type": "装备"
     },
     "15465": {
-        "name": "圣剑瑟尼欧里斯",
+        "name": "圣剑·瑟尼欧里斯",
         "atk_buff": 0.5,
         "crit_buff": 0.8,
         "def_buff": 0,
@@ -850,5 +860,29 @@
         "rank": -5,
         "level": "无上仙器",
         "type": "装备"
+    },
+    "15466": {
+        "name": "少姜",
+        "atk_buff": 1,
+        "crit_buff": 1,
+        "def_buff": 1,
+        "critatk": 1,
+        "zw": 0,
+        "mp_buff": 1,
+        "rank": -5,
+        "level": "无上仙器",
+        "type": "装备",
+        "fusion": {
+            "need_item": {
+                "7084": 1,
+                "15507": 1,
+                "7085": 1,
+                "6099": 2
+            },
+            "need_rank": "祭道境圆满",
+            "need_exp": "10000000000",
+            "need_stone": "10000000000",
+            "limit": 1
+        }
     }
 }

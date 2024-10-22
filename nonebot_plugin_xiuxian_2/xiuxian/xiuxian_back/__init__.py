@@ -269,10 +269,13 @@ async def set_auction_by_scheduler_():
     for idx, (auction_id, user_id, group_id, item_type, final_price, quantity) in enumerate(auction_results):
         item_name = items.get_data_by_item_id(auction_id)['name']
         final_user_info = sql_message.get_user_info_with_id(user_id)
-        if user_id and (final_user_info['stone'] >= (int(final_price) * quantity)):
-            sql_message.update_ls(user_id, int(final_price) * quantity, 2)
-            sql_message.send_back(user_id, auction_id, item_name, item_type, quantity)
-            end_msg += f"{idx + 1}号拍卖品：{item_name}x{quantity}由群{group_id}的{final_user_info['user_name']}道友成功拍下\n"
+        if user_id:
+            if final_user_info['stone'] < (int(final_price) * quantity):
+                end_msg += f"{idx + 1}号拍卖品：{item_name}x{quantity} - 道友{final_user_info['user_name']}的灵石不足，流拍了\n"
+            else:
+                sql_message.update_ls(user_id, int(final_price) * quantity, 2)
+                sql_message.send_back(user_id, auction_id, item_name, item_type, quantity)
+                end_msg += f"{idx + 1}号拍卖品：{item_name}x{quantity}由群{group_id}的{final_user_info['user_name']}道友成功拍下\n"
 
             user_auction_info = get_user_auction_price_by_id(auction_id)
             if user_auction_info:
@@ -844,7 +847,7 @@ async def goods_re_root_(bot: Bot, event: GroupMessageEvent, args: Message = Com
             num = int(args[1])
     except:
             num = 1 
-    price = int(6000000 - get_item_msg_rank(goods_id) * 100000) * num
+    price = int((convert_rank('江湖好手')[0] + 5) * 100000 - get_item_msg_rank(goods_id) * 100000) * num
     if price <= 0:
         msg = f"物品：{goods_name}炼金失败，凝聚{price}枚灵石，记得通知晓楠！"
         if XiuConfig().img:
@@ -1337,31 +1340,50 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
                 await use.finish()
         except ValueError:
             num = 1
+
         goods_info = items.get_data_by_item_id(goods_id)
         user_info = sql_message.get_user_info_with_id(user_id)
-        user_rank = convert_rank(user_info['level'])[0]
         goods_name = goods_info['name']
-        goods_id1 = goods_info['buff_1']
-        goods_id2 = goods_info['buff_2']
-        goods_id3 = goods_info['buff_3']
-        goods_name1 = goods_info['name_1']
-        goods_name2 = goods_info['name_2']
-        goods_name3 = goods_info['name_3']
-        goods_type1 = goods_info['type_1']
-        goods_type2 = goods_info['type_2']
-        goods_type3 = goods_info['type_3']
-        
-        sql_message.send_back(user_id, goods_id1, goods_name1, goods_type1, 1 * num, 1)# 增加用户道具
-        sql_message.send_back(user_id, goods_id2, goods_name2, goods_type2, 2 * num, 1)
-        sql_message.send_back(user_id, goods_id3, goods_name3, goods_type3, 2 * num, 1)
+
+        msg_parts = []
+        i = 1
+        while True:
+            buff_key = f'buff_{i}'
+            name_key = f'name_{i}'
+            type_key = f'type_{i}'
+            amount_key = f'amount_{i}'
+
+            if name_key not in goods_info:
+                break
+
+            goods_name = goods_info[name_key]
+            goods_amount = goods_info.get(amount_key, 1) * num
+
+            if goods_name == "灵石":
+                key = 1 if goods_amount > 0 else 2
+                sql_message.update_ls(user_id, abs(goods_amount), key)
+                if goods_amount > 0:
+                    msg_parts.append(f"获得灵石{number_to(goods_amount)}枚！\n")
+                else:
+                    msg_parts.append(f"灵石被收走了{number_to(abs(goods_amount))}枚！\n")
+            else:
+                buff_id = goods_info.get(buff_key)
+                goods_type = goods_info.get(type_key)
+                if buff_id is not None:
+                    sql_message.send_back(user_id, buff_id, goods_name, goods_type, goods_amount, 1)
+                msg_parts.append(f"获得{goods_name}{goods_amount}个\n")
+
+            i += 1
+
         sql_message.update_back_j(user_id, goods_id, num, 0)
-        msg = f"道友打开了{num}个{goods_name},里面居然是{goods_name1}{int(1 * num)}个、{goods_name2}{int(2 * num)}个、{goods_name3}{int(2 * num)}个"
+        msg = f"道友打开了{num}个{goods_info['name']}:\n" + "".join(msg_parts)
+
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-        await use.finish()   
+        await use.finish()
         
     elif goods_type == "聚灵旗":
         msg = get_use_jlq_msg(user_id, goods_id)
@@ -1475,7 +1497,7 @@ async def creat_auction_(bot: Bot, event: GroupMessageEvent):
 
         # 系统拍卖品
         auction_id_list = get_auction_id_list()
-        auction_count = random.randint(3, 8)  # 随机挑选系统拍卖品数量
+        auction_count = random.randint(1, 2)  # 随机挑选系统拍卖品数量
         auction_ids = random.sample(auction_id_list, auction_count)
         for auction_id in auction_ids:
             item_info = items.get_data_by_item_id(auction_id)
@@ -1617,14 +1639,16 @@ async def creat_auction_(bot: Bot, event: GroupMessageEvent):
         
     # 拍卖会结算
     end_msg = f"本场拍卖会结束！感谢各位道友的参与。\n拍卖结果整理如下：\n"
-    print(auction_results)
     for idx, (auction_id, user_id, group_id, item_type, final_price, quantity) in enumerate(auction_results):
         item_name = items.get_data_by_item_id(auction_id)['name']
         final_user_info = sql_message.get_user_info_with_id(user_id)
-        if user_id and (final_user_info['stone'] >= (int(final_price) * quantity)):
-            sql_message.update_ls(user_id, int(final_price) * quantity, 2)
-            sql_message.send_back(user_id, auction_id, item_name, item_type, quantity)
-            end_msg += f"{idx + 1}号拍卖品：{item_name}x{quantity}由群{group_id}的{final_user_info['user_name']}道友成功拍下\n"
+        if user_id:
+            if final_user_info['stone'] < (int(final_price) * quantity):
+                end_msg += f"{idx + 1}号拍卖品：{item_name}x{quantity} - 道友{final_user_info['user_name']}的灵石不足，流拍了\n"
+            else:
+                sql_message.update_ls(user_id, int(final_price) * quantity, 2)
+                sql_message.send_back(user_id, auction_id, item_name, item_type, quantity)
+                end_msg += f"{idx + 1}号拍卖品：{item_name}x{quantity}由群{group_id}的{final_user_info['user_name']}道友成功拍下\n"
 
             user_auction_info = get_user_auction_price_by_id(auction_id)
             if user_auction_info:
@@ -1744,7 +1768,6 @@ async def offer_auction_(bot: Bot, event: GroupMessageEvent, args: Message = Com
             else:
                 await bot.send_group_msg(group_id=int(group_id), message=msg)
         except ActionFailed:
-            error_msg = f"消息发送失败，可能被风控，当前拍卖物品金额为：{auction['now_price']}！"
             continue
     logger.opt(colors=True).info(
         f"<green>有人拍卖，拍卖标志：{auction_offer_flag}，当前等待时间：{auction_offer_all_count * AUCTIONOFFERSLEEPTIME}，总计拍卖次数：{auction_offer_time_count}</green>")

@@ -200,7 +200,7 @@ async def yaocai_get_(bot: Bot, event: GroupMessageEvent):
         if timedeff >= round(GETCONFIG['time_cost'] * (1 - (GETCONFIG['加速基数'] * mix_elixir_info['药材速度'])), 2):
             yaocai_id_list = items.get_random_id_list_by_rank_and_item_type(convert_rank(user_info['level'])[0], ['药材'])
             # 加入传承
-            impart_data = xiuxian_impart.get_user_info_with_id(user_id)
+            impart_data = xiuxian_impart.get_user_impart_info_with_id(user_id)
             impart_reap_per = impart_data['impart_reap_per'] if impart_data is not None else 0
             #功法灵田收取加成
             main_reap = UserBuffDate(user_id).get_user_main_buff_data()
@@ -311,6 +311,7 @@ user_ldl_flag = {}
 
 @mix_elixir.handle(parameterless=[Cooldown(cd_time=30, at_sender=False)])
 async def mix_elixir_(bot: Bot, event: GroupMessageEvent):
+    """炼丹,用来生成配方"""
     global user_ldl_dict, user_ldl_flag
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = check_user(event)
@@ -387,7 +388,7 @@ async def mix_elixir_(bot: Bot, event: GroupMessageEvent):
             msg = f"名字：{goods_info['name']}\n"
             msg += f"效果：{goods_info['desc']}\n"
             msg += f"配方：{v['配方']['配方简写']}丹炉{ldl_name}\n"
-            msg += f"☆------药材清单------☆\n"
+            msg += f"\n☆------药材清单------☆\n"
             msg += f"主药：{v['配方']['主药']},{v['配方']['主药_level']}，数量：{v['配方']['主药_num']}\n"
             msg += f"药引：{v['配方']['药引']},{v['配方']['药引_level']}，数量：{v['配方']['药引_num']}\n"
             if v['配方']['辅药_num'] != 0:
@@ -402,7 +403,7 @@ async def mix_elixir_(bot: Bot, event: GroupMessageEvent):
 # 配方
 @mix_make.handle(parameterless=[Cooldown(stamina_cost = 3, at_sender=False)])
 async def mix_elixir_(bot: Bot, event: GroupMessageEvent, mode: str = EventPlainText()):
-    """配方"""
+    """配方,用来炼制丹药"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     user_id = event.user_id
     pattern = r"主药([\u4e00-\u9fa5]+)(\d+)药引([\u4e00-\u9fa5]+)(\d+)辅药([\u4e00-\u9fa5]+)(\d+)丹炉([\u4e00-\u9fa5]+)+"
@@ -502,7 +503,7 @@ async def mix_elixir_(bot: Bot, event: GroupMessageEvent, mode: str = EventPlain
                 mix_elixir_info = get_player_info(user_id, 'mix_elixir_info')
                 goods_info = Items().get_data_by_item_id(id)
                 # 加入传承
-                impart_data = xiuxian_impart.get_user_info_with_id(user_id)
+                impart_data = xiuxian_impart.get_user_impart_info_with_id(user_id)
                 impart_mix_per = impart_data['impart_mix_per'] if impart_data is not None else 0
                 #功法炼丹数加成
                 main_dan_data = UserBuffDate(user_id).get_user_main_buff_data()

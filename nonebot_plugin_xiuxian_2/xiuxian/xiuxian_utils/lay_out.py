@@ -189,6 +189,11 @@ def Cooldown(
                 await matcher.finish()
         else:
             pass
+        
+        if XiuConfig().admin_debug:
+            if event.get_user_id() not in bot.config.superusers:
+                await matcher.finish()
+
         if stamina_cost > 0:
             user_data = sql_message.get_user_info_with_id(user_id)
             if user_data:

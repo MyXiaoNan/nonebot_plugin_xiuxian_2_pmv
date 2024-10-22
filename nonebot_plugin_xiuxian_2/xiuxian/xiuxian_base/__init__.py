@@ -92,7 +92,7 @@ __xiuxian_notes__ = f"""
 23、仙途奇缘:发送 仙途奇缘帮助 获取
 24、轮回重修:发送 轮回重修帮助 获取
 25、境界帮助、灵根帮助、品阶帮助:获取对应帮助信息
-26、仙器合成:发送 合成xx 获取，目前开放合成的仙器为天罪
+26、物品合成:发送 合成帮助 获取
 27、金银阁:发送 金银阁帮助 获取
 """.strip()
 
@@ -128,7 +128,8 @@ __xiuxian_updata_data__ = f"""
 6.替换数据库元组为字典返回，替换USERRANK为convert_rank函数
 7.群拍卖会可以依次拍卖多个物品了
 8.支持用户提交拍卖品了，拍卖时优先拍卖用户的拍卖品
-9.逐步实现体力系统
+9.实现简单的体力系统
+10.重构合成系统
 """.strip()
 
 __level_help__ = f"""
@@ -1402,7 +1403,7 @@ async def rob_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Command
                         await bot.send_group_msg(group_id=int(send_group_id), message=msg)
                     await rob_stone.finish()
                     
-                impart_data_1 = xiuxian_impart.get_user_info_with_id(user_id)
+                impart_data_1 = xiuxian_impart.get_user_impart_info_with_id(user_id)
                 player1['user_id'] = user_info['user_id']
                 player1['道号'] = user_info['user_name']
                 player1['气血'] = user_info['hp']
@@ -1420,7 +1421,7 @@ async def rob_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Command
                     def_buff = 0
                 player1['防御'] = def_buff
 
-                impart_data_2 = xiuxian_impart.get_user_info_with_id(user_2['user_id'])
+                impart_data_2 = xiuxian_impart.get_user_impart_info_with_id(user_2['user_id'])
                 player2['user_id'] = user_2['user_id']
                 player2['道号'] = user_2['user_name']
                 player2['气血'] = user_2['hp']

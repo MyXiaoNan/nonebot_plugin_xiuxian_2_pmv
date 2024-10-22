@@ -93,6 +93,7 @@ async def lunhui_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandO
         sql_message.update_levelrate(user_id, 0) #重置突破成功率
         sql_message.update_j_exp(user_id, now_exp) #重置用户修为
         sql_message.update_user_hp(user_id)  # 重置用户HP，mp，atk状态
+        sql_message.reset_user_drug_resistance(user_id) #重置用户耐药性
         sql_message.updata_user_main_buff(user_id, 0) #重置用户主功法
         sql_message.updata_user_sub_buff(user_id, 0) #重置用户辅修功法
         sql_message.updata_user_sec_buff(user_id, 0) #重置用户神通
@@ -158,6 +159,7 @@ async def twolun_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandO
         sql_message.update_levelrate(user_id, 0) #重置突破成功率
         sql_message.update_j_exp(user_id, now_exp) #重置用户修为
         sql_message.update_user_hp(user_id)  # 重置用户HP，mp，atk状态
+        sql_message.reset_user_drug_resistance(user_id) #重置用户耐药性
         sql_message.update_root(user_id, 7) #更换轮回灵根
         msg = f"万世道果集一身，脱出凡道入仙道，恭喜大能{user_name}万世轮回成功！"
         if XiuConfig().img:

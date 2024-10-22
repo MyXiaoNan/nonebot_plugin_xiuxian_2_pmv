@@ -72,7 +72,7 @@ async def last_work_(bot: Bot, event: GroupMessageEvent):
     user_rank = convert_rank(user_level)[0]
     is_type, msg = check_user_type(user_id, 2)  # 需要在悬赏令中的用户
     if (is_type and user_rank <= 11) or (
-        is_type and user_info['exp'] >= sql_message.get_level_power("真仙境圆满")) or (
+        is_type and user_info['exp'] >= sql_message.get_level_power('真仙境圆满')) or (
         is_type and int(user_info['exp']) >= int(OtherSet().set_closing_type(user_level)) * XiuConfig().closing_exp_upper_limit    
         ):
         user_cd_message = sql_message.get_user_cd(user_id)

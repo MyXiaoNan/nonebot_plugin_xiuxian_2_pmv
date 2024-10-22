@@ -86,8 +86,11 @@ async def set_rift_():
             rift.time = config['rift'][rift.name]['time']
             group_rift[group_id] = rift
             msg = f"秘境已刷新，野生的{rift.name}已开启！可探索次数：{rift.count}次，请诸位道友发送 探索秘境 来加入吧！"
-            pic = await get_msg_pic(msg)  #
-            await bot.send_group_msg(group_id=int(group_id), message=MessageSegment.image(pic))
+            if XiuConfig().img:
+                pic = await get_msg_pic(msg)
+                await bot.send_group_msg(group_id=int(group_id), message=MessageSegment.image(pic))
+            else:
+                await bot.send_group_msg(group_id=int(group_id), message=msg)
 
 
 @rift_help.handle(parameterless=[Cooldown(at_sender=False)])
@@ -123,7 +126,6 @@ async def create_rift_(bot: Bot, event: GroupMessageEvent):
         await create_rift.finish()
 
     try:
-        var = group_rift[group_id]
         msg = f"当前已存在{group_rift[group_id].name}，秘境可探索次数：{group_rift[group_id].count}次，请诸位道友发送 探索秘境 来加入吧！"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
@@ -442,7 +444,6 @@ async def set_group_rift_(bot: Bot, event: GroupMessageEvent, args: Message = Co
         else:
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await set_group_rift.finish()
-
 
 
 def is_in_groups(event: GroupMessageEvent):
