@@ -16,7 +16,7 @@ from ..xiuxian_back.back_util import get_item_msg
 from ..xiuxian_utils.utils import (
     check_user, get_msg_pic, number_to
 )
-sql_message = XiuxianDateManage()  # sql类
+sql_message = XiuxianDateManage()
 items = Items()
 
 fusion_help_text = f"""
@@ -132,7 +132,6 @@ async def fusion_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await fusion.finish()
 
-    # 检查数量
     needed_items = fusion_info.get('need_item', {})
     missing_items = []
     for item_id, amount_needed in needed_items.items():
@@ -153,9 +152,9 @@ async def fusion_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await fusion.finish()
 
-    sql_message.update_user_stone(user_id, required_stone, 2)
+    sql_message.update_ls(user_id, required_stone, 2) # 扣灵石
     for item_id, amount_needed in needed_items.items():
-        sql_message.update_back_j(user_id, int(item_id), amount_needed)
+        sql_message.update_back_j(user_id, int(item_id), amount_needed) # 扣道具
 
     sql_message.send_back(user_id, int(equipment_id), equipment['name'], equipment['type'], 1, 1)
 
