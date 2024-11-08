@@ -17,15 +17,20 @@ async def convert_img(
     :返回:
       * res: bytes对象或base64编码图片。
     """
+    if isinstance(img, (str, Path)):
+        img = Image.open(str(img))
+    
     if isinstance(img, Image.Image):
         img = img.convert('RGB')
         result_buffer = BytesIO()
         img.save(result_buffer, format='PNG', quality=80, subsampling=0)
         res = result_buffer.getvalue()
         if is_base64:
-            res = 'base64://' + b64encode(res).decode()
+            return 'base64://' + b64encode(res).decode()
         return res
     elif isinstance(img, bytes):
-        return 'base64://' + b64encode(img).decode()
+        if is_base64:
+            return 'base64://' + b64encode(img).decode()
+        return img
     else:
-        return f'[CQ:image,file=file:///{str(img)}]'
+        raise ValueError("不支持的输入格式")
