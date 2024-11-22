@@ -506,7 +506,7 @@ WHERE last_check_info_time = '0' OR last_check_info_time IS NULL
             return '道友的道号更新成功拉~'
 
     def updata_level_cd(self, user_id):
-        """更新破镜CD"""
+        """更新突破境界CD"""
         sql = f"UPDATE user_xiuxian SET level_up_cd=? WHERE user_id=?"
         cur = self.conn.cursor()
         now_time = datetime.now()

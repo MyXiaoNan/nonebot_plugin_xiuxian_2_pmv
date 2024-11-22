@@ -24,7 +24,6 @@ from ..xiuxian_utils.utils import (
     number_to, check_user, send_msg_handler,
     check_user_type, get_msg_pic, CommandObjectID
 )
-from ..xiuxian_back.back_util import get_user_skill_back_msg
 from ..xiuxian_utils.lay_out import assign_bot, Cooldown
 from .two_exp_cd import two_exp_cd
 
@@ -962,7 +961,6 @@ async def buffinfo_(bot: Bot, event: GroupMessageEvent):
         await buffinfo.finish()
 
     user_id = user_info['user_id']
-    skill_msg = get_user_skill_back_msg(user_id)  
     mainbuffdata = UserBuffDate(user_id).get_user_main_buff_data()
     if mainbuffdata != None:
         s, mainbuffmsg = get_main_info_msg(str(get_user_buff(user_id)['main_buff']))
@@ -984,7 +982,6 @@ async def buffinfo_(bot: Bot, event: GroupMessageEvent):
 {subbuffmsg}
 道友的神通：{secbuffdata["name"] if secbuffdata != None else '无'}
 {secbuffmsg}
-道友背包内的功法，辅修功法，神通等信息将在下一条消息展示：
 """
 
     if XiuConfig().img:
@@ -992,7 +989,6 @@ async def buffinfo_(bot: Bot, event: GroupMessageEvent):
         await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
     else:
         await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-    await send_msg_handler(bot, event, '背包', bot.self_id, skill_msg)
     await buffinfo.finish()
 
 

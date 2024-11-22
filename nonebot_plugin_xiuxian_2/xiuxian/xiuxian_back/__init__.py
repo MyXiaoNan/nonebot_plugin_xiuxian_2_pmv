@@ -1064,8 +1064,6 @@ async def main_back_(bot: Bot, event: GroupMessageEvent):
         try:
             await send_msg_handler(bot, event, '背包', bot.self_id, msg1)
             if msg2:
-                # 如果有第三条及以后的消息，需要等待一段时间再发送，避免触发限制
-                await asyncio.sleep(1)
                 await send_msg_handler(bot, event, '背包', bot.self_id, msg2)
         except ActionFailed:
             await main_back.finish("查看背包失败!", reply_message=True)
@@ -1075,9 +1073,7 @@ async def main_back_(bot: Bot, event: GroupMessageEvent):
             await send_msg_handler(bot, event, '背包', bot.self_id, msg)
         except ActionFailed:
             await main_back.finish("查看背包失败!", reply_message=True)
-
     await main_back.finish()
-
 
 
 @no_use_zb.handle(parameterless=[Cooldown(at_sender=False)])
