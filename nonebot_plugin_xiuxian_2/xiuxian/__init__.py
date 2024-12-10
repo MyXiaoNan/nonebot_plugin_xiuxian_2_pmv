@@ -53,7 +53,6 @@ if get_plugin_by_module_name("xiuxian"):
                 (name := module.name[11:]) == "meta"
                 or name not in _config.disabled_plugins
             )
-            # module.name[:11] == xiuxian_
         ],
         [],
     )

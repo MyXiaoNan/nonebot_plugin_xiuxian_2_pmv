@@ -1782,7 +1782,7 @@ async def my_sect_(bot: Bot, event: GroupMessageEvent):
 宗门丹房：{elixir_room_name}
 """
         if sect_position == owner_position:
-            msg += f"\n宗门储备：{sect_info['sect_used_stone']}灵石"
+            msg += f"\n宗门储备：{number_to(sect_info['sect_used_stone'])}枚灵石"
     else:
         msg = f"一介散修，莫要再问。"
 
