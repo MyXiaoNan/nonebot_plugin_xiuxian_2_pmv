@@ -113,8 +113,8 @@ async def fusion_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await fusion.finish()
 
-    if user_info['exp'] < fusion_info.get('need_exp', 0):
-        msg = f"道友的修为不足，合成 {equipment['name']} 需要修为 {fusion_info.get('need_exp', 0)}！"
+    if user_info['exp'] < int(fusion_info.get('need_exp', 0)):
+        msg = f"道友的修为不足，合成 {equipment['name']} 需要修为 {int(fusion_info.get('need_exp', 0))}！"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -122,9 +122,8 @@ async def fusion_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await fusion.finish()
 
-    required_stone = int(fusion_info.get('need_stone', 0))
-    if user_info['stone'] < required_stone:
-        msg = f"道友的灵石不足，合成 {equipment['name']} 需要 {number_to(required_stone)} 枚灵石呢！"
+    if user_info['stone'] < int(fusion_info.get('need_stone', 0)):
+        msg = f"道友的灵石不足，合成 {equipment['name']} 需要 {number_to(int(fusion_info.get('need_stone', 0)))} 枚灵石呢！"
         if XiuConfig().img:
             pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -152,7 +151,7 @@ async def fusion_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await fusion.finish()
 
-    sql_message.update_ls(user_id, required_stone, 2) # 扣灵石
+    sql_message.update_ls(user_id, int(fusion_info.get('need_stone', 0)), 2) # 扣灵石
     for item_id, amount_needed in needed_items.items():
         sql_message.update_back_j(user_id, int(item_id), amount_needed) # 扣道具
 
