@@ -1408,7 +1408,7 @@ async def create_sect_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
             owner_idx = [k for k, v in jsondata.sect_config_data().items() if v.get("title", "") == "宗主"]
             owner_position = int(owner_idx[0]) if len(owner_idx) == 1 else 0
             sql_message.update_usr_sect(user_id, new_sect['sect_id'], owner_position)
-            sql_message.update_ls(user_id, XiuConfig().sect_min_level, 2)
+            sql_message.update_ls(user_id, XiuConfig().sect_create_cost, 2)
             msg = f"恭喜{user_info['user_name']}道友创建宗门——{sect_name}，宗门编号为{new_sect['sect_id']}。为道友贺！为仙道贺！"
         else:
             msg = f"道友确定要创建无名之宗门？还请三思。"
