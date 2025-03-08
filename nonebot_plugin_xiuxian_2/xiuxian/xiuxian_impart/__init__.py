@@ -1,6 +1,5 @@
 import os
 import random
-from pathlib import Path
 
 from nonebot import on_command, on_fullmatch
 from nonebot.adapters.onebot.v11 import (
@@ -18,19 +17,28 @@ from ..xiuxian_config import XiuConfig
 from ..xiuxian_utils.lay_out import Cooldown, assign_bot
 from ..xiuxian_utils.utils import (
     CommandObjectID,
+    append_draw_card_node,
     check_user,
     get_msg_pic,
+    handle_send,
     send_msg_handler,
 )
 from ..xiuxian_utils.xiuxian2_handle import XIUXIAN_IMPART_BUFF
 from .impart_data import impart_data_json
-from .impart_uitls import get_rank, impart_check, re_impart_data
+from .impart_uitls import (
+    get_image_representation,
+    get_rank,
+    img_path,
+    impart_check,
+    re_impart_data,
+    update_user_impart_data,
+)
 
 xiuxian_impart = XIUXIAN_IMPART_BUFF()
 
 
 cache_help = {}
-img_path = Path() / os.getcwd() / "data" / "xiuxian" / "卡图"
+
 time_img = [
     "花园百花",
     "花园温室",
@@ -136,241 +144,92 @@ async def impart_draw_(bot: Bot, event: GroupMessageEvent):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = check_user(event)
     if not isUser:
-        if XiuConfig().img:
-            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
-            await bot.send_group_msg(
-                group_id=int(send_group_id), message=MessageSegment.image(pic)
-            )
-        else:
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-        await impart_draw.finish()
+        handle_send(bot, event, send_group_id, msg)
+        return
 
     user_id = user_info["user_id"]
     impart_data_draw = await impart_check(user_id)
     if impart_data_draw is None:
-        msg = "发生未知错误，多次尝试无果请找晓楠！"
-        if XiuConfig().img:
-            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
-            await bot.send_group_msg(
-                group_id=int(send_group_id), message=MessageSegment.image(pic)
-            )
-        else:
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-        await impart_draw.finish()
+        await handle_send(
+            bot, event, send_group_id, "发生未知错误，多次尝试无果请找晓楠！"
+        )
+        return
     if impart_data_draw["stone_num"] < 10:
-        msg = "思恋结晶数量不足10个,无法抽卡!"
-        if XiuConfig().img:
-            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
-            await bot.send_group_msg(
-                group_id=int(send_group_id), message=MessageSegment.image(pic)
-            )
-        else:
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-        await impart_draw.finish()
-    else:
-        if get_rank(user_id):
-            img_list = impart_data_json.data_all_keys()
-            reap_img = None
-            try:
-                reap_img = random.choice(img_list)
-            except:
-                msg = "请检查卡图数据完整！"
-                if XiuConfig().img:
-                    pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
-                    await bot.send_group_msg(
-                        group_id=int(send_group_id), message=MessageSegment.image(pic)
-                    )
-                else:
-                    await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-                await impart_draw.finish()
-            list_tp = []
-            if impart_data_json.data_person_add(user_id, reap_img):
-                msg = ""
-                msg += f"检测到传承背包已经存在卡片{reap_img}\n"
-                msg += "已转化为2880分钟闭关时间\n"
-                msg += "累计共获得3540分钟闭关时间!"
-                msg += "抽卡10次结果如下\n"
+        await handle_send(bot, event, send_group_id, "思恋结晶数量不足10个,无法抽卡!")
+        return
 
-                list_tp.append(
-                    {
-                        "type": "node",
-                        "data": {
-                            "name": f"道友{user_info['user_name']}的传承抽卡",
-                            "uin": bot.self_id,
-                            "content": msg,
-                        },
-                    }
-                )
-                if XiuConfig().merge_forward_send:
-                    img = MessageSegment.image(img_path / str(reap_img + ".png"))
-                else:
-                    img = str(reap_img)
-                list_tp.append(
-                    {
-                        "type": "node",
-                        "data": {
-                            "name": f"道友{user_info['user_name']}的传承抽卡",
-                            "uin": bot.self_id,
-                            "content": img,
-                        },
-                    }
-                )
-                random.shuffle(time_img)
-                for x in time_img[:9]:
-                    img = get_image_representation(x)
-                    list_tp.append(
-                        {
-                            "type": "node",
-                            "data": {
-                                "name": f"道友{user_info['user_name']}的传承抽卡",
-                                "uin": bot.self_id,
-                                "content": img,
-                            },
-                        }
-                    )
-                try:
-                    await send_msg_handler(bot, event, list_tp)
-                except ActionFailed:
-                    msg = "未知原因，抽卡失败!"
-                    if XiuConfig().img:
-                        pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
-                        await bot.send_group_msg(
-                            group_id=int(send_group_id),
-                            message=MessageSegment.image(pic),
-                        )
-                    else:
-                        await bot.send_group_msg(
-                            group_id=int(send_group_id), message=msg
-                        )
-                    await impart_draw.finish()
-                xiuxian_impart.add_impart_exp_day(3540, user_id)
-                xiuxian_impart.update_stone_num(10, user_id, 2)
-                xiuxian_impart.update_impart_wish(0, user_id)
-                # 更新传承数据
-                await re_impart_data(user_id)
-                await impart_draw.finish()
-            else:
-                msg = ""
-                msg += "累计共获得660分钟闭关时间!"
-                msg += f"抽卡10次结果如下,获得新的传承卡片{reap_img}\n"
-                list_tp.append(
-                    {
-                        "type": "node",
-                        "data": {
-                            "name": f"道友{user_info['user_name']}的传承抽卡",
-                            "uin": bot.self_id,
-                            "content": msg,
-                        },
-                    }
-                )
-                if XiuConfig().merge_forward_send:
-                    img = MessageSegment.image(img_path / str(reap_img + ".png"))
-                else:
-                    img = str(reap_img)
-                list_tp.append(
-                    {
-                        "type": "node",
-                        "data": {
-                            "name": f"道友{user_info['user_name']}的传承抽卡",
-                            "uin": bot.self_id,
-                            "content": img,
-                        },
-                    }
-                )
-                random.shuffle(time_img)
-                for x in time_img[:9]:
-                    img = get_image_representation(x)
-                    list_tp.append(
-                        {
-                            "type": "node",
-                            "data": {
-                                "name": f"道友{user_info['user_name']}的传承抽卡",
-                                "uin": bot.self_id,
-                                "content": img,
-                            },
-                        }
-                    )
-                try:
-                    await send_msg_handler(bot, event, list_tp)
-                except ActionFailed:
-                    msg = "消息发送失败，抽卡失败!"
-                    if XiuConfig().img:
-                        pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
-                        await bot.send_group_msg(
-                            group_id=int(send_group_id),
-                            message=MessageSegment.image(pic),
-                        )
-                    else:
-                        await bot.send_group_msg(
-                            group_id=int(send_group_id), message=msg
-                        )
-                    await impart_draw.finish()
-                xiuxian_impart.add_impart_exp_day(660, user_id)
-                xiuxian_impart.update_stone_num(10, user_id, 2)
-                xiuxian_impart.update_impart_wish(0, user_id)
-                # 更新传承数据
-                await re_impart_data(user_id)
-                await impart_draw.finish()
-        else:
-            list_tp = []
+    summary = f"道友{user_info['user_name']}的传承抽卡"
+    if get_rank(user_id):
+        img_list = impart_data_json.data_all_keys()
+        reap_img = None
+        try:
+            reap_img = random.choice(img_list)
+        except:
+            await handle_send(bot, event, send_group_id, "请检查卡图数据完整！")
+            return
+        list_tp = []
+        if impart_data_json.data_person_add(user_id, reap_img):
             msg = ""
-            msg += "累计共获得660分钟闭关时间!"
-            msg += "抽卡10次结果如下!\n"
-            list_tp.append(
-                {
-                    "type": "node",
-                    "data": {
-                        "name": f"道友{user_info['user_name']}的传承抽卡",
-                        "uin": bot.self_id,
-                        "content": msg,
-                    },
-                }
-            )
-            random.shuffle(time_img)
-            for x in time_img:
-                img = get_image_representation(x)
-                list_tp.append(
-                    {
-                        "type": "node",
-                        "data": {
-                            "name": f"道友{user_info['user_name']}的传承抽卡",
-                            "uin": bot.self_id,
-                            "content": img,
-                        },
-                    }
-                )
+            msg += f"检测到传承背包已经存在卡片{reap_img}\n"
+            msg += "已转化为2880分钟闭关时间\n"
+            msg += "累计共获得3540分钟闭关时间!"
+            msg += "抽卡10次结果如下\n"
+            append_draw_card_node(bot, list_tp, summary, msg)
 
-            xiuxian_impart.add_impart_exp_day(660, user_id)
-            xiuxian_impart.update_stone_num(10, user_id, 2)
-            xiuxian_impart.add_impart_wish(10, user_id)
+            img = get_image_representation(reap_img)
+            append_draw_card_node(bot, list_tp, summary, img)
+
+            random.shuffle(time_img)
+            for x in time_img[:9]:
+                img = get_image_representation(x)
+                append_draw_card_node(bot, list_tp, summary, img)
+
             try:
                 await send_msg_handler(bot, event, list_tp)
             except ActionFailed:
-                msg = "未知原因，抽卡失败!"
-                if XiuConfig().img:
-                    pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
-                    await bot.send_group_msg(
-                        group_id=int(send_group_id), message=MessageSegment.image(pic)
-                    )
-                else:
-                    await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-            await impart_draw.finish()
+                await handle_send(bot, event, send_group_id, msg)
+                return
+            await update_user_impart_data(user_id, 3540)
+            # 更新传承数据
+            await re_impart_data(user_id)
+            return
+        else:
+            msg = ""
+            msg += "累计共获得660分钟闭关时间!"
+            msg += f"抽卡10次结果如下,获得新的传承卡片{reap_img}\n"
+            append_draw_card_node(bot, list_tp, summary, msg)
 
+            img = get_image_representation(reap_img)
+            append_draw_card_node(bot, list_tp, summary, msg)
 
-def get_image_representation(image_name: str) -> MessageSegment | str:
-    """根据是否发送图片获取获取对应卡面描述
+            random.shuffle(time_img)
+            for x in time_img[:9]:
+                img = get_image_representation(x)
+                append_draw_card_node(bot, list_tp, summary, img)
 
-    Args:
-        image_name: 卡面名称
-
-    Returns:
-        图片或者文字描述
-    """
-    return (
-        MessageSegment.image(img_path / str(image_name + ".webp"))
-        if XiuConfig().merge_forward_send
-        else str(image_name)
-    )
+            try:
+                await send_msg_handler(bot, event, list_tp)
+            except ActionFailed:
+                await handle_send(bot, event, send_group_id, msg)
+                return
+            await update_user_impart_data(user_id, 660)
+            return
+    else:
+        list_tp = []
+        msg = ""
+        msg += "累计共获得660分钟闭关时间!"
+        msg += "抽卡10次结果如下!\n"
+        append_draw_card_node(bot, list_tp, summary, msg)
+        random.shuffle(time_img)
+        for x in time_img:
+            img = get_image_representation(x)
+            append_draw_card_node(bot, list_tp, summary, img)
+        try:
+            await send_msg_handler(bot, event, list_tp)
+        except ActionFailed:
+            await handle_send(bot, event, send_group_id, msg)
+            return
+        await update_user_impart_data(user_id, 660)
 
 
 @impart_back.handle(parameterless=[Cooldown(at_sender=False)])
@@ -379,35 +238,26 @@ async def impart_back_(bot: Bot, event: GroupMessageEvent):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = check_user(event)
     if not isUser:
-        if XiuConfig().img:
-            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
-            await bot.send_group_msg(
-                group_id=int(send_group_id), message=MessageSegment.image(pic)
-            )
-        else:
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-        await impart_back.finish()
+        await handle_send(bot, event, send_group_id, msg)
+        return
+
     user_id = user_info["user_id"]
     impart_data_draw = await impart_check(user_id)
     if impart_data_draw is None:
-        msg = "发生未知错误，多次尝试无果请找晓楠！"
-        if XiuConfig().img:
-            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
-            await bot.send_group_msg(
-                group_id=int(send_group_id), message=MessageSegment.image(pic)
-            )
-        else:
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-        await impart_back.finish()
+        await handle_send(
+            bot, event, send_group_id, "发生未知错误，多次尝试无果请找晓楠！"
+        )
+        return
 
     list_tp = []
     img = None
-    txt_back = f"""--道友{user_info["user_name"]}的传承物资--
+    name = user_info["user_name"]
+    txt_back = f"""--道友{name}的传承物资--
 思恋结晶：{impart_data_draw["stone_num"]}颗
 抽卡次数：{impart_data_draw["wish"]}/90次
 累计闭关时间：{impart_data_draw["exp_day"]}分钟
 """
-    txt_tp = f"""--道友{user_info["user_name"]}的传承总属性--
+    txt_tp = f"""--道友{name}的传承总属性--
 攻击提升:{int(impart_data_draw["impart_atk_per"] * 100)}%
 气血提升:{int(impart_data_draw["impart_hp_per"] * 100)}%
 真元提升:{int(impart_data_draw["impart_mp_per"] * 100)}%
@@ -420,58 +270,20 @@ async def impart_back_(bot: Bot, event: GroupMessageEvent):
 boss战攻击提升:{int(impart_data_draw["boss_atk"] * 100)}%
 道友拥有的传承卡片如下:
 """
-    list_tp.append(
-        {
-            "type": "node",
-            "data": {
-                "name": f"道友{user_info['user_name']}的传承背包",
-                "uin": bot.self_id,
-                "content": txt_back,
-            },
-        }
-    )
-    list_tp.append(
-        {
-            "type": "node",
-            "data": {
-                "name": f"道友{user_info['user_name']}的传承背包",
-                "uin": bot.self_id,
-                "content": txt_tp,
-            },
-        }
-    )
+    summary = f"道友{name}的传承背包"
+    append_draw_card_node(bot, list_tp, summary, txt_back)
+    append_draw_card_node(bot, list_tp, summary, txt_tp)
 
     img_tp = impart_data_json.data_person_list(user_id)
 
     for x in range(len(img_tp)):
-        if XiuConfig().merge_forward_send:
-            img = MessageSegment.image(img_path / str(img_tp[x] + ".png"))
-        else:
-            img = str(img_tp[x])
-        list_tp.append(
-            {
-                "type": "node",
-                "data": {
-                    "name": f"道友{user_info['user_name']}的传承背包",
-                    "uin": bot.self_id,
-                    "content": img,
-                },
-            }
-        )
+        img = get_image_representation(img_tp[x])
+        append_draw_card_node(bot, list_tp, summary, img)
 
     try:
         await send_msg_handler(bot, event, list_tp)
     except ActionFailed:
-        msg = "获取传承背包数据失败！"
-        if XiuConfig().img:
-            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
-            await bot.send_group_msg(
-                group_id=int(send_group_id), message=MessageSegment.image(pic)
-            )
-        else:
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-        await impart_back.finish()
-    await impart_back.finish()
+        await handle_send(bot, event, send_group_id, "获取传承背包数据失败！")
 
 
 @re_impart_load.handle(parameterless=[Cooldown(at_sender=False)])
@@ -480,40 +292,23 @@ async def re_impart_load_(bot: Bot, event: GroupMessageEvent):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = check_user(event)
     if not isUser:
-        if XiuConfig().img:
-            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
-            await bot.send_group_msg(
-                group_id=int(send_group_id), message=MessageSegment.image(pic)
-            )
-        else:
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-        await re_impart_load.finish()
+        await handle_send(bot, event, send_group_id, msg)
+        return
+
     user_id = user_info["user_id"]
     impart_data_draw = await impart_check(user_id)
     if impart_data_draw is None:
-        msg = "发生未知错误，多次尝试无果请找晓楠！"
-        if XiuConfig().img:
-            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
-            await bot.send_group_msg(
-                group_id=int(send_group_id), message=MessageSegment.image(pic)
-            )
-        else:
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-        await re_impart_load.finish()
+        await handle_send(
+            bot, event, send_group_id, "发生未知错误，多次尝试无果请找晓楠！"
+        )
+        return
     # 更新传承数据
     info = await re_impart_data(user_id)
     if info:
         msg = "传承数据加载完成！"
     else:
         msg = "传承数据加载失败！"
-    if XiuConfig().img:
-        pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
-        await bot.send_group_msg(
-            group_id=int(send_group_id), message=MessageSegment.image(pic)
-        )
-    else:
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-    await re_impart_load.finish()
+    await handle_send(bot, event, send_group_id, msg)
 
 
 @impart_info.handle(parameterless=[Cooldown(at_sender=False)])
@@ -522,37 +317,19 @@ async def impart_info_(bot: Bot, event: GroupMessageEvent):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = check_user(event)
     if not isUser:
-        if XiuConfig().img:
-            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
-            await bot.send_group_msg(
-                group_id=int(send_group_id), message=MessageSegment.image(pic)
-            )
-        else:
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-        await impart_info.finish()
+        await handle_send(bot, event, send_group_id, msg)
+        return
     user_id = user_info["user_id"]
     impart_data_draw = await impart_check(user_id)
     if impart_data_draw is None:
-        msg = "发生未知错误，多次尝试无果请找晓楠！"
-        if XiuConfig().img:
-            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
-            await bot.send_group_msg(
-                group_id=int(send_group_id), message=MessageSegment.image(pic)
-            )
-        else:
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-        await impart_info.finish()
+        await handle_send(
+            bot, event, send_group_id, "发生未知错误，多次尝试无果请找晓楠！"
+        )
+        return
 
     msg = f"""--道友{user_info["user_name"]}的传承物资--
 思恋结晶：{impart_data_draw["stone_num"]}颗
 抽卡次数：{impart_data_draw["wish"]}/90次
 累计闭关时间：{impart_data_draw["exp_day"]}分钟
     """
-    if XiuConfig().img:
-        pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
-        await bot.send_group_msg(
-            group_id=int(send_group_id), message=MessageSegment.image(pic)
-        )
-    else:
-        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-    await impart_info.finish()
+    await handle_send(bot, event, send_group_id, msg)
