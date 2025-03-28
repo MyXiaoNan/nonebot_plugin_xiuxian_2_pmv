@@ -1,12 +1,21 @@
+import os
+from pathlib import Path
+
 import numpy
+from nonebot.adapters.onebot.v11 import (
+    MessageSegment,
+)
+
+from ..xiuxian_config import XiuConfig
 from ..xiuxian_utils.xiuxian2_handle import XIUXIAN_IMPART_BUFF
 from .impart_data import impart_data_json
 
 xiuxian_impart = XIUXIAN_IMPART_BUFF()
+img_path = Path() / os.getcwd() / "data" / "xiuxian" / "卡图"
 
 
 def random_int():
-    return numpy.random.randint(low=0, high=10000, size=None, dtype='l')
+    return numpy.random.randint(low=0, high=10000, size=None, dtype="l")
 
 
 # 抽卡概率来自https://www.bilibili.com/read/cv10468091
@@ -23,7 +32,7 @@ def character_probability(count):
 def get_rank(user_id):
     impart_data = xiuxian_impart.get_user_impart_info_with_id(user_id)
     value = random_int()
-    num = int(impart_data['wish'])
+    num = int(impart_data["wish"])
     for x in range(num, num + 10):
         index_5 = character_probability(x)
         if value <= index_5:
@@ -92,3 +101,33 @@ async def re_impart_data(user_id):
         xiuxian_impart.update_impart_mix_per(impart_mix_per, user_id)
         xiuxian_impart.update_impart_reap_per(impart_reap_per, user_id)
         return True
+
+
+async def update_user_impart_data(user_id, time: int):
+    """更新用户传承数据
+
+    Args:
+        user_id: 用户QQ号
+        time: 传承时间
+    """
+    xiuxian_impart.add_impart_exp_day(time, user_id)
+    xiuxian_impart.update_stone_num(10, user_id, 2)
+    xiuxian_impart.update_impart_wish(0, user_id)
+    # 更新传承数据
+    await re_impart_data(user_id)
+
+
+def get_image_representation(image_name: str) -> MessageSegment | str:
+    """根据是否发送图片获取获取对应卡面描述
+
+    Args:
+        image_name: 卡面名称
+
+    Returns:
+        图片或者文字描述
+    """
+    return (
+        MessageSegment.image(img_path / str(image_name + ".webp"))
+        if XiuConfig().merge_forward_send
+        else str(image_name)
+    )
