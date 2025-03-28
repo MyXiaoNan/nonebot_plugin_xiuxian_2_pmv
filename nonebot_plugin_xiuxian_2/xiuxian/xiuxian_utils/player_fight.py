@@ -1747,10 +1747,9 @@ def after_atk_sub_buff_handle(player1_sub_open, player1, user1_main_buff_data, s
         player1['真元'] += mana_stolen
         player1['真元'] = min(player1['真元'], player1['max_mp'])
         msg = "吸取真元:" + str(mana_stolen)
-    elif buff_type == '8':
+    elif buff_type == '8': # 中毒
         poison_damage = player2['气血'] * buff_value // 100
         player2['气血'] -= poison_damage
-        player2['气血'] = max(player2['气血'], player2['max_hp'])
         msg = "对手中毒消耗血量:" + str(poison_damage)
     elif buff_type == '9':
         health_stolen = (damage1 * (buff_value + random_buff.random_xx) // 100) * (1 - boss_buff.boss_xx)
