@@ -200,8 +200,14 @@ async def _(bot: Bot, event: GroupMessageEvent):
                 await bot.send_group_msg(group_id=int(send_group_id), message=msg)
             await explore_rift.finish()
         
-        if convert_rank(user_info["level"])[0] > group_rift[group_id].rank:
-            msg = f"秘境凶险万分，道友的境界不足，无法进入秘境：{group_rift[group_id].name}，请道友提升到搬血境中期以上再来！"
+        user_rank = convert_rank(user_info["level"])[0]
+        # 搬血中期 - 秘境rank
+        required_rank = convert_rank("搬血境中期")[0] - group_rift[group_id].rank
+        
+        if user_rank > required_rank:
+            rank_name_list = convert_rank(user_info["level"])[1]
+            required_rank_name = rank_name_list[len(rank_name_list) - required_rank - 1]
+            msg = f"秘境凶险万分，道友的境界不足，无法进入秘境：{group_rift[group_id].name}，请道友提升到{required_rank_name}以上再来！"
             if XiuConfig().img:
                 pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
