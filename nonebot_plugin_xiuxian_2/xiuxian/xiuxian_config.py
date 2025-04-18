@@ -75,25 +75,25 @@ class XiuConfig:
         # QQ所负责的群聊 #{群 ：bot}   其中 bot类型 []或str }
         # "123456":"123456",
         self.sect_min_level = "铭纹境圆满" # 创建宗门最低境界
-        self.sect_create_cost = 5000000 # 创建宗门消耗
-        self.sect_rename_cost = 50000000 # 宗门改名消耗
+        self.sect_create_cost = 500000 # 创建宗门消耗
+        self.sect_rename_cost = 500000 # 宗门改名消耗
         self.sect_rename_cd = 1 # 宗门改名cd/天
         self.auto_change_sect_owner_cd = 7 # 自动换长时间不玩宗主cd/天
         self.closing_exp_upper_limit = 1.5  # 闭关获取修为上限（例如：1.5 下个境界的修为数*1.5）
         self.level_punishment_floor = 10  # 突破失败扣除修为，惩罚下限（百分比）
         self.level_punishment_limit = 35  # 突破失败扣除修为，惩罚上限(百分比)
         self.level_up_probability = 0.2  # 突破失败增加当前境界突破概率的比例
-        self.sign_in_lingshi_lower_limit = 10000  # 每日签到灵石下限
-        self.sign_in_lingshi_upper_limit = 50000  # 每日签到灵石上限
+        self.sign_in_lingshi_lower_limit = 1000  # 每日签到灵石下限
+        self.sign_in_lingshi_upper_limit = 5000  # 每日签到灵石上限
         self.beg_max_level = "铭纹境圆满" # 仙途奇缘能领灵石最高境界
         self.beg_max_days = 3 # 仙途奇缘能领灵石最多天数
-        self.beg_lingshi_lower_limit = 200000  # 仙途奇缘灵石下限
-        self.beg_lingshi_upper_limit = 500000  # 仙途奇缘灵石上限
+        self.beg_lingshi_lower_limit = 20000  # 仙途奇缘灵石下限
+        self.beg_lingshi_upper_limit = 50000  # 仙途奇缘灵石上限
         self.tou = 100000  # 偷灵石惩罚
         self.dufang_cd = 10  # 金银阁cd/秒
         self.tou_lower_limit = 0.01  # 偷灵石下限(百分比)
         self.tou_upper_limit = 0.50  # 偷灵石上限(百分比)
-        self.remake = 100000  # 重入仙途的消费
+        self.remake = 10000  # 重入仙途的消费
         self.max_stamina = 240 # 体力上限
         self.stamina_recovery_points = 1 # 体力恢复点数/分钟
         self.lunhui_min_level = "祭道境圆满" # 千世轮回最低境界
