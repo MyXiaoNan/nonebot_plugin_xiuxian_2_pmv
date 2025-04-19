@@ -973,7 +973,7 @@ async def give_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
                 give_stone_num2 = int(give_stone_num) * 0.1
                 num = int(give_stone_num) - int(give_stone_num2)
                 sql_message.update_ls(give_qq, num, 1)  # 增加用户灵石
-                msg = f"共赠送{number_to(int(give_stone_num))}枚灵石给{give_user['user_name']}道友！收取手续费{int(give_stone_num2)}枚"
+                msg = f"共赠送{number_to(int(give_stone_num))}枚灵石给{give_user['user_name']}道友！\n收取手续费{number_to(int(give_stone_num2))}枚"
                 if XiuConfig().img:
                     pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
                     await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))

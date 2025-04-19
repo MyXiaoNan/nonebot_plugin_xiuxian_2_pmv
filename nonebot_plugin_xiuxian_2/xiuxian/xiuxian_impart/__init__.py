@@ -17,11 +17,11 @@ from ..xiuxian_config import XiuConfig
 from ..xiuxian_utils.lay_out import Cooldown, assign_bot
 from ..xiuxian_utils.utils import (
     CommandObjectID,
-    append_draw_card_node,
     check_user,
     get_msg_pic,
     handle_send,
     send_msg_handler,
+    build_forward_msg_list,
 )
 from ..xiuxian_utils.xiuxian2_handle import XIUXIAN_IMPART_BUFF
 from .impart_data import impart_data_json
@@ -144,92 +144,133 @@ async def impart_draw_(bot: Bot, event: GroupMessageEvent):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = check_user(event)
     if not isUser:
-        handle_send(bot, event, send_group_id, msg)
-        return
+        await handle_send(bot, event, send_group_id, msg)
+        await impart_draw.finish()
 
-    user_id = user_info["user_id"]
+    user_id = user_info['user_id']
     impart_data_draw = await impart_check(user_id)
     if impart_data_draw is None:
-        await handle_send(
-            bot, event, send_group_id, "发生未知错误，多次尝试无果请找晓楠！"
-        )
-        return
-    if impart_data_draw["stone_num"] < 10:
-        await handle_send(bot, event, send_group_id, "思恋结晶数量不足10个,无法抽卡!")
-        return
-
-    summary = f"道友{user_info['user_name']}的传承抽卡"
-    if get_rank(user_id):
-        img_list = impart_data_json.data_all_keys()
-        reap_img = None
-        try:
-            reap_img = random.choice(img_list)
-        except:
-            await handle_send(bot, event, send_group_id, "请检查卡图数据完整！")
-            return
-        list_tp = []
-        if impart_data_json.data_person_add(user_id, reap_img):
-            msg = ""
-            msg += f"检测到传承背包已经存在卡片{reap_img}\n"
-            msg += "已转化为2880分钟闭关时间\n"
-            msg += "累计共获得3540分钟闭关时间!"
-            msg += "抽卡10次结果如下\n"
-            append_draw_card_node(bot, list_tp, summary, msg)
-
-            img = get_image_representation(reap_img)
-            append_draw_card_node(bot, list_tp, summary, img)
-
-            random.shuffle(time_img)
-            for x in time_img[:9]:
-                img = get_image_representation(x)
-                append_draw_card_node(bot, list_tp, summary, img)
-
+        msg = f"发生未知错误，多次尝试无果请找晓楠！"
+        await handle_send(bot, event, send_group_id, msg)
+        await impart_draw.finish()
+    if impart_data_draw['stone_num'] < 10:
+        msg = f"思恋结晶数量不足10个,无法抽卡!"
+        await handle_send(bot, event, send_group_id, msg)
+        await impart_draw.finish()
+    else:
+        if get_rank(user_id):
+            img_list = impart_data_json.data_all_keys()
+            reap_img = None
             try:
-                await send_msg_handler(bot, event, list_tp)
-            except ActionFailed:
+                reap_img = random.choice(img_list)
+            except:
+                msg = f"请检查卡图数据完整！"
                 await handle_send(bot, event, send_group_id, msg)
-                return
-            await update_user_impart_data(user_id, 3540)
+                await impart_draw.finish()
+                
+            summary = f"道友{user_info['user_name']}的传承抽卡"
+            
+            if impart_data_json.data_person_add(user_id, reap_img):
+                # 抽到重复卡
+                msg = f"检测到传承背包已经存在卡片{reap_img}\n"
+                msg += f"已转化为2880分钟闭关时间\n"
+                msg += f"累计共获得3540分钟闭关时间!\n"
+                msg += f"抽卡10次结果如下"
+                
+                # 准备图片列表，第一张是抽到的卡片，后面是随机的时间卡
+                random.shuffle(time_img)
+                images = [reap_img] + time_img[:9]
+                
+                # 构建图片发送参数
+                image_params = {
+                    "use_merge_forward_send": XiuConfig().merge_forward_send,
+                    "img_path": img_path,
+                    "img_format": "png"
+                }
+                
+                # 构建转发消息
+                list_tp = build_forward_msg_list(bot, summary, msg, images, image_params)
+                
+                # 抽到重复卡，抽数归零，加3540分钟闭关时间
+                xiuxian_impart.add_impart_exp_day(3540, user_id)
+                xiuxian_impart.update_stone_num(10, user_id, 2)
+                xiuxian_impart.update_impart_wish(0, user_id)
+                # 更新传承数据
+                await re_impart_data(user_id)
+                
+                try:
+                    await send_msg_handler(bot, event, list_tp)
+                except ActionFailed:
+                    msg = f"未知原因，抽卡失败!"
+                    await handle_send(bot, event, send_group_id, msg)
+                    await impart_draw.finish()
+                
+                await impart_draw.finish()
+            else:
+                # 抽到新卡
+                msg = f"累计共获得660分钟闭关时间!\n"
+                msg += f"抽卡10次结果如下,获得新的传承卡片{reap_img}"
+                
+                # 准备图片列表，第一张是抽到的卡片，后面是随机的时间卡
+                random.shuffle(time_img)
+                images = [reap_img] + time_img[:9]
+                
+                # 构建图片发送参数
+                image_params = {
+                    "use_merge_forward_send": XiuConfig().merge_forward_send,
+                    "img_path": img_path,
+                    "img_format": "png"
+                }
+                
+                # 构建转发消息
+                list_tp = build_forward_msg_list(bot, summary, msg, images, image_params)
+                
+                # 抽到新卡，抽数归零
+                xiuxian_impart.add_impart_exp_day(660, user_id)
+                xiuxian_impart.update_stone_num(10, user_id, 2)
+                xiuxian_impart.update_impart_wish(0, user_id)
+                # 更新传承数据
+                await re_impart_data(user_id)
+                
+                try:
+                    await send_msg_handler(bot, event, list_tp)
+                except ActionFailed:
+                    msg = f"未知原因，抽卡失败！"
+                    await handle_send(bot, event, send_group_id, msg)
+                    await impart_draw.finish()
+                
+                await impart_draw.finish()
+        else:
+            # 没有排名
+            summary = f"道友{user_info['user_name']}的传承抽卡"
+            msg = f"累计共获得660分钟闭关时间!\n"
+            msg += f"抽卡10次结果如下!"
+            
+            # 准备图片列表
+            random.shuffle(time_img)
+            
+            # 构建图片发送参数
+            image_params = {
+                "use_merge_forward_send": XiuConfig().merge_forward_send,
+                "img_path": img_path,
+                "img_format": "png"
+            }
+            
+            # 构建转发消息
+            list_tp = build_forward_msg_list(bot, summary, msg, time_img, image_params)
+            
+            # 没抽到新卡，只加660分钟
+            xiuxian_impart.add_impart_exp_day(660, user_id)
+            xiuxian_impart.update_stone_num(10, user_id, 2)
+            xiuxian_impart.add_impart_wish(10, user_id)
             # 更新传承数据
             await re_impart_data(user_id)
-            return
-        else:
-            msg = ""
-            msg += "累计共获得660分钟闭关时间!"
-            msg += f"抽卡10次结果如下,获得新的传承卡片{reap_img}\n"
-            append_draw_card_node(bot, list_tp, summary, msg)
-
-            img = get_image_representation(reap_img)
-            append_draw_card_node(bot, list_tp, summary, msg)
-
-            random.shuffle(time_img)
-            for x in time_img[:9]:
-                img = get_image_representation(x)
-                append_draw_card_node(bot, list_tp, summary, img)
-
+            
             try:
                 await send_msg_handler(bot, event, list_tp)
             except ActionFailed:
-                await handle_send(bot, event, send_group_id, msg)
-                return
-            await update_user_impart_data(user_id, 660)
-            return
-    else:
-        list_tp = []
-        msg = ""
-        msg += "累计共获得660分钟闭关时间!"
-        msg += "抽卡10次结果如下!\n"
-        append_draw_card_node(bot, list_tp, summary, msg)
-        random.shuffle(time_img)
-        for x in time_img:
-            img = get_image_representation(x)
-            append_draw_card_node(bot, list_tp, summary, img)
-        try:
-            await send_msg_handler(bot, event, list_tp)
-        except ActionFailed:
-            await handle_send(bot, event, send_group_id, msg)
-            return
-        await update_user_impart_data(user_id, 660)
+                await handle_send(bot, event, send_group_id, "未知原因，抽卡失败！")
+                await impart_draw.finish()
 
 
 @impart_back.handle(parameterless=[Cooldown(at_sender=False)])
@@ -249,15 +290,16 @@ async def impart_back_(bot: Bot, event: GroupMessageEvent):
         )
         return
 
-    list_tp = []
-    img = None
     name = user_info["user_name"]
-    txt_back = f"""--道友{name}的传承物资--
+    summary = f"道友{name}的传承背包"
+    
+    # 组合要显示的文本信息
+    msg_text = f"""--道友{name}的传承物资--
 思恋结晶：{impart_data_draw["stone_num"]}颗
 抽卡次数：{impart_data_draw["wish"]}/90次
 累计闭关时间：{impart_data_draw["exp_day"]}分钟
-"""
-    txt_tp = f"""--道友{name}的传承总属性--
+
+--道友{name}的传承总属性--
 攻击提升:{int(impart_data_draw["impart_atk_per"] * 100)}%
 气血提升:{int(impart_data_draw["impart_hp_per"] * 100)}%
 真元提升:{int(impart_data_draw["impart_mp_per"] * 100)}%
@@ -268,17 +310,21 @@ async def impart_back_(bot: Bot, event: GroupMessageEvent):
 灵田收取数量提升：{impart_data_draw["impart_reap_per"]}颗
 每日双修次数提升：{impart_data_draw["impart_two_exp"]}次
 boss战攻击提升:{int(impart_data_draw["boss_atk"] * 100)}%
-道友拥有的传承卡片如下:
-"""
-    summary = f"道友{name}的传承背包"
-    append_draw_card_node(bot, list_tp, summary, txt_back)
-    append_draw_card_node(bot, list_tp, summary, txt_tp)
+道友拥有的传承卡片如下:"""
 
+    # 获取用户的卡片列表
     img_tp = impart_data_json.data_person_list(user_id)
-
-    for x in range(len(img_tp)):
-        img = get_image_representation(img_tp[x])
-        append_draw_card_node(bot, list_tp, summary, img)
+    
+    # 构建图片发送参数
+    image_params = {
+        "use_merge_forward_send": XiuConfig().merge_forward_send,
+        "img_path": img_path,
+        "img_format": "png",
+        "get_image_func": get_image_representation
+    }
+    
+    # 构建转发消息
+    list_tp = build_forward_msg_list(bot, summary, msg_text, img_tp, image_params)
 
     try:
         await send_msg_handler(bot, event, list_tp)

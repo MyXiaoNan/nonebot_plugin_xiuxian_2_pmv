@@ -503,11 +503,24 @@ async def send_msg_handler(bot, event, *args):
         elif len(args) == 1 and isinstance(args[0], list):
             messages = args[0]
             img = Txt2Img()
-            messages = "\n".join([str(msg["data"]["content"]) for msg in messages])
+            
+            # 检查是否是name, uin, msgs格式
+            if len(messages) == 3 and not isinstance(messages[0], dict) and isinstance(messages[2], list):
+                name, uin, msgs = messages
+                messages_text = "\n".join(msgs)
+            else:
+                # 处理节点消息格式
+                try:
+                    messages_text = "\n".join([str(msg["data"]["content"]) for msg in messages])
+                except (TypeError, KeyError):
+                    # 如果遇到错误，尝试直接转换
+                    messages_text = "\n".join([str(msg) for msg in messages])
+            
             if XiuConfig().img_send_type == "io":
-                img_data = await img.io_draw_to(messages)
+                img_data = await img.io_draw_to(messages_text)
             elif XiuConfig().img_send_type == "base64":
-                img_data = img.sync_draw_to(messages)
+                img_data = img.sync_draw_to(messages_text)
+                
             if isinstance(event, GroupMessageEvent):
                 await bot.send_group_msg(
                     group_id=event.group_id, message=MessageSegment.image(img_data)
@@ -615,21 +628,76 @@ async def handle_send(bot, event, send_group_id, msg: str):
         await bot.send_group_msg(group_id=int(send_group_id), message=msg)
 
 
-def append_draw_card_node(bot: Bot, list_tp: list, summary: str, content):
-    """添加节点进转发消息
-
+def build_forward_msg_list(bot: Bot, summary: str, text_msg: str, images: list = None, image_params: dict = None):
+    """创建转发消息节点列表，用于构建包含文本和多张图片的转发消息
+    
     Args:
-        list_tp (list): 要制作的转发消息列表
-        summary (str): 转发消息的标题
-        content (_type_): 转发消息的内容
+        bot (Bot): 机器人实例
+        summary (str): 转发消息的标题/用户名
+        text_msg (str): 要发送的文本消息
+        images (list, optional): 要发送的图片列表，如卡片名列表
+        image_params (dict, optional): 图片处理相关参数，可包含以下键:
+            - use_merge_forward_send (bool): 是否使用合并转发发送
+            - img_path (Path): 图片路径
+            - img_format (str): 图片格式，默认为"png"
+            - get_image_func (callable): 获取图片的函数，默认直接使用MessageSegment.image
+    
+    Returns:
+        list: 转发消息节点列表，可用于send_msg_handler
     """
-    list_tp.append(
-        {
+    # 检查是否使用合并转发发送
+    use_merge_forward_send = image_params.get("use_merge_forward_send", XiuConfig().merge_forward_send) if image_params else XiuConfig().merge_forward_send
+    
+    if use_merge_forward_send:
+        # 使用合并转发发送
+        list_tp = []
+        
+        # 添加文本消息
+        list_tp.append({
             "type": "node",
             "data": {
                 "name": summary,
                 "uin": bot.self_id,
-                "content": content,
+                "content": text_msg,
             },
-        }
-    )
+        })
+        
+        # 如果提供了图片列表，则添加图片
+        if images:
+            img_path = image_params.get("img_path") if image_params else None
+            img_format = image_params.get("img_format", "png") if image_params else "png"
+            get_image_func = image_params.get("get_image_func") if image_params else None
+            
+            for image in images:
+                if get_image_func:
+                    # 使用提供的图片获取函数
+                    img = get_image_func(image)
+                elif img_path and use_merge_forward_send:
+                    # 使用路径构建图片
+                    img = MessageSegment.image(img_path / f"{image}.{img_format}")
+                else:
+                    # 默认情况下只使用图片名称作为内容
+                    img = str(image)
+                    
+                list_tp.append({
+                    "type": "node",
+                    "data": {
+                        "name": summary,
+                        "uin": bot.self_id,
+                        "content": img,
+                    },
+                })
+        
+        return list_tp
+    else:
+        # 不使用合并转发发送，返回纯文本消息
+        # 组合所有图片名称与文本消息
+        result_msgs = []
+        result_msgs.append(text_msg)
+        
+        if images:
+            result_msgs.append("卡片列表：")
+            result_msgs.extend([str(img) for img in images])
+        
+        # 返回适合send_msg_handler的格式
+        return [summary, bot.self_id, result_msgs]
