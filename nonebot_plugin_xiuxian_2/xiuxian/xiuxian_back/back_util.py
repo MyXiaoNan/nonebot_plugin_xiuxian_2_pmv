@@ -5,7 +5,7 @@ except ImportError:
 from ..xiuxian_utils.item_json import Items
 from ..xiuxian_utils.utils import number_to
 from ..xiuxian_utils.xiuxian2_handle import (
-    XiuxianDateManage, UserBuffDate, 
+    XiuxianDataManage, UserBuffData, 
     get_weapon_info_msg, get_armor_info_msg,
     get_player_info, save_player_info, 
     get_sec_msg, get_main_info_msg, get_sub_info_msg
@@ -16,7 +16,6 @@ from pathlib import Path
 from ..xiuxian_config import convert_rank
 
 items = Items()
-sql_message = XiuxianDateManage()
 
 YAOCAIINFOMSG = {
     "-1": "性寒",
@@ -30,7 +29,7 @@ YAOCAIINFOMSG = {
 }
 
 
-def check_equipment_can_use(user_id, goods_id):
+async def check_equipment_can_use(user_id, goods_id):
     """
     装备数据库字段：
         good_type -> '装备'
@@ -46,50 +45,50 @@ def check_equipment_can_use(user_id, goods_id):
     顶用：
     """
     flag = False
-    back_equipment = sql_message.get_item_by_good_id_and_user_id(user_id, goods_id)
+    back_equipment = await XiuxianDataManage().get_item_by_good_id_and_user_id(user_id, goods_id)
     if back_equipment['state'] == 0:
         flag = True
     return flag
 
 
-def get_use_equipment_sql(user_id, goods_id):
+async def get_use_equipment_sql(user_id, goods_id):
     """
     使用装备
     返回sql,和法器或防具
     """
     sql_str = []
     item_info = items.get_data_by_item_id(goods_id)
-    user_buff_info = UserBuffDate(user_id).BuffInfo
+    user_buff_info = await UserBuffData(user_id).BuffInfo
     now_time = datetime.now()
     item_type = ''
     if item_info['item_type'] == "法器":
         item_type = "法器"
         in_use_id = user_buff_info['faqi_buff']
         sql_str.append(
-            f"UPDATE back set update_time='{now_time}',action_time='{now_time}',state=1 WHERE user_id={user_id} and goods_id={goods_id}")  # 装备
+            f"UPDATE xiuxian_back set update_time='{now_time}',action_time='{now_time}',state=1 WHERE user_id={user_id} and goods_id={goods_id}")  # 装备
         if in_use_id != 0:
             sql_str.append(
-                f"UPDATE back set update_time='{now_time}',action_time='{now_time}',state=0 WHERE user_id={user_id} and goods_id={in_use_id}")  # 取下原有的
+                f"UPDATE xiuxian_back set update_time='{now_time}',action_time='{now_time}',state=0 WHERE user_id={user_id} and goods_id={in_use_id}")  # 取下原有的
 
     if item_info['item_type'] == "防具":
         item_type = "防具"
         in_use_id = user_buff_info['armor_buff']
         sql_str.append(
-            f"UPDATE back set update_time='{now_time}',action_time='{now_time}',state=1 WHERE user_id={user_id} and goods_id={goods_id}")  # 装备
+            f"UPDATE xiuxian_back set update_time='{now_time}',action_time='{now_time}',state=1 WHERE user_id={user_id} and goods_id={goods_id}")  # 装备
         if in_use_id != 0:
             sql_str.append(
-                f"UPDATE back set update_time='{now_time}',action_time='{now_time}',state=0 WHERE user_id={user_id} and goods_id={in_use_id}")  # 取下原有的
+                f"UPDATE xiuxian_back set update_time='{now_time}',action_time='{now_time}',state=0 WHERE user_id={user_id} and goods_id={in_use_id}")  # 取下原有的
 
     return sql_str, item_type
 
 
-def get_no_use_equipment_sql(user_id, goods_id):
+async def get_no_use_equipment_sql(user_id, goods_id):
     """
     卸载装备
     返回sql,和法器或防具
     """
     item_info = items.get_data_by_item_id(goods_id)
-    user_buff_info = UserBuffDate(user_id).BuffInfo
+    user_buff_info = await UserBuffData(user_id).BuffInfo
     now_time = datetime.now()
     sql_str = []
     item_type = ""
@@ -108,21 +107,21 @@ def get_no_use_equipment_sql(user_id, goods_id):
     if goods_id == in_use_id or in_use_id != 0:
         # 卸载当前装备
         sql_str.append(
-            f"UPDATE back set update_time='{now_time}',action_time='{now_time}',state=0 WHERE user_id={user_id} and goods_id={goods_id}")
+            f"UPDATE xiuxian_back set update_time='{now_time}',action_time='{now_time}',state=0 WHERE user_id={user_id} and goods_id={goods_id}")
         # 如果还有其他装备需要卸载（对于法器和防具的情况）
         if in_use_id != 0 and goods_id != in_use_id:
             sql_str.append(
-                f"UPDATE back set update_time='{now_time}',action_time='{now_time}',state=0 WHERE user_id={user_id} and goods_id={in_use_id}")
+                f"UPDATE xiuxian_back set update_time='{now_time}',action_time='{now_time}',state=0 WHERE user_id={user_id} and goods_id={in_use_id}")
 
     return sql_str, item_type
 
 
 
-def check_equipment_use_msg(user_id, goods_id):
+async def check_equipment_use_msg(user_id, goods_id):
     """
     检测装备是否已用
     """
-    user_back = sql_message.get_item_by_good_id_and_user_id(user_id, goods_id)
+    user_back = await XiuxianDataManage().get_item_by_good_id_and_user_id(user_id, goods_id)
     state = user_back['state']
     is_use = False
     if state == 0:
@@ -132,7 +131,7 @@ def check_equipment_use_msg(user_id, goods_id):
     return is_use
 
 
-def get_user_main_back_msg(user_id):
+async def get_user_main_back_msg(user_id):
     """
     获取背包内的所有物品信息
     """
@@ -145,7 +144,7 @@ def get_user_main_back_msg(user_id):
     l_yaocai_msg = []
     l_libao_msg = []
     l_msg = []
-    user_backs = sql_message.get_back_msg(user_id)  # list(back)
+    user_backs = await XiuxianDataManage().get_back_msg(user_id)  # list(back)
     if user_backs is None:
         return l_msg
     for user_back in user_backs:
@@ -157,7 +156,7 @@ def get_user_main_back_msg(user_id):
         
         elif user_back['goods_type'] == "丹药":
             l_elixir_msg = get_elixir_msg(l_elixir_msg, user_back['goods_id'], user_back['goods_num'], user_back['bind_num'])
- 
+
         elif user_back['goods_type'] == "神物":
             l_shenwu_msg = get_shenwu_msg(l_shenwu_msg, user_back['goods_id'], user_back['goods_num'], user_back['bind_num'])
 
@@ -443,13 +442,13 @@ def get_yaocai_info_msg(goods_id, item_info):
     return msg
 
 
-def check_use_elixir(user_id, goods_id, num):
-    user_info = sql_message.get_user_info_with_id(user_id)
+async def check_use_elixir(user_id, goods_id, num):
+    user_info = await XiuxianDataManage().get_user_info_with_id(user_id)
     user_rank = convert_rank(user_info['level'])[0]
     goods_info = items.get_data_by_item_id(goods_id)
     goods_rank = goods_info['rank']
     goods_name = goods_info['name']
-    back = sql_message.get_item_by_good_id_and_user_id(user_id, goods_id)
+    back = await XiuxianDataManage().get_item_by_good_id_and_user_id(user_id, goods_id)
     goods_all_num = back['all_num'] # 数据库里的使用数量
     remaining_limit = goods_info['all_num'] - goods_all_num  # 剩余可用数量
 
@@ -459,8 +458,8 @@ def check_use_elixir(user_id, goods_id, num):
         elif goods_rank - user_rank > 18:  # 最高使用限制
             msg = f"道友当前境界为：{user_info['level']}，丹药：{goods_name}已不能满足道友，请寻找适合道友的丹药吧！"    
         else:  # 检查完毕
-            sql_message.update_back_j(user_id, goods_id, num, 1)
-            sql_message.update_levelrate(user_id, user_info['level_up_rate'] + goods_info['buff'] * num)
+            await XiuxianDataManage().update_back_j(user_id, goods_id, num, 1)
+            await XiuxianDataManage().update_levelrate(user_id, user_info['level_up_rate'] + goods_info['buff'] * num)
             msg = f"道友成功使用丹药：{goods_name}{num}颗，下一次突破的成功概率提高{goods_info['buff'] * num}%!"
 
     elif goods_info['buff_type'] == "level_up_big":  # 增加大境界突破概率的丹药
@@ -476,8 +475,8 @@ def check_use_elixir(user_id, goods_id, num):
                 else:
                     msg = f"道友成功使用丹药：{goods_name}{num}颗, 下一次突破的成功概率提高{goods_info['buff'] * num}%!"
 
-                sql_message.update_back_j(user_id, goods_id, num, 1)
-                sql_message.update_levelrate(user_id, user_info['level_up_rate'] + goods_info['buff'] * num)
+                await XiuxianDataManage().update_back_j(user_id, goods_id, num, 1)
+                await XiuxianDataManage().update_levelrate(user_id, user_info['level_up_rate'] + goods_info['buff'] * num)
 
     elif goods_info['buff_type'] == "hp":  # 回复状态的丹药
         if user_info['root'] == "器师":
@@ -499,8 +498,8 @@ def check_use_elixir(user_id, goods_id, num):
                 else:
                     new_mp = user_info['mp'] + recover_mp
                 msg = f"道友成功使用丹药：{goods_name}{num}颗，经过境界转化状态恢复了{int(buff * 100 * num)}%!"
-                sql_message.update_back_j(user_id, goods_id, num=num ,use_key=1)
-                sql_message.update_user_hp_mp(user_id, new_hp, new_mp)
+                await XiuxianDataManage().update_back_j(user_id, goods_id, num=num ,use_key=1)
+                await XiuxianDataManage().update_user_hp_mp(user_id, new_hp, new_mp)
         else:
             if goods_rank < user_rank:  # 使用限制
                 msg = f"丹药：{goods_name}的使用境界为{goods_info['境界']}以上，道友不满足使用条件！"
@@ -523,8 +522,8 @@ def check_use_elixir(user_id, goods_id, num):
                     else:
                         new_mp = user_info['mp'] + recover_mp
                     msg = f"道友成功使用丹药：{goods_name}{num}颗，经过境界转化状态恢复了{int(buff * 100 * num)}%!"
-                    sql_message.update_back_j(user_id, goods_id, num=num ,use_key=1)
-                    sql_message.update_user_hp_mp(user_id, new_hp, new_mp)
+                    await XiuxianDataManage().update_back_j(user_id, goods_id, num=num ,use_key=1)
+                    await XiuxianDataManage().update_user_hp_mp(user_id, new_hp, new_mp)
 
     elif goods_info['buff_type'] == "all":  # 回满状态的丹药
         if user_info['root'] == "器师":
@@ -533,8 +532,8 @@ def check_use_elixir(user_id, goods_id, num):
             if user_info['hp'] == user_max_hp and user_info['mp'] == user_max_mp:
                 msg = f"道友的状态是满的，用不了哦！"
             else:
-                sql_message.update_back_j(user_id, goods_id, use_key=1)
-                sql_message.update_user_hp(user_id)
+                await XiuxianDataManage().update_back_j(user_id, goods_id, use_key=1)
+                await XiuxianDataManage().update_user_hp(user_id)
                 msg = f"道友成功使用丹药：{goods_name}1颗,状态已全部恢复!"
         else:
             if goods_rank < user_rank:  # 使用限制
@@ -545,23 +544,23 @@ def check_use_elixir(user_id, goods_id, num):
                 if user_info['hp'] == user_max_hp and user_info['mp'] == user_max_mp:
                     msg = f"道友的状态是满的，用不了哦！"
                 else:
-                    sql_message.update_back_j(user_id, goods_id, use_key=1)
-                    sql_message.update_user_hp(user_id)
+                    await XiuxianDataManage().update_back_j(user_id, goods_id, use_key=1)
+                    await XiuxianDataManage().update_user_hp(user_id)
                     msg = f"道友成功使用丹药：{goods_name}1颗,状态已全部恢复!"
 
     elif goods_info['buff_type'] == "atk_buff":  # 永久加攻击buff的丹药
         if user_info['root'] == "器师":
             buff = goods_info['buff'] * num
-            sql_message.updata_user_atk_buff(user_id, buff)
-            sql_message.update_back_j(user_id, goods_id,num=num, use_key=1)
+            await XiuxianDataManage().updata_user_atk_buff(user_id, buff)
+            await XiuxianDataManage().update_back_j(user_id, goods_id,num=num, use_key=1)
             msg = f"道友成功使用丹药：{goods_name}{num}颗，攻击力永久增加{buff}点！"
         else:
             if goods_rank < user_rank:  # 使用限制
                 msg = f"丹药：{goods_name}的使用境界为{goods_info['境界']}以上，道友不满足使用条件！"
             else:
                 buff = goods_info['buff'] * num
-                sql_message.updata_user_atk_buff(user_id, buff)
-                sql_message.update_back_j(user_id, goods_id,num=num, use_key=1)
+                await XiuxianDataManage().updata_user_atk_buff(user_id, buff)
+                await XiuxianDataManage().update_back_j(user_id, goods_id,num=num, use_key=1)
                 msg = f"道友成功使用丹药：{goods_name}{num}颗，攻击力永久增加{buff}点！"
 
     elif goods_info['buff_type'] == "exp_up":  # 加固定经验值的丹药
@@ -572,31 +571,31 @@ def check_use_elixir(user_id, goods_id, num):
             user_hp = int(user_info['hp'] + (exp / 2))
             user_mp = int(user_info['mp'] + exp)
             user_atk = int(user_info['atk'] + (exp / 10))
-            sql_message.update_exp(user_id, exp)
-            sql_message.update_power2(user_id)  # 更新战力
-            sql_message.update_user_attribute(user_id, user_hp, user_mp, user_atk)  # 这种事情要放在update_exp方法里
-            sql_message.update_back_j(user_id, goods_id, num=num, use_key=1)
+            await XiuxianDataManage().update_exp(user_id, exp, 0)
+            await XiuxianDataManage().update_power2(user_id)  # 更新战力
+            await XiuxianDataManage().update_user_attribute(user_id, user_hp, user_mp, user_atk)  # 这种事情要放在update_exp方法里
+            await XiuxianDataManage().update_back_j(user_id, goods_id, num=num, use_key=1)
             msg = f"道友成功使用丹药：{goods_name}{num}颗,修为增加{exp}点！"
     else:
         msg = f"该类型的丹药目前暂时不支持使用！"
     return msg
 
 
-def get_use_jlq_msg(user_id, goods_id):
-    user_info = sql_message.get_user_info_with_id(user_id)
+async def get_use_jlq_msg(user_id, goods_id):
+    user_info = await XiuxianDataManage().get_user_info_with_id(user_id)
     if user_info['blessed_spot_flag'] == 0:
         msg = f"道友还未拥有洞天福地，无法使用该物品"
     else:
         item_info = items.get_data_by_item_id(goods_id)
-        user_buff_data = UserBuffDate(user_id).BuffInfo
+        user_buff_data = await UserBuffData(user_id).BuffInfo
         if int(user_buff_data['blessed_spot']) >= item_info['修炼速度']:
             msg = f"该聚灵旗的等级不能满足道友的福地了，使用了也没效果"
         else:
             mix_elixir_info = get_player_info(user_id, "mix_elixir_info")
             mix_elixir_info['药材速度'] = item_info['药材速度']
             save_player_info(user_id, mix_elixir_info, 'mix_elixir_info')
-            sql_message.update_back_j(user_id, goods_id)
-            sql_message.updata_user_blessed_spot(user_id, item_info['修炼速度'])
+            await XiuxianDataManage().update_back_j(user_id, goods_id)
+            await XiuxianDataManage().updata_user_blessed_spot(user_id, item_info['修炼速度'])
             msg = f"道友洞天福地的聚灵旗已经替换为：{item_info['name']}"
     return msg
 

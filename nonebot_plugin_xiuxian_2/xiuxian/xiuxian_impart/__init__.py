@@ -23,7 +23,7 @@ from ..xiuxian_utils.utils import (
     send_msg_handler,
     build_forward_msg_list,
 )
-from ..xiuxian_utils.xiuxian2_handle import XIUXIAN_IMPART_BUFF
+from ..xiuxian_utils.xiuxian2_handle import XiuxianDataManage
 from .impart_data import impart_data_json
 from .impart_uitls import (
     get_image_representation,
@@ -33,9 +33,6 @@ from .impart_uitls import (
     re_impart_data,
     update_user_impart_data,
 )
-
-xiuxian_impart = XIUXIAN_IMPART_BUFF()
-
 
 cache_help = {}
 
@@ -104,14 +101,7 @@ async def impart_help_(
         await impart_help.finish()
     else:
         msg = __impart_help__
-        if XiuConfig().img:
-            pic = await get_msg_pic(msg)
-            cache_help[session_id] = pic
-            await bot.send_group_msg(
-                group_id=int(send_group_id), message=MessageSegment.image(pic)
-            )
-        else:
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await handle_send(bot, event, send_group_id, msg)
         await impart_help.finish()
 
 
@@ -120,21 +110,23 @@ async def impart_img_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
     """传承卡图"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     img_name = args.extract_plain_text().strip()
-    img = img_path / str(img_name + ".webp")
+    isUser, user_info, msg = await check_user(event)
+    if not isUser:
+        await handle_send(bot, event, send_group_id, msg)
+        await impart_img.finish()
+    img = img_path / f"{img_name}.webp"
     if not os.path.exists(img):
         msg = "没有找到此卡图！"
-        if XiuConfig().img:
-            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
-            await bot.send_group_msg(
-                group_id=int(send_group_id), message=MessageSegment.image(pic)
-            )
-        else:
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await handle_send(bot, event, send_group_id, msg)
         await impart_img.finish()
     else:
-        await bot.send_group_msg(
-            group_id=int(send_group_id), message=MessageSegment.image(img)
-        )
+        try:
+            await bot.send_group_msg(
+                group_id=int(send_group_id), message=MessageSegment.image(file=f"file:///{str(img)}")
+            )
+        except Exception as e:
+            msg = f"发送图片失败：{str(e)}"
+            await handle_send(bot, event, send_group_id, msg)
         await impart_img.finish()
 
 
@@ -142,7 +134,7 @@ async def impart_img_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
 async def impart_draw_(bot: Bot, event: GroupMessageEvent):
     """传承抽卡"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
-    isUser, user_info, msg = check_user(event)
+    isUser, user_info, msg = await check_user(event)
     if not isUser:
         await handle_send(bot, event, send_group_id, msg)
         await impart_draw.finish()
@@ -158,7 +150,7 @@ async def impart_draw_(bot: Bot, event: GroupMessageEvent):
         await handle_send(bot, event, send_group_id, msg)
         await impart_draw.finish()
     else:
-        if get_rank(user_id):
+        if await get_rank(user_id):
             img_list = impart_data_json.data_all_keys()
             reap_img = None
             try:
@@ -177,9 +169,11 @@ async def impart_draw_(bot: Bot, event: GroupMessageEvent):
                 msg += f"累计共获得3540分钟闭关时间!\n"
                 msg += f"抽卡10次结果如下"
                 
-                # 准备图片列表，第一张是抽到的卡片，后面是随机的时间卡
+                # 准备图片列表，随机位置放置特殊卡片
                 random.shuffle(time_img)
-                images = [reap_img] + time_img[:9]
+                images = time_img[:10]  # 先选10张时间卡
+                random_position = random.randint(0, 9)  # 随机选一个位置
+                images[random_position] = reap_img  # 将该位置替换为特殊卡
                 
                 # 构建图片发送参数
                 image_params = {
@@ -192,9 +186,9 @@ async def impart_draw_(bot: Bot, event: GroupMessageEvent):
                 list_tp = build_forward_msg_list(bot, summary, msg, images, image_params)
                 
                 # 抽到重复卡，抽数归零，加3540分钟闭关时间
-                xiuxian_impart.add_impart_exp_day(3540, user_id)
-                xiuxian_impart.update_stone_num(10, user_id, 2)
-                xiuxian_impart.update_impart_wish(0, user_id)
+                await XiuxianDataManage().add_impart_exp_day(3540, user_id)
+                await XiuxianDataManage().update_stone_num(10, user_id, 1)
+                await XiuxianDataManage().update_impart_wish(0, user_id)
                 # 更新传承数据
                 await re_impart_data(user_id)
                 
@@ -211,9 +205,11 @@ async def impart_draw_(bot: Bot, event: GroupMessageEvent):
                 msg = f"累计共获得660分钟闭关时间!\n"
                 msg += f"抽卡10次结果如下,获得新的传承卡片{reap_img}"
                 
-                # 准备图片列表，第一张是抽到的卡片，后面是随机的时间卡
+                # 准备图片列表，随机位置放置特殊卡片
                 random.shuffle(time_img)
-                images = [reap_img] + time_img[:9]
+                images = time_img[:10]  # 先选10张时间卡
+                random_position = random.randint(0, 9)  # 随机选一个位置
+                images[random_position] = reap_img  # 将该位置替换为特殊卡
                 
                 # 构建图片发送参数
                 image_params = {
@@ -226,9 +222,9 @@ async def impart_draw_(bot: Bot, event: GroupMessageEvent):
                 list_tp = build_forward_msg_list(bot, summary, msg, images, image_params)
                 
                 # 抽到新卡，抽数归零
-                xiuxian_impart.add_impart_exp_day(660, user_id)
-                xiuxian_impart.update_stone_num(10, user_id, 2)
-                xiuxian_impart.update_impart_wish(0, user_id)
+                await XiuxianDataManage().add_impart_exp_day(660, user_id)
+                await XiuxianDataManage().update_stone_num(10, user_id, 1)
+                await XiuxianDataManage().update_impart_wish(0, user_id)
                 # 更新传承数据
                 await re_impart_data(user_id)
                 
@@ -260,9 +256,9 @@ async def impart_draw_(bot: Bot, event: GroupMessageEvent):
             list_tp = build_forward_msg_list(bot, summary, msg, time_img, image_params)
             
             # 没抽到新卡，只加660分钟
-            xiuxian_impart.add_impart_exp_day(660, user_id)
-            xiuxian_impart.update_stone_num(10, user_id, 2)
-            xiuxian_impart.add_impart_wish(10, user_id)
+            await XiuxianDataManage().add_impart_exp_day(660, user_id)
+            await XiuxianDataManage().update_stone_num(10, user_id, 1)
+            await XiuxianDataManage().add_impart_wish(10, user_id)
             # 更新传承数据
             await re_impart_data(user_id)
             
@@ -277,7 +273,7 @@ async def impart_draw_(bot: Bot, event: GroupMessageEvent):
 async def impart_back_(bot: Bot, event: GroupMessageEvent):
     """传承背包"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
-    isUser, user_info, msg = check_user(event)
+    isUser, user_info, msg = await check_user(event)
     if not isUser:
         await handle_send(bot, event, send_group_id, msg)
         return
@@ -336,7 +332,7 @@ boss战攻击提升:{int(impart_data_draw["boss_atk"] * 100)}%
 async def re_impart_load_(bot: Bot, event: GroupMessageEvent):
     """加载传承数据"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
-    isUser, user_info, msg = check_user(event)
+    isUser, user_info, msg = await check_user(event)
     if not isUser:
         await handle_send(bot, event, send_group_id, msg)
         return
@@ -361,7 +357,7 @@ async def re_impart_load_(bot: Bot, event: GroupMessageEvent):
 async def impart_info_(bot: Bot, event: GroupMessageEvent):
     """传承信息"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
-    isUser, user_info, msg = check_user(event)
+    isUser, user_info, msg = await check_user(event)
     if not isUser:
         await handle_send(bot, event, send_group_id, msg)
         return

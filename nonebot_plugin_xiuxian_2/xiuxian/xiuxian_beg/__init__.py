@@ -9,7 +9,7 @@ from nonebot.adapters.onebot.v11 import (
     MessageSegment
 )
 from nonebot.log import logger
-from ..xiuxian_utils.xiuxian2_handle import XiuxianDateManage
+from ..xiuxian_utils.xiuxian2_handle import XiuxianDataManage
 from ..xiuxian_config import XiuConfig
 from ..xiuxian_utils.item_json import Items
 from ..xiuxian_utils.data_source import jsondata
@@ -17,18 +17,19 @@ from ..xiuxian_utils.utils import (
     check_user,Txt2Img,
     get_msg_pic,
     CommandObjectID,
+    handle_send
 )
 
 items = Items()
 cache_level_help = {}
 scheduler = require("nonebot_plugin_apscheduler").scheduler
 cache_beg_help = {}
-sql_message = XiuxianDateManage()  # sql类
+  # sql类
 
 # 重置奇缘
 @scheduler.scheduled_job("cron", hour=0, minute=0)
 async def xiuxian_beg_():
-    sql_message.beg_remake()
+    await XiuxianDataManage().beg_remake()
     logger.opt(colors=True).info(f"<green>仙途奇缘重置成功！</green>")
 
 __beg_help__ = f"""
@@ -61,62 +62,46 @@ async def beg_help_(bot: Bot, event: GroupMessageEvent, session_id: int = Comman
 @beg_stone.handle(parameterless=[Cooldown(at_sender=False)])
 async def beg_stone(bot: Bot, event: GroupMessageEvent):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
-    user_id = event.get_user_id()
-    isUser, user_info, _ = check_user(event)
-    user_msg = sql_message.get_user_info_with_id(user_id)
+    user_id = int(event.get_user_id())
+    isUser, user_info, msg = await check_user(event)
+    user_msg = await XiuxianDataManage().get_user_info_with_id(user_id)
     user_root = user_msg['root_type']
     sect = user_info['sect_id']
     level = user_info['level']
     list_level_all = list(jsondata.level_data().keys())
 
-    create_time = datetime.strptime(user_info['create_time'], "%Y-%m-%d %H:%M:%S.%f")
+    create_time = user_info['create_time']
     now_time = datetime.now()
     diff_time = now_time - create_time
     diff_days = diff_time.days # 距离创建账号时间的天数
     
     if not isUser:
-        if XiuConfig().img:
-            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
-            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
-        else:
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await handle_send(bot, event, send_group_id, msg)
         await beg_stone.finish()
     
-    sql_message.update_last_check_info_time(user_id) # 更新查看修仙信息时间
+    await XiuxianDataManage().update_last_check_info_time(user_id) # 更新查看修仙信息时间
     if sect != None and user_root == "伪灵根":
-        if XiuConfig().img:
-            msg = f"道友已有宗门庇佑，又何必来此寻求机缘呢？"
-            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
-            await bot.send_group_msg(group_id=event.group_id, message=MessageSegment.image(pic))
-        else:
-            await bot.send_group_msg(group_id=event.group_id, message=msg)
+        msg = f"道友已有宗门庇佑，又何必来此寻求机缘呢？"
+        await handle_send(bot, event, send_group_id, msg)
+        await beg_stone.finish()
 
     elif user_root in {"轮回道果", "真·轮回道果"}:
-        if XiuConfig().img:
-            msg = f"道友已是轮回大能，又何必来此寻求机缘呢？"
-            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
-            await bot.send_group_msg(group_id=event.group_id, message=MessageSegment.image(pic))
-        else:
-            await bot.send_group_msg(group_id=event.group_id, message=msg)
-    
+        msg = f"道友已是轮回大能，又何必来此寻求机缘呢？"
+        await handle_send(bot, event, send_group_id, msg)
+        await beg_stone.finish()
+
     elif list_level_all.index(level) >= list_level_all.index(XiuConfig().beg_max_level):
         msg = f"道友已跻身于{user_info['level']}层次的修行之人，可徜徉于四海八荒，自寻机缘与造化矣。"
-        if XiuConfig().img:
-            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
-            await bot.send_group_msg(group_id=event.group_id, message=MessageSegment.image(pic))
-        else:
-            await bot.send_group_msg(group_id=event.group_id, message=msg)
+        await handle_send(bot, event, send_group_id, msg)
+        await beg_stone.finish()
 
     elif diff_days > XiuConfig().beg_max_days:
-        if XiuConfig().img:
-            msg = f"道友已经过了新手期,不能再来此寻求机缘了。"
-            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
-            await bot.send_group_msg(group_id=event.group_id, message=MessageSegment.image(pic))
-        else:
-            await bot.send_group_msg(group_id=event.group_id, message=msg)
+        msg = f"道友已经过了新手期,不能再来此寻求机缘了。"
+        await handle_send(bot, event, send_group_id, msg)
+        await beg_stone.finish()
 
     else:
-        stone = sql_message.get_beg(user_id)
+        stone = await XiuxianDataManage().get_beg(user_id)
         if stone is None:
             msg = '贪心的人是不会有好运的！'
         else:
@@ -140,11 +125,6 @@ async def beg_stone(bot: Bot, event: GroupMessageEvent):
         f"你在一次随机的交易中获得了一个外表不起眼的神秘盒子。当你好奇心驱使下打开它时，发现里面竟是一枚装满灵石的纳戒，收获了 {stone} 枚灵石！",
     ]
 )
-        if XiuConfig().img:
-            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
-            await bot.send_group_msg(group_id=event.group_id, message=MessageSegment.image(pic))
-        else:
-            await bot.send_group_msg(group_id=event.group_id, message=msg)
-
-    
+        await handle_send(bot, event, send_group_id, msg)
+        await beg_stone.finish()
 

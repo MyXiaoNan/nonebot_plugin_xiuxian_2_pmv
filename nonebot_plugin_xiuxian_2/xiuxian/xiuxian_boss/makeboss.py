@@ -1,6 +1,6 @@
 import random
 from pathlib import Path
-from ..xiuxian_utils.xiuxian2_handle import XiuxianDateManage
+from ..xiuxian_utils.xiuxian2_handle import XiuxianDataManage
 from .bossconfig import get_boss_config
 import json
 
@@ -28,7 +28,7 @@ JINGJIEEXP = {  # 数值为中期和圆满的平均值
 }
 
 jinjie_list = [k for k, v in JINGJIEEXP.items()]
-sql_message = XiuxianDateManage()  # sql类
+  # sql类
 
 def get_boss_jinjie_dict():
     CONFIGJSONPATH = Path() / "data" / "xiuxian" / "境界.json"
@@ -55,8 +55,8 @@ def get_boss_exp(boss_jj):
         return None
 
 
-def createboss():
-    top_user_info = sql_message.get_realm_top1_user() # 改成了境界第一
+async def createboss():
+    top_user_info = await XiuxianDataManage().get_realm_top1_user() # 改成了境界第一
     top_user_level = top_user_info['level']
     if len(top_user_level) == 5:
         level = top_user_level[:3] 

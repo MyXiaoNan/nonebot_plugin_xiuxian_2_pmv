@@ -11,11 +11,12 @@ from nonebot.params import Depends
 from nonebot.adapters.onebot.v11.event import MessageEvent, GroupMessageEvent
 from nonebot.adapters.onebot.v11 import Bot, MessageSegment
 from ..xiuxian_config import XiuConfig, JsonConfig
-from .xiuxian2_handle import XiuxianDateManage
-from .utils import get_msg_pic, check_user
+from .xiuxian2_handle import XiuxianDataManage
+from ..xiuxian_utils.utils import check_user
+from .utils import get_msg_pic
 
 
-sql_message = XiuxianDateManage()
+
 
 limit_all_message = require("nonebot_plugin_apscheduler").scheduler
 limit_all_stamina = require("nonebot_plugin_apscheduler").scheduler
@@ -25,8 +26,12 @@ limit_all_data: Dict[str, Any] = {}
 limit_num = 99999
 
 @auto_recover_hp.scheduled_job('interval', minutes=1)
-def auto_recover_hp_():
-    sql_message.auto_recover_hp
+async def auto_recover_hp_():
+    """恢复生命值的定时任务"""
+    try:
+        await XiuxianDataManage().auto_recover_hp()
+    except Exception as e:
+        logger.opt(colors=True).error(f"<red>生命值恢复定时任务出错：{e}</red>")
 
 @limit_all_message.scheduled_job('interval', minutes=1)
 def limit_all_message_():
@@ -36,9 +41,12 @@ def limit_all_message_():
     logger.opt(colors=True).success(f"<green>已重置消息字典！</green>")
 
 @limit_all_stamina.scheduled_job('interval', minutes=1)
-def limit_all_stamina_():
-    # 恢复体力
-    sql_message.update_all_users_stamina(XiuConfig().max_stamina, XiuConfig().stamina_recovery_points)
+async def limit_all_stamina_():
+    """恢复体力值的定时任务"""
+    try:
+        await XiuxianDataManage().update_all_users_stamina(XiuConfig().max_stamina, XiuConfig().stamina_recovery_points)
+    except Exception as e:
+        logger.opt(colors=True).error(f"<red>体力恢复定时任务出错：{e}</red>")
 
 def limit_all_run(user_id: str):
     global limit_all_data
@@ -141,11 +149,12 @@ def Cooldown(
         return
 
     async def dependency(bot: Bot, matcher: Matcher, event: MessageEvent):
-        user_id = str(event.get_user_id())
+        user_id = int(event.get_user_id())
         group_id = str(event.group_id)
         conf_data = JsonConfig().read_data()
+        isUser, user_info, msg = await check_user(event)
 
-        limit_type = limit_all_run(str(event.get_user_id()))
+        limit_type = limit_all_run(user_id)
         if limit_type is True:
             bot = await assign_bot_group(group_id=group_id)
             await bot.send(event=event, message=bu_ji_notice)
@@ -195,17 +204,17 @@ def Cooldown(
                 await matcher.finish()
 
         if stamina_cost > 0:
-            user_data = sql_message.get_user_info_with_id(user_id)
+            user_data = await XiuxianDataManage().get_user_info_with_id(user_id)
             if user_data:
                 if user_data['user_stamina'] < stamina_cost:
                     msg = "你没有足够的体力，请等待体力恢复后再试！"
                     if XiuConfig().img:
-                        pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
+                        pic = await get_msg_pic(f"@{user_info['user_name'] if user_info['user_name'] else event.sender.nickname}\n" + msg)
                         await bot.send_group_msg(group_id=int(group_id), message=MessageSegment.image(pic))
                     else:
                         await bot.send_group_msg(group_id=int(group_id), message=msg)
                     await matcher.finish()
-                sql_message.update_user_stamina(user_id, stamina_cost, 2)  # 减少体力
+                await XiuxianDataManage().update_user_stamina(user_id, stamina_cost, 2)  # 减少体力
         if running[key] <= 0:
             if cd_time >= 1.5:
                 time = int(cd_time - (loop.time() - time_sy[key]))
@@ -213,7 +222,7 @@ def Cooldown(
                     time = 1
                 formatted_time = format_time(time)
                 if XiuConfig().img:
-                    pic = await get_msg_pic(f"@{event.sender.nickname}\n" + get_random_chat_notice().format(formatted_time))
+                    pic = await get_msg_pic(f"@{user_info['user_name'] if user_info['user_name'] else event.sender.nickname}\n" + get_random_chat_notice().format(formatted_time))
                     bot = await assign_bot_group(group_id=group_id)
                     await bot.send_group_msg(group_id=int(group_id), message=MessageSegment.image(pic))
                     await matcher.finish()
@@ -247,7 +256,7 @@ async def check_bot(bot: Bot) -> bool:  # 检测bot实例是否为主qq
 def check_rule_bot() -> Rule:  # 对传入的消息检测，是主qq传入的消息就响应，其他的不响应
     async def _check_bot_(bot: Bot, event: GroupMessageEvent) -> bool:
         if str(bot.self_id) in put_bot:
-            if str(event.get_user_id()) in main_bot:
+            if int(event.get_user_id()) in main_bot:
                 return False
             else:
                 return True

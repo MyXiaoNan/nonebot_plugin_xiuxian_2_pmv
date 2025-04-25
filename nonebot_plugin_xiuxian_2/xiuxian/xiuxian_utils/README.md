@@ -13,7 +13,7 @@
 
 1. **获取玩家Buff信息**：
 
-   - 调用 `UserBuffDate()`获取玩家1和玩家2的buff信息。
+   - 调用 `UserBuffData()`获取玩家1和玩家2的buff信息。
    - 获取主Buff的数据：`get_user_main_buff_data()`，分别获取玩家的 `hpbuff`（气血增益）和 `mpbuff`（真元增益）。
    - 获取传承增益信息：使用 `xiuxian_impart.get_user_impart_info_with_id()`方法获取玩家的传承数据，进而计算额外的气血和真元增益，累加到各自的buff上。
 2. **技能数据初始化**：
@@ -90,7 +90,7 @@
 #### 玩家数据初始化
 
 1. **获取玩家Buff信息**：
-   * 调用 `<span>UserBuffDate()</span>` 获取玩家的buff信息。
+   * 调用 `<span>UserBuffData()</span>` 获取玩家的buff信息。
    * 如果玩家buff数据为空，设置主buff和辅修功法数据为空。
    * 如果玩家buff数据不为空，获取主buff数据、辅修功法数据，包含：
      * 气血增益（`<span>hpbuff</span>`）

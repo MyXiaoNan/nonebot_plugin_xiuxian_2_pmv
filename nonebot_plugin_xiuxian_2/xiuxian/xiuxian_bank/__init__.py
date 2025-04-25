@@ -15,7 +15,7 @@ from nonebot.adapters.onebot.v11 import (
     MessageSegment,
 )
 from ..xiuxian_utils.lay_out import assign_bot, Cooldown
-from ..xiuxian_utils.xiuxian2_handle import XiuxianDateManage
+from ..xiuxian_utils.xiuxian2_handle import XiuxianDataManage
 from datetime import datetime
 from .bankconfig import get_config
 from ..xiuxian_utils.utils import check_user, get_msg_pic
@@ -23,7 +23,7 @@ from ..xiuxian_config import XiuConfig
 
 config = get_config()
 BANKLEVEL = config["BANKLEVEL"]
-sql_message = XiuxianDateManage()  # sql类
+  # sql类
 PLAYERSDATA = Path() / "data" / "xiuxian" / "players"
 
 bank = on_regex(
@@ -48,13 +48,9 @@ __bank_help__ = f"""
 @bank.handle(parameterless=[Cooldown(at_sender=False)])
 async def bank_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = RegexGroup()):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
-    isUser, user_info, msg = check_user(event)
+    isUser, user_info, msg = await check_user(event)
     if not isUser:
-        if XiuConfig().img:
-            pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
-            await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
-        else:
-            await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+        await handle_send(bot, event, send_group_id, msg)
         await bank.finish()
     mode = args[0]  # 存灵石、取灵石、升级会员、信息查看
     num = args[1]  # 数值
@@ -121,8 +117,8 @@ async def bank_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Rege
         bankinfo, give_stone, timedeff = get_give_stone(bankinfo)
         userinfonowstone = int(user_info['stone']) - num
         bankinfo['savestone'] += num
-        sql_message.update_ls(user_id, num, 2)
-        sql_message.update_ls(user_id, give_stone, 1)
+        await XiuxianDataManage().update_ls(user_id, num, 1)
+        await XiuxianDataManage().update_ls(user_id, give_stone, 0)
         bankinfo['savetime'] = str(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
         savef(user_id, bankinfo)
         msg = f"道友本次结息时间为：{timedeff}小时，获得灵石：{give_stone}枚!\n道友存入灵石{num}枚，当前所拥有灵石{userinfonowstone + give_stone}枚，灵庄存有灵石{bankinfo['savestone']}枚"
@@ -148,7 +144,7 @@ async def bank_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Rege
 
         userinfonowstone = int(user_info['stone']) + num + give_stone
         bankinfo['savestone'] -= num
-        sql_message.update_ls(user_id, num + give_stone, 1)
+        await XiuxianDataManage().update_ls(user_id, num + give_stone, 0)
         savef(user_id, bankinfo)
         msg = f"道友本次结息时间为：{timedeff}小时，获得灵石：{give_stone}枚!\n取出灵石{num}枚，当前所拥有灵石{userinfonowstone}枚，灵庄存有灵石{bankinfo['savestone']}枚!"
         if XiuConfig().img:
@@ -179,7 +175,7 @@ async def bank_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Rege
                 await bot.send_group_msg(group_id=int(send_group_id), message=msg)
             await bank.finish()
 
-        sql_message.update_ls(user_id, stonecost, 2)
+        await XiuxianDataManage().update_ls(user_id, stonecost, 1)
         bankinfo['banklevel'] = f"{int(userlevel) + 1}"
         savef(user_id, bankinfo)
         msg = f"道友成功升级灵庄会员等级，消耗灵石{stonecost}枚，当前为：{BANKLEVEL[str(int(userlevel) + 1)]['level']}，灵庄可存有灵石上限{BANKLEVEL[str(int(userlevel) + 1)]['savemax']}枚"
@@ -209,7 +205,7 @@ async def bank_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Rege
     elif mode == '结算':
 
         bankinfo, give_stone, timedeff = get_give_stone(bankinfo)
-        sql_message.update_ls(user_id, give_stone, 1)
+        await XiuxianDataManage().update_ls(user_id, give_stone, 0)
         savef(user_id, bankinfo)
         msg = f"道友本次结息时间为：{timedeff}小时，获得灵石：{give_stone}枚！"
         if XiuConfig().img:

@@ -8,8 +8,9 @@ from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 from aiohttp import ClientSession
 from pathlib import Path
+from base64 import b64encode
 from .download import get_avatar_by_user_id_and_save
-from .send_image_tool import convert_img
+from ..xiuxian_config import XiuConfig
 
 TEXT_PATH = Path() / "data" / "xiuxian" / "info_img"
 
@@ -123,7 +124,6 @@ async def draw_user_info_img(user_id, DETAIL_MAP):
         tasks3.append(_draw_sect_info_line(img, key, value, DETAIL_sectinfo))
     await asyncio.gather(*tasks3)
     img.convert("RGB")
-    res = await convert_img(img)
     
     paihang = Image.open(
         TEXT_PATH / 'line2.png').resize((900, 100)).convert("RGBA")
@@ -142,8 +142,49 @@ async def draw_user_info_img(user_id, DETAIL_MAP):
     for key, value in DETAIL_paihang.items():
         tasks4.append(_draw_ph_info_line(img, key, value, DETAIL_paihang))
     await asyncio.gather(*tasks4)
-    res = await convert_img(img)
-    return res
+
+    # 根据发送类型返回不同格式的图片
+    if XiuConfig().img_send_type == "io":
+        # 使用压缩方法
+        return await compress_img(img)
+    elif XiuConfig().img_send_type == "base64":
+        # 先压缩再转base64
+        compressed_bytes = await compress_img(img)
+        return f"base64://{b64encode(compressed_bytes).decode()}"
+    else:
+        # 默认返回bytes格式
+        return await compress_img(img)
+
+
+async def compress_img(img):
+    """对传入图片进行压缩"""
+    img_byte_arr = BytesIO()
+    compression_quality = max(
+        1, min(100, 100 - XiuConfig().img_compression_limit)
+    )  # 质量从100到1
+
+    if not (0 <= XiuConfig().img_compression_limit <= 100):
+        compression_quality = 50
+
+    # 转换为 RGB
+    if img.mode in ("RGBA", "P"):
+        img = img.convert("RGB")
+
+    try:
+        if XiuConfig().img_type == "webp":
+            img.save(img_byte_arr, format="WEBP", quality=compression_quality)
+        elif XiuConfig().img_type == "jpeg":
+            img.save(img_byte_arr, format="JPEG", quality=compression_quality)
+        else:
+            img.save(img_byte_arr, format="WEBP", quality=compression_quality)
+    except Exception as e:
+        # 尝试降级为 JPEG
+        logger.opt(colors=True).info(f"<red>图片保存出错：{str(e)}，尝试降级为JPEG</red>")
+        img.save(img_byte_arr, format="JPEG", quality=compression_quality)
+
+    img_byte_arr.seek(0)
+    return img_byte_arr.getvalue()
+
 
 async def _draw_line(img: Image.Image, key, value, DETAIL_MAP):
     line = Image.open(TEXT_PATH / 'line3.png').resize((450, 68))

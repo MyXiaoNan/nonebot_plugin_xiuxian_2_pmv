@@ -1,11 +1,7 @@
 import random
-from .xiuxian2_handle import XiuxianDateManage, OtherSet, UserBuffDate, XIUXIAN_IMPART_BUFF
+from .xiuxian2_handle import XiuxianDataManage, OtherSet, UserBuffData
 from ..xiuxian_config import convert_rank
 from .utils import number_to
-
-sql_message = XiuxianDateManage()  # sql类
-xiuxian_impart = XIUXIAN_IMPART_BUFF()
-
 
 class BossBuff:
     def __init__(self):
@@ -31,7 +27,7 @@ empty_boss_buff = BossBuff()
 empty_ussr_random_buff = UserRandomBuff()
 
 
-def Player_fight(player1: dict, player2: dict, type_in, bot_id):
+async def Player_fight(player1: dict, player2: dict, type_in, bot_id):
     """
     回合制战斗
     type_in : 1-切磋，不消耗气血、真元
@@ -39,12 +35,12 @@ def Player_fight(player1: dict, player2: dict, type_in, bot_id):
     数据示例：
     {"user_id": None,"道号": None, "气血": None, "攻击": None, "真元": None, '会心':None, 'exp':None}
     """
-    user1_buff_data = UserBuffDate(player1['user_id'])  # 1号的buff信息
+    user1_buff_data = UserBuffData(player1['user_id'])  # 1号的buff信息
     user1_main_buff_data = user1_buff_data.get_user_main_buff_data()
     user1_hp_buff = user1_main_buff_data['hpbuff'] if user1_main_buff_data is not None else 0
     user1_mp_buff = user1_main_buff_data['mpbuff'] if user1_main_buff_data is not None else 0
     try:
-        user_1_impart_data = xiuxian_impart.get_user_impart_info_with_id(player1['user_id'])
+        user_1_impart_data = await XiuxianDataManage().get_user_impart_info_with_id(player1['user_id'])
     except:
         user_1_impart_data = None
     user_1_impart_hp = user_1_impart_data['impart_hp_per'] if user_1_impart_data is not None else 0
@@ -52,12 +48,12 @@ def Player_fight(player1: dict, player2: dict, type_in, bot_id):
     user1_hp_buff = user1_hp_buff + user_1_impart_hp
     user1_mp_buff = user1_mp_buff + user_1_impart_mp
 
-    user2_buff_data = UserBuffDate(player2['user_id'])  # 2号的buff信息
+    user2_buff_data = UserBuffData(player2['user_id'])  # 2号的buff信息
     user2_main_buff_data = user2_buff_data.get_user_main_buff_data()
     user2_hp_buff = user2_main_buff_data['hpbuff'] if user2_main_buff_data is not None else 0
     user2_mp_buff = user2_main_buff_data['mpbuff'] if user2_main_buff_data is not None else 0
     try:
-        user_2_impart_data = xiuxian_impart.get_user_impart_info_with_id(player2['user_id'])
+        user_2_impart_data = await XiuxianDataManage().get_user_impart_info_with_id(player2['user_id'])
     except:
         user_2_impart_data = None
     user_2_impart_hp = user_2_impart_data['impart_hp_per'] if user_2_impart_data is not None else 0
@@ -302,7 +298,7 @@ def Player_fight(player1: dict, player2: dict, type_in, bot_id):
                 play_list.append(get_msg_dict(player1, player1_init_hp, f"☆------{player1['道号']}动弹不得！------☆"))
 
         ## 自己回合结束 处理 辅修功法14
-        player1, boss, msg = after_atk_sub_buff_handle(player1_sub_open, player1, user1_main_buff_data,
+        player1, boss, msg = await after_atk_sub_buff_handle(player1_sub_open, player1, user1_main_buff_data,
                                                        user1_sub_buff_date, player2_health_temp - player2['气血'],
                                                        player2)
         play_list.append(get_msg_dict(player1, player1_init_hp, msg))
@@ -316,12 +312,12 @@ def Player_fight(player1: dict, player2: dict, type_in, bot_id):
                 if player1['气血'] <= 0:
                     player1['气血'] = 1
                 #
-                sql_message.update_user_hp_mp(
+                await XiuxianDataManage().update_user_hp_mp(
                     player1['user_id'],
                     int(player1['气血'] / (1 + user1_hp_buff)),
                     int(player1['真元'] / (1 + user1_mp_buff))
                 )
-                sql_message.update_user_hp_mp(player2['user_id'], 1, int(player2['真元'] / (1 + user2_mp_buff)))
+                await XiuxianDataManage().update_user_hp_mp(player2['user_id'], 1, int(player2['真元'] / (1 + user2_mp_buff)))
             break
 
         if player1_turn_cost < 0:  # 休息为负数，如果休息，则跳过回合，正常是0
@@ -512,12 +508,12 @@ def Player_fight(player1: dict, player2: dict, type_in, bot_id):
                 {"type": "node", "data": {"name": "Bot", "uin": int(bot_id), "content": f"{player2['道号']}胜利"}})
             suc = f"{player2['道号']}"
             if isSql:
-                sql_message.update_user_hp_mp(player1['user_id'], 1, int(player1['真元'] / (1 + user1_mp_buff)))
+                await XiuxianDataManage().update_user_hp_mp(player1['user_id'], 1, int(player1['真元'] / (1 + user1_mp_buff)))
                 #
                 if player2['气血'] <= 0:
                     player2['气血'] = 1
                 #
-                sql_message.update_user_hp_mp(
+                await XiuxianDataManage().update_user_hp_mp(
                     player2['user_id'],
                     int(player2['气血'] / (1 + user2_hp_buff)),
                     int(player2['真元'] / (1 + user2_mp_buff))
@@ -525,7 +521,7 @@ def Player_fight(player1: dict, player2: dict, type_in, bot_id):
             break
 
         ## 对方回合结束 处理 辅修功法14
-        player2, player1, msg = after_atk_sub_buff_handle(player2_sub_open, player2, user2_main_buff_data,
+        player2, player1, msg = await after_atk_sub_buff_handle(player2_sub_open, player2, user2_main_buff_data,
                                                           user2_sub_buff_date,
                                                           player1_health_temp - player1['气血'], player1)
         play_list.append(get_msg_dict(player1, player1_init_hp, msg))
@@ -535,8 +531,8 @@ def Player_fight(player1: dict, player2: dict, type_in, bot_id):
                               "data": {"name": "Bot", "uin": int(bot_id), "content": f"{player2['道号']}胜利"}})
             suc = f"{player2['道号']}"
             if isSql:
-                sql_message.update_user_hp_mp(player1['user_id'], 1, int(player1['真元'] / (1 + user1_mp_buff)))
-                sql_message.update_user_hp_mp(player2['user_id'], int(player2['气血'] / (1 + user2_hp_buff)),
+                await XiuxianDataManage().update_user_hp_mp(player1['user_id'], 1, int(player1['真元'] / (1 + user1_mp_buff)))
+                await XiuxianDataManage().update_user_hp_mp(player2['user_id'], int(player2['气血'] / (1 + user2_hp_buff)),
                                               int(player2['真元'] / (1 + user2_mp_buff)))
             break
 
@@ -618,7 +614,7 @@ async def Boss_fight(player1: dict, boss: dict, type_in=2, bot_id=0):
     数据示例：
     {"user_id": None,"道号": None, "气血": None, "攻击": None, "真元": None, '会心':None, 'exp':None}
     """
-    user1_buff_date = UserBuffDate(player1['user_id'])  # 1号的buff信息
+    user1_buff_date = UserBuffData(player1['user_id'])  # 1号的buff信息
     if user1_buff_date is None:  # 处理为空的情况
         user1_main_buff_data = None
         user1_sub_buff_data = None
@@ -632,7 +628,7 @@ async def Boss_fight(player1: dict, boss: dict, type_in=2, bot_id=0):
     stone_buff = user1_sub_buff_data['stone'] if user1_sub_buff_data is not None else 0
     integral_buff = user1_sub_buff_data['integral'] if user1_sub_buff_data is not None else 0
     sub_break = user1_sub_buff_data['break'] if user1_sub_buff_data is not None else 0
-    impart_data = xiuxian_impart.get_user_impart_info_with_id(player1['user_id'])
+    impart_data = await XiuxianDataManage().get_user_impart_info_with_id(player1['user_id'])
     impart_hp_per = impart_data['impart_hp_per'] if impart_data is not None else 0
     impart_mp_per = impart_data['impart_mp_per'] if impart_data is not None else 0
     user1_hp_buff = user1_hp_buff + impart_hp_per
@@ -1369,7 +1365,7 @@ async def Boss_fight(player1: dict, boss: dict, type_in=2, bot_id=0):
             sh += player1_sh
 
         ## 自己回合结束 处理 辅修功法14
-        player1, boss, msg = after_atk_sub_buff_handle(player1_sub_open, player1, user1_main_buff_data,
+        player1, boss, msg = await after_atk_sub_buff_handle(player1_sub_open, player1, user1_main_buff_data,
                                                        user1_sub_buff_date,
                                                        player2_health_temp - boss['气血'], boss,
                                                        boss_buff, random_buff)
@@ -1386,7 +1382,7 @@ async def Boss_fight(player1: dict, boss: dict, type_in=2, bot_id=0):
                 if player1['气血'] <= 0:
                     player1['气血'] = 1
                 #
-                sql_message.update_user_hp_mp(
+                await XiuxianDataManage().update_user_hp_mp(
                     player1['user_id'],
                     int(player1['气血'] / (1 + user1_hp_buff)),
                     int(player1['真元'] / (1 + user1_mp_buff))
@@ -1459,7 +1455,7 @@ async def Boss_fight(player1: dict, boss: dict, type_in=2, bot_id=0):
             boss['stone'] = boss_now_stone - get_stone
 
             if isSql:
-                sql_message.update_user_hp_mp(
+                await XiuxianDataManage().update_user_hp_mp(
                     player1['user_id'], 1,
                     int(player1['真元'] / (1 + user1_mp_buff))
                 )
@@ -1485,9 +1481,9 @@ def get_boss_dict(boss, boss_init_hp, msg, bot_id):
 
 
 def get_user_def_buff(user_id):
-    user_armor_data = UserBuffDate(user_id).get_user_armor_buff_data()  # 防具减伤
-    user_weapon_data = UserBuffDate(user_id).get_user_weapon_data()  # 武器减伤
-    user_main_data = UserBuffDate(user_id).get_user_main_buff_data()  # 功法减伤
+    user_armor_data = UserBuffData(user_id).get_user_armor_buff_data()  # 防具减伤
+    user_weapon_data = UserBuffData(user_id).get_user_weapon_data()  # 武器减伤
+    user_main_data = UserBuffData(user_id).get_user_main_buff_data()  # 功法减伤
     if user_weapon_data is not None:
         weapon_def = user_weapon_data['def_buff']  # 武器减伤
     else:
@@ -1503,7 +1499,7 @@ def get_user_def_buff(user_id):
     return round(1 - (def_buff + weapon_def + main_def), 2)  # 初始减伤率
 
 
-def get_turnatk(player, buff=0, user_battle_buff_date={},
+async def get_turnatk(player, buff=0, user_battle_buff_date={},
                 boss_buff: BossBuff = empty_boss_buff,
                 random_buff: UserRandomBuff = empty_ussr_random_buff):  # 辅修功法14
     sub_atk = 0
@@ -1512,10 +1508,10 @@ def get_turnatk(player, buff=0, user_battle_buff_date={},
     zwsh = 0
     try:
         user_id = player['user_id']
-        impart_data = xiuxian_impart.get_user_impart_info_with_id(user_id)
-        user_buff_data = UserBuffDate(user_id)
-        weapon_critatk_data = UserBuffDate(user_id).get_user_weapon_data()  # 武器会心伤害
-        weapon_zw = UserBuffDate(user_id).get_user_weapon_data()
+        impart_data = await XiuxianDataManage().get_user_impart_info_with_id(user_id)
+        user_buff_data = UserBuffData(user_id)
+        weapon_critatk_data = UserBuffData(user_id).get_user_weapon_data()  # 武器会心伤害
+        weapon_zw = UserBuffData(user_id).get_user_weapon_data()
         main_zw = user_buff_data.get_user_main_buff_data()
         # 专武伤害，其实叫伴生武器更好。。。
         zwsh = 0.5 if main_zw["ew"] != 0 and weapon_zw["zw"] != 0 and main_zw["ew"] == weapon_zw["zw"] else 0
@@ -1523,7 +1519,7 @@ def get_turnatk(player, buff=0, user_battle_buff_date={},
         player_sub_open = False  # 辅修功法14
         user_sub_buff_date = {}
         if user_buff_data.get_user_sub_buff_data() != None:
-            user_sub_buff_date = UserBuffDate(user_id).get_user_sub_buff_data()
+            user_sub_buff_date = UserBuffData(user_id).get_user_sub_buff_data()
             player_sub_open = True
         buff_value = int(user_sub_buff_date['buff'])
         buff_type = user_sub_buff_date['buff_type']
@@ -1583,7 +1579,7 @@ def isEnableUserSikll(player, hpcost, mpcost, turncost, skillrate):  # 是否满
 def get_skill_hp_mp_data(player, secbuffdata):
     """获取技能消耗气血、真元、技能类型、技能释放概率"""
     user_id = player['user_id']
-    weapon_data = UserBuffDate(user_id).get_user_weapon_data()
+    weapon_data = UserBuffData(user_id).get_user_weapon_data()
     if weapon_data is not None and "mp_buff" in weapon_data:
         weapon_mp = weapon_data["mp_buff"]
     else:
@@ -1703,7 +1699,7 @@ def start_sub_buff_handle(player1_sub_open, subbuffdata1, user1_battle_buff_date
 
 
 # 处理攻击后辅修功法效果
-def after_atk_sub_buff_handle(player1_sub_open, player1, user1_main_buff_data, subbuffdata1, damage1, player2,
+async def after_atk_sub_buff_handle(player1_sub_open, player1, user1_main_buff_data, subbuffdata1, damage1, player2,
                               boss_buff: BossBuff = empty_boss_buff,
                               random_buff: UserRandomBuff = empty_boss_buff):
     msg = ""
@@ -1711,7 +1707,7 @@ def after_atk_sub_buff_handle(player1_sub_open, player1, user1_main_buff_data, s
     if not player1_sub_open:
         return player1, player2, msg
 
-    impart_player1_data = xiuxian_impart.get_user_impart_info_with_id(player1['user_id'])
+    impart_player1_data = await XiuxianDataManage().get_user_impart_info_with_id(player1['user_id'])
     impart_hp_per_1 = impart_player1_data['impart_hp_per'] if impart_player1_data is not None else 0
     impart_mp_per_1 = impart_player1_data['impart_mp_per'] if impart_player1_data is not None else 0
 

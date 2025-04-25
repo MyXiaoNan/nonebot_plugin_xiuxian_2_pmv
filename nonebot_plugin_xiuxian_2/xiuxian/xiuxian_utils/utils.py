@@ -21,9 +21,9 @@ from wcwidth import wcwidth
 
 from ..xiuxian_config import XiuConfig
 from .data_source import jsondata
-from .xiuxian2_handle import XiuxianDateManage
+from .xiuxian2_handle import XiuxianDataManage
 
-sql_message = XiuxianDateManage()  # sql类
+  # sql类
 boss_img_path = Path() / "data" / "xiuxian" / "boss_img"
 
 
@@ -41,7 +41,7 @@ class MyEncoder(json.JSONEncoder):
             return super(MyEncoder, self).default(obj)
 
 
-def check_user_type(user_id, need_type):
+async def check_user_type(user_id, need_type):
     """
     :说明: `check_user_type`
     > 匹配用户状态，返回是否状态一致
@@ -51,7 +51,7 @@ def check_user_type(user_id, need_type):
     """
     isType = False
     msg = ""
-    user_cd_message = sql_message.get_user_cd(user_id)
+    user_cd_message = await XiuxianDataManage().get_user_cd(user_id)
     if user_cd_message is None:
         user_type = 0
     else:
@@ -75,7 +75,7 @@ def check_user_type(user_id, need_type):
     return isType, msg
 
 
-def check_user(event: GroupMessageEvent):
+async def check_user(event: GroupMessageEvent):
     """
     判断用户信息是否存在
     :返回参数:
@@ -85,8 +85,8 @@ def check_user(event: GroupMessageEvent):
     """
 
     isUser = False
-    user_id = event.get_user_id()
-    user_info = sql_message.get_user_info_with_id(user_id)
+    user_id = int(event.get_user_id())
+    user_info = await XiuxianDataManage().get_user_info_with_id(user_id)
     if user_info is None:
         msg = "修仙界没有道友的信息，请输入【我要修仙】加入！"
     else:
@@ -611,15 +611,24 @@ def number_to(num):
 
 
 async def pic_msg_format(msg, event):
-    user_name = event.sender.card if event.sender.card else event.sender.nickname
+    isUser, user_info, msg = await check_user(event)
+    user_name = event.sender.card if event.sender.card else user_info['user_name'] if user_info['user_name'] else event.sender.nickname
     result = "@" + user_name + "\n" + msg
     return result
 
 
 async def handle_send(bot, event, send_group_id, msg: str):
     """处理文本，根据配置发送文本或者图片消息"""
+    if event and hasattr(event, 'user_id'):
+        user_id = event.user_id
+        user_info = await XiuxianDataManage().get_user_info_with_id(user_id)
+        user_name = user_info['user_name'] if user_info and 'user_name' in user_info and user_info['user_name'] else (event.sender.nickname if hasattr(event, 'sender') else "道友")
+        at_text = f"@{user_name}\n"
+    else:
+        at_text = ""
+    
     if XiuConfig().img:
-        pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
+        pic = await get_msg_pic(at_text + msg)
         await bot.send_group_msg(
             group_id=int(send_group_id),
             message=MessageSegment.image(pic),
@@ -696,7 +705,6 @@ def build_forward_msg_list(bot: Bot, summary: str, text_msg: str, images: list =
         result_msgs.append(text_msg)
         
         if images:
-            result_msgs.append("卡片列表：")
             result_msgs.extend([str(img) for img in images])
         
         # 返回适合send_msg_handler的格式
