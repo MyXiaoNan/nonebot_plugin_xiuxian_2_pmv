@@ -2,6 +2,7 @@ import os
 import asyncio
 from pathlib import Path
 import numpy
+import random
 from nonebot.adapters.onebot.v11 import (
     MessageSegment,
 )
@@ -62,6 +63,13 @@ async def update_impart_all(data, user_id):
         XiuxianDataManage().update_impart_mix_per(data["impart_mix_per"], user_id),
         XiuxianDataManage().update_impart_reap_per(data["impart_reap_per"], user_id)
     )
+
+
+async def build_draw_images(time_imgs, special_card):
+    imgs = time_imgs[:10]
+    random.shuffle(imgs)
+    imgs[random.randint(0, 9)] = special_card
+    return imgs
 
 
 async def re_impart_data(user_id):

@@ -32,6 +32,7 @@ from .impart_uitls import (
     impart_check,
     re_impart_data,
     update_user_impart_data,
+    build_draw_images
 )
 
 cache_help = {}
@@ -169,11 +170,7 @@ async def impart_draw_(bot: Bot, event: GroupMessageEvent):
                 msg += f"累计共获得3540分钟闭关时间!\n"
                 msg += f"抽卡10次结果如下"
                 
-                # 准备图片列表，随机位置放置特殊卡片
-                random.shuffle(time_img)
-                images = time_img[:10]  # 先选10张时间卡
-                random_position = random.randint(0, 9)  # 随机选一个位置
-                images[random_position] = reap_img  # 将该位置替换为特殊卡
+                images = await build_draw_images(time_img, reap_img)
                 
                 # 构建图片发送参数
                 image_params = {
@@ -205,11 +202,7 @@ async def impart_draw_(bot: Bot, event: GroupMessageEvent):
                 msg = f"累计共获得660分钟闭关时间!\n"
                 msg += f"抽卡10次结果如下,获得新的传承卡片{reap_img}"
                 
-                # 准备图片列表，随机位置放置特殊卡片
-                random.shuffle(time_img)
-                images = time_img[:10]  # 先选10张时间卡
-                random_position = random.randint(0, 9)  # 随机选一个位置
-                images[random_position] = reap_img  # 将该位置替换为特殊卡
+                images = await build_draw_images(time_img, reap_img)
                 
                 # 构建图片发送参数
                 image_params = {
@@ -237,7 +230,7 @@ async def impart_draw_(bot: Bot, event: GroupMessageEvent):
                 
                 await impart_draw.finish()
         else:
-            # 没有排名
+            # 没有抽到新卡
             summary = f"道友{user_info['user_name']}的传承抽卡"
             msg = f"累计共获得660分钟闭关时间!\n"
             msg += f"抽卡10次结果如下!"
