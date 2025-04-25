@@ -617,12 +617,20 @@ async def pic_msg_format(msg, event):
     return result
 
 
+async def get_sender_display_name(event, user_info):
+    """
+    优先返回 user_info['user_name']，否则回退到 event.sender.nickname。
+    """
+    return user_info.get('user_name') or event.sender.nickname
+
+
+
 async def handle_send(bot, event, send_group_id, msg: str):
     """处理文本，根据配置发送文本或者图片消息"""
     if event and hasattr(event, 'user_id'):
         user_id = event.user_id
         user_info = await XiuxianDataManage().get_user_info_with_id(user_id)
-        user_name = user_info['user_name'] if user_info and 'user_name' in user_info and user_info['user_name'] else (event.sender.nickname if hasattr(event, 'sender') else "道友")
+        user_name = await get_sender_display_name(event, user_info)
         at_text = f"@{user_name}\n"
     else:
         at_text = ""
