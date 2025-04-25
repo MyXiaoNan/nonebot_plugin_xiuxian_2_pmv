@@ -942,7 +942,6 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
     args = args.extract_plain_text().split()
     arg = args[0]  # 
     back_msg = await XiuxianDataManage().get_back_msg(user_id)  # 背包sql信息,dict
-    print("back_msg", back_msg)
     if back_msg is None:
         msg = "道友的背包空空如也！"
         await handle_send(bot, event, send_group_id, msg)

@@ -124,9 +124,9 @@ async def get_boss_battle_info(user_info, rift_rank, bot_id):
     boss_data = STORY['战斗']['Boss战斗']["Boss数据"]
     player = {"user_id": None, "道号": None, "气血": None, "攻击": None, "真元": None, '会心': None, '防御': 0}
     userinfo = await XiuxianDataManage().get_user_real_info(user_info['user_id'])
-    user1_weapon_data = UserBuffData(user_info['user_id']).get_user_weapon_data()
-    user_armor_data = UserBuffData(user_info['user_id']).get_user_armor_buff_data()#秘境战斗防具会心
-    user_main_crit_data = UserBuffData(user_info['user_id']).get_user_main_buff_data() #秘境战斗功法会心
+    user1_weapon_data = await UserBuffData(user_info['user_id']).get_user_weapon_data()
+    user_armor_data = await UserBuffData(user_info['user_id']).get_user_armor_buff_data()#秘境战斗防具会心
+    user_main_crit_data = await UserBuffData(user_info['user_id']).get_user_main_buff_data() #秘境战斗功法会心
     
     if user_main_crit_data is not None: #秘境战斗功法会心
         main_crit_buff = ((user_main_crit_data['crit_buff']) * 100)

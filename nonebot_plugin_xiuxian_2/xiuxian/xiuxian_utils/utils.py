@@ -557,7 +557,13 @@ def number_to(num):
     """
     递归实现，精确为最大单位值 + 小数点后一位
     处理科学计数法表示的数值
+    增加负数支持
     """
+    # 处理负数情况
+    is_negative = False
+    if num < 0:
+        is_negative = True
+        num = abs(num)
 
     def strofsize(num, level):
         if level >= 29:
@@ -607,7 +613,12 @@ def number_to(num):
     num, level = strofsize(num, 0)
     if level >= len(units):
         level = len(units) - 1
-    return f"{round(num, 1)}{units[level]}"
+    
+    # 根据是否为负数添加负号
+    if is_negative:
+        return f"负{round(num, 1)}{units[level]}"
+    else:
+        return f"{round(num, 1)}{units[level]}"
 
 
 async def pic_msg_format(msg, event):
@@ -625,7 +636,7 @@ async def get_sender_display_name(event, user_info):
 
 
 
-async def handle_send(bot, event, send_group_id, msg: str):
+async def handle_send(bot, event, send_group_id, msg: str, boss_name=""):
     """处理文本，根据配置发送文本或者图片消息"""
     if event and hasattr(event, 'user_id'):
         user_id = event.user_id
@@ -636,7 +647,7 @@ async def handle_send(bot, event, send_group_id, msg: str):
         at_text = ""
     
     if XiuConfig().img:
-        pic = await get_msg_pic(at_text + msg)
+        pic = await get_msg_pic(at_text + msg, boss_name=boss_name)
         await bot.send_group_msg(
             group_id=int(send_group_id),
             message=MessageSegment.image(pic),

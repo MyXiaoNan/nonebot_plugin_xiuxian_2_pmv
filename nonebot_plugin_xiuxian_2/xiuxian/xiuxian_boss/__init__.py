@@ -79,7 +79,7 @@ create = on_command("生成世界boss", aliases={"生成世界Boss", "生成世�
                     rule=check_rule_bot_boss_s(), block=True)
 create_appoint = on_command("生成指定世界boss", aliases={"生成指定世界boss", "生成指定世界BOSS", "生成指定BOSS", "生成指定boss"}, priority=5,
                             rule=check_rule_bot_boss_s())
-boss_info = on_command("查询世界boss", aliases={"查询世界Boss", "查询世界BOSS", "查询boss", "世界Boss查询", "世界BOSS查询", "boss查询"}, priority=6, permission=GROUP, block=True)
+boss_info = on_command("查询世界boss", aliases={"查询世界Boss", "查询世界BOSS", "查看世界boss", "查看boss", "查看世界BOSS", "世界Boss查询", "世界BOSS查询", "boss查询"}, priority=6, permission=GROUP, block=True)
 set_group_boss = on_command("世界boss", aliases={"世界Boss", "世界BOSS"}, priority=13,
                             permission=GROUP and (SUPERUSER | GROUP_ADMIN | GROUP_OWNER), block=True)
 battle = on_command("讨伐boss", aliases={"讨伐世界boss", "讨伐Boss", "讨伐BOSS", "讨伐世界Boss", "讨伐世界BOSS"}, priority=6,
@@ -354,13 +354,13 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
 
     player = {"user_id": None, "道号": None, "气血": None, "攻击": None, "真元": None, '会心': None, '防御': 0}
     userinfo = await XiuxianDataManage().get_user_real_info(user_id)
-    user_weapon_data = UserBuffData(userinfo['user_id']).get_user_weapon_data()
+    user_weapon_data = await UserBuffData(userinfo['user_id']).get_user_weapon_data()
 
     impart_data = await XiuxianDataManage().get_user_impart_info_with_id(user_id)
     boss_atk = impart_data['boss_atk'] if impart_data['boss_atk'] is not None else 0
-    user_armor_data = UserBuffData(userinfo['user_id']).get_user_armor_buff_data() #boss战防具会心
-    user_main_data = UserBuffData(userinfo['user_id']).get_user_main_buff_data() #boss战功法会心
-    user1_sub_buff_data = UserBuffData(userinfo['user_id']).get_user_sub_buff_data() #boss战辅修功法信息
+    user_armor_data = await UserBuffData(userinfo['user_id']).get_user_armor_buff_data() #boss战防具会心
+    user_main_data = await UserBuffData(userinfo['user_id']).get_user_main_buff_data() #boss战功法会心
+    user1_sub_buff_data = await UserBuffData(userinfo['user_id']).get_user_sub_buff_data() #boss战辅修功法信息
     integral_buff = user1_sub_buff_data['integral'] if user1_sub_buff_data is not None else 0 #boss战积分加成
     exp_buff = user1_sub_buff_data['exp'] if user1_sub_buff_data is not None else 0
     
@@ -591,6 +591,7 @@ async def _(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     if not isInGroup:#不在配置表内
         msg = f"本群尚未开启世界Boss，请联系管理员开启!"
         await handle_send(bot, event, send_group_id, msg)
+        await create_appoint.finish()
     try:
         group_boss[group_id]
     except:

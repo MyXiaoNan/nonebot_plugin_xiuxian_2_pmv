@@ -232,9 +232,18 @@ async def qc_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
 
     user1 = await XiuxianDataManage().get_user_real_info(user_id)
     give_qq = None  # 艾特的时候存到这里
+    arg_text = args.extract_plain_text().strip()  # 获取纯文本参数
+    
     for arg in args:
         if arg.type == "at":
             give_qq = arg.data.get("qq", "")
+    
+    # 道号
+    if not give_qq and arg_text:
+        other_user_info = await XiuxianDataManage().get_user_info_with_name(arg_text)
+        if other_user_info:
+            give_qq = other_user_info['user_id']
+    
     user2 = await XiuxianDataManage().get_user_real_info(give_qq)
     if give_qq:
         if give_qq == str(user_id):
@@ -249,9 +258,9 @@ async def qc_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
                    "攻击": None, "真元": None, '会心': None, '防御': 0, 'exp': 0}
         
 
-        user1_weapon_data = UserBuffData(user_id).get_user_weapon_data() #玩家1武器会心
-        user1_armor_crit_buff = UserBuffData(user_id).get_user_armor_buff_data() #玩家1防具会心
-        user1_main_data = UserBuffData(user_id).get_user_main_buff_data() #玩家1功法会心
+        user1_weapon_data = await UserBuffData(user_id).get_user_weapon_data() #玩家1武器会心
+        user1_armor_crit_buff = await UserBuffData(user_id).get_user_armor_buff_data() #玩家1防具会心
+        user1_main_data = await UserBuffData(user_id).get_user_main_buff_data() #玩家1功法会心
         
         if  user1_main_data != None: #玩家1功法会心
             main_crit_buff = user1_main_data['crit_buff']
@@ -269,9 +278,9 @@ async def qc_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
             player1['会心'] = (armor_crit_buff + main_crit_buff) * 100
 
         
-        user2_weapon_data = UserBuffData(user2['user_id']).get_user_weapon_data() #玩家2武器会心
-        user2_armor_crit_buff = UserBuffData(user2['user_id']).get_user_armor_buff_data() #玩家2防具会心
-        user2_main_data = UserBuffData(user2['user_id']).get_user_main_buff_data() #玩家2功法会心
+        user2_weapon_data = await UserBuffData(user2['user_id']).get_user_weapon_data() #玩家2武器会心
+        user2_armor_crit_buff = await UserBuffData(user2['user_id']).get_user_armor_buff_data() #玩家2防具会心
+        user2_main_data = await UserBuffData(user2['user_id']).get_user_main_buff_data() #玩家2功法会心
         
         if  user2_main_data != None: #玩家2功法会心
             main_crit_buff2 = user2_main_data['crit_buff']
@@ -302,13 +311,16 @@ async def qc_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
         player2['真元'] = user2['mp']
         player2['exp'] = user2['exp']
 
-        result, victor = Player_fight(player1, player2, 1, bot.self_id)
+        result, victor = await Player_fight(player1, player2, 1, bot.self_id)
         await send_msg_handler(bot, event, result)
         msg = f"获胜的是{victor}"
         await handle_send(bot, event, send_group_id, msg)
         await qc.finish()
     else:
-        msg = "修仙界没有对方的信息，快邀请对方加入修仙界吧！"
+        if arg_text and not user2:
+            msg = f"修仙界没有找到道号为【{arg_text}】的修士，请检查道号是否正确！"
+        else:
+            msg = "修仙界没有对方的信息，快邀请对方加入修仙界吧！"
         await handle_send(bot, event, send_group_id, msg)
         await qc.finish()
 

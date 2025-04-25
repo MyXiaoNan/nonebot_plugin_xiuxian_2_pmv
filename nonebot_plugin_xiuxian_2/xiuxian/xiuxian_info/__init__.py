@@ -38,7 +38,7 @@ async def xiuxian_message_(bot: Bot, event: GroupMessageEvent):
     if user_name:
         pass
     else:
-        user_name = f"无名氏(发送改名+道号更新)"
+        user_name = f"无名"
 
     level_rate = await XiuxianDataManage().get_root_rate(user_info['root_type'])  # 灵根倍率
     realm_rate = jsondata.level_data()[user_info['level']]["spend"]  # 境界倍率

@@ -4,7 +4,6 @@ except ImportError:
     import json
 import os
 import random
-import asyncio
 import asyncpg
 from datetime import datetime
 from pathlib import Path
@@ -347,11 +346,11 @@ class XiuxianDataManage:
             else:
                 return None
         
-    async def get_user_info_with_name(self, user_id: int):
+    async def get_user_info_with_name(self, user_name: str):
         """根据user_name获取用户信息"""
         async with self.pool.acquire() as conn:
             sql = "SELECT * FROM xiuxian_user WHERE user_name = $1"
-            result = await conn.fetchrow(sql, int(user_id))
+            result = await conn.fetchrow(sql, user_name)
             if result:
                 # 将记录转换为字典
                 return dict(result)
@@ -609,7 +608,7 @@ class XiuxianDataManage:
         """更新用户道号"""
         async with self.pool.acquire() as conn:
             get_name = f"SELECT user_name FROM xiuxian_user WHERE user_name = $1"
-            result = await conn.fetchmany(get_name, user_name)
+            result = await conn.fetchval(get_name, user_name)
             if result:
                 return "已存在该道号！"
             else:
@@ -777,11 +776,8 @@ class XiuxianDataManage:
             ORDER BY sect_contribution DESC
             LIMIT 1
         """
-            result = await conn.fetchmany(sql, sect_id, current_owner_id)
-            if result:
-                return result
-            else:
-                return None
+            result = await conn.fetchval(sql, sect_id, current_owner_id)
+            return result
 
 
     async def get_all_sect_id(self):
@@ -935,11 +931,9 @@ class XiuxianDataManage:
         """
         async with self.pool.acquire() as conn:
             sql = f"SELECT * FROM xiuxian_user ORDER BY exp DESC LIMIT 1"
-            result = await conn.fetchmany(sql)
+            result = await conn.fetch(sql)
             if result:
-                columns = [column[0] for column in result.description]
-                top1_dict = dict(zip(columns, result))
-                return top1_dict
+                return dict(result[0])
             else:
                 return None
         
@@ -959,11 +953,9 @@ class XiuxianDataManage:
         sql += """ELSE level END) ASC LIMIT 1"""
     
         async with self.pool.acquire() as conn:
-            result = await conn.fetchmany(sql, )
+            result = await conn.fetch(sql)
             if result:
-                columns = [column[0] for column in result.description]
-                top1_dict = dict(zip(columns, result))
-                return top1_dict
+                return dict(result[0])
             else:
                 return None
         

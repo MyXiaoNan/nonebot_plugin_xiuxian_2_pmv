@@ -187,7 +187,7 @@ async def run_xiuxian_(bot: Bot, event: GroupMessageEvent):
     isUser, user_info, msg = await check_user(event)
     user_id = int(event.get_user_id())
     user_name = (
-        event.sender.card if event.sender.card else user_info['user_name'] or event.sender.nickname
+        event.sender.nickname
     )  # 获取为用户名
     root, root_type = XiuxianJsonDate().linggen_get()  # 获取灵根，灵根类型
     rate = await XiuxianDataManage().get_root_rate(root_type)  # 灵根倍率
@@ -203,12 +203,8 @@ async def run_xiuxian_(bot: Bot, event: GroupMessageEvent):
             if user_msg['hp'] is None or user_msg['hp'] == 0 or user_msg['hp'] == 0:
                 await XiuxianDataManage().update_user_hp(user_id)
             await asyncio.sleep(1)
-            if XiuConfig().img:
-                msg = "耳边响起一个神秘人的声音：不要忘记仙途奇缘！!\n不知道怎么玩的话可以发送 修仙帮助 喔！！"
-                pic = await get_msg_pic(f"@{user_info['user_name'] or event.sender.nickname}\n" + msg)
-                await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
-            else:
-                await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+            msg = "耳边响起一个神秘人的声音：不要忘记仙途奇缘！!\n不知道怎么玩的话可以发送 修仙帮助 喔！！"
+            await handle_send(bot, event, send_group_id, msg)
         else:
             await handle_send(bot, event, send_group_id, msg)
     except ActionFailed:
