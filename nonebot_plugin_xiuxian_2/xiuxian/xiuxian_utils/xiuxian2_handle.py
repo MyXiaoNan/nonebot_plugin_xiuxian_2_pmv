@@ -637,7 +637,10 @@ class XiuxianDataManage:
             sql = f"SELECT last_check_info_time FROM xiuxian_cooldown WHERE user_id = $1"
             time_str = await conn.fetchval(sql, int(user_id))
             if time_str:
-                return datetime.strptime(time_str, '%Y-%m-%d %H:%M:%S.%f')
+                if isinstance(time_str, datetime):
+                    return time_str
+                else:
+                    return datetime.strptime(time_str, '%Y-%m-%d %H:%M:%S.%f')
             else:
                 return None
 

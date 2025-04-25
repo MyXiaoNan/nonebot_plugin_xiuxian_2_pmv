@@ -14,6 +14,7 @@ from ..xiuxian_config import XiuConfig, JsonConfig
 from .xiuxian2_handle import XiuxianDataManage
 from ..xiuxian_utils.utils import check_user
 from .utils import get_msg_pic
+from nonebot_plugin_uninfo import SceneType, Uninfo, get_interface
 
 
 

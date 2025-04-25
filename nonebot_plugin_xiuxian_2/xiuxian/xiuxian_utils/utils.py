@@ -632,8 +632,9 @@ async def get_sender_display_name(event, user_info):
     """
     优先返回 user_info['user_name']，否则回退到 event.sender.nickname。
     """
+    if user_info is None:
+        return event.sender.nickname or "不知名道友"
     return user_info.get('user_name') or event.sender.nickname
-
 
 
 async def handle_send(bot, event, send_group_id, msg: str, boss_name=""):

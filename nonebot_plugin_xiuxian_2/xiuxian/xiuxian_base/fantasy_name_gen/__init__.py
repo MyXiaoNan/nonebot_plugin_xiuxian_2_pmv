@@ -100,7 +100,7 @@ def generate_xianxia_name():
         if random.random() < 0.2:  # 20%概率使用复姓
             family = random.choice(compound_family_names)
         else:
-            family = random.choice(family_names)
+        family = random.choice(family_names)
             
         given_len = random.choice([1, 2])
         given = ""

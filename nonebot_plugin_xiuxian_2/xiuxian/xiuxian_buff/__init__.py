@@ -243,6 +243,10 @@ async def qc_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
         other_user_info = await XiuxianDataManage().get_user_info_with_name(arg_text)
         if other_user_info:
             give_qq = other_user_info['user_id']
+        else:
+            msg = f"修仙界没有找到道号为【{arg_text}】的修士，请检查道号是否正确！"
+            await handle_send(bot, event, send_group_id, msg)
+            await qc.finish()
     
     user2 = await XiuxianDataManage().get_user_real_info(give_qq)
     if give_qq:
@@ -317,10 +321,7 @@ async def qc_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
         await handle_send(bot, event, send_group_id, msg)
         await qc.finish()
     else:
-        if arg_text and not user2:
-            msg = f"修仙界没有找到道号为【{arg_text}】的修士，请检查道号是否正确！"
-        else:
-            msg = "修仙界没有对方的信息，快邀请对方加入修仙界吧！"
+        msg = "修仙界没有对方的信息，快邀请对方加入修仙界吧！"
         await handle_send(bot, event, send_group_id, msg)
         await qc.finish()
 
