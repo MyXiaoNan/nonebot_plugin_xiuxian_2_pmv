@@ -708,11 +708,13 @@ async def level_up_dr_(bot: Bot, event: GroupMessageEvent):
 
     elif type(le) == list:
         # 突破成功
-        await XiuxianDataManage().updata_level(user_id, le[0])  # 更新境界
-        await XiuxianDataManage().update_power2(user_id)  # 更新战力
-        await XiuxianDataManage().updata_level_cd(user_id)  # 更新CD
-        await XiuxianDataManage().update_levelrate(user_id, 0)
-        await XiuxianDataManage().update_user_hp(user_id)  # 重置用户HP，mp，atk状态
+        await asyncio.gather(
+            XiuxianDataManage().updata_level(user_id, le[0]),  # 更新境界
+            XiuxianDataManage().update_power2(user_id),  # 更新战力
+            XiuxianDataManage().updata_level_cd(user_id),  # 更新CD
+            XiuxianDataManage().update_levelrate(user_id, 0),
+            XiuxianDataManage().update_user_hp(user_id)  # 重置用户HP，mp，atk状态
+        )
         msg = f"恭喜道友突破{le[0]}成功"
         await handle_send(bot, event, send_group_id, msg)
         await level_up_dr.finish()

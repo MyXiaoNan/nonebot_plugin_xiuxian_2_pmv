@@ -50,19 +50,7 @@ async def impart_check(user_id):
     else:
         return await XiuxianDataManage().get_user_impart_info_with_id(user_id)
     
-async def update_impart_all(data, user_id):
-    await asyncio.gather(
-        XiuxianDataManage().update_impart_two_exp(data["impart_two_exp"], user_id),
-        XiuxianDataManage().update_impart_exp_up(data["impart_exp_up"], user_id),
-        XiuxianDataManage().update_impart_atk_per(data["impart_atk_per"], user_id),
-        XiuxianDataManage().update_impart_hp_per(data["impart_hp_per"], user_id),
-        XiuxianDataManage().update_impart_mp_per(data["impart_mp_per"], user_id),
-        XiuxianDataManage().update_boss_atk(data["boss_atk"], user_id),
-        XiuxianDataManage().update_impart_know_per(data["impart_know_per"], user_id),
-        XiuxianDataManage().update_impart_burst_per(data["impart_burst_per"], user_id),
-        XiuxianDataManage().update_impart_mix_per(data["impart_mix_per"], user_id),
-        XiuxianDataManage().update_impart_reap_per(data["impart_reap_per"], user_id)
-    )
+    
 
 
 async def build_draw_images(time_imgs, special_card):
@@ -112,20 +100,18 @@ async def re_impart_data(user_id):
             else:
                 pass
         
-        # 创建数据字典并调用update_impart_all函数
-        data = {
-            "impart_two_exp": impart_two_exp,
-            "impart_exp_up": impart_exp_up,
-            "impart_atk_per": impart_atk_per,
-            "impart_hp_per": impart_hp_per,
-            "impart_mp_per": impart_mp_per,
-            "boss_atk": boss_atk,
-            "impart_know_per": impart_know_per,
-            "impart_burst_per": impart_burst_per,
-            "impart_mix_per": impart_mix_per,
-            "impart_reap_per": impart_reap_per
-        }
-        await update_impart_all(data, user_id)
+        await asyncio.gather(
+            XiuxianDataManage().update_impart_two_exp(impart_two_exp, user_id),
+            XiuxianDataManage().update_impart_exp_up(impart_exp_up, user_id),
+            XiuxianDataManage().update_impart_atk_per(impart_atk_per, user_id),
+            XiuxianDataManage().update_impart_hp_per(impart_hp_per, user_id),
+            XiuxianDataManage().update_impart_mp_per(impart_mp_per, user_id),
+            XiuxianDataManage().update_boss_atk(boss_atk, user_id),
+            XiuxianDataManage().update_impart_know_per(impart_know_per, user_id),
+            XiuxianDataManage().update_impart_burst_per(impart_burst_per, user_id),
+            XiuxianDataManage().update_impart_mix_per(impart_mix_per, user_id),
+            XiuxianDataManage().update_impart_reap_per(impart_reap_per, user_id)
+        )
         return True
 
 
