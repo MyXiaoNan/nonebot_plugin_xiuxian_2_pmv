@@ -107,10 +107,9 @@ class XiuConfig:
         self.img_type = "webp" # 图片类型，webp或者jpeg，如果机器人的图片消息不显示请使用jpeg
         self.img_send_type = "io" # 图片发送类型，官方bot建议base64
         self.admin_debug = False # 管理员调试模式，开启后只响应超管指令
-        # 数据库地址，格式为 postgres://user:password@127.0.0.1:5432/database 注意密码中如果有@符号记得转换成%40
-        self.postgresql_url="postgresql://postgres:Postgres%402au4au3@127.0.0.1:5432/xiuxian"
-        self.version = "xiuxian_2.2" # 修仙插件版本，别动
-
+        # 数据库地址，格式为 postgresql://user:password@127.0.0.1:5432/xiuxian 注意密码中如果有@符号记得转换成%40
+        self.postgresql_url=""
+        self.version = "xiuxian_2.3" # 修仙插件版本，别动
 
 class JsonConfig:
     def __init__(self):
