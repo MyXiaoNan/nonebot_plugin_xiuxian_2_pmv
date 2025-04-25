@@ -4,7 +4,7 @@
 
 <div align="center">
 
-# 🎉 修仙2.2魔改版
+# 🎉 修仙2.3魔改版
 
 _✨ QQ群聊修仙文字游戏✨_
 
@@ -32,7 +32,7 @@ _✨ QQ群聊修仙文字游戏✨_
 
 4、新增各种丹药，装备，功法，礼包
 
-5、更多不同请自行探索
+5、替换SQLite为Postgresql
 
 # 💿 安装
 
@@ -52,6 +52,8 @@ git clone -b dev --depth=1 https://github.com/wsdtl/nonebot_plugin_xiuxian_2_pmv
 
 ```
 pip install -r requirements.txt
+
+npm i -g random_chinese_fantasy_names (这个主要是用来生成随机名字的)
 ```
 
 4、在.env.dev文件中设置超管与机器人昵称
@@ -108,6 +110,7 @@ self.layout_bot_dict = {{}}  # QQ所负责的群聊{{群 :bot}}   其中 bot类�
 - [NoneBot2](https://github.com/nonebot/nonebot2)：本插件实装的开发框架，NB天下第一可爱。
 - [nonebot_plugin_xiuxian](https://github.com/s52047qwas/nonebot_plugin_xiuxian)：原版修仙
 - [nonebot_plugin_xiuxian_2](https://github.com/QingMuCat/nonebot_plugin_xiuxian_2)：原版修仙2
+- [仙侠小说专有名词随机生成器](https://github.com/hythl0day/random_chinese_fantasy_names): 好用的仙侠名词生成器
 
 # 🎉 支持
 

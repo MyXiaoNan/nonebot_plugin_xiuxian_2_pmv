@@ -186,9 +186,23 @@ async def run_xiuxian_(bot: Bot, event: GroupMessageEvent):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = await check_user(event)
     user_id = int(event.get_user_id())
-    user_name = (
-        event.sender.nickname
-    )  # 获取为用户名
+    user_name = event.sender.nickname
+    
+    # 生成道号
+    if not user_name or user_name.strip() == "":
+        import subprocess
+        try:
+            node_cmd = "node -e \"console.log(JSON.stringify(require('random_chinese_fantasy_names').getDao(1)[0].name))\""
+            result = subprocess.run(node_cmd, shell=True, capture_output=True, text=True, check=True, timeout=3)
+            if result.stdout.strip():
+                user_name = result.stdout.strip().strip('"')
+            else:
+                from .fantasy_name_gen import generate_dao_name
+                user_name = generate_dao_name()
+        except Exception as e:
+            from .fantasy_name_gen import generate_dao_name
+            user_name = generate_dao_name()
+    
     root, root_type = XiuxianJsonDate().linggen_get()  # 获取灵根，灵根类型
     rate = await XiuxianDataManage().get_root_rate(root_type)  # 灵根倍率
     power = 100 * float(rate)  # 战力=境界的power字段 * 灵根的rate字段
