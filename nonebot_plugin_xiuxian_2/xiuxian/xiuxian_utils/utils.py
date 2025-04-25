@@ -18,14 +18,17 @@ from nonebot.adapters.onebot.v11 import (
 from nonebot.params import Depends
 from PIL import Image, ImageDraw, ImageFont
 from wcwidth import wcwidth
-
+from pydantic import BaseModel, Field
 from ..xiuxian_config import XiuConfig
 from .data_source import jsondata
 from .xiuxian2_handle import XiuxianDataManage
+from nonebot_plugin_uninfo import SupportScope, Uninfo
 
   # sql类
 boss_img_path = Path() / "data" / "xiuxian" / "boss_img"
 
+# 定义全局变量保存 QQ 官方 bot ID 映射
+QBOT_ID_DATA: dict[str, str] = {}
 
 class MyEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -729,3 +732,29 @@ def build_forward_msg_list(bot: Bot, summary: str, text_msg: str, images: list =
         
         # 返回适合send_msg_handler的格式
         return [summary, bot.self_id, result_msgs]
+    
+
+def get_qbot_uid(qbot_id: str) -> str:
+    """获取qq官bot的uid"""
+    return QBOT_ID_DATA.get(qbot_id, "")
+
+def is_qbot(session) -> bool:
+    """判断bot是否为qq官bot
+
+    参数:
+        session: Uninfo 或 Bot 实例
+
+    返回:
+        bool: 是否为官bot
+    """
+    try:
+        if isinstance(session, Bot):
+            return bool(get_qbot_uid(session.self_id))
+        elif hasattr(session, 'self_id'):
+            if hasattr(session, 'scope'):
+                return str(session.scope) in ['QQClient', 'qq_client', 'qq_api']
+            return bool(get_qbot_uid(session.self_id))
+        return False
+    except (AttributeError, TypeError):
+        # 如果出现任何错误，默认返回 False
+        return False
