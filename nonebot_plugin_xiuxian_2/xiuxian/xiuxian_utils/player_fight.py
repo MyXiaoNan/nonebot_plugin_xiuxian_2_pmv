@@ -1063,8 +1063,32 @@ async def Boss_fight(player1: dict, boss: dict, type_in=2, bot_id=0):
     qx = boss['气血']
     boss_now_stone = boss['stone']
     boss_js = boss['减伤']
+    
+    # 这里是技能释放概率计算，玩家阶级越高释放的概率越大
+    player_info = await XiuxianDataManage().get_user_info_with_id(player1['user_id'])
+    player_level = player_info['level']
+    player_rank, ranks = convert_rank(player_level)
 
-    if boss_js <= 0.6 and boss['name'] in BOSSDEF:
+    total_ranks = len(ranks)
+    player_ratio = player_rank / total_ranks
+    boss_base_prob = 90 - (70 * player_ratio)
+    boss_base_prob = max(20, min(90, boss_base_prob))
+
+    boss_js_prob = boss_base_prob * 0.9  # 减伤技能
+    boss_zs_prob = boss_base_prob * 0.8  # 真龙九变
+    boss_hx_prob = boss_base_prob * 0.7  # 无瑕七绝剑
+    boss_bs_prob = boss_base_prob * 0.7  # 太乙剑诀
+    boss_xx_prob = boss_base_prob * 0.6  # 七煞灭魂聚血杀阵
+    boss_jg_prob = boss_base_prob * 0.7  # 子午安息香
+    boss_jh_prob = boss_base_prob * 0.5  # 玄冥剑气
+    boss_jb_prob = boss_base_prob * 0.7  # 大德琉璃金刚身
+    boss_xl_prob = boss_base_prob * 0.6  # 千煌锁灵阵
+    boss_break_prob = boss_base_prob * 0.8  # 八九玄功-穿甲
+    boss_xx_prob = boss_base_prob * 0.7     # 八九玄功-吸血
+    boss_hx_prob = boss_base_prob * 0.7     # 八九玄功-会心
+    boss_def_prob = boss_base_prob * 0.8    # 八九玄功-减伤
+    
+    if boss_js <= 0.6 and boss['name'] in BOSSDEF and random.random() * 100 < boss_js_prob:
         effect_name = BOSSDEF[boss['name']]
         boss_js_data = {"type": "node", "data": {"name": f"{boss['name']}",
                                                  "uin": int(bot_id),
@@ -1072,56 +1096,56 @@ async def Boss_fight(player1: dict, boss: dict, type_in=2, bot_id=0):
 
         play_list.append(boss_js_data)
 
-    if boss_buff.boss_zs > 0:
+    if boss_buff.boss_zs > 0 and random.random() * 100 < boss_zs_prob:
         boss_zs_data = {"type": "node", "data": {"name": f"{boss['name']}",
                                                  "uin": int(bot_id),
                                                  "content": f"{boss['name']}使用了真龙九变,提升了{int(boss_buff.boss_zs * 100)}%攻击力!"}}
 
         play_list.append(boss_zs_data)
 
-    if boss_buff.boss_hx > 0:
+    if boss_buff.boss_hx > 0 and random.random() * 100 < boss_hx_prob:
         boss_hx_data = {"type": "node", "data": {"name": f"{boss['name']}",
                                                  "uin": int(bot_id),
                                                  "content": f"{boss['name']}使用了无瑕七绝剑,提升了{int(boss_buff.boss_hx * 100)}%会心率!"}}
 
         play_list.append(boss_hx_data)
 
-    if boss_buff.boss_bs > 0:
+    if boss_buff.boss_bs > 0 and random.random() * 100 < boss_bs_prob:
         boss_bs_data = {"type": "node", "data": {"name": f"{boss['name']}",
                                                  "uin": int(bot_id),
                                                  "content": f"{boss['name']}使用了太乙剑诀,提升了{int(boss_buff.boss_bs * 100)}%会心伤害!"}}
 
         play_list.append(boss_bs_data)
 
-    if boss_buff.boss_xx > 0:
+    if boss_buff.boss_xx > 0 and random.random() * 100 < boss_xx_prob:
         boss_xx_data = {"type": "node", "data": {"name": f"{boss['name']}",
                                                  "uin": int(bot_id),
                                                  "content": f"{boss['name']}使用了七煞灭魂聚血杀阵,降低了{player1['道号']}{int((boss_buff.boss_xx) * 100)}%气血吸取!"}}
 
         play_list.append(boss_xx_data)
 
-    if boss_buff.boss_jg > 0:
+    if boss_buff.boss_jg > 0 and random.random() * 100 < boss_jg_prob:
         boss_jg_data = {"type": "node", "data": {"name": f"{boss['name']}",
                                                  "uin": int(bot_id),
                                                  "content": f"{boss['name']}使用了子午安息香,降低了{player1['道号']}{int((boss_buff.boss_jg) * 100)}%伤害!"}}
 
         play_list.append(boss_jg_data)
 
-    if boss_buff.boss_jh > 0:
+    if boss_buff.boss_jh > 0 and random.random() * 100 < boss_jh_prob:
         boss_jh_data = {"type": "node", "data": {"name": f"{boss['name']}",
                                                  "uin": int(bot_id),
                                                  "content": f"{boss['name']}使用了玄冥剑气,降低了{player1['道号']}{int((boss_buff.boss_jh) * 100)}%会心率!"}}
 
         play_list.append(boss_jh_data)
 
-    if boss_buff.boss_jb > 0:
+    if boss_buff.boss_jb > 0 and random.random() * 100 < boss_jb_prob:
         boss_jb_data = {"type": "node", "data": {"name": f"{boss['name']}",
                                                  "uin": int(bot_id),
                                                  "content": f"{boss['name']}使用了大德琉璃金刚身,降低了{player1['道号']}{int((boss_buff.boss_jb) * 100)}%会心伤害!"}}
 
         play_list.append(boss_jb_data)
 
-    if boss_buff.boss_xl > 0:
+    if boss_buff.boss_xl > 0 and random.random() * 100 < boss_xl_prob:
         # effect_name = BOSSDEF[boss['name']]
         boss_xl_data = {"type": "node", "data": {"name": f"{boss['name']}",
                                                  "uin": int(bot_id),
@@ -1129,25 +1153,25 @@ async def Boss_fight(player1: dict, boss: dict, type_in=2, bot_id=0):
 
         play_list.append(boss_xl_data)
 
-    if random_buff.random_break > 0:
+    if random_buff.random_break > 0 and random.random() * 100 < boss_break_prob:
         random_break_data = {"type": "node", "data": {"name": f"{player1['道号']}",
                                                       "uin": int(bot_id),
                                                       "content": f"{player1['道号']}发动了八九玄功,获得了{int((random_buff.random_break) * 100)}%穿甲！"}}
         play_list.append(random_break_data)
 
-    if random_buff.random_xx > 0:
+    if random_buff.random_xx > 0 and random.random() * 100 < boss_xx_prob:
         random_xx_data = {"type": "node", "data": {"name": f"{player1['道号']}",
                                                    "uin": int(bot_id),
                                                    "content": f"{player1['道号']}发动了八九玄功,提升了{int((random_buff.random_xx) * 100)}%!吸血效果！"}}
         play_list.append(random_xx_data)
 
-    if random_buff.random_hx > 0:
+    if random_buff.random_hx > 0 and random.random() * 100 < boss_hx_prob:
         random_hx_data = {"type": "node", "data": {"name": f"{player1['道号']}",
                                                    "uin": int(bot_id),
                                                    "content": f"{player1['道号']}发动了八九玄功,提升了{int((random_buff.random_hx) * 100)}%!会心！"}}
         play_list.append(random_hx_data)
 
-    if random_buff.random_def > 0:
+    if random_buff.random_def > 0 and random.random() * 100 < boss_def_prob:
         random_def_data = {"type": "node", "data": {"name": f"{player1['道号']}",
                                                     "uin": int(bot_id),
                                                     "content": f"{player1['道号']}发动了八九玄功,获得了{int((random_buff.random_def) * 100)}%!减伤！"}}

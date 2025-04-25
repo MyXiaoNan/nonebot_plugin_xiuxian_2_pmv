@@ -407,11 +407,11 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
         boss_now_hp = bossinfo_new['气血']  # 打之后的血量
         boss_all_hp = bossinfo['总血量']  # 总血量
         boss_integral = int(((boss_old_hp - boss_now_hp) / boss_all_hp) * 240)
-        if boss_integral < 5:  # 摸一下不给
+        if boss_integral < 2:  # 摸一下不给
             boss_integral = 0
         if user_info['root'] == "器师":
             boss_integral = int(boss_integral * (1 + (user_rank - boss_rank)))
-            points_bonus = int(80 * (user_rank - boss_rank))
+            points_bonus = int(160 * (user_rank - boss_rank))
             more_msg = f"道友低boss境界{user_rank - boss_rank}层，获得{points_bonus}%积分加成！"
 
         user_boss_fight_info = get_user_boss_fight_info(user_id)
@@ -443,13 +443,13 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
     elif victor == "群友赢了":
         # 新增boss战斗积分点数
         boss_all_hp = bossinfo['总血量']  # 总血量
-        boss_integral = 240
+        boss_integral = 1000
         if user_info['root'] == "器师":
             boss_integral = int(boss_integral * (1 + (user_rank - boss_rank)))
-            points_bonus = int(80 * (user_rank - boss_rank))
+            points_bonus = int(320 * (user_rank - boss_rank))
             more_msg = f"道友低boss境界{user_rank - boss_rank}层，获得{points_bonus}%积分加成！"
         else:
-            if boss_rank - user_rank >= 9:  # 超过太多不给
+            if boss_rank - user_rank >= 3:  # 超过太多不给
                 boss_integral = 0
                 more_msg = f"道友的境界超过boss太多了,不齿！"
                 

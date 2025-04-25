@@ -312,8 +312,8 @@ async def sect_elixir_get_(bot: Bot, event: GroupMessageEvent):
                     await bot.send_group_msg(group_id=int(send_group_id), message=msg)
                 await sect_elixir_get.finish()
             if int(sect_info['elixir_room_level']) == 1:
-                msg = f"道友成功领取到丹药:渡厄丹！"
-                await XiuxianDataManage().send_back(user_info['user_id'], 1999, "渡厄丹", "丹药", 1, 1)  # 1级丹房送1个渡厄丹
+                msg = f"道友成功领取到丹药:渡厄丹 3 枚！"
+                await XiuxianDataManage().send_back(user_info['user_id'], 1999, "渡厄丹", "丹药", 3, 1)  # 1级丹房送1个渡厄丹
                 await XiuxianDataManage().update_user_sect_elixir_get_num(user_info['user_id'])
                 if XiuConfig().img:
                     pic = await get_msg_pic(f"@{user_info['user_name'] or event.sender.nickname}\n" + msg)
@@ -329,8 +329,8 @@ async def sect_elixir_get_(bot: Bot, event: GroupMessageEvent):
                 give_elixir_id_list = items.get_random_id_list_by_rank_and_item_type(
                     fanil_rank=convert_rank(user_info['level'])[0] - rank_up, item_type=['丹药'])
                 if not give_elixir_id_list:  # 没有合适的ID，全部给渡厄丹
-                    msg = f"道友成功领取到丹药：渡厄丹 2 枚！"
-                    await XiuxianDataManage().send_back(user_info['user_id'], 1999, "渡厄丹", "丹药", 2, 1)  # 送1个渡厄丹
+                    msg = f"道友成功领取到丹药：渡厄丹 3 枚！"
+                    await XiuxianDataManage().send_back(user_info['user_id'], 1999, "渡厄丹", "丹药", 3, 1)  # 送1个渡厄丹
                     await XiuxianDataManage().update_user_sect_elixir_get_num(user_info['user_id'])
                     if XiuConfig().img:
                         pic = await get_msg_pic(f"@{user_info['user_name'] or event.sender.nickname}\n" + msg)
@@ -350,8 +350,8 @@ async def sect_elixir_get_(bot: Bot, event: GroupMessageEvent):
                         except:
                             give_dict[id] = 1
                             i += 1
-                msg = f"道友成功领取到丹药:渡厄丹 1 枚!\n"
-                await XiuxianDataManage().send_back(user_info['user_id'], 1999, "渡厄丹", "丹药", 1, 1)  # 送1个渡厄丹
+                msg = f"道友成功领取到丹药:渡厄丹 5 枚!\n"
+                await XiuxianDataManage().send_back(user_info['user_id'], 1999, "渡厄丹", "丹药", 5, 1)  # 送1个渡厄丹
                 for k, v in give_dict.items():
                     goods_info = items.get_data_by_item_id(k)
                     msg += f"道友成功领取到丹药：{goods_info['name']} {v} 枚!\n"

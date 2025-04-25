@@ -200,8 +200,8 @@ def Cooldown(
                     await matcher.finish()
                 else:
                     await matcher.finish()
-        else:
-            pass
+            else:
+                pass
         
         if XiuConfig().admin_debug:
             if event.get_user_id() not in bot.config.superusers:
