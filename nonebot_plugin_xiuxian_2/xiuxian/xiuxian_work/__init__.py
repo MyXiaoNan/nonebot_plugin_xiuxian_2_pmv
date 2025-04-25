@@ -111,7 +111,7 @@ async def last_work_(bot: Bot, event: GroupMessageEvent):
                 else:
                     msg += "!"
                 if XiuConfig().img:
-                    pic = await get_msg_pic(f"@{user_info['user_name'] if user_info['user_name'] else event.sender.nickname}\n" + msg)
+                    pic = await get_msg_pic(f"@{user_info['user_name'] or event.sender.nickname}\n" + msg)
                     await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
                 else:
                     await bot.send_group_msg(group_id=int(send_group_id), message=msg)
@@ -128,7 +128,7 @@ async def last_work_(bot: Bot, event: GroupMessageEvent):
                     else:
                         msg += "!"
                     if XiuConfig().img:
-                        pic = await get_msg_pic(f"@{user_info['user_name'] if user_info['user_name'] else event.sender.nickname}\n" + msg)
+                        pic = await get_msg_pic(f"@{user_info['user_name'] or event.sender.nickname}\n" + msg)
                         await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
                     else:
                         await bot.send_group_msg(group_id=int(send_group_id), message=msg)
@@ -137,7 +137,7 @@ async def last_work_(bot: Bot, event: GroupMessageEvent):
                 else:  # 失败
                     msg += "!"
                     if XiuConfig().img:
-                        pic = await get_msg_pic(f"@{user_info['user_name'] if user_info['user_name'] else event.sender.nickname}\n" + msg)
+                        pic = await get_msg_pic(f"@{user_info['user_name'] or event.sender.nickname}\n" + msg)
                         await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
                     else:
                         await bot.send_group_msg(group_id=int(send_group_id), message=msg)
@@ -234,7 +234,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
             if int(user_info['stone']) < int(lscost / convert_rank(user_level_sx)[0]):
                 msg = f"道友的灵石不足以刷新，下次刷新消耗灵石：{int(lscost / convert_rank(user_level_sx)[0])}枚"
                 if XiuConfig().img:
-                    pic = await get_msg_pic(f"@{user_info['user_name'] if user_info['user_name'] else event.sender.nickname}\n" + msg)
+                    pic = await get_msg_pic(f"@{user_info['user_name'] or event.sender.nickname}\n" + msg)
                     await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
                 else:
                     await bot.send_group_msg(group_id=int(send_group_id), message=msg)
@@ -291,7 +291,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
             if exp_time < time2:
                 msg = f"进行中的悬赏令【{user_cd_message['scheduled_time']}】，预计{time2 - exp_time}分钟后可结束"
                 if XiuConfig().img:
-                    pic = await get_msg_pic(f"@{user_info['user_name'] if user_info['user_name'] else event.sender.nickname}\n" + msg)
+                    pic = await get_msg_pic(f"@{user_info['user_name'] or event.sender.nickname}\n" + msg)
                     await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
                 else:
                     await bot.send_group_msg(group_id=int(send_group_id), message=msg)
@@ -320,7 +320,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
                     else:
                         msg += "!"
                     if XiuConfig().img:
-                        pic = await get_msg_pic(f"@{user_info['user_name'] if user_info['user_name'] else event.sender.nickname}\n" + msg)
+                        pic = await get_msg_pic(f"@{user_info['user_name'] or event.sender.nickname}\n" + msg)
                         await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
                     else:
                         await bot.send_group_msg(group_id=int(send_group_id), message=msg)
@@ -337,7 +337,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
                         else:
                             msg += "!"
                         if XiuConfig().img:
-                            pic = await get_msg_pic(f"@{user_info['user_name'] if user_info['user_name'] else event.sender.nickname}\n" + msg)
+                            pic = await get_msg_pic(f"@{user_info['user_name'] or event.sender.nickname}\n" + msg)
                             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
                         else:
                             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
@@ -346,7 +346,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
                     else:  # 失败
                         msg += "!"
                         if XiuConfig().img:
-                            pic = await get_msg_pic(f"@{user_info['user_name'] if user_info['user_name'] else event.sender.nickname}\n" + msg)
+                            pic = await get_msg_pic(f"@{user_info['user_name'] or event.sender.nickname}\n" + msg)
                             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
                         else:
                             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
@@ -363,7 +363,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
             if num is None or str(num) not in ['1', '2', '3']:
                 msg = '请输入正确的任务序号'
                 if XiuConfig().img:
-                    pic = await get_msg_pic(f"@{user_info['user_name'] if user_info['user_name'] else event.sender.nickname}\n" + msg)
+                    pic = await get_msg_pic(f"@{user_info['user_name'] or event.sender.nickname}\n" + msg)
                     await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
                 else:
                     await bot.send_group_msg(group_id=int(send_group_id), message=msg)
@@ -378,7 +378,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
                     del work[user_id]
                     msg = f"接取任务【{get_work[0]}】成功"
                     if XiuConfig().img:
-                        pic = await get_msg_pic(f"@{user_info['user_name'] if user_info['user_name'] else event.sender.nickname}\n" + msg)
+                        pic = await get_msg_pic(f"@{user_info['user_name'] or event.sender.nickname}\n" + msg)
                         await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
                     else:
                         await bot.send_group_msg(group_id=int(send_group_id), message=msg)
@@ -387,7 +387,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
                 except IndexError:
                     msg = "没有这样的任务"
                     if XiuConfig().img:
-                        pic = await get_msg_pic(f"@{user_info['user_name'] if user_info['user_name'] else event.sender.nickname}\n" + msg)
+                        pic = await get_msg_pic(f"@{user_info['user_name'] or event.sender.nickname}\n" + msg)
                         await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
                     else:
                         await bot.send_group_msg(group_id=int(send_group_id), message=msg)
@@ -396,7 +396,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
             except KeyError:
                 msg = "没有查到你的悬赏令信息呢，请刷新！"
                 if XiuConfig().img:
-                    pic = await get_msg_pic(f"@{user_info['user_name'] if user_info['user_name'] else event.sender.nickname}\n" + msg)
+                    pic = await get_msg_pic(f"@{user_info['user_name'] or event.sender.nickname}\n" + msg)
                     await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
                 else:
                     await bot.send_group_msg(group_id=int(send_group_id), message=msg)

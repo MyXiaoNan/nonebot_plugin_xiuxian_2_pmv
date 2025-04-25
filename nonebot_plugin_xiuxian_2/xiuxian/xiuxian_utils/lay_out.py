@@ -209,7 +209,7 @@ def Cooldown(
                 if user_data['user_stamina'] < stamina_cost:
                     msg = "你没有足够的体力，请等待体力恢复后再试！"
                     if XiuConfig().img:
-                        pic = await get_msg_pic(f"@{user_info['user_name'] if user_info['user_name'] else event.sender.nickname}\n" + msg)
+                        pic = await get_msg_pic(f"@{user_info['user_name'] or event.sender.nickname}\n" + msg)
                         await bot.send_group_msg(group_id=int(group_id), message=MessageSegment.image(pic))
                     else:
                         await bot.send_group_msg(group_id=int(group_id), message=msg)
@@ -222,7 +222,7 @@ def Cooldown(
                     time = 1
                 formatted_time = format_time(time)
                 if XiuConfig().img:
-                    pic = await get_msg_pic(f"@{user_info['user_name'] if user_info['user_name'] else event.sender.nickname}\n" + get_random_chat_notice().format(formatted_time))
+                    pic = await get_msg_pic(f"@{user_info['user_name'] or event.sender.nickname}\n" + get_random_chat_notice().format(formatted_time))
                     bot = await assign_bot_group(group_id=group_id)
                     await bot.send_group_msg(group_id=int(group_id), message=MessageSegment.image(pic))
                     await matcher.finish()

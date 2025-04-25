@@ -250,7 +250,7 @@ async def complete_rift_(bot: Bot, event: GroupMessageEvent):
             if rift_type == "无事":
                 msg = random.choice(NONEMSG)
                 if XiuConfig().img:
-                    pic = await get_msg_pic(f"@{user_info['user_name'] if user_info['user_name'] else event.sender.nickname}\n" + msg)
+                    pic = await get_msg_pic(f"@{user_info['user_name'] or event.sender.nickname}\n" + msg)
                     await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
                 else:
                     await bot.send_group_msg(group_id=int(send_group_id), message=msg)
@@ -260,7 +260,7 @@ async def complete_rift_(bot: Bot, event: GroupMessageEvent):
                 if rift_type == "掉血事件":
                     msg = get_dxsj_info("掉血事件", user_info)
                     if XiuConfig().img:
-                        pic = await get_msg_pic(f"@{user_info['user_name'] if user_info['user_name'] else event.sender.nickname}\n" + msg)
+                        pic = await get_msg_pic(f"@{user_info['user_name'] or event.sender.nickname}\n" + msg)
                         await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
                     else:
                         await bot.send_group_msg(group_id=int(send_group_id), message=msg)
@@ -269,7 +269,7 @@ async def complete_rift_(bot: Bot, event: GroupMessageEvent):
                     result, msg = await get_boss_battle_info(user_info, rift_rank, bot.self_id)
                     await send_msg_handler(bot, event, result)
                     if XiuConfig().img:
-                        pic = await get_msg_pic(f"@{user_info['user_name'] if user_info['user_name'] else event.sender.nickname}\n" + msg)
+                        pic = await get_msg_pic(f"@{user_info['user_name'] or event.sender.nickname}\n" + msg)
                         await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
                     else:
                         await bot.send_group_msg(group_id=int(send_group_id), message=msg)
@@ -277,7 +277,7 @@ async def complete_rift_(bot: Bot, event: GroupMessageEvent):
             elif rift_type == "宝物":
                 msg = get_treasure_info(user_info, rift_rank)
                 if XiuConfig().img:
-                    pic = await get_msg_pic(f"@{user_info['user_name'] if user_info['user_name'] else event.sender.nickname}\n" + msg)
+                    pic = await get_msg_pic(f"@{user_info['user_name'] or event.sender.nickname}\n" + msg)
                     await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
                 else:
                     await bot.send_group_msg(group_id=int(send_group_id), message=msg)

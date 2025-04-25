@@ -612,7 +612,7 @@ def number_to(num):
 
 async def pic_msg_format(msg, event):
     isUser, user_info, msg = await check_user(event)
-    user_name = event.sender.card if event.sender.card else user_info['user_name'] if user_info['user_name'] else event.sender.nickname
+    user_name = event.sender.card if event.sender.card else user_info['user_name'] or event.sender.nickname
     result = "@" + user_name + "\n" + msg
     return result
 
