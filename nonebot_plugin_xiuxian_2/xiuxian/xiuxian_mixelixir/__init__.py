@@ -56,6 +56,8 @@ __mix_elixir_help__ = f"""
 3、草药的类型控制产出丹药的类型
 4、来自群友猫猫头工具网址 
 https://huggingface.co/spaces/chewing/liandan
+如果无法访问可以试试下面这个
+https://huggingface.co/spaces/yjzyl9008/xiuxian_mixelixir
 """
 
 
