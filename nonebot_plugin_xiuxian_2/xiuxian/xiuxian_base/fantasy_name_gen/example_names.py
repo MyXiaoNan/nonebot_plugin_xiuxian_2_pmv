@@ -45,19 +45,19 @@ def main():
     for book in books:
         print(f"{book['name']} ({RARITY_NAMES[book['rarity']]})")
     
-    # 获取书籍前缀
-    print("\n【可用书籍前缀数量】")
+    # 获取秘籍前缀
+    print("\n【可用秘籍前缀数量】")
     print(f"共 {len(generator.book_prefixes)} 个")
     
-    # 生成生物
-    print("\n【生物】")
+    # 生成生灵
+    print("\n【生灵】")
     creatures = generator.get_creature(5)
     for creature in creatures:
         category_name = CREATURE_CATEGORY_NAMES.get(creature['category'], creature['category'])
         print(f"{creature['name']} - {category_name}")
     
-    # 生成特定种类的生物
-    print("\n【鸟类生物】")
+    # 生成特定种类的生灵
+    print("\n【鸟类生灵】")
     birds = generator.get_creature(3, {"category": "bird"})
     for bird in birds:
         print(f"{bird['name']} ({RARITY_NAMES[bird['rarity']]})")
@@ -92,20 +92,20 @@ def main():
     for nation in nations:
         print(f"{nation['name']}")
     
-    # 生成地点
-    print("\n【地点】")
+    # 生成据点
+    print("\n【据点】")
     locations = generator.get_location(5)
     for location in locations:
         print(f"{location['name']}")
     
-    # 生成区域 - 使用options方式
-    print("\n【区域 (使用options)】")
+    # 生成地域 - 使用options方式
+    print("\n【地域 (使用options)】")
     zones = generator.get_zone(3, {"category": "land"})
     for zone in zones:
         print(f"{zone['name']}")
     
-    # 生成区域 - 使用直接传递kind方式
-    print("\n【区域 (使用kind字符串)】")
+    # 生成地域 - 使用直接传递kind方式
+    print("\n【地域 (使用kind字符串)】")
     zones = generator.get_zone(2, "山脉")
     for zone in zones:
         print(f"{zone['name']}")

@@ -565,7 +565,7 @@ class XiuXianNameGenerator:
         return names
     
     def get_creature(self, number: int = 1, options: Dict = None) -> List[Dict]:
-        """生成生物名称
+        """生成生灵名称
         
         Args:
             number: 生成名称的数量
@@ -574,7 +574,7 @@ class XiuXianNameGenerator:
                     rarity: 稀有度
         
         Returns:
-            生成的生物名称列表，每个元素包含name，rarity和category
+            生成的生灵名称列表，每个元素包含name，rarity和category
         """
         options = options or {}
         names = []
@@ -932,14 +932,14 @@ class XiuXianNameGenerator:
         return names
     
     def get_location(self, number: int = 1, kind: Optional[str] = None) -> List[Dict]:
-        """生成地点名称
+        """生成据点名称
         
         Args:
             number: 生成名称的数量
             kind: 地点类型
         
         Returns:
-            生成的地点名称列表，每个元素包含name和rarity
+            生成的据点名称列表，每个元素包含name和rarity
         """
         names = []
         common = []
@@ -975,20 +975,20 @@ class XiuXianNameGenerator:
         return names
     
     def _get_zone_kind(self, category: Optional[str] = None) -> str:
-        """获取区域类型
+        """获取地域类型
         
         Args:
             category: 区域类别
         
         Returns:
-            区域类型字符串
+            地域类型字符串
         """
         category = category or random.choice(ZONE_CATEGORIES)
         group = self.data["zone"][category]
         return random.choice(group)
     
     def get_zone(self, number: int = 1, options_or_kind=None) -> List[Dict]:
-        """生成区域名称
+        """生成地域名称
         
         Args:
             number: 生成名称的数量
@@ -997,7 +997,7 @@ class XiuXianNameGenerator:
                     category: 区域类别
         
         Returns:
-            生成的区域名称列表，每个元素包含name和rarity
+            生成的地域名称列表，每个元素包含name和rarity
         """
         options = {}
         if isinstance(options_or_kind, str):
