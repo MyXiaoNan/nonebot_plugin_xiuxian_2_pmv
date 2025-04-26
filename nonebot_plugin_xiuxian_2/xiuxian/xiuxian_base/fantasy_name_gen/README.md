@@ -19,10 +19,12 @@ for name in names:
 dao_names = generator.get_dao(3)
 for dao in dao_names:
     print(f"{dao['name']} 
+  
 # 生成技能名称
 skills = generator.get_skill(3)
 for skill in skills:
     print(f"{skill['name']} ({RARITY_NAMES[skill['rarity']]})")
+
 ```
 
 ## API 参考
@@ -86,7 +88,7 @@ get_dao(number=1, options=None) -> List[Dict]
   - `isFemale`: 是否女性
   - `title`: 称号
 
-##### 生成技能名称
+##### 生成功法名称
 
 ```python
 get_skill(number=1, options=None) -> List[Dict]
@@ -94,12 +96,12 @@ get_skill(number=1, options=None) -> List[Dict]
 
 - `number`: 生成名称的数量
 - `options`: 选项参数，可包含:
-  - `length`: 技能名称长度
-  - `kind`: 技能类型
+  - `length`: 长度
+  - `kind`: 类型
   - `prefix`: 前缀
   - `numfix`: 数字后缀
 
-##### 生成书籍名称
+##### 生成秘籍名称
 
 ```python
 get_book(number=1, options=None) -> List[Dict]
@@ -107,13 +109,13 @@ get_book(number=1, options=None) -> List[Dict]
 
 - `number`: 生成名称的数量
 - `options`: 选项参数，可包含:
-  - `length`: 书名长度
+  - `length`: 长度
   - `mainkind`: 主要类型
   - `prefix`: 前缀
   - `postkind`: 后缀类型
   - `postfix`: 后缀
 
-##### 生成生物名称
+##### 生成生灵名称
 
 ```python
 get_creature(number=1, options=None) -> List[Dict]
@@ -121,7 +123,7 @@ get_creature(number=1, options=None) -> List[Dict]
 
 - `number`: 生成名称的数量
 - `options`: 选项参数，可包含:
-  - `category`: 生物种类
+  - `category`: 种类
   - `rarity`: 稀有度
 
 ##### 生成材料名称
@@ -132,11 +134,11 @@ get_material(number=1, options=None) -> List[Dict]
 
 - `number`: 生成名称的数量
 - `options`: 选项参数，可包含:
-  - `kind`: 材料类型
+  - `kind`: 类型
   - `rarity`: 稀有度
   - `postfix`: 后缀
 
-##### 生成符箓名称
+##### 生成法宝名称
 
 ```python
 get_talisman(number=1, options=None) -> List[Dict]
@@ -144,7 +146,7 @@ get_talisman(number=1, options=None) -> List[Dict]
 
 - `number`: 生成名称的数量
 - `options`: 选项参数，可包含:
-  - `kind`: 符箓类型
+  - `kind`: 类型
   - `rarity`: 稀有度
   - `postfix`: 后缀
 
@@ -175,25 +177,25 @@ get_nation(number=1, kind=None) -> List[Dict]
 - `number`: 生成名称的数量
 - `kind`: 国家类型
 
-##### 生成地点名称
+##### 生成据点名称
 
 ```python
 get_location(number=1, kind=None) -> List[Dict]
 ```
 
 - `number`: 生成名称的数量
-- `kind`: 地点类型
+- `kind`: 类型
 
-##### 生成区域名称
+##### 生成地域名称
 
 ```python
 get_zone(number=1, options_or_kind=None) -> List[Dict]
 ```
 
 - `number`: 生成名称的数量
-- `options_or_kind`: 可以是区域类型字符串或包含以下键的选项字典:
-  - `kind`: 区域类型
-  - `category`: 区域类别
+- `options_or_kind`: 可以是类型字符串或包含以下键的选项字典:
+  - `kind`: 类型
+  - `category`: 类别
 
 ## 示例
 
