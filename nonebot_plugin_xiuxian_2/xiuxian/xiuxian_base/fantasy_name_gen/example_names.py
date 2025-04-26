@@ -1,7 +1,7 @@
 from xiuxian_names_generator import XiuXianNameGenerator, RARITY_NAMES, CREATURE_CATEGORY_NAMES
 
 def main():
-    generator = XiuXianNameGenerator(data_dir="data")
+    generator = XiuXianNameGenerator(data_dir="/home/rikka/xiuxian/data/xiuxian/修仙随机名词数据")
     
     print("========== 修仙名称生成示例 ==========")
     
@@ -34,13 +34,13 @@ def main():
     print(f"共 {len(generator.dao_titles)} 个")
     
     # 生成技能
-    print("\n【技能】")
+    print("\n【功法】")
     skills = generator.get_skill(5)
     for skill in skills:
         print(f"{skill['name']} ({RARITY_NAMES[skill['rarity']]})")
     
     # 生成书籍
-    print("\n【书籍】")
+    print("\n【秘籍】")
     books = generator.get_book(5)
     for book in books:
         print(f"{book['name']} ({RARITY_NAMES[book['rarity']]})")
@@ -68,8 +68,8 @@ def main():
     for material in materials:
         print(f"{material['name']} ({RARITY_NAMES[material['rarity']]})")
     
-    # 生成符箓
-    print("\n【符箓】")
+    # 生成法宝
+    print("\n【法宝】")
     talismans = generator.get_talisman(5)
     for talisman in talismans:
         print(f"{talisman['name']} ({RARITY_NAMES[talisman['rarity']]})")

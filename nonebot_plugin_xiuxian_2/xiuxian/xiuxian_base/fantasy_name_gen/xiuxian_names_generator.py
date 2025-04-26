@@ -482,7 +482,7 @@ class XiuXianNameGenerator:
         return {"name": name, "rarity": rarity}
     
     def get_skill(self, number: int = 1, options: Dict = None) -> List[Dict]:
-        """生成技能名称
+        """生成功法名称
         
         Args:
             number: 生成名称的数量
@@ -493,7 +493,7 @@ class XiuXianNameGenerator:
                     numfix: 数字后缀
         
         Returns:
-            生成的技能名称列表，每个元素包含name和rarity
+            生成的功法名称列表，每个元素包含name和rarity
         """
         options = options or {}
         names = []
@@ -510,7 +510,7 @@ class XiuXianNameGenerator:
         return names
     
     def get_book(self, number: int = 1, options: Dict = None) -> List[Dict]:
-        """生成书籍名称
+        """生成秘籍名称
         
         Args:
             number: 生成名称的数量
@@ -522,7 +522,7 @@ class XiuXianNameGenerator:
                     postfix: 后缀
         
         Returns:
-            生成的书籍名称列表，每个元素包含name和rarity
+            生成的秘籍名称列表，每个元素包含name和rarity
         """
         options = options or {}
         names = []
@@ -721,7 +721,7 @@ class XiuXianNameGenerator:
         return names
     
     def get_talisman(self, number: int = 1, options: Dict = None) -> List[Dict]:
-        """生成符箓名称
+        """生成法宝名称
         
         Args:
             number: 生成名称的数量
@@ -731,7 +731,7 @@ class XiuXianNameGenerator:
                     postfix: 后缀
         
         Returns:
-            生成的符箓名称列表，每个元素包含name和rarity
+            生成的法宝名称列表，每个元素包含name和rarity
         """
         options = options or {}
         names = []
