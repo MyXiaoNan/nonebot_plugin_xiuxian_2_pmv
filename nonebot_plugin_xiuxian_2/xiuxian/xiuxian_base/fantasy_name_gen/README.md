@@ -1,6 +1,6 @@
 # 修仙名称生成器 (Python版)
 
-基于JavaScript版本的[random_chinese_fantasy_names](../random_chinese_fantasy_names)转写，提供了Python的API接口。
+基于JavaScript版本的[random_chinese_fantasy_names](https://github.com/hythl0day/random_chinese_fantasy_names)转写，提供了Python的API接口。
 
 ## 快速开始
 
