@@ -3,16 +3,22 @@ try:
 except ImportError:
     import json
 import os
+import sys
 from pathlib import Path
 from typing import List
+import nonebot
 
-READPATH = Path() / "data" / "xiuxian"
+
+BOT_PATH = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+BOT_PATH = os.path.dirname(BOT_PATH)
+READPATH = Path(BOT_PATH) / "data" / "xiuxian"
 SKILLPATH = READPATH / "功法"
 WEAPONPATH = READPATH / "装备"
 ELIXIRPATH = READPATH / "丹药"
 PACKAGESPATH = READPATH / "礼包"
 XIULIANITEMPATH = READPATH / "修炼物品"
 BOSSDROPSPATH = READPATH / "boss掉落物"
+FANTASYNAMEDATAPATH = READPATH / "修仙随机名词数据"
 
 
 class Items:
@@ -52,7 +58,7 @@ class Items:
         return json.loads(data)
 
     def savef(self, data):
-        FILEPATH = Path() / "data" / "xiuxian" / "items.json"
+        FILEPATH = READPATH / "items.json"
         data = json.dumps(data, ensure_ascii=False, indent=4)
         save_mode = "w" if os.path.exists(FILEPATH) else "x"
         with open(FILEPATH, mode=save_mode, encoding="UTF-8") as f:

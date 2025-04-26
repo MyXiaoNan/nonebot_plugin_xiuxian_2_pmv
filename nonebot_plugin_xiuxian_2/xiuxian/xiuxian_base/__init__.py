@@ -30,7 +30,7 @@ from ..xiuxian_utils.utils import (
     CommandObjectID,
     Txt2Img, send_msg_handler, handle_send
 )
-from ..xiuxian_utils.item_json import Items
+from ..xiuxian_utils.item_json import Items, FANTASYNAMEDATAPATH
 items = Items()
 
 # 定时任务
@@ -191,8 +191,9 @@ async def run_xiuxian_(bot: Bot, event: GroupMessageEvent):
     # 官机的话随机生成道号
     if not user_name or user_name.strip() == "":
         try:
-            from .fantasy_name_gen import generate_name
-            user_name = generate_name()
+            from .fantasy_name_gen.xiuxian_names_generator import XiuXianNameGenerator
+            name_generator = XiuXianNameGenerator(data_dir=FANTASYNAMEDATAPATH)
+            user_name = name_generator.get_name(1, {})[0]
         except Exception:
             user_name = "无名之人"
     

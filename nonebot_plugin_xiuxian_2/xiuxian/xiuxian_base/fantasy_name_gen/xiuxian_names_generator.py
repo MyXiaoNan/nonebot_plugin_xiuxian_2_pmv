@@ -2,7 +2,6 @@ import json
 import random
 import os
 from typing import Dict, List, Optional, Union, Any
-
 # 常量定义
 SEX_VALUES = [
     {"text": "随机", "value": None},
@@ -78,7 +77,7 @@ _AGE10 = "千年"
 _AGE100 = "万年"
 
 class XiuXianNameGenerator:
-    def __init__(self, data_dir: str = "data"):
+    def __init__(self, data_dir: str = ""):
         """初始化修仙名称生成器
         
         Args:
