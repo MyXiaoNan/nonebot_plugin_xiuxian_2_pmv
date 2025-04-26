@@ -18,8 +18,7 @@ for name in names:
 # 生成道号
 dao_names = generator.get_dao(3)
 for dao in dao_names:
-    print(f"{dao['name']} ({RARITY_NAMES[dao['rarity']]})")
-
+    print(f"{dao['name']} 
 # 生成技能名称
 skills = generator.get_skill(3)
 for skill in skills:
