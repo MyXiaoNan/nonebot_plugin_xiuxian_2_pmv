@@ -156,7 +156,7 @@ async def auto_sect_owner_change_():
         user_info = await XiuxianDataManage().get_user_info_with_id(owner_id)
         sect_id = user_info['sect_id']
         logger.opt(colors=True).info(f"<red>{user_info['user_name']}离线时间超过{XiuConfig().auto_change_sect_owner_cd}天，开始自动换宗主</red>")
-        new_owner_id = await XiuxianDataManage().get_highest_contrib_user_except_current(sect_id, owner_id)
+        new_owner_id = await XiuxianDataManage().get_highest_contrib_active_user_except_current(sect_id, owner_id)
         new_owner_info = await XiuxianDataManage().get_user_info_with_id(new_owner_id[0])
         
         await XiuxianDataManage().update_usr_sect(owner_id, sect_id, 1)

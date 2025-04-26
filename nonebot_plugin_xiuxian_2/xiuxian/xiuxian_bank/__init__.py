@@ -18,7 +18,7 @@ from ..xiuxian_utils.lay_out import assign_bot, Cooldown
 from ..xiuxian_utils.xiuxian2_handle import XiuxianDataManage
 from datetime import datetime
 from .bankconfig import get_config
-from ..xiuxian_utils.utils import check_user, get_msg_pic
+from ..xiuxian_utils.utils import check_user, get_msg_pic, handle_send
 from ..xiuxian_config import XiuConfig
 
 config = get_config()
@@ -37,7 +37,7 @@ __bank_help__ = f"""
 灵庄帮助信息:
 指令：
 1、灵庄:查看灵庄帮助信息
-2、灵庄存灵石:指令后加存入的金额,获取利息
+2、灵庄存灵石:指令后加存入的金额,获取利息(复利计算)
 3、灵庄取灵石:指令后加取出的金额,会先结算利息,再取出灵石
 4、灵庄升级会员:灵庄利息倍率与灵庄会员等级有关,升级会员会提升利息倍率
 5、灵庄信息:查询自己当前的灵庄信息
@@ -102,7 +102,28 @@ async def bank_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Rege
                 await bot.send_group_msg(group_id=int(send_group_id), message=msg)
             await bank.finish()
 
+        # 先结算之前的利息，采用复利计算
+        bankinfo, give_stone, timedeff = get_give_stone(bankinfo)
+        
         max = BANKLEVEL[bankinfo['banklevel']]['savemax']
+        # 更新存款金额，加上利息
+        bankinfo['savestone'] += give_stone
+        # 检查是否超过最大存款额度
+        if bankinfo['savestone'] > max:
+            # 如果超过了，将超出部分加到用户灵石中
+            overflow = bankinfo['savestone'] - max
+            await XiuxianDataManage().update_ls(user_id, overflow, 0)
+            msg = f"道友本次结息时间为：{timedeff}小时，获得灵石：{give_stone}枚!\n已达到存款上限，多余的{overflow}灵石已返还给道友。"
+            bankinfo['savestone'] = max
+            savef(user_id, bankinfo)
+            if XiuConfig().img:
+                pic = await get_msg_pic(msg)
+                await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+            else:
+                await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+            await bank.finish()
+            
+        # 确认剩余可存储空间
         nowmax = max - bankinfo['savestone']
 
         if num > nowmax:
@@ -114,10 +135,11 @@ async def bank_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Rege
                 await bot.send_group_msg(group_id=int(send_group_id), message=msg)
             await bank.finish()
 
-        bankinfo, give_stone, timedeff = get_give_stone(bankinfo)
         userinfonowstone = int(user_info['stone']) - num
+        # 更新利息后的存款金额再加上新存款
         bankinfo['savestone'] += num
         await XiuxianDataManage().update_ls(user_id, num, 1)
+        # 将之前结算的利息加给用户
         await XiuxianDataManage().update_ls(user_id, give_stone, 0)
         bankinfo['savetime'] = str(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
         savef(user_id, bankinfo)
@@ -130,6 +152,11 @@ async def bank_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Rege
         await bank.finish()
 
     elif mode == '取灵石':  # 取灵石逻辑
+        # 先结算利息，采用复利计算
+        bankinfo, give_stone, timedeff = get_give_stone(bankinfo)
+        # 更新存款金额，加上利息
+        bankinfo['savestone'] += give_stone
+        
         if int(bankinfo['savestone']) < num:
             msg = f"道友当前灵庄所存有的灵石为{bankinfo['savestone']}枚，金额不足，请重新输入！"
             if XiuConfig().img:
@@ -139,12 +166,9 @@ async def bank_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Rege
                 await bot.send_group_msg(group_id=int(send_group_id), message=msg)
             await bank.finish()
 
-        # 先结算利息
-        bankinfo, give_stone, timedeff = get_give_stone(bankinfo)
-
-        userinfonowstone = int(user_info['stone']) + num + give_stone
+        userinfonowstone = int(user_info['stone']) + num
         bankinfo['savestone'] -= num
-        await XiuxianDataManage().update_ls(user_id, num + give_stone, 0)
+        await XiuxianDataManage().update_ls(user_id, num, 0)
         savef(user_id, bankinfo)
         msg = f"道友本次结息时间为：{timedeff}小时，获得灵石：{give_stone}枚!\n取出灵石{num}枚，当前所拥有灵石{userinfonowstone}枚，灵庄存有灵石{bankinfo['savestone']}枚!"
         if XiuConfig().img:
@@ -194,6 +218,7 @@ async def bank_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Rege
 灵庄会员等级：{BANKLEVEL[bankinfo['banklevel']]['level']}
 当前拥有灵石：{user_info['stone']}
 当前等级存储灵石上限：{BANKLEVEL[bankinfo['banklevel']]['savemax']}枚
+利息计算方式：复利
 '''
         if XiuConfig().img:
             pic = await get_msg_pic(msg)
@@ -203,11 +228,25 @@ async def bank_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Rege
         await bank.finish()
 
     elif mode == '结算':
-
+        # 结算利息，采用复利计算
         bankinfo, give_stone, timedeff = get_give_stone(bankinfo)
-        await XiuxianDataManage().update_ls(user_id, give_stone, 0)
-        savef(user_id, bankinfo)
-        msg = f"道友本次结息时间为：{timedeff}小时，获得灵石：{give_stone}枚！"
+        
+        # 检查是否会超过最大存款额度
+        max = BANKLEVEL[bankinfo['banklevel']]['savemax']
+        if bankinfo['savestone'] + give_stone > max:
+            # 如果超过了，将超出部分加到用户灵石中
+            overflow = (bankinfo['savestone'] + give_stone) - max
+            actual_give = give_stone - overflow
+            await XiuxianDataManage().update_ls(user_id, give_stone, 0)
+            bankinfo['savestone'] = max
+            savef(user_id, bankinfo)
+            msg = f"道友本次结息时间为：{timedeff}小时，获得灵石：{give_stone}枚！\n已达到存款上限，多余的{overflow}灵石已返还给道友。"
+        else:
+            # 未超过上限，将全部利息加入存款
+            bankinfo['savestone'] += give_stone
+            savef(user_id, bankinfo)
+            msg = f"道友本次结息时间为：{timedeff}小时，获得灵石：{give_stone}枚！"
+            
         if XiuConfig().img:
             pic = await get_msg_pic(msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -217,12 +256,34 @@ async def bank_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Rege
 
 
 def get_give_stone(bankinfo):
-    """获取利息：利息=give_stone,结算时间=timedeff"""
+    """获取利息：利息 = give_stone,结算时间 = timedeff"""
     savetime = bankinfo['savetime']  # str
     nowtime = datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # str
     timedeff = round((datetime.strptime(nowtime, '%Y-%m-%d %H:%M:%S') -
                       datetime.strptime(savetime, '%Y-%m-%d %H:%M:%S')).total_seconds() / 3600, 2)
-    give_stone = int(bankinfo['savestone'] * timedeff * BANKLEVEL[bankinfo['banklevel']]['interest'])
+    
+    # 计算复利，1小时为一个周期
+    hours = int(timedeff)
+    remaining_time = timedeff - hours
+    
+    # 初始本金
+    principal = bankinfo['savestone']
+    interest_rate = BANKLEVEL[bankinfo['banklevel']]['interest']
+    
+    # 按小时计算复利
+    for _ in range(hours):
+        interest = int(principal * interest_rate)
+        principal += interest
+    
+    # 计算剩余时间的利息（按单利）
+    if remaining_time > 0:
+        final_interest = int(principal * remaining_time * interest_rate)
+        principal += final_interest
+    
+    # 计算总利息
+    give_stone = principal - bankinfo['savestone']
+    
+    # 更新存款时间，但不改变存款金额，在调用函数后处理
     bankinfo['savetime'] = nowtime
 
     return bankinfo, give_stone, timedeff

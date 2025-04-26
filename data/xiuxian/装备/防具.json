@@ -117,6 +117,15 @@
         "level": "极品仙器",
         "type": "装备"
     },
+    "6095": {
+        "name": "伽域封界",
+        "def_buff": 0.5,
+        "atk_buff": -0.5,
+        "crit_buff": 0,
+        "rank": -5,
+        "level": "无上仙器",
+        "type": "装备"
+    },
     "11051": {
         "name": "女武神的叹息之壁",
         "def_buff": 0.32,
@@ -328,15 +337,6 @@
         "name": "铁布衫",
         "def_buff": 0.5,
         "atk_buff": 0,
-        "crit_buff": 0,
-        "rank": -5,
-        "level": "无上仙器",
-        "type": "装备"
-    },
-    "6095": {
-        "name": "伽域封界",
-        "def_buff": 0.5,
-        "atk_buff": -0.5,
         "crit_buff": 0,
         "rank": -5,
         "level": "无上仙器",

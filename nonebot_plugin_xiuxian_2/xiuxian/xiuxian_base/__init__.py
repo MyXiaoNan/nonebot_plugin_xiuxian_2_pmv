@@ -191,7 +191,7 @@ async def run_xiuxian_(bot: Bot, event: GroupMessageEvent):
     # 官机的话随机生成道号
     if not user_name or user_name.strip() == "":
         try:
-            from .fantasy_name_gen.xiuxian_names_generator import XiuXianNameGenerator
+            from ..xiuxian_utils.xiuxian2_handle import XiuXianNameGenerator
             name_generator = XiuXianNameGenerator(data_dir=FANTASYNAMEDATAPATH)
             user_name = name_generator.get_name(1, {})[0]
         except Exception:

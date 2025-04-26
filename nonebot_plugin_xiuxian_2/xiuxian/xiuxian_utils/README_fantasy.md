@@ -5,9 +5,7 @@
 ## 快速开始
 
 ```python
-from xiuxian_names_generator import XiuXianNameGenerator, RARITY_NAMES
 
-# 创建名称生成器实例
 generator = XiuXianNameGenerator(data_dir="data")
 
 # 生成人名
@@ -196,10 +194,6 @@ get_zone(number=1, options_or_kind=None) -> List[Dict]
 - `options_or_kind`: 可以是类型字符串或包含以下键的选项字典:
   - `kind`: 类型
   - `category`: 类别
-
-## 示例
-
-完整示例请参考 [example_names.py](./example_names.py) 文件。
 
 ## 许可证
 
