@@ -27,7 +27,7 @@ def main():
     print("\n【道号】")
     dao_names = generator.get_dao(5)
     for dao in dao_names:
-        print(f"{dao['name']} ({RARITY_NAMES[dao['rarity']]})")
+        print(f"{dao['name']}")
     
     # 获取所有道号称号
     print("\n【可用道号称号数量】")
@@ -54,7 +54,7 @@ def main():
     creatures = generator.get_creature(5)
     for creature in creatures:
         category_name = CREATURE_CATEGORY_NAMES.get(creature['category'], creature['category'])
-        print(f"{creature['name']} ({RARITY_NAMES[creature['rarity']]}) - {category_name}")
+        print(f"{creature['name']} - {category_name}")
     
     # 生成特定种类的生物
     print("\n【鸟类生物】")
@@ -90,25 +90,25 @@ def main():
     print("\n【国家】")
     nations = generator.get_nation(5)
     for nation in nations:
-        print(f"{nation['name']} ({RARITY_NAMES[nation['rarity']]})")
+        print(f"{nation['name']}")
     
     # 生成地点
     print("\n【地点】")
     locations = generator.get_location(5)
     for location in locations:
-        print(f"{location['name']} ({RARITY_NAMES[location['rarity']]})")
+        print(f"{location['name']}")
     
     # 生成区域 - 使用options方式
     print("\n【区域 (使用options)】")
     zones = generator.get_zone(3, {"category": "land"})
     for zone in zones:
-        print(f"{zone['name']} ({RARITY_NAMES[zone['rarity']]})")
+        print(f"{zone['name']}")
     
     # 生成区域 - 使用直接传递kind方式
     print("\n【区域 (使用kind字符串)】")
     zones = generator.get_zone(2, "山脉")
     for zone in zones:
-        print(f"{zone['name']} ({RARITY_NAMES[zone['rarity']]})")
+        print(f"{zone['name']}")
 
 if __name__ == "__main__":
     main() 
