@@ -66,9 +66,7 @@ async def get_mix_elixir_msg(yaocai):
                     continue
                 o = 1
                 while o <= vv['num'] and o <= 5:
-                    # _yaoyin = vv['药引']['h_a_c']['type'] * vv['药引']['h_a_c']['power'] * o
                     if await tiaohe(v, i, vv, o):  # 调和失败
-                        # if await absolute(_zhuyao + _yaoyin) > yonhudenji:#调和失败
                         o += 1
                         continue
                     else:
@@ -154,6 +152,7 @@ async def absolute(x):
 
 
 async def tiaohe(zhuyao_info, zhuyao_num, yaoyin_info, yaoyin_num):
+    """调和药材"""
     _zhuyao = zhuyao_info['主药']['h_a_c']['type'] * zhuyao_info['主药']['h_a_c']['power'] * zhuyao_num
     _yaoyin = yaoyin_info['药引']['h_a_c']['type'] * yaoyin_info['药引']['h_a_c']['power'] * yaoyin_num
 
