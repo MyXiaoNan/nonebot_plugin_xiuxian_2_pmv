@@ -46,9 +46,9 @@ do_work = on_regex(
 __work_help__ = f"""
 悬赏令帮助信息:
 指令：
-1、悬赏令:获取对应实力的悬赏令
+1、悬赏令:获取对应实力的悬赏令(每次随机生成3-5个任务)
 2、悬赏令刷新:刷新当前悬赏令,每日免费{count}次
-实力支持：江湖好手|搬血境|洞天境|化灵境|铭纹境|列阵境|尊者境|神火境|真一境|圣祭境|天神境|虚道境|斩我境|遁一境|至尊境|真仙境
+实力支持：江湖好手至真仙境
 3、悬赏令终止:终止当前悬赏令任务
 4、悬赏令结算:结算悬赏奖励
 5、悬赏令接取+编号：接取对应的悬赏令
@@ -72,12 +72,14 @@ async def last_work_(bot: Bot, event: GroupMessageEvent):
         is_type and int(user_info['exp']) >= int(await OtherSet().set_closing_type(user_level)) * XiuConfig().closing_exp_upper_limit    
         ):
         user_cd_message = await XiuxianDataManage().get_user_cd(user_id)
-        work_time = datetime.strptime(
-            user_cd_message['create_time'], "%Y-%m-%d %H:%M:%S.%f"
-        )
+        # 判断create_time是str还是datetime对象
+        create_time = user_cd_message['create_time']
+        if isinstance(create_time, str):
+            work_time = datetime.strptime(create_time, "%Y-%m-%d %H:%M:%S.%f")
+        else:
+            work_time = create_time
         exp_time = (datetime.now() - work_time).seconds // 60  # 时长计算
         time2 = await workhandle().do_work(
-            # key=1, name=user_cd_message.scheduled_time  修改点
             key=1, name=user_cd_message['scheduled_time'], level=user_level, exp=user_info['exp'],
             user_id=user_info['user_id']
         )
@@ -193,9 +195,12 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
             except KeyError:
                 msg = "没有查到你的悬赏令信息呢，请刷新！"
         elif user_cd_message['type'] == 2:
-            work_time = datetime.strptime(
-                user_cd_message['create_time'], "%Y-%m-%d %H:%M:%S.%f"
-            )
+            # 判断create_time是str还是datetime对象
+            create_time = user_cd_message['create_time']
+            if isinstance(create_time, str):
+                work_time = datetime.strptime(create_time, "%Y-%m-%d %H:%M:%S.%f")
+            else:
+                work_time = create_time
             exp_time = (datetime.now() - work_time).seconds // 60  # 时长计算
             time2 = await workhandle().do_work(key=1, name=user_cd_message['scheduled_time'], user_id=user_info['user_id'])
             if exp_time < time2:
@@ -210,9 +215,12 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
     if mode == "刷新":  # 刷新逻辑
         stone_use = 0 #悬赏令刷新提示是否扣灵石
         if user_cd_message['type'] == 2:
-            work_time = datetime.strptime(
-                user_cd_message['create_time'], "%Y-%m-%d %H:%M:%S.%f"
-            )
+            # 判断create_time是str还是datetime对象
+            create_time = user_cd_message['create_time']
+            if isinstance(create_time, str):
+                work_time = datetime.strptime(create_time, "%Y-%m-%d %H:%M:%S.%f")
+            else:
+                work_time = create_time
             exp_time = (datetime.now() - work_time).seconds // 60
             time2 = await workhandle().do_work(key=1, name=user_cd_message['scheduled_time'], user_id=user_info['user_id'])
             if exp_time < time2:
@@ -280,9 +288,12 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
         is_type, msg = await check_user_type(user_id, 2)  # 需要在悬赏令中的用户
         if is_type:
             user_cd_message = await XiuxianDataManage().get_user_cd(user_id)
-            work_time = datetime.strptime(
-                user_cd_message['create_time'], "%Y-%m-%d %H:%M:%S.%f"
-            )
+            # 判断create_time是str还是datetime对象
+            create_time = user_cd_message['create_time']
+            if isinstance(create_time, str):
+                work_time = datetime.strptime(create_time, "%Y-%m-%d %H:%M:%S.%f")
+            else:
+                work_time = create_time
             exp_time = (datetime.now() - work_time).seconds // 60  # 时长计算
             time2 = await workhandle().do_work(
                 key=1, name=user_cd_message['scheduled_time'], level=user_level, exp=user_info['exp'],
