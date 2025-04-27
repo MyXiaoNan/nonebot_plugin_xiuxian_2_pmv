@@ -177,45 +177,51 @@ class XiuxianDataManage:
                 logger.opt(colors=True).info(f"<yellow>xiuxian_user表不存在，开始创建</yellow>")
                 await conn.execute("""
                 CREATE TABLE xiuxian_user (
-                  "id" SERIAL PRIMARY KEY,
-                  "user_id" BIGINT NOT NULL,
-                  "sect_id" BIGINT DEFAULT NULL,
-                  "sect_position" BIGINT DEFAULT NULL,
-                  "stone" BIGINT DEFAULT 0,
-                  "root" TEXT,
-                  "root_type" TEXT,
-                  "level" TEXT,
-                  "power" BIGINT DEFAULT 0,
-                  "create_time" TIMESTAMP,
-                  "is_sign" BIGINT DEFAULT 0,
-                  "is_beg" BIGINT DEFAULT 0,
-                  "is_ban" BIGINT DEFAULT 0,
-                  "exp" BIGINT DEFAULT 0,
-                  "user_name" TEXT DEFAULT NULL,
-                  "level_up_cd" TIMESTAMP DEFAULT NULL,
-                  "level_up_rate" BIGINT DEFAULT 0,
-                  "hp" BIGINT DEFAULT 100,
-                  "mp" BIGINT DEFAULT 100,
-                  "atk" BIGINT DEFAULT 10,
-                  "atkpractice" BIGINT DEFAULT 0,
-                  "sect_task" BIGINT DEFAULT 0,
-                  "sect_contribution" BIGINT DEFAULT 0,
-                  "sect_elixir_get" BIGINT DEFAULT 0,
-                  "blessed_spot_flag" BIGINT DEFAULT 0,
-                  "blessed_spot_name" TEXT DEFAULT NULL,
-                  "user_stamina" BIGINT DEFAULT 240,
-                  "work_num" BIGINT DEFAULT 0
+                    "id" SERIAL PRIMARY KEY,
+                    "user_id" INTEGER NOT NULL,
+                    "user_name" TEXT DEFAULT NULL,
+                    "user_create_time" TIMESTAMP DEFAULT NULL,
+                    "sect_id" INTEGER DEFAULT NULL,
+                    "sect_position" SMALLINT DEFAULT NULL,
+                    "stone" BIGINT DEFAULT 0,
+                    "root" TEXT NOT NULL,
+                    "root_type" TEXT NOT NULL,
+                    "level" TEXT NOT NULL,
+                    "exp" BIGINT DEFAULT 0,
+                    "power" BIGINT DEFAULT 0,
+                    "hp" BIGINT DEFAULT 100,
+                    "mp" BIGINT DEFAULT 100,
+                    "atk" BIGINT DEFAULT 10,
+                    "atk_practice_level" SMALLINT DEFAULT 0,
+                    "is_sign" SMALLINT DEFAULT 0,
+                    "is_beg" SMALLINT DEFAULT 0,
+                    "is_ban" SMALLINT DEFAULT 0,
+                    "is_elixir" SMALLINT DEFAULT 0,
+                    "level_up_rate" SMALLINT DEFAULT 0,
+                    "sect_task_quantity" SMALLINT DEFAULT 0,
+                    "sect_contribution" BIGINT DEFAULT 0,
+                    "blessed_spot_flag" SMALLINT DEFAULT 0,
+                    "blessed_spot_name" TEXT DEFAULT NULL,
+                    "blessed_spot_level" SMALLINT DEFAULT 0,
+                    "stamina" BIGINT DEFAULT 2400,
+                    "work_quantity" SMALLINT DEFAULT 0
                 )""")
                 logger.opt(colors=True).info(f"<green>xiuxian_user表创建成功</green>")
                 
                 await conn.execute("""
                 CREATE UNIQUE INDEX IF NOT EXISTS idx_xiuxian_user_user_id ON xiuxian_user(user_id);
                 CREATE INDEX IF NOT EXISTS idx_xiuxian_user_sect_id ON xiuxian_user(sect_id);
+                CREATE INDEX IF NOT EXISTS idx_xiuxian_user_user_create_time ON xiuxian_user(user_create_time);
                 CREATE INDEX IF NOT EXISTS idx_xiuxian_user_exp ON xiuxian_user(exp);
                 CREATE INDEX IF NOT EXISTS idx_xiuxian_user_power ON xiuxian_user(power);
                 CREATE INDEX IF NOT EXISTS idx_xiuxian_user_stone ON xiuxian_user(stone);
                 CREATE INDEX IF NOT EXISTS idx_xiuxian_user_level ON xiuxian_user(level);
                 CREATE INDEX IF NOT EXISTS idx_xiuxian_user_user_name ON xiuxian_user(user_name);
+                CREATE INDEX IF NOT EXISTS idx_xiuxian_user_is_sign ON xiuxian_user(is_sign);
+                CREATE INDEX IF NOT EXISTS idx_xiuxian_user_is_beg ON xiuxian_user(is_beg);
+                CREATE INDEX IF NOT EXISTS idx_xiuxian_user_is_ban ON xiuxian_user(is_ban);
+                CREATE INDEX IF NOT EXISTS idx_xiuxian_user_is_elixir ON xiuxian_user(is_elixir);
+                CREATE INDEX IF NOT EXISTS idx_xiuxian_user_sect_task_quantity ON xiuxian_user(sect_task_quantity);
                 """)
                 logger.opt(colors=True).info(f"<green>xiuxian_user表索引创建成功</green>")
 
@@ -225,18 +231,20 @@ class XiuxianDataManage:
                 logger.opt(colors=True).info(f"<yellow>xiuxian_time表不存在，开始创建</yellow>")
                 await conn.execute("""
                 CREATE TABLE xiuxian_time (
-                  "id" SERIAL PRIMARY KEY,
-                  "user_id" BIGINT DEFAULT 0,
-                  "type" BIGINT DEFAULT 0,
-                  "create_time" TIMESTAMP DEFAULT NULL,
-                  "scheduled_time" BIGINT,
-                  "last_check_info_time" TIMESTAMP DEFAULT NULL
+                    "id" SERIAL PRIMARY KEY,
+                    "user_id" INTEGER NOT NULL,
+                    "schedule" TEXT DEFAULT NULL,
+                    "schedule_type" SMALLINT DEFAULT 0,
+                    "schedule_create_time" TIMESTAMP DEFAULT NULL,
+                    "last_active_time" TIMESTAMP DEFAULT NULL,
+                    "level_up_time" TIMESTAMP DEFAULT NULL
                 )""")
                 logger.opt(colors=True).info(f"<green>xiuxian_time表创建成功</green>")
                 
                 await conn.execute("""
-                CREATE INDEX IF NOT EXISTS idx_xiuxian_time_create_time ON xiuxian_time(create_time);
-                CREATE INDEX IF NOT EXISTS idx_xiuxian_time_type ON xiuxian_time(type);
+                CREATE INDEX IF NOT EXISTS idx_xiuxian_time_schedule_create_time ON xiuxian_time(schedule_create_time);
+                CREATE INDEX IF NOT EXISTS idx_xiuxian_time_schedule_type ON xiuxian_time(schedule_type);
+                CREATE INDEX IF NOT EXISTS idx_xiuxian_time_level_up_time ON xiuxian_time(level_up_time);
                 """)
                 logger.opt(colors=True).info(f"<green>xiuxian_time表索引创建成功</green>")
                 
@@ -246,178 +254,108 @@ class XiuxianDataManage:
                 logger.opt(colors=True).info(f"<yellow>xiuxian_buff表不存在，开始创建</yellow>")
                 await conn.execute("""
                 CREATE TABLE xiuxian_buff (
-                  "id" SERIAL PRIMARY KEY,
-                  "user_id" BIGINT DEFAULT 0,
-                  "main_buff" BIGINT DEFAULT 0,
-                  "sec_buff" BIGINT DEFAULT 0,
-                  "faqi_buff" BIGINT DEFAULT 0,
-                  "fabao_weapon" BIGINT DEFAULT 0,
-                  "armor_buff" BIGINT DEFAULT 0,
-                  "atk_buff" BIGINT DEFAULT 0,
-                  "sub_buff" BIGINT DEFAULT 0,
-                  "blessed_spot" BIGINT DEFAULT 0
+                    "id" SERIAL PRIMARY KEY,
+                    "user_id" INTEGER NOT NULL,
+                    "main_skill" INTEGER DEFAULT 0,
+                    "ultimate_skill" INTEGER DEFAULT 0,
+                    "support_skill" INTEGER DEFAULT 0,
+                    "weapon" INTEGER DEFAULT 0,
+                    "armor" INTEGER DEFAULT 0,
+                    "atk" INTEGER DEFAULT 0
                 )""")
                 logger.opt(colors=True).info(f"<green>xiuxian_buff表创建成功</green>")
                 
                 await conn.execute("""
                 CREATE UNIQUE INDEX IF NOT EXISTS idx_xiuxian_buff_user_id ON xiuxian_buff(user_id);
+                CREATE INDEX IF NOT EXISTS idx_xiuxian_buff_main_skill ON xiuxian_buff(main_skill);
+                CREATE INDEX IF NOT EXISTS idx_xiuxian_buff_ultimate_skill ON xiuxian_buff(ultimate_skill);
+                CREATE INDEX IF NOT EXISTS idx_xiuxian_buff_support_skill ON xiuxian_buff(support_skill);
+                CREATE INDEX IF NOT EXISTS idx_xiuxian_buff_weapon ON xiuxian_buff(weapon);
+                CREATE INDEX IF NOT EXISTS idx_xiuxian_buff_armor ON xiuxian_buff(armor);
+                CREATE INDEX IF NOT EXISTS idx_xiuxian_buff_atk ON xiuxian_buff(atk);
                 """)
                 logger.opt(colors=True).info(f"<green>xiuxian_buff表索引创建成功</green>")
-                
-            for i in XiuConfig().sql_table:
-                if i == "xiuxian_sect":
-                    try:
-                        await conn.execute("SELECT count(1) FROM xiuxian_sect LIMIT 1")
-                    except asyncpg.exceptions.UndefinedTableError:
-                        await conn.execute("""
-                        CREATE TABLE xiuxian_sect (
-                          "sect_id" SERIAL PRIMARY KEY,
-                          "sect_name" TEXT NOT NULL,
-                          "sect_owner" BIGINT,
-                          "sect_scale" BIGINT NOT NULL,
-                          "sect_used_stone" BIGINT,
-                          "sect_fairyland" BIGINT DEFAULT 0,
-                          "sect_materials" BIGINT DEFAULT 0,
-                          "mainbuff" BIGINT DEFAULT 0,
-                          "secbuff" BIGINT DEFAULT 0,
-                          "elixir_room_level" BIGINT DEFAULT 0
-                        )""")
-                        
-                        await conn.execute("""
-                        CREATE INDEX IF NOT EXISTS idx_xiuxian_sect_owner ON xiuxian_sect(sect_owner);
-                        CREATE INDEX IF NOT EXISTS idx_xiuxian_sect_scale ON xiuxian_sect(sect_scale);
-                        CREATE INDEX IF NOT EXISTS idx_xiuxian_sect_name ON xiuxian_sect(sect_name);
-                        """)
-                        logger.opt(colors=True).info(f"<green>xiuxian_sect表及索引创建成功</green>")
-                        
-                elif i == "xiuxian_back":
-                    try:
-                        await conn.execute("SELECT count(1) FROM xiuxian_back LIMIT 1")
-                    except asyncpg.exceptions.UndefinedTableError:
-                        await conn.execute("""
-                        CREATE TABLE xiuxian_back (
-                          "user_id" BIGINT NOT NULL,
-                          "goods_id" BIGINT NOT NULL,
-                          "goods_name" TEXT,
-                          "goods_type" TEXT,
-                          "goods_num" BIGINT,
-                          "create_time" TIMESTAMP,
-                          "update_time" TIMESTAMP,
-                          "remake" TEXT,
-                          "day_num" BIGINT DEFAULT 0,
-                          "all_num" BIGINT DEFAULT 0,
-                          "action_time" TIMESTAMP,
-                          "state" BIGINT DEFAULT 0,
-                          "bind_num" BIGINT DEFAULT 0
-                        )""")
-                        
-                        await conn.execute("""
-                        CREATE INDEX IF NOT EXISTS idx_xiuxian_back_user_id ON xiuxian_back(user_id);
-                        CREATE INDEX IF NOT EXISTS idx_xiuxian_back_goods_id ON xiuxian_back(goods_id);
-                        CREATE INDEX IF NOT EXISTS idx_xiuxian_back_user_goods ON xiuxian_back(user_id, goods_id);
-                        CREATE INDEX IF NOT EXISTS idx_xiuxian_back_goods_type ON xiuxian_back(goods_type);
-                        CREATE INDEX IF NOT EXISTS idx_xiuxian_back_update_time ON xiuxian_back(update_time);
-                        """)
-                        logger.opt(colors=True).info(f"<green>xiuxian_back表及索引创建成功</green>")
-                        
-                elif i == "xiuxian_buff":
-                    try:
-                        await conn.execute("SELECT count(1) FROM xiuxian_buff LIMIT 1")
-                    except asyncpg.exceptions.UndefinedTableError:
-                        await conn.execute("""
-                        CREATE TABLE xiuxian_buff (
-                          "id" SERIAL PRIMARY KEY,
-                          "user_id" BIGINT DEFAULT 0,
-                          "main_buff" BIGINT DEFAULT 0,
-                          "sec_buff" BIGINT DEFAULT 0,
-                          "faqi_buff" BIGINT DEFAULT 0,
-                          "fabao_weapon" BIGINT DEFAULT 0,
-                          "sub_buff" BIGINT DEFAULT 0
-                        )""")
 
-                        await conn.execute("""
-                        CREATE UNIQUE INDEX IF NOT EXISTS idx_xiuxian_buff_user_id ON xiuxian_buff(user_id);
-                        """)
-                        logger.opt(colors=True).info(f"<green>xiuxian_buff表索引创建成功</green>")
-                        
-                elif i == "xiuxian_impart":
-                    try:
-                        await conn.execute("SELECT count(1) FROM xiuxian_impart LIMIT 1")
-                    except asyncpg.exceptions.UndefinedTableError:
-                        await conn.execute("""
-                        CREATE TABLE xiuxian_impart (
-                          "user_id" BIGINT PRIMARY KEY,
-                          "impart_hp_per" BIGINT DEFAULT 0,
-                          "impart_atk_per" BIGINT DEFAULT 0,
-                          "impart_mp_per" BIGINT DEFAULT 0,
-                          "impart_exp_up" BIGINT DEFAULT 0,
-                          "boss_atk" BIGINT DEFAULT 0,
-                          "impart_know_per" BIGINT DEFAULT 0,
-                          "impart_burst_per" BIGINT DEFAULT 0,
-                          "impart_mix_per" BIGINT DEFAULT 0,
-                          "impart_reap_per" BIGINT DEFAULT 0,
-                          "impart_two_exp" BIGINT DEFAULT 0,
-                          "impart_all_exp" BIGINT DEFAULT 0,
-                          "impart_wish" BIGINT DEFAULT 0,
-                          "stone_num" BIGINT DEFAULT 0,
-                          "exp_day_num" BIGINT DEFAULT 0
-                        )""")
-                        
-            # 检查列是否存在，若不存在则添加
-            for i in XiuConfig().sql_user:
-                try:
-                    await conn.execute(f"SELECT {i} FROM xiuxian_user LIMIT 1")
-                except asyncpg.exceptions.UndefinedColumnError:
-                    logger.opt(colors=True).info(f"<yellow>xiuxian_user表有字段不存在，开始创建: {i}</yellow>")
-                    sql = f"ALTER TABLE xiuxian_user ADD COLUMN {i} BIGINT DEFAULT 0"
-                    logger.opt(colors=True).info(f"<green>{sql}</green>")
-                    await conn.execute(sql)
-
-            for d in XiuConfig().sql_time:
-                try:
-                    await conn.execute(f"SELECT {d} FROM xiuxian_time LIMIT 1")
-                except asyncpg.exceptions.UndefinedColumnError:
-                    logger.opt(colors=True).info(f"<yellow>xiuxian_time表有字段不存在，开始创建: {d}</yellow>")
-                    sql = f"ALTER TABLE xiuxian_time ADD COLUMN {d} BIGINT DEFAULT 0"
-                    logger.opt(colors=True).info(f"<green>{sql}</green>")
-                    await conn.execute(sql)
-
-            for s in XiuConfig().sql_sect:
-                try:
-                    await conn.execute(f"SELECT {s} FROM xiuxian_sect LIMIT 1")
-                except asyncpg.exceptions.UndefinedColumnError:
-                    logger.opt(colors=True).info(f"<yellow>xiuxian_sect表有字段不存在，开始创建: {s}</yellow>")
-                    sql = f"ALTER TABLE xiuxian_sect ADD COLUMN {s} BIGINT DEFAULT 0"
-                    logger.opt(colors=True).info(f"<green>{sql}</green>")
-                    await conn.execute(sql)
-
-            for m in XiuConfig().sql_buff:
-                try:
-                    await conn.execute(f"SELECT {m} FROM xiuxian_buff LIMIT 1")
-                except asyncpg.exceptions.UndefinedColumnError:
-                    logger.opt(colors=True).info(f"<yellow>xiuxian_buff表有字段不存在，开始创建: {m}</yellow>")
-                    sql = f"ALTER TABLE xiuxian_buff ADD COLUMN {m} BIGINT DEFAULT 0"
-                    logger.opt(colors=True).info(f"<green>{sql}</green>")
-                    await conn.execute(sql)
-
-            for b in XiuConfig().sql_back:
-                try:
-                    await conn.execute(f"SELECT {b} FROM xiuxian_back LIMIT 1")
-                except asyncpg.exceptions.UndefinedColumnError:
-                    logger.opt(colors=True).info(f"<yellow>xiuxian_back表有字段不存在，开始创建: {b}</yellow>")
-                    sql = f"ALTER TABLE xiuxian_back ADD COLUMN {b} BIGINT DEFAULT 0"
-                    logger.opt(colors=True).info(f"<green>{sql}</green>")
-                    await conn.execute(sql)
-
-            for col in XiuConfig().sql_impart:
-                try:
-                    await conn.execute(f"SELECT {col} FROM xiuxian_impart LIMIT 1")
-                except asyncpg.exceptions.UndefinedColumnError:
-                    logger.opt(colors=True).info(f"<yellow>xiuxian_impart表有字段不存在，开始创建: {col}</yellow>")
-                    sql = f"ALTER TABLE xiuxian_impart ADD COLUMN {col} BIGINT DEFAULT 0"
-                    logger.opt(colors=True).info(f"<green>{sql}</green>")
-                    await conn.execute(sql)
             
+            try:
+                await conn.execute("SELECT count(1) FROM xiuxian_sect LIMIT 1")
+            except asyncpg.exceptions.UndefinedTableError:
+                await conn.execute("""
+                CREATE TABLE xiuxian_sect (
+                    "id" SERIAL PRIMARY KEY,
+                    "sect_id" INTEGER NOT NULL,
+                    "sect_name" TEXT NOT NULL,
+                    "sect_owner" INTEGER NOT NULL,
+                    "sect_scale" BIGINT DEFAULT 0,
+                    "sect_stone" BIGINT DEFAULT 0,
+                    "sect_material" BIGINT DEFAULT 0,
+                    "sect_main_skill" INTEGER DEFAULT 0,
+                    "sect_ultimate_skill" INTEGER DEFAULT 0,
+                    "sect_elixir_room_level" INTEGER DEFAULT 0
+                )""")
+                
+                await conn.execute("""
+                CREATE INDEX IF NOT EXISTS idx_xiuxian_sect_sect_id ON xiuxian_sect(sect_id);
+                CREATE INDEX IF NOT EXISTS idx_xiuxian_sect_scale ON xiuxian_sect(sect_scale);
+                CREATE INDEX IF NOT EXISTS idx_xiuxian_sect_name ON xiuxian_sect(sect_name);
+                CREATE INDEX IF NOT EXISTS idx_xiuxian_sect_owner ON xiuxian_sect(sect_owner);
+                """)
+                logger.opt(colors=True).info(f"<green>xiuxian_sect表及索引创建成功</green>")
+
+            
+            try:
+                await conn.execute("SELECT count(1) FROM xiuxian_back LIMIT 1")
+            except asyncpg.exceptions.UndefinedTableError:
+                await conn.execute("""
+                CREATE TABLE xiuxian_back (
+                    "id" SERIAL PRIMARY KEY,
+                    "user_id" INTEGER NOT NULL,
+                    "goods_id" INTEGER NOT NULL,
+                    "goods_name" TEXT NOT NULL,
+                    "goods_type" TEXT NOT NULL,
+                    "goods_num" BIGINT DEFAULT 0,
+                    "goods_receive_time" TIMESTAMP DEFAULT NULL,
+                    "goods_update_time" TIMESTAMP DEFAULT NULL,
+                    "goods_day_limit" BIGINT DEFAULT 0,
+                    "goods_all_limit" BIGINT DEFAULT 0,
+                    "goods_action_time" TIMESTAMP DEFAULT NULL,
+                    "goods_state" SMALLINT DEFAULT 0,
+                    "goods_bind_num" BIGINT DEFAULT 0
+                )""")
+                
+                await conn.execute("""
+                CREATE INDEX IF NOT EXISTS idx_xiuxian_back_user_id ON xiuxian_back(user_id);
+                CREATE INDEX IF NOT EXISTS idx_xiuxian_back_goods_id ON xiuxian_back(goods_id);
+                CREATE INDEX IF NOT EXISTS idx_xiuxian_back_user_goods ON xiuxian_back(user_id, goods_id);
+                CREATE INDEX IF NOT EXISTS idx_xiuxian_back_goods_type ON xiuxian_back(goods_type);
+                CREATE INDEX IF NOT EXISTS idx_xiuxian_back_goods_receive_time ON xiuxian_back(goods_receive_time);
+                CREATE INDEX IF NOT EXISTS idx_xiuxian_back_goods_update_time ON xiuxian_back(goods_update_time);
+                """)
+                logger.opt(colors=True).info(f"<green>xiuxian_back表及索引创建成功</green>")
+            
+            try:
+                await conn.execute("SELECT count(1) FROM xiuxian_impart LIMIT 1")
+            except asyncpg.exceptions.UndefinedTableError:
+                await conn.execute("""
+                CREATE TABLE xiuxian_impart (
+                    "id" SERIAL PRIMARY KEY,
+                    "user_id" INTEGER NOT NULL,
+                    "impart_hp_addition" BIGINT DEFAULT 0,
+                    "impart_atk_addition" BIGINT DEFAULT 0,
+                    "impart_mp_addition" BIGINT DEFAULT 0,
+                    "impart_exp_addition" BIGINT DEFAULT 0,
+                    "impart_boss_atk_addition" BIGINT DEFAULT 0,
+                    "impart_crit_addition" BIGINT DEFAULT 0,
+                    "impart_crit_dmg_addition" BIGINT DEFAULT 0,
+                    "impart_mix_addition" BIGINT DEFAULT 0,
+                    "impart_reap_addition" BIGINT DEFAULT 0,
+                    "impart_two_exp_addition" BIGINT DEFAULT 0,
+                    "impart_all_exp_addition" BIGINT DEFAULT 0,
+                    "impart_wish_quantity" SMALLINT DEFAULT 0,
+                    "impart_stone_quantity" BIGINT DEFAULT 0,
+                    "impart_exp_day_quantity" BIGINT DEFAULT 0
+                )""")
+                logger.opt(colors=True).info(f"<green>xiuxian_impart表创建成功</green>")
             try:
                 await conn.execute("""
                 UPDATE xiuxian_time
@@ -1163,7 +1101,7 @@ class XiuxianDataManage:
             now_time = datetime.now()
             
         # 确保sc_time是正确的类型，修复整数类型转换错误
-        sql = f"UPDATE xiuxian_time SET type = $1, create_time = $2, scheduled_time = $3 WHERE user_id = $4"
+        sql = f"UPDATE xiuxian_time SET type = $1, create_time = $2, schedule = $3 WHERE user_id = $4"
         async with self.pool.acquire() as conn:
             try:
                 await conn.execute(sql, the_type, now_time, sc_time, user_id)
@@ -1373,7 +1311,7 @@ class XiuxianDataManage:
 
     async def initialize_user_buff_info(self, user_id: int):
         """初始化用户buff信息"""
-        sql = f"INSERT INTO xiuxian_buff (user_id,main_buff,sec_buff,faqi_buff,fabao_weapon) VALUES ($1,0,0,0,0)"
+        sql = f"INSERT INTO xiuxian_buff (user_id,main_buff,sec_buff,faqi_buff) VALUES ($1,0,0,0)"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, int(user_id))
             
@@ -1415,14 +1353,6 @@ class XiuxianDataManage:
         async with self.pool.acquire() as conn:
             await conn.execute(sql, id, user_id)
             
-
-    async def updata_user_fabao_weapon(self, user_id: int, id: int):
-        """更新用户法宝信息"""
-        sql = f"UPDATE xiuxian_buff SET fabao_weapon = $1 WHERE user_id = $2"
-        async with self.pool.acquire() as conn:
-            await conn.execute(sql, id, user_id)
-            
-
     async def updata_user_armor_buff(self, user_id: int, id: int):
         """更新用户防具信息"""
         sql = f"UPDATE xiuxian_buff SET armor_buff = $1 WHERE user_id = $2"

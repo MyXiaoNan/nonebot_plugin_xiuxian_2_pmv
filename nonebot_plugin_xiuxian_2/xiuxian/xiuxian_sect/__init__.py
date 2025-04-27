@@ -1475,7 +1475,6 @@ async def my_sect_(bot: Bot, event: GroupMessageEvent):
 宗   主：{(await XiuxianDataManage().get_user_infos_by_ids(sect_info['sect_owner']))['user_name']}
 道友职位：{jsondata.sect_config_data()[f"{sect_position}"]['title']}
 宗门建设度：{number_to(sect_info['sect_scale'])}
-洞天福地：{sect_info['sect_fairyland'] if sect_info['sect_fairyland'] else "暂无"}
 宗门位面排名：{top_idx_list.index(sect_id) + 1}
 宗门拥有资材：{number_to(sect_info['sect_materials'])}
 宗门贡献度：{number_to(user_info['sect_contribution'])}

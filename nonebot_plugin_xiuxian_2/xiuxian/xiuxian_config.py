@@ -54,8 +54,8 @@ class XiuConfig:
                                  "sect_position", "hp", "mp", "atk",
                                  "atkpractice", "sect_task", "sect_contribution",
                                  "sect_elixir_get", "blessed_spot_flag", "blessed_spot_name", "user_stamina"]
-        self.sql_time = ["user_id", "type", "create_time", "scheduled_time", "last_check_info_time"]
-        self.sql_sect = ["sect_id", "sect_name", "sect_owner", "sect_scale", "sect_used_stone", "sect_fairyland",
+        self.sql_time = ["user_id", "type", "create_time", "schedule", "last_check_info_time"]
+        self.sql_sect = ["sect_id", "sect_name", "sect_owner", "sect_scale", "sect_used_stone",
                           "sect_materials", "mainbuff", "secbuff", "elixir_room_level"]
         self.sql_buff = ["id", "user_id", "main_buff", "sec_buff", "faqi_buff", "fabao_weapon", "armor_buff",
                          "atk_buff", "sub_buff", "blessed_spot"]
