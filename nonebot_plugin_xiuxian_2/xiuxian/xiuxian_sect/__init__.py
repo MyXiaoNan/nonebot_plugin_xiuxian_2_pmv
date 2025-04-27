@@ -153,11 +153,11 @@ async def auto_sect_owner_change_():
         if last_check_time is None or datetime.now() - last_check_time < timedelta(days=XiuConfig().auto_change_sect_owner_cd):
             continue
 
-        user_info = await XiuxianDataManage().get_user_info_with_id(owner_id)
+        user_info = await XiuxianDataManage().get_user_infos_by_ids(owner_id)
         sect_id = user_info['sect_id']
         logger.opt(colors=True).info(f"<red>{user_info['user_name']}离线时间超过{XiuConfig().auto_change_sect_owner_cd}天，开始自动换宗主</red>")
         new_owner_id = await XiuxianDataManage().get_highest_contrib_active_user_except_current(sect_id, owner_id)
-        new_owner_info = await XiuxianDataManage().get_user_info_with_id(new_owner_id[0])
+        new_owner_info = await XiuxianDataManage().get_user_infos_by_ids(new_owner_id[0])
         
         await XiuxianDataManage().update_usr_sect(owner_id, sect_id, 1)
         await XiuxianDataManage().update_usr_sect(new_owner_id[0], sect_id, 0)
@@ -1053,7 +1053,7 @@ async def sect_owner_change_(bot: Bot, event: GroupMessageEvent, args: Message =
             await handle_send(bot, event, send_group_id, msg)
             await sect_owner_change.finish()
         else:
-            give_user = await XiuxianDataManage().get_user_info_with_id(give_qq)
+            give_user = await XiuxianDataManage().get_user_infos_by_ids(give_qq)
             if give_user['sect_id'] == user_info['sect_id']:
                 await XiuxianDataManage().update_usr_sect(give_user['user_id'], give_user['sect_id'], owner_position)
                 await XiuxianDataManage().update_usr_sect(user_info['user_id'], user_info['sect_id'], owner_position + 1)
@@ -1211,7 +1211,7 @@ async def sect_kick_out_(bot: Bot, event: GroupMessageEvent, args: Message = Com
     if bool(give_qq) is False:
         msg = args.extract_plain_text().strip()
         give_qq = re.findall(r"\d+", msg)[0]  # QQ_ID
-    if await XiuxianDataManage().get_user_info_with_id(give_qq) is None:
+    if await XiuxianDataManage().get_user_infos_by_ids(give_qq) is None:
         msg = f"修仙界没有此人,请输入正确QQ_ID或正规at!"
         await handle_send(bot, event, send_group_id, msg)
         await sect_kick_out.finish()
@@ -1221,7 +1221,7 @@ async def sect_kick_out_(bot: Bot, event: GroupMessageEvent, args: Message = Com
             await handle_send(bot, event, send_group_id, msg)
             await sect_kick_out.finish()
         else:
-            give_user = await XiuxianDataManage().get_user_info_with_id(give_qq)
+            give_user = await XiuxianDataManage().get_user_infos_by_ids(give_qq)
             if give_user['sect_id'] == user_info['sect_id']:
                 position_zhanglao = [k for k, v in jsondata.sect_config_data().items() if v.get("title", "") == "长老"]
                 idx_position = int(position_zhanglao[0]) if len(position_zhanglao) == 1 else 1
@@ -1347,20 +1347,30 @@ async def sect_position_update_(bot: Bot, event: GroupMessageEvent, args: Messag
         await sect_position_update.finish()
 
     give_qq = None 
-    msg = args.extract_plain_text().strip()
-    position_num = re.findall(r"\d+", msg)
+    msg_text = args.extract_plain_text().strip()
+    position_num = re.findall(r"\d+", msg_text)
+    remaining_text = re.sub(r"\d+", "", msg_text).strip()
 
     for arg in args:
         if arg.type == "at":
             give_qq = arg.data.get("qq", "")
+    
+    give_user = None
     if give_qq:
-        if give_qq == user_id:
+        give_user = await XiuxianDataManage().get_user_infos_by_ids(give_qq)
+    elif remaining_text:
+        give_user_info = await XiuxianDataManage().get_user_info_with_name(remaining_text)
+        if give_user_info:
+            give_user = give_user_info
+            give_qq = give_user['user_id']
+    
+    if give_user:
+        if str(give_qq) == str(user_id):
             msg = f"无法对自己的职位进行管理。"
             await handle_send(bot, event, send_group_id, msg)
             await sect_position_update.finish()
         else:
             if len(position_num) > 0 and position_num[0] in list(jsondata.sect_config_data().keys()):
-                give_user = await XiuxianDataManage().get_user_info_with_id(give_qq)
                 if give_user['sect_id'] == user_info['sect_id'] and give_user['sect_position'] > user_info['sect_position']:
                     if int(position_num[0]) > user_info['sect_position']:
                         await XiuxianDataManage().update_usr_sect(give_user['user_id'], give_user['sect_id'], int(position_num[0]))
@@ -1396,7 +1406,10 @@ async def sect_position_update_(bot: Bot, event: GroupMessageEvent, args: Messag
                     await bot.send_group_msg(group_id=int(send_group_id), message=msg)
                 await sect_position_update.finish()
     else:
-        msg = f"""请按照规范进行操作,ex:宗门职位变更2@XXX,将XXX道友(需在自己管理下的宗门)的变更为{jsondata.sect_config_data().get('2', {'title': '没有找到2品阶'})['title']}"""
+        msg = f"""请按照规范进行操作,有两种方式:
+1. 宗门职位变更{position_num}@XXX
+2. 宗门职位变更{position_num}道号
+将指定道友(需在自己管理下的宗门)变更为{jsondata.sect_config_data().get(position_num, {'title': '没有找到2品阶'})['title']}"""
         await handle_send(bot, event, send_group_id, msg)
         await sect_position_update.finish()
 
@@ -1459,7 +1472,7 @@ async def my_sect_(bot: Bot, event: GroupMessageEvent):
 {user_name}所在宗门
 宗门名讳：{sect_info['sect_name']}
 宗门编号：{sect_id}
-宗   主：{(await XiuxianDataManage().get_user_info_with_id(sect_info['sect_owner']))['user_name']}
+宗   主：{(await XiuxianDataManage().get_user_infos_by_ids(sect_info['sect_owner']))['user_name']}
 道友职位：{jsondata.sect_config_data()[f"{sect_position}"]['title']}
 宗门建设度：{number_to(sect_info['sect_scale'])}
 洞天福地：{sect_info['sect_fairyland'] if sect_info['sect_fairyland'] else "暂无"}

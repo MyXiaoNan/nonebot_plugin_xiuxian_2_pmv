@@ -208,7 +208,7 @@ def Cooldown(
                 await matcher.finish()
 
         if stamina_cost > 0:
-            user_data = await XiuxianDataManage().get_user_info_with_id(user_id)
+            user_data = await XiuxianDataManage().get_user_infos_by_ids(user_id)
             if user_data:
                 if user_data['user_stamina'] < stamina_cost:
                     msg = "你没有足够的体力，请等待体力恢复后再试！"

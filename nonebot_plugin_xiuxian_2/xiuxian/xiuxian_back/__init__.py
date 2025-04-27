@@ -141,7 +141,7 @@ async def set_auction_by_scheduler_():
     for idx, (auction_id, item_quantity, start_price, is_user_auction) in enumerate(auction_items):
         item_name = items.get_data_by_item_id(auction_id)['name']
         if is_user_auction:
-            owner_info = await XiuxianDataManage().get_user_info_with_id(get_user_auction_price_by_id(auction_id)['user_id'])
+            owner_info = await XiuxianDataManage().get_user_infos_by_ids(get_user_auction_price_by_id(auction_id)['user_id'])
             owner_name = owner_info['user_name']
             msg += f"{idx + 1}号：{item_name}x{item_quantity}（由{owner_name}道友提供）\n"
         else:
@@ -234,7 +234,7 @@ async def set_auction_by_scheduler_():
             auction = {}
             continue
         
-        user_info = await XiuxianDataManage().get_user_info_with_id(auction['user_id'])
+        user_info = await XiuxianDataManage().get_user_infos_by_ids(auction['user_id'])
         msg = f"(拍卖锤落下)！！！\n"
         msg += f"恭喜来自群{auction['group_id']}的{user_info['user_name']}道友成功拍下：{auction['type']}-{auction['name']}x{auction['quantity']}，将在拍卖会结算后送到您手中。\n"
         if i + 1 == len(auction_items):
@@ -267,7 +267,7 @@ async def set_auction_by_scheduler_():
             end_msg += f"{idx + 1}号拍卖品：{item_name}x{quantity} - 流拍了\n"
             continue
             
-        final_user_info = await XiuxianDataManage().get_user_info_with_id(user_id)
+        final_user_info = await XiuxianDataManage().get_user_infos_by_ids(user_id)
         if final_user_info['stone'] < (int(final_price) * quantity):
             end_msg += f"{idx + 1}号拍卖品：{item_name}x{quantity} - 道友{final_user_info['user_name']}的灵石不足，流拍了\n"
         else:
@@ -1043,7 +1043,7 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
         except ValueError:
             num = 1
         goods_info = items.get_data_by_item_id(goods_id)
-        user_info = await XiuxianDataManage().get_user_info_with_id(user_id)
+        user_info = await XiuxianDataManage().get_user_infos_by_ids(user_id)
         user_rank = convert_rank(user_info['level'])[0]
         goods_rank = goods_info['rank']
         goods_name = goods_info['name']
@@ -1079,7 +1079,7 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
             num = 1
 
         goods_info = items.get_data_by_item_id(goods_id)
-        user_info = await XiuxianDataManage().get_user_info_with_id(user_id)
+        user_info = await XiuxianDataManage().get_user_infos_by_ids(user_id)
         goods_name = goods_info['name']
 
         msg_parts = []
@@ -1159,7 +1159,7 @@ async def auction_view_(bot: Bot, event: GroupMessageEvent, args: Message = Comm
     
     for idx, auction in enumerate(user_auctions):
         for goods_name, details in auction.items():
-            user_info = await XiuxianDataManage().get_user_info_with_id(details['user_id'])
+            user_info = await XiuxianDataManage().get_user_infos_by_ids(details['user_id'])
             auction_list_msg += f"编号: {idx + 1}\n物品名称: {goods_name}\n物品类型：{details['goods_type']}\n所有者：{user_info['user_name']}\n底价: {details['start_price']} 枚灵石\n数量: {details['quantity']}\n"
             auction_list_msg += "☆------------------------------☆\n"
 
@@ -1239,7 +1239,7 @@ async def creat_auction_(bot: Bot, event: GroupMessageEvent):
     for idx, (auction_id, item_quantity, start_price, is_user_auction) in enumerate(auction_items):
         item_name = items.get_data_by_item_id(auction_id)['name']
         if is_user_auction:
-            owner_info = await XiuxianDataManage().get_user_info_with_id(get_user_auction_price_by_id(auction_id)['user_id'])
+            owner_info = await XiuxianDataManage().get_user_infos_by_ids(get_user_auction_price_by_id(auction_id)['user_id'])
             owner_name = owner_info['user_name']
             msg += f"{idx + 1}号：{item_name}x{item_quantity}（由{owner_name}道友提供）\n"
         else:
@@ -1329,7 +1329,7 @@ async def creat_auction_(bot: Bot, event: GroupMessageEvent):
             auction = {}
             continue
         
-        user_info = await XiuxianDataManage().get_user_info_with_id(auction['user_id'])
+        user_info = await XiuxianDataManage().get_user_infos_by_ids(auction['user_id'])
         msg = f"(拍卖锤落下)！！！\n"
         msg += f"恭喜来自群{auction['group_id']}的{user_info['user_name']}道友成功拍下：{auction['type']}-{auction['name']}x{auction['quantity']}，将在拍卖会结算后送到您手中。\n"
         if i + 1 == len(auction_items):
@@ -1358,7 +1358,7 @@ async def creat_auction_(bot: Bot, event: GroupMessageEvent):
             end_msg += f"{idx + 1}号拍卖品：{item_name}x{quantity} - 流拍了\n"
             continue
             
-        final_user_info = await XiuxianDataManage().get_user_info_with_id(user_id)
+        final_user_info = await XiuxianDataManage().get_user_infos_by_ids(user_id)
         if final_user_info['stone'] < (int(final_price) * quantity):
             end_msg += f"{idx + 1}号拍卖品：{item_name}x{quantity} - 道友{final_user_info['user_name']}的灵石不足，流拍了\n"
         else:

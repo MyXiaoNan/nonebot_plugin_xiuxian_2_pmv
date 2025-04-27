@@ -1065,7 +1065,7 @@ async def Boss_fight(player1: dict, boss: dict, type_in=2, bot_id=0):
     boss_js = boss['减伤']
     
     # 这里是技能释放概率计算，玩家阶级越高释放的概率越大
-    player_info = await XiuxianDataManage().get_user_info_with_id(player1['user_id'])
+    player_info = await XiuxianDataManage().get_user_infos_by_ids(player1['user_id'])
     player_level = player_info['level']
     player_rank, ranks = convert_rank(player_level)
 

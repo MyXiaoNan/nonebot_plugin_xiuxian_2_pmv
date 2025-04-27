@@ -61,7 +61,7 @@ async def dufang_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Re
         await handle_send(bot, event, send_group_id, msg)
         await dufang.finish()
 
-    user_message = await XiuxianDataManage().get_user_info_with_id(user_id)
+    user_message = await XiuxianDataManage().get_user_infos_by_ids(user_id)
 
     if args[2] is None:
         msg = f"请输入正确的指令，例如金银阁10大、金银阁10奇、金银阁10猜3"

@@ -54,7 +54,7 @@ steal_stone = on_command("偷灵石", aliases={"飞龙探云手"}, priority=4, p
 gm_command = on_command("神秘力量", permission=SUPERUSER, priority=10, block=True)
 gmm_command = on_command("轮回力量", permission=SUPERUSER, priority=10, block=True)
 cz = on_command('创造力量', permission=SUPERUSER, priority=15,block=True)
-rob_stone = on_command("抢劫", aliases={"拿来吧你"}, priority=5, permission=GROUP, block=True)
+rob_stone = on_command("抢灵石", aliases={"拿来吧你"}, priority=5, permission=GROUP, block=True)
 restate = on_command("重置状态", permission=SUPERUSER, priority=12, block=True)
 set_xiuxian = on_command("启用修仙功能", aliases={'禁用修仙功能'}, permission=GROUP and (SUPERUSER | GROUP_ADMIN | GROUP_OWNER), priority=5, block=True)
 user_leveluprate = on_command('我的突破概率', aliases={'突破概率'}, priority=5, permission=GROUP, block=True)
@@ -420,7 +420,7 @@ async def level_up_(bot: Bot, event: GroupMessageEvent):
     if user_info['hp'] is None:
         # 判断用户气血是否为空
         await XiuxianDataManage().update_user_hp(user_id)
-    user_msg = await XiuxianDataManage().get_user_info_with_id(user_id)  # 用户信息
+    user_msg = await XiuxianDataManage().get_user_infos_by_ids(user_id)  # 用户信息
     user_leveluprate = int(user_msg['level_up_rate'])  # 用户失败次数加成
     level_cd = user_msg['level_up_cd']
     if level_cd:
@@ -474,7 +474,7 @@ async def level_up_zj_(bot: Bot, event: GroupMessageEvent):
     if user_info['hp'] is None:
         # 判断用户气血是否为空
         await XiuxianDataManage().update_user_hp(user_id)
-    user_msg = await XiuxianDataManage().get_user_info_with_id(user_id)  # 用户信息
+    user_msg = await XiuxianDataManage().get_user_infos_by_ids(user_id)  # 用户信息
     level_cd = user_msg['level_up_cd']
     if level_cd:
         # 校验是否存在CD
@@ -545,7 +545,7 @@ async def level_up_drjd_(bot: Bot, event: GroupMessageEvent):
     if user_info['hp'] is None:
         # 判断用户气血是否为空
         await XiuxianDataManage().update_user_hp(user_id)
-    user_msg = await XiuxianDataManage().get_user_info_with_id(user_id)  # 用户信息
+    user_msg = await XiuxianDataManage().get_user_infos_by_ids(user_id)  # 用户信息
     level_cd = user_msg['level_up_cd']
     if level_cd:
         # 校验是否存在CD
@@ -644,7 +644,7 @@ async def level_up_dr_(bot: Bot, event: GroupMessageEvent):
     if user_info['hp'] is None:
         # 判断用户气血是否为空
         await XiuxianDataManage().update_user_hp(user_id)
-    user_msg = await XiuxianDataManage().get_user_info_with_id(user_id)  # 用户信息
+    user_msg = await XiuxianDataManage().get_user_infos_by_ids(user_id)  # 用户信息
     level_cd = user_msg['level_up_cd']
     if level_cd:
         # 校验是否存在CD
@@ -738,7 +738,7 @@ async def user_leveluprate_(bot: Bot, event: GroupMessageEvent):
         await handle_send(bot, event, send_group_id, msg)
         await user_leveluprate.finish()
     user_id = user_info['user_id']
-    user_msg = await XiuxianDataManage().get_user_info_with_id(user_id)  # 用户信息
+    user_msg = await XiuxianDataManage().get_user_infos_by_ids(user_id)  # 用户信息
     leveluprate = int(user_msg['level_up_rate'])  # 用户失败次数加成
     level_name = user_msg['level']  # 用户境界
     level_rate = jsondata.level_rate_data()[level_name]  # 
@@ -774,29 +774,30 @@ async def give_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
     user_stone_num = user_info['stone']
     give_qq = None  # 艾特的时候存到这里
     msg = args.extract_plain_text().strip()
-    stone_num = re.findall(r"\d+", msg)  # 灵石数
-    nick_name = re.findall(r"\d+", msg)  # 道号
-    if stone_num:
-        pass
-    else:
+    stone_num = re.findall(r"\d+", msg)
+    if not stone_num:
         msg = f"请输入正确的灵石数量！"
         await handle_send(bot, event, send_group_id, msg)
         await give_stone.finish()
+    
     give_stone_num = stone_num[0]
     if int(give_stone_num) > int(user_stone_num):
         msg = f"道友的灵石不够，请重新输入！"
         await handle_send(bot, event, send_group_id, msg)
         await give_stone.finish()
+    remaining_text = re.sub(r"\d+", "", msg).strip()
+    
     for arg in args:
         if arg.type == "at":
             give_qq = arg.data.get("qq", "")
+    
     if give_qq:
         if str(give_qq) == str(user_id):
             msg = f"请不要送灵石给自己！"
             await handle_send(bot, event, send_group_id, msg)
             await give_stone.finish()
         else:
-            give_user = await XiuxianDataManage().get_user_info_with_id(give_qq)
+            give_user = await XiuxianDataManage().get_user_infos_by_ids(give_qq)
             if give_user:
                 await XiuxianDataManage().update_ls(user_id, give_stone_num, 1)
                 give_stone_num2 = int(give_stone_num) * 0.1
@@ -818,8 +819,9 @@ async def give_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
                     await bot.send_group_msg(group_id=int(send_group_id), message=msg)
                 await give_stone.finish()
 
-    if nick_name:
-        give_message = await XiuxianDataManage().get_user_info_with_name(nick_name[0])
+    # 道号
+    if remaining_text:
+        give_message = await XiuxianDataManage().get_user_info_with_name(remaining_text)
         if give_message:
             if give_message['user_name'] == user_info['user_name']:
                 msg = f"请不要送灵石给自己！"
@@ -834,7 +836,7 @@ async def give_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
                 give_stone_num2 = int(give_stone_num) * 0.1
                 num = int(give_stone_num) - int(give_stone_num2)
                 await XiuxianDataManage().update_ls(give_message['user_id'], num, 0)
-                msg = f"共赠送{number_to(int(give_stone_num))}枚灵石给{give_message['user_name']}道友！收取手续费{int(give_stone_num2)}枚"
+                msg = f"共赠送{number_to(int(give_stone_num))}枚灵石给{give_message['user_name']}道友！收取手续费{number_to(int(give_stone_num2))}枚"
                 if XiuConfig().img:
                     pic = await get_msg_pic(f"@{user_info['user_name'] or event.sender.nickname}\n" + msg)
                     await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -871,9 +873,13 @@ async def steal_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
         await XiuxianDataManage().update_user_stamina(user_id, 10, 1)
         await handle_send(bot, event, send_group_id, msg)
         await steal_stone.finish()
+    msg_text = args.extract_plain_text().strip()
+    remaining_text = re.sub(r"\d+", "", msg_text).strip()
+    
     for arg in args:
         if arg.type == "at":
             steal_qq = arg.data.get('qq', '')
+    
     if steal_qq:
         if steal_qq == user_id:
             msg = f"请不要偷自己刷成就！"
@@ -881,11 +887,24 @@ async def steal_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
             await handle_send(bot, event, send_group_id, msg)
             await steal_stone.finish()
         else:
-            steal_user = await XiuxianDataManage().get_user_info_with_id(steal_qq)
+            steal_user = await XiuxianDataManage().get_user_infos_by_ids(steal_qq)
             if steal_user:
                 steal_user_stone = steal_user['stone']
             else:
                 steal_user is None
+    elif remaining_text:
+        steal_message = await XiuxianDataManage().get_user_info_with_name(remaining_text)
+        if steal_message:
+            if steal_message['user_name'] == user_info['user_name']:
+                msg = f"请不要偷自己刷成就！"
+                await XiuxianDataManage().update_user_stamina(user_id, 10, 1)
+                await handle_send(bot, event, send_group_id, msg)
+                await steal_stone.finish()
+            else:
+                steal_user = steal_message
+                steal_user_stone = steal_user['stone']
+                steal_qq = steal_user['user_id']
+    
     if steal_user:
         steal_success = random.randint(0, 100)
         result = OtherSet().get_power_rate(user_info['power'], steal_user['power'])
@@ -950,7 +969,7 @@ async def gm_command_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
         if arg.type == "at":
             give_qq = arg.data.get("qq", "")
     if give_qq:
-        give_user = await XiuxianDataManage().get_user_info_with_id(give_qq)
+        give_user = await XiuxianDataManage().get_user_infos_by_ids(give_qq)
         if give_user:
             await XiuxianDataManage().update_ls(give_qq, give_stone_num, 0)  # 增加用户灵石
             msg = f"共赠送{number_to(give_stone_num)}枚灵石给{give_user['user_name']}道友！"
@@ -1018,7 +1037,7 @@ async def cz_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
         if arg.type == "at":
             give_qq = arg.data.get("qq", "")
     if give_qq:
-        give_user = await XiuxianDataManage().get_user_info_with_id(give_qq)
+        give_user = await XiuxianDataManage().get_user_infos_by_ids(give_qq)
         if give_user:
             await XiuxianDataManage().send_back(give_qq, int(goods_id), goods_name, goods_type, goods_num, 1)
             msg = f"{give_user['user_name']}道友获得了系统赠送的{goods_num}个{goods_name}！"
@@ -1063,7 +1082,7 @@ async def gmm_command_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
         if arg.type == "at":
             give_qq = arg.data.get("qq", "")
 
-    give_user = await XiuxianDataManage().get_user_info_with_id(give_qq)
+    give_user = await XiuxianDataManage().get_user_infos_by_ids(give_qq)
     if give_user:
         root_name = await XiuxianDataManage().update_root(give_qq, msg)
         await XiuxianDataManage().update_power2(give_qq)
@@ -1091,14 +1110,33 @@ async def rob_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Command
         await handle_send(bot, event, send_group_id, msg)
         await rob_stone.finish()
     user_id = user_info["user_id"]
-    user_mes = await XiuxianDataManage().get_user_info_with_id(user_id)
+    user_mes = await XiuxianDataManage().get_user_infos_by_ids(user_id)
     give_qq = None  # 艾特的时候存到这里
+    
+    # 获取消息文本
+    msg_text = args.extract_plain_text().strip()
+    
+    # 提取道号：移除所有数字，剩余的文本可能是道号
+    remaining_text = re.sub(r"\d+", "", msg_text).strip()
+    
     for arg in args:
         if arg.type == "at":
             give_qq = arg.data.get("qq", "")
+            
     player1 = {"user_id": None, "道号": None, "气血": None, "攻击": None, "真元": None, '会心': None, '爆伤': None, '防御': 0}
     player2 = {"user_id": None, "道号": None, "气血": None, "攻击": None, "真元": None, '会心': None, '爆伤': None, '防御': 0}
-    user_2 = await XiuxianDataManage().get_user_info_with_id(give_qq)
+    
+    # 获取目标用户信息
+    user_2 = None
+    if give_qq:
+        user_2 = await XiuxianDataManage().get_user_infos_by_ids(give_qq)
+    # 如果没有艾特，尝试使用道号搜索
+    elif remaining_text:
+        user_2_info = await XiuxianDataManage().get_user_info_with_name(remaining_text)
+        if user_2_info:
+            user_2 = user_2_info
+            give_qq = user_2['user_id']
+    
     if user_mes and user_2:
         if user_info['root'] == "器师":
             msg = f"目前职业无法抢劫！"
@@ -1131,10 +1169,10 @@ async def rob_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Command
                 if user_info['hp'] is None:
                     # 判断用户气血是否为None
                     await XiuxianDataManage().update_user_hp(user_id)
-                    user_info = await XiuxianDataManage().get_user_info_with_id(user_id)
+                    user_info = await XiuxianDataManage().get_user_infos_by_ids(user_id)
                 if user_2['hp'] is None:
                     await XiuxianDataManage().update_user_hp(give_qq)
-                    user_2 = await XiuxianDataManage().get_user_info_with_id(give_qq)
+                    user_2 = await XiuxianDataManage().get_user_infos_by_ids(give_qq)
 
                 if user_2['hp'] <= user_2['exp'] / 10:
                     time_2 = await leave_harm_time(give_qq)

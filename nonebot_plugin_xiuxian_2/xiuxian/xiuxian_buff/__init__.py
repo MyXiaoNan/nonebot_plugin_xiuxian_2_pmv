@@ -346,7 +346,7 @@ async def two_exp_(bot: Bot, event: GroupMessageEvent, args: Message = CommandAr
         if arg.type == "at":
             two_qq = arg.data.get("qq", "")
     
-    user_2 = await XiuxianDataManage().get_user_info_with_id(two_qq)
+    user_2 = await XiuxianDataManage().get_user_infos_by_ids(two_qq)
     
     if user_1 and user_2:
         if two_qq is None:
@@ -523,7 +523,7 @@ async def stone_exp_(bot: Bot, event: GroupMessageEvent, args: Message = Command
         await handle_send(bot, event, send_group_id, msg)
         await stone_exp.finish()
     user_id = user_info['user_id']
-    user_mes = await XiuxianDataManage().get_user_info_with_id(user_id)  # 获取用户信息
+    user_mes = await XiuxianDataManage().get_user_infos_by_ids(user_id)  # 获取用户信息
     level = user_mes['level']
     use_exp = user_mes['exp']
     use_stone = user_mes['stone']
@@ -604,7 +604,7 @@ async def out_closing_(bot: Bot, event: GroupMessageEvent):
         await handle_send(bot, event, send_group_id, msg)
         await out_closing.finish()
     user_id = user_info['user_id']
-    user_mes = await XiuxianDataManage().get_user_info_with_id(user_id)  # 获取用户信息
+    user_mes = await XiuxianDataManage().get_user_infos_by_ids(user_id)  # 获取用户信息
     level = user_mes['level']
     use_exp = user_mes['exp']
     hp_speed = 25

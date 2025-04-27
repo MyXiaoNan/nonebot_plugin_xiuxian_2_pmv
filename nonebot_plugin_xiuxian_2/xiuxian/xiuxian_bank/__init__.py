@@ -49,6 +49,7 @@ __bank_help__ = f"""
 async def bank_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = RegexGroup()):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = await check_user(event)
+    from ..xiuxian_utils.utils import number_to, handle_send
     if not isUser:
         await handle_send(bot, event, send_group_id, msg)
         await bank.finish()
@@ -68,19 +69,11 @@ async def bank_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Rege
             num = int(num)
             if num <= 0:
                 msg = f"请输入正确的金额！"
-                if XiuConfig().img:
-                    pic = await get_msg_pic(msg)
-                    await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
-                else:
-                    await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+                await handle_send(bot, event, send_group_id, msg)
                 await bank.finish()
         except ValueError:
             msg = f"请输入正确的金额！"
-            if XiuConfig().img:
-                pic = await get_msg_pic(msg)
-                await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
-            else:
-                await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+            await handle_send(bot, event, send_group_id, msg)
             await bank.finish()
     user_id = user_info['user_id']
     try:
@@ -94,7 +87,7 @@ async def bank_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Rege
 
     if mode == '存灵石':  # 存灵石逻辑
         if int(user_info['stone']) < num:
-            msg = f"道友所拥有的灵石为{user_info['stone']}枚，金额不足，请重新输入！"
+            msg = f"道友所拥有的灵石为{number_to(user_info['stone'])}枚，金额不足，请重新输入！"
             if XiuConfig().img:
                 pic = await get_msg_pic(msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -103,7 +96,7 @@ async def bank_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Rege
             await bank.finish()
 
         # 先结算之前的利息，采用复利计算
-        bankinfo, give_stone, timedeff = get_give_stone(bankinfo)
+        bankinfo, give_stone, days_diff = get_give_stone(bankinfo)
         
         max = BANKLEVEL[bankinfo['banklevel']]['savemax']
         # 更新存款金额，加上利息
@@ -113,7 +106,7 @@ async def bank_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Rege
             # 如果超过了，将超出部分加到用户灵石中
             overflow = bankinfo['savestone'] - max
             await XiuxianDataManage().update_ls(user_id, overflow, 0)
-            msg = f"道友本次结息时间为：{timedeff}小时，获得灵石：{give_stone}枚!\n已达到存款上限，多余的{overflow}灵石已返还给道友。"
+            msg = f"道友本次结息时间为：{days_diff:.1f}天，获得灵石：{number_to(give_stone)}枚!\n已达到存款上限，多余的{number_to(overflow)}灵石已返还给道友。"
             bankinfo['savestone'] = max
             savef(user_id, bankinfo)
             if XiuConfig().img:
@@ -127,7 +120,7 @@ async def bank_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Rege
         nowmax = max - bankinfo['savestone']
 
         if num > nowmax:
-            msg = f"道友当前灵庄会员等级为{BANKLEVEL[bankinfo['banklevel']]['level']}，可存储的最大灵石为{max}枚,当前已存{bankinfo['savestone']}枚灵石，可以继续存{nowmax}枚灵石！"
+            msg = f"道友当前灵庄会员等级为{BANKLEVEL[bankinfo['banklevel']]['level']}，可存储的最大灵石为{number_to(max)}枚,当前已存{number_to(bankinfo['savestone'])}枚灵石，可以继续存{number_to(nowmax)}枚灵石！"
             if XiuConfig().img:
                 pic = await get_msg_pic(msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -143,7 +136,7 @@ async def bank_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Rege
         await XiuxianDataManage().update_ls(user_id, give_stone, 0)
         bankinfo['savetime'] = str(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
         savef(user_id, bankinfo)
-        msg = f"道友本次结息时间为：{timedeff}小时，获得灵石：{give_stone}枚!\n道友存入灵石{num}枚，当前所拥有灵石{userinfonowstone + give_stone}枚，灵庄存有灵石{bankinfo['savestone']}枚"
+        msg = f"道友本次结息时间为：{days_diff:.1f}天，获得灵石：{number_to(give_stone)}枚!\n道友存入灵石{number_to(num)}枚，当前所拥有灵石{number_to(userinfonowstone + give_stone)}枚，灵庄存有灵石{number_to(bankinfo['savestone'])}枚"
         if XiuConfig().img:
             pic = await get_msg_pic(msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -153,12 +146,12 @@ async def bank_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Rege
 
     elif mode == '取灵石':  # 取灵石逻辑
         # 先结算利息，采用复利计算
-        bankinfo, give_stone, timedeff = get_give_stone(bankinfo)
+        bankinfo, give_stone, days_diff = get_give_stone(bankinfo)
         # 更新存款金额，加上利息
         bankinfo['savestone'] += give_stone
         
         if int(bankinfo['savestone']) < num:
-            msg = f"道友当前灵庄所存有的灵石为{bankinfo['savestone']}枚，金额不足，请重新输入！"
+            msg = f"道友当前灵庄所存有的灵石为{number_to(bankinfo['savestone'])}枚，金额不足，请重新输入！"
             if XiuConfig().img:
                 pic = await get_msg_pic(msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -170,7 +163,7 @@ async def bank_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Rege
         bankinfo['savestone'] -= num
         await XiuxianDataManage().update_ls(user_id, num, 0)
         savef(user_id, bankinfo)
-        msg = f"道友本次结息时间为：{timedeff}小时，获得灵石：{give_stone}枚!\n取出灵石{num}枚，当前所拥有灵石{userinfonowstone}枚，灵庄存有灵石{bankinfo['savestone']}枚!"
+        msg = f"道友本次结息时间为：{days_diff:.1f}天，获得灵石：{number_to(give_stone)}枚!\n取出灵石{number_to(num)}枚，当前所拥有灵石{number_to(userinfonowstone)}枚，灵庄存有灵石{number_to(bankinfo['savestone'])}枚!"
         if XiuConfig().img:
             pic = await get_msg_pic(msg)
             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -178,6 +171,7 @@ async def bank_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Rege
             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
         await bank.finish()
 
+    
     elif mode == '升级会员':  # 升级会员逻辑
         userlevel = bankinfo["banklevel"]
         if userlevel == str(len(BANKLEVEL)):
@@ -191,7 +185,7 @@ async def bank_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Rege
 
         stonecost = BANKLEVEL[f"{int(userlevel)}"]['levelup']
         if int(user_info['stone']) < stonecost:
-            msg = f"道友所拥有的灵石为{user_info['stone']}枚，当前升级会员等级需求灵石{stonecost}枚金额不足，请重新输入！"
+            msg = f"道友所拥有的灵石为{number_to(user_info['stone'])}枚，当前升级会员等级需求灵石{number_to(stonecost)}枚，金额不足，请重新输入！"
             if XiuConfig().img:
                 pic = await get_msg_pic(msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -202,7 +196,7 @@ async def bank_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Rege
         await XiuxianDataManage().update_ls(user_id, stonecost, 1)
         bankinfo['banklevel'] = f"{int(userlevel) + 1}"
         savef(user_id, bankinfo)
-        msg = f"道友成功升级灵庄会员等级，消耗灵石{stonecost}枚，当前为：{BANKLEVEL[str(int(userlevel) + 1)]['level']}，灵庄可存有灵石上限{BANKLEVEL[str(int(userlevel) + 1)]['savemax']}枚"
+        msg = f"道友成功升级灵庄会员等级，消耗灵石{number_to(stonecost)}枚，当前为：{BANKLEVEL[str(int(userlevel) + 1)]['level']}，灵庄可存有灵石上限{number_to(BANKLEVEL[str(int(userlevel) + 1)]['savemax'])}枚"
 
         if XiuConfig().img:
             pic = await get_msg_pic(msg)
@@ -213,12 +207,12 @@ async def bank_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Rege
 
     elif mode == '信息':  # 查询灵庄信息
         msg = f'''道友的灵庄信息：
-已存：{bankinfo['savestone']}灵石
+已存：{number_to(bankinfo['savestone'])}灵石
 存入时间：{bankinfo['savetime']}
 灵庄会员等级：{BANKLEVEL[bankinfo['banklevel']]['level']}
-当前拥有灵石：{user_info['stone']}
-当前等级存储灵石上限：{BANKLEVEL[bankinfo['banklevel']]['savemax']}枚
-利息计算方式：复利
+当前拥有灵石：{number_to(user_info['stone'])}
+当前等级存储灵石上限：{number_to(BANKLEVEL[bankinfo['banklevel']]['savemax'])}枚
+利息计算方式：0.1%/天（复利）
 '''
         if XiuConfig().img:
             pic = await get_msg_pic(msg)
@@ -229,7 +223,7 @@ async def bank_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Rege
 
     elif mode == '结算':
         # 结算利息，采用复利计算
-        bankinfo, give_stone, timedeff = get_give_stone(bankinfo)
+        bankinfo, give_stone, days_diff = get_give_stone(bankinfo)
         
         # 检查是否会超过最大存款额度
         max = BANKLEVEL[bankinfo['banklevel']]['savemax']
@@ -240,12 +234,12 @@ async def bank_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Rege
             await XiuxianDataManage().update_ls(user_id, give_stone, 0)
             bankinfo['savestone'] = max
             savef(user_id, bankinfo)
-            msg = f"道友本次结息时间为：{timedeff}小时，获得灵石：{give_stone}枚！\n已达到存款上限，多余的{overflow}灵石已返还给道友。"
+            msg = f"道友本次结息时间为：{days_diff:.1f}天，获得灵石：{number_to(give_stone)}枚！\n已达到存款上限，多余的{number_to(overflow)}灵石已返还给道友。"
         else:
             # 未超过上限，将全部利息加入存款
             bankinfo['savestone'] += give_stone
             savef(user_id, bankinfo)
-            msg = f"道友本次结息时间为：{timedeff}小时，获得灵石：{give_stone}枚！"
+            msg = f"道友本次结息时间为：{days_diff:.1f}天，获得灵石：{number_to(give_stone)}枚！"
             
         if XiuConfig().img:
             pic = await get_msg_pic(msg)
@@ -256,22 +250,22 @@ async def bank_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Rege
 
 
 def get_give_stone(bankinfo):
-    """获取利息：利息 = give_stone,结算时间 = timedeff"""
+    """获取利息：利息 = give_stone,结算时间 = days_diff"""
     savetime = bankinfo['savetime']  # str
     nowtime = datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # str
-    timedeff = round((datetime.strptime(nowtime, '%Y-%m-%d %H:%M:%S') -
-                      datetime.strptime(savetime, '%Y-%m-%d %H:%M:%S')).total_seconds() / 3600, 2)
+    days_diff = round((datetime.strptime(nowtime, '%Y-%m-%d %H:%M:%S') -
+                      datetime.strptime(savetime, '%Y-%m-%d %H:%M:%S')).total_seconds() / 86400, 2)
     
-    # 计算复利，1小时为一个周期
-    hours = int(timedeff)
-    remaining_time = timedeff - hours
+    # 计算复利，1天为一个周期
+    days = int(days_diff)
+    remaining_time = days_diff - days
     
     # 初始本金
     principal = bankinfo['savestone']
     interest_rate = BANKLEVEL[bankinfo['banklevel']]['interest']
     
-    # 按小时计算复利
-    for _ in range(hours):
+    # 按天计算复利
+    for _ in range(days):
         interest = int(principal * interest_rate)
         principal += interest
     
@@ -286,7 +280,7 @@ def get_give_stone(bankinfo):
     # 更新存款时间，但不改变存款金额，在调用函数后处理
     bankinfo['savetime'] = nowtime
 
-    return bankinfo, give_stone, timedeff
+    return bankinfo, give_stone, days_diff
 
 
 def readf(user_id):

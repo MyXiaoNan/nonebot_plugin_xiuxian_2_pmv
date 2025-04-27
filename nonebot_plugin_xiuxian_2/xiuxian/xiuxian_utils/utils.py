@@ -89,7 +89,7 @@ async def check_user(event: GroupMessageEvent):
 
     isUser = False
     user_id = int(event.get_user_id())
-    user_info = await XiuxianDataManage().get_user_info_with_id(user_id)
+    user_info = await XiuxianDataManage().get_user_infos_by_ids(user_id)
     if user_info is None:
         msg = "修仙界没有道友的信息，请输入【我要修仙】加入！"
     else:
@@ -644,7 +644,7 @@ async def handle_send(bot, event, send_group_id, msg: str, boss_name=""):
     """处理文本，根据配置发送文本或者图片消息"""
     if event and hasattr(event, 'user_id'):
         user_id = event.user_id
-        user_info = await XiuxianDataManage().get_user_info_with_id(user_id)
+        user_info = await XiuxianDataManage().get_user_infos_by_ids(user_id)
         user_name = await get_sender_display_name(event, user_info)
         at_text = f"@{user_name}\n"
     else:

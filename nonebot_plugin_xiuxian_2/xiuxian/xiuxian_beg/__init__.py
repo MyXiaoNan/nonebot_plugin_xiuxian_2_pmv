@@ -60,11 +60,11 @@ async def beg_help_(bot: Bot, event: GroupMessageEvent, session_id: int = Comman
     await beg_help.finish()
 
 @beg_stone.handle(parameterless=[Cooldown(at_sender=False)])
-async def beg_stone(bot: Bot, event: GroupMessageEvent):
+async def beg_stone_(bot: Bot, event: GroupMessageEvent):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     user_id = int(event.get_user_id())
     isUser, user_info, msg = await check_user(event)
-    user_msg = await XiuxianDataManage().get_user_info_with_id(user_id)
+    user_msg = await XiuxianDataManage().get_user_infos_by_ids(user_id)
     user_root = user_msg['root_type']
     sect = user_info['sect_id']
     level = user_info['level']

@@ -14,7 +14,7 @@ def random_bullet() -> List[int]:
 
 async def impart_pk_check(user_id):
     if await XiuxianDataManage().get_user_impart_info_with_id(user_id) is None:
-        await XiuxianDataManage()._create_user(user_id)
+        await XiuxianDataManage().create_impart_user(user_id)
         return await XiuxianDataManage().get_user_impart_info_with_id(user_id)
     else:
         return await XiuxianDataManage().get_user_impart_info_with_id(user_id)

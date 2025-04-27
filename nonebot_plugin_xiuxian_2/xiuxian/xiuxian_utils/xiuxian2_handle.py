@@ -93,6 +93,7 @@ class XiuxianDataManage:
     _instance = {}
     _has_init = {}
     _pool = None
+    __slots__ = []
 
     def __new__(cls):
         if cls._instance.get(xiuxian_num) is None:
@@ -102,7 +103,6 @@ class XiuxianDataManage:
     def __init__(self):
         if not self._has_init.get(xiuxian_num):
             self._has_init[xiuxian_num] = True
-            # 不在这里创建异步任务，而是由on_startup事件处理器调用初始化函数
     
     async def _init_db_and_pool(self):
         """初始化数据库和连接池"""
@@ -130,10 +130,13 @@ class XiuxianDataManage:
                     
                 XiuxianDataManage._pool = await asyncpg.create_pool(
                     pg_url,
-                    min_size=5,
-                    max_size=20,
-                    command_timeout=60.0,
-                    max_inactive_connection_lifetime=300.0
+                    min_size=10,
+                    max_size=50,
+                    command_timeout=30.0,
+                    max_inactive_connection_lifetime=600.0,
+                    max_queries=50000,
+                    statement_cache_size=1000,
+                    timeout=30.0
                 )
                 logger.opt(colors=True).info(f"<green>修仙PostgreSQL数据库连接池已创建！</green>")
                 await self._check_data()
@@ -164,12 +167,10 @@ class XiuxianDataManage:
         """检查数据完整性并创建必要的表和列"""
         import datetime
         from nonebot.log import logger
-        
-        # 获取当前时间作为datetime对象
+
         current_time = datetime.datetime.now()
         
         async with self.pool.acquire() as conn:
-            # 检查user表是否存在，不存在则创建
             try:
                 await conn.execute("SELECT count(1) FROM xiuxian_user LIMIT 1")
             except asyncpg.exceptions.UndefinedTableError:
@@ -207,14 +208,25 @@ class XiuxianDataManage:
                 )""")
                 logger.opt(colors=True).info(f"<green>xiuxian_user表创建成功</green>")
                 
-            # 检查cooldown表是否存在，不存在则创建
+                await conn.execute("""
+                CREATE UNIQUE INDEX IF NOT EXISTS idx_xiuxian_user_user_id ON xiuxian_user(user_id);
+                CREATE INDEX IF NOT EXISTS idx_xiuxian_user_sect_id ON xiuxian_user(sect_id);
+                CREATE INDEX IF NOT EXISTS idx_xiuxian_user_exp ON xiuxian_user(exp);
+                CREATE INDEX IF NOT EXISTS idx_xiuxian_user_power ON xiuxian_user(power);
+                CREATE INDEX IF NOT EXISTS idx_xiuxian_user_stone ON xiuxian_user(stone);
+                CREATE INDEX IF NOT EXISTS idx_xiuxian_user_level ON xiuxian_user(level);
+                CREATE INDEX IF NOT EXISTS idx_xiuxian_user_user_name ON xiuxian_user(user_name);
+                """)
+                logger.opt(colors=True).info(f"<green>xiuxian_user表索引创建成功</green>")
+
             try:
                 await conn.execute("SELECT count(1) FROM xiuxian_time LIMIT 1")
             except asyncpg.exceptions.UndefinedTableError:
                 logger.opt(colors=True).info(f"<yellow>xiuxian_time表不存在，开始创建</yellow>")
                 await conn.execute("""
                 CREATE TABLE xiuxian_time (
-                  "user_id" BIGINT PRIMARY KEY,
+                  "id" SERIAL PRIMARY KEY,
+                  "user_id" BIGINT DEFAULT 0,
                   "type" BIGINT DEFAULT 0,
                   "create_time" TIMESTAMP DEFAULT NULL,
                   "scheduled_time" BIGINT,
@@ -222,7 +234,12 @@ class XiuxianDataManage:
                 )""")
                 logger.opt(colors=True).info(f"<green>xiuxian_time表创建成功</green>")
                 
-            # 检查buff表是否存在，不存在则创建
+                await conn.execute("""
+                CREATE INDEX IF NOT EXISTS idx_xiuxian_time_create_time ON xiuxian_time(create_time);
+                CREATE INDEX IF NOT EXISTS idx_xiuxian_time_type ON xiuxian_time(type);
+                """)
+                logger.opt(colors=True).info(f"<green>xiuxian_time表索引创建成功</green>")
+                
             try:
                 await conn.execute("SELECT count(1) FROM xiuxian_buff LIMIT 1")
             except asyncpg.exceptions.UndefinedTableError:
@@ -242,7 +259,11 @@ class XiuxianDataManage:
                 )""")
                 logger.opt(colors=True).info(f"<green>xiuxian_buff表创建成功</green>")
                 
-            # 检查表是否存在，若不存在则创建
+                await conn.execute("""
+                CREATE UNIQUE INDEX IF NOT EXISTS idx_xiuxian_buff_user_id ON xiuxian_buff(user_id);
+                """)
+                logger.opt(colors=True).info(f"<green>xiuxian_buff表索引创建成功</green>")
+                
             for i in XiuConfig().sql_table:
                 if i == "xiuxian_sect":
                     try:
@@ -261,6 +282,14 @@ class XiuxianDataManage:
                           "secbuff" BIGINT DEFAULT 0,
                           "elixir_room_level" BIGINT DEFAULT 0
                         )""")
+                        
+                        await conn.execute("""
+                        CREATE INDEX IF NOT EXISTS idx_xiuxian_sect_owner ON xiuxian_sect(sect_owner);
+                        CREATE INDEX IF NOT EXISTS idx_xiuxian_sect_scale ON xiuxian_sect(sect_scale);
+                        CREATE INDEX IF NOT EXISTS idx_xiuxian_sect_name ON xiuxian_sect(sect_name);
+                        """)
+                        logger.opt(colors=True).info(f"<green>xiuxian_sect表及索引创建成功</green>")
+                        
                 elif i == "xiuxian_back":
                     try:
                         await conn.execute("SELECT count(1) FROM xiuxian_back LIMIT 1")
@@ -281,6 +310,16 @@ class XiuxianDataManage:
                           "state" BIGINT DEFAULT 0,
                           "bind_num" BIGINT DEFAULT 0
                         )""")
+                        
+                        await conn.execute("""
+                        CREATE INDEX IF NOT EXISTS idx_xiuxian_back_user_id ON xiuxian_back(user_id);
+                        CREATE INDEX IF NOT EXISTS idx_xiuxian_back_goods_id ON xiuxian_back(goods_id);
+                        CREATE INDEX IF NOT EXISTS idx_xiuxian_back_user_goods ON xiuxian_back(user_id, goods_id);
+                        CREATE INDEX IF NOT EXISTS idx_xiuxian_back_goods_type ON xiuxian_back(goods_type);
+                        CREATE INDEX IF NOT EXISTS idx_xiuxian_back_update_time ON xiuxian_back(update_time);
+                        """)
+                        logger.opt(colors=True).info(f"<green>xiuxian_back表及索引创建成功</green>")
+                        
                 elif i == "xiuxian_buff":
                     try:
                         await conn.execute("SELECT count(1) FROM xiuxian_buff LIMIT 1")
@@ -295,14 +334,19 @@ class XiuxianDataManage:
                           "fabao_weapon" BIGINT DEFAULT 0,
                           "sub_buff" BIGINT DEFAULT 0
                         )""")
+
+                        await conn.execute("""
+                        CREATE UNIQUE INDEX IF NOT EXISTS idx_xiuxian_buff_user_id ON xiuxian_buff(user_id);
+                        """)
+                        logger.opt(colors=True).info(f"<green>xiuxian_buff表索引创建成功</green>")
+                        
                 elif i == "xiuxian_impart":
                     try:
                         await conn.execute("SELECT count(1) FROM xiuxian_impart LIMIT 1")
                     except asyncpg.exceptions.UndefinedTableError:
                         await conn.execute("""
                         CREATE TABLE xiuxian_impart (
-                          "id" SERIAL PRIMARY KEY,
-                          "user_id" BIGINT NOT NULL,
+                          "user_id" BIGINT PRIMARY KEY,
                           "impart_hp_per" BIGINT DEFAULT 0,
                           "impart_atk_per" BIGINT DEFAULT 0,
                           "impart_mp_per" BIGINT DEFAULT 0,
@@ -313,11 +357,12 @@ class XiuxianDataManage:
                           "impart_mix_per" BIGINT DEFAULT 0,
                           "impart_reap_per" BIGINT DEFAULT 0,
                           "impart_two_exp" BIGINT DEFAULT 0,
+                          "impart_all_exp" BIGINT DEFAULT 0,
+                          "impart_wish" BIGINT DEFAULT 0,
                           "stone_num" BIGINT DEFAULT 0,
-                          "exp_day" BIGINT DEFAULT 0,
-                          "wish" BIGINT DEFAULT 0
+                          "exp_day_num" BIGINT DEFAULT 0
                         )""")
-
+                        
             # 检查列是否存在，若不存在则添加
             for i in XiuConfig().sql_user:
                 try:
@@ -364,7 +409,6 @@ class XiuxianDataManage:
                     logger.opt(colors=True).info(f"<green>{sql}</green>")
                     await conn.execute(sql)
 
-            # 检查impart表的字段
             for col in XiuConfig().sql_impart:
                 try:
                     await conn.execute(f"SELECT {col} FROM xiuxian_impart LIMIT 1")
@@ -374,7 +418,6 @@ class XiuxianDataManage:
                     logger.opt(colors=True).info(f"<green>{sql}</green>")
                     await conn.execute(sql)
             
-            # 更新 last_check_info_time 列的记录
             try:
                 await conn.execute("""
                 UPDATE xiuxian_time
@@ -399,37 +442,25 @@ class XiuxianDataManage:
             """
             await conn.execute(sql, user_id, root, type, power, create_time, user_name, XiuConfig().max_stamina)
 
-    async def get_user_info_with_id(self, user_id: int):
-        """根据USER_ID获取用户信息,不获取功法加成"""
-        async with self.pool.acquire() as conn:
-            sql = "SELECT * FROM xiuxian_user WHERE user_id = $1"
-            result = await conn.fetchrow(sql, int(user_id))
-            if result:
-                # 将记录转换为字典
-                return dict(result)
-            else:
-                return None
-        
+
     async def get_user_info_with_name(self, user_name: str):
         """根据user_name获取用户信息"""
         async with self.pool.acquire() as conn:
             sql = "SELECT * FROM xiuxian_user WHERE user_name = $1"
             result = await conn.fetchrow(sql, user_name)
             if result:
-                # 将记录转换为字典
                 return dict(result)
             else:
                 return None
         
     async def update_all_users_stamina(self, max_stamina: int, stamina: int):
-        """体力未满用户更新体力值"""
+        """更新所有用户体力"""
         async with self.pool.acquire() as conn:
-            sql = f"""
-            UPDATE xiuxian_user
-            SET user_stamina = LEAST(user_stamina + $1, $2)
-            WHERE user_stamina < $2
-            """
-            await conn.execute(sql, stamina, max_stamina)
+            async with conn.transaction():
+                await conn.execute(
+                    f"UPDATE xiuxian_user SET user_stamina = LEAST(user_stamina + {stamina}, {max_stamina})"
+                )
+                logger.opt(colors=True).info(f"<green>已为所有用户恢复体力：+{stamina}，最大值：{max_stamina}</green>")
 
     async def update_user_stamina(self, user_id: int, stamina_change: int, key: int):
         """更新用户体力值 0为增加，1为减少"""
@@ -529,7 +560,7 @@ class XiuxianDataManage:
         async with self.pool.acquire() as conn:
             sql = f"UPDATE xiuxian_user SET root = $1, root_type = $2, stone = stone - $3 WHERE user_id = $4"
             await conn.execute(sql, lg, type, XiuConfig().remake, user_id)
-            await self.update_power2(user_id) # 更新战力
+            await self.update_power2(user_id)
             return f"逆天之行，重获新生，新的灵根为：{lg}，类型为：{type}"
 
     async def get_root_rate(self, name: str):
@@ -549,17 +580,18 @@ class XiuxianDataManage:
 
     async def update_power2(self, user_id: int) -> None:
         """更新战力"""
-        UserMessage = await self.get_user_info_with_id(user_id)
+        UserMessage = await self.get_user_infos_by_ids(user_id)
+        if not UserMessage:
+            return
+            
         async with self.pool.acquire() as conn:
             level = jsondata.level_data()
-            root = jsondata.root_data()
-            sql = f"UPDATE xiuxian_user SET power = round(exp * $1 * $2, 0) WHERE user_id = $3"
-            await conn.execute(sql, root[UserMessage['root_type']]["type_speeds"], level[UserMessage['level']]["spend"], user_id)
-            
+            power = int(level[UserMessage['level']]['power']) * float(await self.get_root_rate(UserMessage['root_type']))
+            sql = f"UPDATE xiuxian_user SET power = $1 WHERE user_id = $2"
+            await conn.execute(sql, int(power), user_id)
 
     async def update_ls(self, user_id: int, price: int, key: int):
         """更新灵石  0为增加，1为减少"""
-        # 确保price是有效的整数
         price = int(price)
         
         async with self.pool.acquire() as conn:
@@ -617,8 +649,8 @@ class XiuxianDataManage:
                 root_name = "真·轮回道果"
                 
 
-            return root_name  # 返回灵根名称
-
+            return root_name
+        
     async def update_ls_all(self, price: int):
         """所有用户增加灵石"""
         async with self.pool.acquire() as conn:
@@ -854,8 +886,7 @@ class XiuxianDataManage:
         :return: 贡献最高且活跃的成员ID，如果没有则返回None
         """
         async with self.pool.acquire() as conn:
-            # 获取7天前的时间
-            seven_days_ago = datetime.now() - timedelta(days=7)
+            days_ago = datetime.now() - timedelta(days=XiuConfig().auto_change_sect_owner_cd)
             
             sql = """
             SELECT u.user_id
@@ -868,7 +899,7 @@ class XiuxianDataManage:
             ORDER BY u.sect_contribution DESC
             LIMIT 1
             """
-            result = await conn.fetchval(sql, sect_id, current_owner_id, seven_days_ago)
+            result = await conn.fetchval(sql, sect_id, current_owner_id, days_ago)
             return result
 
 
@@ -1108,12 +1139,11 @@ class XiuxianDataManage:
             result = await conn.fetch(sql, sect_id)
             results = []
             for user in result:
-                columns = [column[0] for column in user.description]
-                user_dict = dict(zip(columns, user))
+                user_dict = dict(user)
                 results.append(user_dict)
             return results
 
-    async def do_work(self, user_id: int, the_type: int, sc_time: str):
+    async def do_work(self, user_id: int, the_type: int, sc_time: str | None = None):
         """
         更新用户操作CD
         :param sc_time: 任务
@@ -1126,16 +1156,23 @@ class XiuxianDataManage:
         if the_type == 1:
             now_time = datetime.now()
         elif the_type == 0:
-            now_time = 0
+            now_time = None
         elif the_type == 2:
             now_time = datetime.now()
         elif the_type == 3:
             now_time = datetime.now()
-
-        sql = f"UPDATE xiuxian_time SET type=?,create_time = $1,scheduled_time = $2 WHERE user_id=$3"
-        async with self.pool.acquire() as conn:
-            await conn.execute(sql, the_type, now_time, sc_time, user_id)
             
+        # 确保sc_time是正确的类型，修复整数类型转换错误
+        sql = f"UPDATE xiuxian_time SET type = $1, create_time = $2, scheduled_time = $3 WHERE user_id = $4"
+        async with self.pool.acquire() as conn:
+            try:
+                await conn.execute(sql, the_type, now_time, sc_time, user_id)
+            except Exception as e:
+                # 在出现类型转换错误时，尝试将sc_time设为None
+                if "cannot be interpreted as an integer" in str(e):
+                    await conn.execute(sql, the_type, now_time, None, user_id)
+                else:
+                    raise e
 
     async def update_levelrate(self, user_id: int, rate: int):
         """更新突破成功率"""
@@ -1183,11 +1220,49 @@ class XiuxianDataManage:
             sql = f"UPDATE xiuxian_user SET hp = exp / 2,mp = exp, atk = exp / 10 WHERE user_id = $1"
             async with self.pool.acquire() as conn:
                 await conn.execute(sql, int(user_id))
+    
+
+    async def get_user_infos_by_ids(self, user_ids):
+        """批量获取用户信息，优化高并发场景下的多用户查询
+        
+        Args:
+            user_ids: 用户ID或用户ID列表
+            
+        Returns:
+            Dict[int, dict]或单个dict: 用户ID到用户信息的映射字典，如果输入单个ID则返回单个用户信息
+        """
+        # 处理单个ID的情况
+        is_single_id = False
+        if isinstance(user_ids, int) or (isinstance(user_ids, str) and user_ids.isdigit()):
+            is_single_id = True
+            user_ids = [int(user_ids)]
+            
+        if not user_ids:
+            return {} if not is_single_id else None
+            
+        async with self.pool.acquire() as conn:
+            placeholders = ','.join(f'${i+1}' for i in range(len(user_ids)))
+            
+            sql = f"""
+            SELECT * FROM xiuxian_user 
+            WHERE user_id IN ({placeholders})
+            """
+            
+            rows = await conn.fetch(sql, *user_ids)
+
+            result = {}
+            for row in rows:
+                user_id = row["user_id"]
+                result[user_id] = dict(row)
                 
+            # 如果是单个ID，直接返回对应的用户信息字典或None
+            if is_single_id:
+                return result.get(int(user_ids[0])) if result else None
+                
+            return result
 
     async def auto_recover_hp(self):
         """自动回血函数"""
-        # 使用单条SQL语句更新所有符合条件的用户HP，同时确保HP不超过exp/2
         sql = f"""
         UPDATE xiuxian_user 
         SET hp = LEAST(hp + exp * 0.001, exp / 2)
@@ -1517,7 +1592,6 @@ class XiuxianDataManage:
         async with self.pool.acquire() as conn:
             result = await conn.fetchrow(sql, int(user_id))
             if result:
-                # 将记录转换为字典
                 return dict(result)
             else:
                 return None
@@ -1533,7 +1607,7 @@ class XiuxianDataManage:
 
     async def add_impart_hp_per(self, impart_num: int, user_id: int):
         """add impart_hp_per"""
-        sql = f"UPDATE xiuxian_impart SET impart_hp_per=impart_hp_per+? WHERE user_id=?"
+        sql = f"UPDATE xiuxian_impart SET impart_hp_per = impart_hp_per + $1 WHERE user_id = $2"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, impart_num, user_id)
             
@@ -1661,7 +1735,7 @@ class XiuxianDataManage:
 
     async def add_impart_reap_per(self, impart_num: int, user_id: int):
         """增加impart_reap_per"""
-        sql = f"UPDATE xiuxian_impart SET impart_reap_per=impart_reap_per + $1 WHERE user_id = $2"
+        sql = f"UPDATE xiuxian_impart SET impart_reap_per = impart_reap_per + $1 WHERE user_id = $2"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, impart_num, user_id)
             
@@ -1931,7 +2005,7 @@ class OtherSet(XiuConfig):
         return play_list, suc
 
     async def send_hp_mp(self, user_id, hp, mp):
-        user_msg = await XiuxianDataManage().get_user_info_with_id(user_id)
+        user_msg = await XiuxianDataManage().get_user_infos_by_ids(user_id)
         max_hp = int(user_msg['exp'] / 2)
         max_mp = int(user_msg['exp'])
 
@@ -3071,7 +3145,7 @@ async def final_user_data(user_data, columns):
 async def leave_harm_time(user_id):
     """重伤恢复时间"""
     hp_speed = 25
-    user_mes = await XiuxianDataManage().get_user_info_with_id(user_id)
+    user_mes = await XiuxianDataManage().get_user_infos_by_ids(user_id)
     level = user_mes['level']
     level_rate = await XiuxianDataManage().get_root_rate(user_mes['root_type']) # 灵根倍率
     realm_rate = jsondata.level_data()[level]["spend"] # 境界倍率

@@ -59,7 +59,7 @@ async def lunhui_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandO
         await lunhui.finish()
         
     user_id = user_info['user_id']
-    user_msg = await XiuxianDataManage().get_user_info_with_id(user_id) 
+    user_msg = await XiuxianDataManage().get_user_infos_by_ids(user_id) 
     user_name = user_msg['user_name']
     user_root = user_msg['root_type']
     list_level_all = list(jsondata.level_data().keys())
@@ -105,7 +105,7 @@ async def twolun_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandO
         await twolun.finish()
         
     user_id = user_info['user_id']
-    user_msg = await XiuxianDataManage().get_user_info_with_id(user_id) 
+    user_msg = await XiuxianDataManage().get_user_infos_by_ids(user_id) 
     user_name = user_msg['user_name']
     user_root = user_msg['root_type']
     list_level_all = list(jsondata.level_data().keys())
@@ -147,7 +147,7 @@ async def resetting_(bot: Bot, event: GroupMessageEvent, session_id: int = Comma
         await resetting.finish()
         
     user_id = user_info['user_id']
-    user_msg = await XiuxianDataManage().get_user_info_with_id(user_id) 
+    user_msg = await XiuxianDataManage().get_user_infos_by_ids(user_id) 
     user_name = user_msg['user_name']
 
         
