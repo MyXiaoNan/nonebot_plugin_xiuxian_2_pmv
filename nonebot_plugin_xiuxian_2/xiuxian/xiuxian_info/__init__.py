@@ -6,7 +6,7 @@ from nonebot.adapters.onebot.v11 import (
     MessageSegment
 )
 from ..xiuxian_utils.lay_out import assign_bot, Cooldown
-from ..xiuxian_utils.xiuxian2_handle import XiuxianDataManage, OtherSet, UserBuffData
+from ..xiuxian_utils.xiuxian2_handle import XiuxianDataManager, OtherSet, UserBuffData
 from ..xiuxian_utils.data_source import jsondata
 from .draw_user_info import draw_user_info_img
 from ..xiuxian_utils.utils import check_user, get_msg_pic, number_to, handle_send
@@ -25,14 +25,14 @@ async def xiuxian_message_(bot: Bot, event: GroupMessageEvent):
         await handle_send(bot, event, send_group_id, msg)
         await xiuxian_message.finish()
     user_id = user_info['user_id']
-    user_info = await XiuxianDataManage().get_user_real_info(user_id)
+    user_info = await XiuxianDataManager().get_user_real_info(user_id)
     user_name = user_info['user_name']
     
     
     user_num = user_info['id']
-    rank = await XiuxianDataManage().get_exp_rank(user_id)
+    rank = await XiuxianDataManager().get_exp_rank(user_id)
     user_rank = int(rank) if rank is not None else 0
-    stone = await XiuxianDataManage().get_stone_rank(user_id)
+    stone = await XiuxianDataManager().get_stone_rank(user_id)
     user_stone = int(stone) if stone is not None else 0
 
     if user_name:
@@ -40,11 +40,11 @@ async def xiuxian_message_(bot: Bot, event: GroupMessageEvent):
     else:
         user_name = f"无名"
 
-    level_rate = await XiuxianDataManage().get_root_rate(user_info['root_type'])  # 灵根倍率
+    level_rate = await XiuxianDataManager().get_root_rate(user_info['root_type'])  # 灵根倍率
     realm_rate = jsondata.level_data()[user_info['level']]["spend"]  # 境界倍率
     sect_id = user_info['sect_id']
     if sect_id:
-        sect_info = await XiuxianDataManage().get_sect_info(sect_id)
+        sect_info = await XiuxianDataManager().get_sect_info(sect_id)
         sectmsg = sect_info['sect_name']
         sectzw = jsondata.sect_config_data()[f"{user_info['sect_position']}"]["title"]
     else:
@@ -59,7 +59,7 @@ async def xiuxian_message_(bot: Bot, event: GroupMessageEvent):
         exp_meg = f"位面至高"
     else:
         is_updata_level = OtherSet().level[now_index + 1]
-        need_exp = await XiuxianDataManage().get_level_power(is_updata_level)
+        need_exp = await XiuxianDataManager().get_level_power(is_updata_level)
         get_exp = need_exp - user_info['exp']
         if get_exp > 0:
             exp_meg = f"还需{number_to(get_exp)}修为可突破！"
@@ -88,7 +88,7 @@ async def xiuxian_message_(bot: Bot, event: GroupMessageEvent):
     if user_armor_data is not None:
         armor_name = f"{user_armor_data['name']}({user_armor_data['level']})"
     main_rate_buff = await UserBuffData(user_id).get_user_main_buff_data() # 功法突破概率提升
-    await XiuxianDataManage().update_last_check_info_time(user_id) # 更新查看修仙信息时间
+    await XiuxianDataManager().update_last_check_info_time(user_id) # 更新查看修仙信息时间
     leveluprate = int(user_info['level_up_rate'])  # 用户失败次数加成
     number =  main_rate_buff["number"] if main_rate_buff is not None else 0
     DETAIL_MAP = {

@@ -16,7 +16,7 @@ from .impart_pk_uitls import impart_pk_check
 from .xu_world import xu_world
 from .impart_pk import impart_pk
 from ..xiuxian_config import XiuConfig
-from ..xiuxian_utils.xiuxian2_handle import XiuxianDataManage, OtherSet, UserBuffData
+from ..xiuxian_utils.xiuxian2_handle import XiuxianDataManager, OtherSet, UserBuffData
 from .. import NICKNAME
 
 
@@ -85,7 +85,7 @@ async def impart_pk_list_(bot: Bot, event: GroupMessageEvent):
     for x in range(len(xu_list)):
         user_data = impart_pk.find_user_data(xu_list[x])
         if user_data:
-            name = (await XiuxianDataManage().get_user_infos_by_ids(xu_list[x]))['user_name']
+            name = (await XiuxianDataManager().get_user_infos_by_ids(xu_list[x]))['user_name']
             msg = ""
             msg += f"编号：{user_data['number']}\n"
             msg += f"道友：{name}\n"
@@ -112,7 +112,7 @@ async def impart_pk_now_(bot: Bot, event: GroupMessageEvent, args: Message = Com
         await handle_send(bot, event, send_group_id, msg)
         await impart_pk_now.finish()
     user_id = user_info['user_id']
-    await XiuxianDataManage().update_last_check_info_time(user_id)  # 更新查看修仙信息时间
+    await XiuxianDataManager().update_last_check_info_time(user_id)  # 更新查看修仙信息时间
     impart_data_draw = await impart_pk_check(user_id)
     if impart_data_draw is None:
         msg = f"发生未知错误，多次尝试无果请找晓楠！"
@@ -139,12 +139,12 @@ async def impart_pk_now_(bot: Bot, event: GroupMessageEvent, args: Message = Com
             if win == 1:
                 msg += f"战报：道友{user_info['user_name']}获胜,获得思恋结晶10颗\n"
                 impart_pk.update_user_data(user_info['user_id'], True)
-                await XiuxianDataManage().update_stone_num(10, user_id, 0)
+                await XiuxianDataManager().update_stone_num(10, user_id, 0)
                 player_1_stones += 10
             elif win == 2:
                 msg += f"战报：道友{user_info['user_name']}败了,消耗一次次数,获得思恋结晶5颗\n"
                 impart_pk.update_user_data(user_info['user_id'], False)
-                await XiuxianDataManage().update_stone_num(5, user_id, 0)
+                await XiuxianDataManager().update_stone_num(5, user_id, 0)
                 player_1_stones += 5
                 if impart_pk.find_user_data(user_id)["pk_num"] <= 0 and xu_world.check_xu_world_user_id(user_id) is True:
                     msg += "检测到道友次数已用尽，已帮助道友退出虚神界！"
@@ -183,7 +183,7 @@ async def impart_pk_now_(bot: Bot, event: GroupMessageEvent, args: Message = Com
         await impart_pk_now.finish()
 
     player_1_name = user_info['user_name']
-    player_2_name = await XiuxianDataManage().get_user_infos_by_ids(player_2)['user_name']
+    player_2_name = await XiuxianDataManager().get_user_infos_by_ids(player_2)['user_name']
 
     while user_data["pk_num"] > 0:
         duel_count += 1
@@ -196,8 +196,8 @@ async def impart_pk_now_(bot: Bot, event: GroupMessageEvent, args: Message = Com
         if win == 1:  # 1号玩家胜利 发起者
             impart_pk.update_user_data(player_1, True)
             impart_pk.update_user_data(player_2, False)
-            await XiuxianDataManage().update_stone_num(10, player_1, 0)
-            await XiuxianDataManage().update_stone_num(5, player_2, 0)
+            await XiuxianDataManager().update_stone_num(10, player_1, 0)
+            await XiuxianDataManager().update_stone_num(5, player_2, 0)
             player_1_stones += 10
             player_2_stones += 5
             msg_list.append(
@@ -214,8 +214,8 @@ async def impart_pk_now_(bot: Bot, event: GroupMessageEvent, args: Message = Com
         elif win == 2:  # 2号玩家胜利 被挑战者
             impart_pk.update_user_data(player_2, True)
             impart_pk.update_user_data(player_1, False)
-            await XiuxianDataManage().update_stone_num(10, player_2, 0)
-            await XiuxianDataManage().update_stone_num(5, player_1, 0)
+            await XiuxianDataManager().update_stone_num(10, player_2, 0)
+            await XiuxianDataManager().update_stone_num(5, player_1, 0)
             player_2_stones += 10
             player_1_stones += 5
             msg_list.append(
@@ -281,7 +281,7 @@ async def impart_pk_exp_(bot: Bot, event: GroupMessageEvent, args: Message = Com
         await handle_send(bot, event, send_group_id, msg)
         await impart_pk_exp.finish()
     # 闭关时长计算(分钟)
-    level_rate = await XiuxianDataManage().get_root_rate(user_info['root_type'])  # 灵根倍率
+    level_rate = await XiuxianDataManager().get_root_rate(user_info['root_type'])  # 灵根倍率
     realm_rate = jsondata.level_data()[level]["spend"]  # 境界倍率
     user_buff_data = UserBuffData(user_id)
     mainbuffdata = await user_buff_data.get_user_main_buff_data()
@@ -291,11 +291,11 @@ async def impart_pk_exp_(bot: Bot, event: GroupMessageEvent, args: Message = Com
     exp = int((int(impaer_exp_time) * XiuConfig().closing_exp) * ((level_rate * realm_rate * (1 + mainbuffratebuff) * (1 + mainbuffcloexp))))  # 本次闭关获取的修为
     max_exp = int((int(await OtherSet().set_closing_type(user_info['level'])) * XiuConfig().closing_exp_upper_limit))  # 获取下个境界需要的修为 * 1.5为闭关上限
     if 0 < int(user_info['exp'] + exp) < max_exp:
-        await XiuxianDataManage().use_impart_exp_day(impaer_exp_time, user_id)
-        await XiuxianDataManage().update_exp(user_id, exp, 0)
-        await XiuxianDataManage().update_power2(user_id)  # 更新战力
+        await XiuxianDataManager().use_impart_exp_day(impaer_exp_time, user_id)
+        await XiuxianDataManager().update_exp(user_id, exp, 0)
+        await XiuxianDataManager().update_power2(user_id)  # 更新战力
         result_msg, result_hp_mp = await OtherSet().send_hp_mp(user_id, int(exp * hp_speed * (1 + mainbuffclors)), int(exp * mp_speed))
-        await XiuxianDataManage().update_user_attribute(user_id, result_hp_mp[0], result_hp_mp[1], int(result_hp_mp[2] / 10))
+        await XiuxianDataManager().update_user_attribute(user_id, result_hp_mp[0], result_hp_mp[1], int(result_hp_mp[2] / 10))
         msg = f"虚神界修炼结束，共修炼{impaer_exp_time}分钟，本次闭关增加修为：{exp}{result_msg[0]}{result_msg[1]}"
         await handle_send(bot, event, send_group_id, msg)
         await impart_pk_exp.finish()

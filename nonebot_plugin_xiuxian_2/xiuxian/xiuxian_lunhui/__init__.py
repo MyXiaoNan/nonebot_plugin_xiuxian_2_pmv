@@ -1,7 +1,7 @@
 from nonebot import on_command, on_fullmatch
 from ..xiuxian_utils.lay_out import assign_bot, Cooldown
 from ..xiuxian_config import XiuConfig
-from ..xiuxian_utils.xiuxian2_handle import XiuxianDataManage
+from ..xiuxian_utils.xiuxian2_handle import XiuxianDataManager
 from ..xiuxian_utils.data_source import jsondata
 from nonebot.adapters.onebot.v11 import (
     Bot,
@@ -59,7 +59,7 @@ async def lunhui_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandO
         await lunhui.finish()
         
     user_id = user_info['user_id']
-    user_msg = await XiuxianDataManage().get_user_infos_by_ids(user_id) 
+    user_msg = await XiuxianDataManager().get_user_infos_by_ids(user_id) 
     user_name = user_msg['user_name']
     user_root = user_msg['root_type']
     list_level_all = list(jsondata.level_data().keys())
@@ -78,16 +78,16 @@ async def lunhui_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandO
     if list_level_all.index(level) >= list_level_all.index(XiuConfig().lunhui_min_level):
         exp = user_msg['exp']
         now_exp = exp - 100
-        await XiuxianDataManage().updata_level(user_id, '江湖好手') #重置用户境界
-        await XiuxianDataManage().update_levelrate(user_id, 0) #重置突破成功率
-        await XiuxianDataManage().update_exp(user_id, now_exp, 1) #重置用户修为
-        await XiuxianDataManage().update_user_hp(user_id)  # 重置用户HP，mp，atk状态
-        await XiuxianDataManage().reset_user_drug_resistance(user_id) #重置用户耐药性
-        await XiuxianDataManage().updata_user_main_buff(user_id, 0) #重置用户主功法
-        await XiuxianDataManage().updata_user_sub_buff(user_id, 0) #重置用户辅修功法
-        await XiuxianDataManage().updata_user_sec_buff(user_id, 0) #重置用户神通
-        await XiuxianDataManage().update_user_atkpractice(user_id, 0) #重置用户攻修等级
-        await XiuxianDataManage().update_root(user_id, 6) #更换轮回灵根
+        await XiuxianDataManager().updata_level(user_id, '江湖好手') #重置用户境界
+        await XiuxianDataManager().update_levelrate(user_id, 0) #重置突破成功率
+        await XiuxianDataManager().update_exp(user_id, now_exp, 1) #重置用户修为
+        await XiuxianDataManager().update_user_hp(user_id)  # 重置用户HP，mp，atk状态
+        await XiuxianDataManager().reset_user_drug_resistance(user_id) #重置用户耐药性
+        await XiuxianDataManager().updata_user_main_buff(user_id, 0) #重置用户主功法
+        await XiuxianDataManager().updata_user_sub_buff(user_id, 0) #重置用户辅修功法
+        await XiuxianDataManager().updata_user_sec_buff(user_id, 0) #重置用户神通
+        await XiuxianDataManager().update_user_atkpractice(user_id, 0) #重置用户攻修等级
+        await XiuxianDataManager().update_root(user_id, 6) #更换轮回灵根
         msg = f"千世轮回磨不灭，重回绝颠谁能敌，恭喜大能{user_name}轮回成功！"
         await handle_send(bot, event, send_group_id, msg)
         await lunhui.finish()
@@ -105,7 +105,7 @@ async def twolun_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandO
         await twolun.finish()
         
     user_id = user_info['user_id']
-    user_msg = await XiuxianDataManage().get_user_infos_by_ids(user_id) 
+    user_msg = await XiuxianDataManager().get_user_infos_by_ids(user_id) 
     user_name = user_msg['user_name']
     user_root = user_msg['root_type']
     list_level_all = list(jsondata.level_data().keys())
@@ -124,12 +124,12 @@ async def twolun_(bot: Bot, event: GroupMessageEvent, session_id: int = CommandO
     if list_level_all.index(level) >= list_level_all.index(XiuConfig().twolun_min_level) and user_root == '轮回道果':
         exp = user_msg['exp']
         now_exp = exp - 100
-        await XiuxianDataManage().updata_level(user_id, '江湖好手') #重置用户境界
-        await XiuxianDataManage().update_levelrate(user_id, 0) #重置突破成功率
-        await XiuxianDataManage().update_exp(user_id, now_exp, 1) #重置用户修为
-        await XiuxianDataManage().update_user_hp(user_id)  # 重置用户HP，mp，atk状态
-        await XiuxianDataManage().reset_user_drug_resistance(user_id) #重置用户耐药性
-        await XiuxianDataManage().update_root(user_id, 7) #更换轮回灵根
+        await XiuxianDataManager().updata_level(user_id, '江湖好手') #重置用户境界
+        await XiuxianDataManager().update_levelrate(user_id, 0) #重置突破成功率
+        await XiuxianDataManager().update_exp(user_id, now_exp, 1) #重置用户修为
+        await XiuxianDataManager().update_user_hp(user_id)  # 重置用户HP，mp，atk状态
+        await XiuxianDataManager().reset_user_drug_resistance(user_id) #重置用户耐药性
+        await XiuxianDataManager().update_root(user_id, 7) #更换轮回灵根
         msg = f"万世道果集一身，脱出凡道入仙道，恭喜大能{user_name}万世轮回成功！"
         await handle_send(bot, event, send_group_id, msg)
         await twolun.finish()
@@ -147,17 +147,17 @@ async def resetting_(bot: Bot, event: GroupMessageEvent, session_id: int = Comma
         await resetting.finish()
         
     user_id = user_info['user_id']
-    user_msg = await XiuxianDataManage().get_user_infos_by_ids(user_id) 
+    user_msg = await XiuxianDataManager().get_user_infos_by_ids(user_id) 
     user_name = user_msg['user_name']
 
         
     if user_msg['level'] in ['搬血境初期', '搬血境中期', '搬血境圆满']:
         exp = user_msg['exp']
         now_exp = exp
-        await XiuxianDataManage().updata_level(user_id, '江湖好手') #重置用户境界
-        await XiuxianDataManage().update_levelrate(user_id, 0) #重置突破成功率
-        await XiuxianDataManage().update_exp(user_id, now_exp, 1) #重置用户修为
-        await XiuxianDataManage().update_user_hp(user_id)  # 重置用户HP，mp，atk状态
+        await XiuxianDataManager().updata_level(user_id, '江湖好手') #重置用户境界
+        await XiuxianDataManager().update_levelrate(user_id, 0) #重置突破成功率
+        await XiuxianDataManager().update_exp(user_id, now_exp, 1) #重置用户修为
+        await XiuxianDataManager().update_user_hp(user_id)  # 重置用户HP，mp，atk状态
         msg = f"{user_name}现在是一介凡人了！！"
         await handle_send(bot, event, send_group_id, msg)
         await resetting.finish()

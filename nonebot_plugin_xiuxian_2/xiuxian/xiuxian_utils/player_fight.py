@@ -1,5 +1,5 @@
 import random
-from .xiuxian2_handle import XiuxianDataManage, OtherSet, UserBuffData
+from .xiuxian2_handle import XiuxianDataManager, OtherSet, UserBuffData
 from ..xiuxian_config import convert_rank
 from .utils import number_to
 
@@ -40,7 +40,7 @@ async def Player_fight(player1: dict, player2: dict, type_in, bot_id):
     user1_hp_buff = user1_main_buff_data['hpbuff'] if user1_main_buff_data is not None else 0
     user1_mp_buff = user1_main_buff_data['mpbuff'] if user1_main_buff_data is not None else 0
     try:
-        user_1_impart_data = await XiuxianDataManage().get_user_impart_info_with_id(player1['user_id'])
+        user_1_impart_data = await XiuxianDataManager().get_user_impart_info_with_id(player1['user_id'])
     except:
         user_1_impart_data = None
     user_1_impart_hp = user_1_impart_data['impart_hp_addition'] if user_1_impart_data is not None else 0
@@ -53,7 +53,7 @@ async def Player_fight(player1: dict, player2: dict, type_in, bot_id):
     user2_hp_buff = user2_main_buff_data['hpbuff'] if user2_main_buff_data is not None else 0
     user2_mp_buff = user2_main_buff_data['mpbuff'] if user2_main_buff_data is not None else 0
     try:
-        user_2_impart_data = await XiuxianDataManage().get_user_impart_info_with_id(player2['user_id'])
+        user_2_impart_data = await XiuxianDataManager().get_user_impart_info_with_id(player2['user_id'])
     except:
         user_2_impart_data = None
     user_2_impart_hp = user_2_impart_data['impart_hp_addition'] if user_2_impart_data is not None else 0
@@ -119,12 +119,12 @@ async def Player_fight(player1: dict, player2: dict, type_in, bot_id):
                 {"type": "node", "data": {"name": "Bot", "uin": int(bot_id), "content": f"战斗已持续{max_rounds}回合，双方平分秋色！"}})
             suc = "平局"
             if isSql:
-                await XiuxianDataManage().update_user_hp_mp(
+                await XiuxianDataManager().update_user_hp_mp(
                     player1['user_id'],
                     int(player1['气血'] / (1 + user1_hp_buff)),
                     int(player1['真元'] / (1 + user1_mp_buff))
                 )
-                await XiuxianDataManage().update_user_hp_mp(
+                await XiuxianDataManager().update_user_hp_mp(
                     player2['user_id'],
                     int(player2['气血'] / (1 + user2_hp_buff)),
                     int(player2['真元'] / (1 + user2_mp_buff))
@@ -335,12 +335,12 @@ async def Player_fight(player1: dict, player2: dict, type_in, bot_id):
                 if player1['气血'] <= 0:
                     player1['气血'] = 1
                 #
-                await XiuxianDataManage().update_user_hp_mp(
+                await XiuxianDataManager().update_user_hp_mp(
                     player1['user_id'],
                     int(player1['气血'] / (1 + user1_hp_buff)),
                     int(player1['真元'] / (1 + user1_mp_buff))
                 )
-                await XiuxianDataManage().update_user_hp_mp(player2['user_id'], 1, int(player2['真元'] / (1 + user2_mp_buff)))
+                await XiuxianDataManager().update_user_hp_mp(player2['user_id'], 1, int(player2['真元'] / (1 + user2_mp_buff)))
             break
 
         if player1_turn_cost < 0:  # 休息为负数，如果休息，则跳过回合，正常是0
@@ -531,12 +531,12 @@ async def Player_fight(player1: dict, player2: dict, type_in, bot_id):
                 {"type": "node", "data": {"name": "Bot", "uin": int(bot_id), "content": f"{player2['道号']}胜利"}})
             suc = f"{player2['道号']}"
             if isSql:
-                await XiuxianDataManage().update_user_hp_mp(player1['user_id'], 1, int(player1['真元'] / (1 + user1_mp_buff)))
+                await XiuxianDataManager().update_user_hp_mp(player1['user_id'], 1, int(player1['真元'] / (1 + user1_mp_buff)))
                 #
                 if player2['气血'] <= 0:
                     player2['气血'] = 1
                 #
-                await XiuxianDataManage().update_user_hp_mp(
+                await XiuxianDataManager().update_user_hp_mp(
                     player2['user_id'],
                     int(player2['气血'] / (1 + user2_hp_buff)),
                     int(player2['真元'] / (1 + user2_mp_buff))
@@ -554,8 +554,8 @@ async def Player_fight(player1: dict, player2: dict, type_in, bot_id):
                               "data": {"name": "Bot", "uin": int(bot_id), "content": f"{player2['道号']}胜利"}})
             suc = f"{player2['道号']}"
             if isSql:
-                await XiuxianDataManage().update_user_hp_mp(player1['user_id'], 1, int(player1['真元'] / (1 + user1_mp_buff)))
-                await XiuxianDataManage().update_user_hp_mp(player2['user_id'], int(player2['气血'] / (1 + user2_hp_buff)),
+                await XiuxianDataManager().update_user_hp_mp(player1['user_id'], 1, int(player1['真元'] / (1 + user1_mp_buff)))
+                await XiuxianDataManager().update_user_hp_mp(player2['user_id'], int(player2['气血'] / (1 + user2_hp_buff)),
                                               int(player2['真元'] / (1 + user2_mp_buff)))
             break
 
@@ -651,7 +651,7 @@ async def Boss_fight(player1: dict, boss: dict, type_in=2, bot_id=0):
     stone_buff = user1_sub_buff_data['stone'] if user1_sub_buff_data is not None else 0
     integral_buff = user1_sub_buff_data['integral'] if user1_sub_buff_data is not None else 0
     sub_break = user1_sub_buff_data['break'] if user1_sub_buff_data is not None else 0
-    impart_data = await XiuxianDataManage().get_user_impart_info_with_id(player1['user_id'])
+    impart_data = await XiuxianDataManager().get_user_impart_info_with_id(player1['user_id'])
     impart_hp_addition = impart_data['impart_hp_addition'] if impart_data is not None else 0
     impart_mp_addition = impart_data['impart_mp_addition'] if impart_data is not None else 0
     user1_hp_buff = user1_hp_buff + impart_hp_addition
@@ -1088,7 +1088,7 @@ async def Boss_fight(player1: dict, boss: dict, type_in=2, bot_id=0):
     boss_js = boss['减伤']
     
     # 这里是技能释放概率计算，玩家阶级越高释放的概率越大
-    player_info = await XiuxianDataManage().get_user_infos_by_ids(player1['user_id'])
+    player_info = await XiuxianDataManager().get_user_infos_by_ids(player1['user_id'])
     player_level = player_info['level']
     player_rank, ranks = convert_rank(player_level)
 
@@ -1427,7 +1427,7 @@ async def Boss_fight(player1: dict, boss: dict, type_in=2, bot_id=0):
                 if player1['气血'] <= 0:
                     player1['气血'] = 1
                 #
-                await XiuxianDataManage().update_user_hp_mp(
+                await XiuxianDataManager().update_user_hp_mp(
                     player1['user_id'],
                     int(player1['气血'] / (1 + user1_hp_buff)),
                     int(player1['真元'] / (1 + user1_mp_buff))
@@ -1500,7 +1500,7 @@ async def Boss_fight(player1: dict, boss: dict, type_in=2, bot_id=0):
             boss['stone'] = boss_now_stone - get_stone
 
             if isSql:
-                await XiuxianDataManage().update_user_hp_mp(
+                await XiuxianDataManager().update_user_hp_mp(
                     player1['user_id'], 1,
                     int(player1['真元'] / (1 + user1_mp_buff))
                 )
@@ -1553,7 +1553,7 @@ async def get_turnatk(player, buff=0, user_battle_buff_date={},
     zwsh = 0
     try:
         user_id = player['user_id']
-        impart_data = await XiuxianDataManage().get_user_impart_info_with_id(user_id)
+        impart_data = await XiuxianDataManager().get_user_impart_info_with_id(user_id)
         user_buff_data = UserBuffData(user_id)
         weapon_critatk_data = await UserBuffData(user_id).get_user_weapon_data()  # 武器会心伤害
         weapon_zw = await UserBuffData(user_id).get_user_weapon_data()
@@ -1751,7 +1751,7 @@ async def after_atk_sub_buff_handle(player1_sub_open, player1, user1_main_buff_d
     if not player1_sub_open:
         return player1, player2, msg
 
-    impart_player1_data = await XiuxianDataManage().get_user_impart_info_with_id(player1['user_id'])
+    impart_player1_data = await XiuxianDataManager().get_user_impart_info_with_id(player1['user_id'])
     impart_hp_per_1 = impart_player1_data['impart_hp_addition'] if impart_player1_data is not None else 0
     impart_mp_per_1 = impart_player1_data['impart_mp_addition'] if impart_player1_data is not None else 0
 

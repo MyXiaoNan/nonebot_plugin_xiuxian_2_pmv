@@ -9,7 +9,7 @@ from nonebot.adapters.onebot.v11 import (
     GroupMessageEvent,
     MessageSegment,
 )
-from ..xiuxian_utils.xiuxian2_handle import XiuxianDataManage, OtherSet
+from ..xiuxian_utils.xiuxian2_handle import XiuxianDataManager, OtherSet
 from .work_handle import workhandle
 from datetime import datetime
 from ..xiuxian_utils.xiuxian_opertion import do_is_work
@@ -32,7 +32,7 @@ count = 3  # 免费次数
 # 重置悬赏令刷新次数
 @resetrefreshnum.scheduled_job("cron", hour=0, minute=0)
 async def resetrefreshnum_():
-    await XiuxianDataManage().reset_work_num()
+    await XiuxianDataManager().reset_work_num()
     logger.opt(colors=True).info(f"<green>用户悬赏令刷新次数重置成功</green>")
 
 
@@ -68,10 +68,10 @@ async def last_work_(bot: Bot, event: GroupMessageEvent):
     user_rank = convert_rank(user_level)[0]
     is_type, msg = await check_user_type(user_id, 2)  # 需要在悬赏令中的用户
     if (is_type and user_rank <= 11) or (
-        is_type and user_info['exp'] >= await XiuxianDataManage().get_level_power('真仙境圆满')) or (
+        is_type and user_info['exp'] >= await XiuxianDataManager().get_level_power('真仙境圆满')) or (
         is_type and int(user_info['exp']) >= int(await OtherSet().set_closing_type(user_level)) * XiuConfig().closing_exp_upper_limit    
         ):
-        user_cd_message = await XiuxianDataManage().get_user_time(user_id)
+        user_cd_message = await XiuxianDataManager().get_user_time(user_id)
         # 判断create_time是str还是datetime对象
         create_time = user_cd_message['schedule_create_time']
         if isinstance(create_time, str):
@@ -103,12 +103,12 @@ async def last_work_(bot: Bot, event: GroupMessageEvent):
                 item_info = items.get_data_by_item_id(item_id)
                 item_msg = f"{item_info['level']}:{item_info['name']}"
             if big_suc:  # 大成功
-                await XiuxianDataManage().update_ls(user_id, give_stone * 2, 0)
-                await XiuxianDataManage().do_work(user_id, 0)
+                await XiuxianDataManager().update_ls(user_id, give_stone * 2, 0)
+                await XiuxianDataManager().do_work(user_id, 0)
                 msg = f"悬赏令结算，{msg}获得报酬{give_stone * 2}枚灵石"
                 # todo 战利品结算sql
                 if item_flag:
-                    await XiuxianDataManage().send_back(user_id, item_id, item_info['name'], item_info['type'], 1)
+                    await XiuxianDataManager().send_back(user_id, item_id, item_info['name'], item_info['type'], 1)
                     msg += f"，额外获得奖励：{item_msg}!"
                 else:
                     msg += "!"
@@ -120,12 +120,12 @@ async def last_work_(bot: Bot, event: GroupMessageEvent):
                 await last_work.finish()
 
             else:
-                await XiuxianDataManage().update_ls(user_id, give_stone, 0)
-                await XiuxianDataManage().do_work(user_id, 0)
+                await XiuxianDataManager().update_ls(user_id, give_stone, 0)
+                await XiuxianDataManager().do_work(user_id, 0)
                 msg = f"悬赏令结算，{msg}获得报酬{give_stone}枚灵石"
                 if s_o_f:  # 普通成功
                     if item_flag:
-                        await XiuxianDataManage().send_back(user_id, item_id, item_info['name'], item_info['type'], 1)
+                        await XiuxianDataManager().send_back(user_id, item_id, item_info['name'], item_info['type'], 1)
                         msg += f"，额外获得奖励：{item_msg}!"
                     else:
                         msg += "!"
@@ -161,15 +161,15 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
     user_level_sx = user_info['level']
     user_id = user_info['user_id']
     user_rank = convert_rank(user_info['level'])[0]
-    await XiuxianDataManage().update_last_check_info_time(user_id) # 更新查看修仙信息时间
-    user_cd_message = await XiuxianDataManage().get_user_time(user_id)
+    await XiuxianDataManager().update_last_check_info_time(user_id) # 更新查看修仙信息时间
+    user_cd_message = await XiuxianDataManager().get_user_time(user_id)
     if not os.path.exists(PLAYERSDATA / str(user_id) / "workinfo.json") and user_cd_message['type'] == 2:
-        await XiuxianDataManage().do_work(user_id, 0)
+        await XiuxianDataManager().do_work(user_id, 0)
         msg = "悬赏令已更新，已重置道友的状态！"
         await handle_send(bot, event, send_group_id, msg)
         await do_work.finish()
     mode = args[0]  # 刷新、终止、结算、接取
-    if user_rank <= convert_rank('仙王境初期')[0] or user_info['exp'] >= await XiuxianDataManage().get_level_power(user_level):
+    if user_rank <= convert_rank('仙王境初期')[0] or user_info['exp'] >= await XiuxianDataManager().get_level_power(user_level):
         msg = "道友的境界已过创业初期，悬赏令已经不能满足道友了！"
         await handle_send(bot, event, send_group_id, msg)
         await do_work.finish()
@@ -229,7 +229,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
                 msg = f"进行中的悬赏令【{user_cd_message['schedule']}】，已结束，请输入【悬赏令结算】结算任务信息！"
             await handle_send(bot, event, send_group_id, msg)
             await do_work.finish()
-        usernums = await XiuxianDataManage().get_work_num(user_id)
+        usernums = await XiuxianDataManager().get_work_num(user_id)
 
         isUser, user_info, msg = await check_user(event)
         if not isUser:
@@ -248,7 +248,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
                     await bot.send_group_msg(group_id=int(send_group_id), message=msg)
                 await do_work.finish()
             else:
-                await XiuxianDataManage().update_ls(user_id, int(lscost / convert_rank(user_level_sx)[0]) , 1)
+                await XiuxianDataManager().update_ls(user_id, int(lscost / convert_rank(user_level_sx)[0]) , 1)
                 stone_use = 1
 
         work_msg = await workhandle().do_work(0, level=user_level, exp=user_info['exp'], user_id=user_id)
@@ -265,7 +265,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
         work[user_id] = do_is_work(user_id)
         work[user_id].msg = work_msg_f
         work[user_id].world = work_list
-        await XiuxianDataManage().update_work_num(user_id, usernums + 1)
+        await XiuxianDataManager().update_work_num(user_id, usernums + 1)
         msg = work[user_id].msg
         await handle_send(bot, event, send_group_id, msg)
         await do_work.finish()
@@ -274,8 +274,8 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
         is_type, msg = await check_user_type(user_id, 2)  # 需要在悬赏令中的用户
         if is_type:
             stone = 4000000
-            await XiuxianDataManage().update_ls(user_id, stone, 1)
-            await XiuxianDataManage().do_work(user_id, 0)
+            await XiuxianDataManager().update_ls(user_id, stone, 1)
+            await XiuxianDataManager().do_work(user_id, 0)
             msg = f"道友不讲诚信，被打了一顿灵石减少{stone},悬赏令已终止！"
             await handle_send(bot, event, send_group_id, msg)
             await do_work.finish()
@@ -287,7 +287,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
     elif mode == "结算":
         is_type, msg = await check_user_type(user_id, 2)  # 需要在悬赏令中的用户
         if is_type:
-            user_cd_message = await XiuxianDataManage().get_user_time(user_id)
+            user_cd_message = await XiuxianDataManager().get_user_time(user_id)
             # 判断create_time是str还是datetime对象
             create_time = user_cd_message['schedule_create_time']
             if isinstance(create_time, str):
@@ -321,12 +321,12 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
                     item_info = items.get_data_by_item_id(item_id)
                     item_msg = f"{item_info['level']}:{item_info['name']}"
                 if big_suc:  # 大成功
-                    await XiuxianDataManage().update_exp(user_id, give_exp * 2, 0)
-                    await XiuxianDataManage().do_work(user_id, 0)
+                    await XiuxianDataManager().update_exp(user_id, give_exp * 2, 0)
+                    await XiuxianDataManager().do_work(user_id, 0)
                     msg = f"悬赏令结算，{msg}增加修为{give_exp * 2}"
                     # todo 战利品结算sql
                     if item_flag:
-                        await XiuxianDataManage().send_back(user_id, item_id, item_info['name'], item_info['type'], 1)
+                        await XiuxianDataManager().send_back(user_id, item_id, item_info['name'], item_info['type'], 1)
                         msg += f"，额外获得奖励：{item_msg}!"
                     else:
                         msg += "!"
@@ -338,12 +338,12 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
                     await do_work.finish()
 
                 else:
-                    await XiuxianDataManage().update_exp(user_id, give_exp, 0)
-                    await XiuxianDataManage().do_work(user_id, 0)
+                    await XiuxianDataManager().update_exp(user_id, give_exp, 0)
+                    await XiuxianDataManager().do_work(user_id, 0)
                     msg = f"悬赏令结算，{msg}增加修为{give_exp}"
                     if s_o_f:  # 普通成功
                         if item_flag:
-                            await XiuxianDataManage().send_back(user_id, item_id, item_info['name'], item_info['type'], 1)
+                            await XiuxianDataManager().send_back(user_id, item_id, item_info['name'], item_info['type'], 1)
                             msg += f"，额外获得奖励：{item_msg}!"
                         else:
                             msg += "!"
@@ -385,7 +385,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
                     work_num = int(num)  # 任务序号
                 try:
                     get_work = work[user_id].world[work_num - 1]
-                    await XiuxianDataManage().do_work(user_id, 2, get_work[0])
+                    await XiuxianDataManager().do_work(user_id, 2, get_work[0])
                     del work[user_id]
                     msg = f"接取任务【{get_work[0]}】成功"
                     if XiuConfig().img:

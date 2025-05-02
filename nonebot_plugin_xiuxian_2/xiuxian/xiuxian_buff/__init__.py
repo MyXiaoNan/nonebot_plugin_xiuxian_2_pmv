@@ -11,7 +11,7 @@ from nonebot.log import logger
 from datetime import datetime
 from nonebot import on_command, on_fullmatch, require
 from ..xiuxian_utils.xiuxian2_handle import (
-    XiuxianDataManage, OtherSet, get_player_info, 
+    XiuxianDataManager, OtherSet, get_player_info, 
     save_player_info,UserBuffData, get_main_info_msg, 
     get_user_buff, get_sec_msg, get_sub_info_msg
 )
@@ -106,14 +106,14 @@ async def blessed_spot_creat_(bot: Bot, event: GroupMessageEvent):
         await handle_send(bot, event, send_group_id, msg)
         await blessed_spot_creat.finish()
     else:
-        await XiuxianDataManage().update_ls(user_id, BLESSEDSPOTCOST, 1)
-        await XiuxianDataManage().update_user_blessed_spot_flag(user_id)
+        await XiuxianDataManager().update_ls(user_id, BLESSEDSPOTCOST, 1)
+        await XiuxianDataManager().update_user_blessed_spot_flag(user_id)
         mix_elixir_info = get_player_info(user_id, "mix_elixir_info")
         mix_elixir_info['收取时间'] = str(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
         save_player_info(user_id, mix_elixir_info, 'mix_elixir_info')
         msg = f"恭喜道友拥有了自己的洞天福地，请收集聚灵旗来提升洞天福地的等级吧~\n"
         msg += f"默认名称为：{user_info['user_name']}道友的家"
-        await XiuxianDataManage().update_user_blessed_spot_name(user_id, f"{user_info['user_name']}道友的家")
+        await XiuxianDataManager().update_user_blessed_spot_name(user_id, f"{user_info['user_name']}道友的家")
         await handle_send(bot, event, send_group_id, msg)
         await blessed_spot_creat.finish()
 
@@ -187,7 +187,7 @@ async def ling_tian_up_(bot: Bot, event: GroupMessageEvent):
             msg = f"道友成功消耗灵石：{cost}，灵田数量+1,目前数量:{now_num + 1}"
             mix_elixir_info['灵田数量'] = now_num + 1
             save_player_info(user_id, mix_elixir_info, 'mix_elixir_info')
-            await XiuxianDataManage().update_ls(user_id, cost, 1)
+            await XiuxianDataManager().update_ls(user_id, cost, 1)
     await handle_send(bot, event, send_group_id, msg)
     await ling_tian_up.finish()
 
@@ -215,7 +215,7 @@ async def blessed_spot_rename_(bot: Bot, event: GroupMessageEvent, args: Message
         msg = f"洞天福地的名字不可大于9位,请重新命名"
     else:
         msg = f"道友的洞天福地成功改名为：{arg}"
-        await XiuxianDataManage().update_user_blessed_spot_name(user_id, arg)
+        await XiuxianDataManager().update_user_blessed_spot_name(user_id, arg)
     await handle_send(bot, event, send_group_id, msg)
     await blessed_spot_rename.finish()
 
@@ -230,7 +230,7 @@ async def qc_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
         await qc.finish()
     user_id = user_info['user_id']
 
-    user1 = await XiuxianDataManage().get_user_real_info(user_id)
+    user1 = await XiuxianDataManager().get_user_real_info(user_id)
     give_qq = None  # 艾特的时候存到这里
     arg_text = args.extract_plain_text().strip()  # 获取纯文本参数
     
@@ -240,7 +240,7 @@ async def qc_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
     
     # 道号
     if not give_qq and arg_text:
-        other_user_info = await XiuxianDataManage().get_user_info_with_name(arg_text)
+        other_user_info = await XiuxianDataManager().get_user_info_with_name(arg_text)
         if other_user_info:
             give_qq = other_user_info['user_id']
         else:
@@ -248,7 +248,7 @@ async def qc_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
             await handle_send(bot, event, send_group_id, msg)
             await qc.finish()
     
-    user2 = await XiuxianDataManage().get_user_real_info(give_qq)
+    user2 = await XiuxianDataManager().get_user_real_info(give_qq)
     if give_qq:
         if give_qq == str(user_id):
             msg = "道友不会左右互搏之术！"
@@ -349,7 +349,7 @@ async def two_exp_(bot: Bot, event: GroupMessageEvent, args: Message = CommandAr
         if arg.type == "at":
             two_qq = arg.data.get("qq", "")
     
-    user_2 = await XiuxianDataManage().get_user_infos_by_ids(two_qq)
+    user_2 = await XiuxianDataManager().get_user_infos_by_ids(two_qq)
     
     if user_1 and user_2:
         if two_qq is None:
@@ -376,10 +376,10 @@ async def two_exp_(bot: Bot, event: GroupMessageEvent, args: Message = CommandAr
                 
                 limt_1 = two_exp_cd.find_user(user_1['user_id'])
                 limt_2 = two_exp_cd.find_user(user_2['user_id'])
-                await XiuxianDataManage().update_last_check_info_time(user_1['user_id']) # 更新查看修仙信息时间
+                await XiuxianDataManager().update_last_check_info_time(user_1['user_id']) # 更新查看修仙信息时间
                 # 加入传承
-                impart_data_1 = await XiuxianDataManage().get_user_impart_info_with_id(user_1['user_id'])
-                impart_data_2 = await XiuxianDataManage().get_user_impart_info_with_id(user_2['user_id'])
+                impart_data_1 = await XiuxianDataManager().get_user_impart_info_with_id(user_1['user_id'])
+                impart_data_2 = await XiuxianDataManager().get_user_impart_info_with_id(user_2['user_id'])
                 impart_two_exp_1 = impart_data_1['impart_two_exp_quantity'] if impart_data_1 is not None else 0
                 impart_two_exp_2 = impart_data_2['impart_two_exp_quantity'] if impart_data_2 is not None else 0
                 
@@ -432,12 +432,12 @@ async def two_exp_(bot: Bot, event: GroupMessageEvent, args: Message = CommandAr
                         exp_limit_1 = exp
 
                     if exp_limit_1 >= user_get_exp_max_1:
-                        await XiuxianDataManage().update_exp(user_1['user_id'], user_get_exp_max_1, 0)
+                        await XiuxianDataManager().update_exp(user_1['user_id'], user_get_exp_max_1, 0)
                         msg += f"{user_1['user_name']}修为到达上限，增加修为{user_get_exp_max_1}。"
                     else:
-                        await XiuxianDataManage().update_exp(user_1['user_id'], exp_limit_1, 0)
+                        await XiuxianDataManager().update_exp(user_1['user_id'], exp_limit_1, 0)
                         msg += f"{user_1['user_name']}增加修为{exp_limit_1}。"
-                    await XiuxianDataManage().update_power2(user_1['user_id'])
+                    await XiuxianDataManager().update_power2(user_1['user_id'])
 
                     if user_2['sect_position'] is None:
                         max_exp_limit = 4
@@ -450,14 +450,14 @@ async def two_exp_(bot: Bot, event: GroupMessageEvent, args: Message = CommandAr
                         exp_limit_2 = exp
 
                     if exp_limit_2 >= user_get_exp_max_2:
-                        await XiuxianDataManage().update_exp(user_2['user_id'], user_get_exp_max_2, 0)
+                        await XiuxianDataManager().update_exp(user_2['user_id'], user_get_exp_max_2, 0)
                         msg += f"{user_2['user_name']}修为到达上限，增加修为{user_get_exp_max_2}。"
                     else:
-                        await XiuxianDataManage().update_exp(user_2['user_id'], exp_limit_2, 0)
+                        await XiuxianDataManager().update_exp(user_2['user_id'], exp_limit_2, 0)
                         msg += f"{user_2['user_name']}增加修为{exp_limit_2}。"
-                    await XiuxianDataManage().update_power2(user_2['user_id'])
-                    await XiuxianDataManage().update_levelrate(user_1['user_id'], user_1['level_up_rate'] + 2)
-                    await XiuxianDataManage().update_levelrate(user_2['user_id'], user_2['level_up_rate'] + 2)
+                    await XiuxianDataManager().update_power2(user_2['user_id'])
+                    await XiuxianDataManager().update_levelrate(user_1['user_id'], user_1['level_up_rate'] + 2)
+                    await XiuxianDataManager().update_levelrate(user_2['user_id'], user_2['level_up_rate'] + 2)
                     two_exp_cd.add_user(user_1['user_id'])
                     two_exp_cd.add_user(user_2['user_id'])
                     msg += f"离开时双方互相留法宝为对方护道,双方各增加突破概率2%。"
@@ -480,12 +480,12 @@ async def two_exp_(bot: Bot, event: GroupMessageEvent, args: Message = CommandAr
                     else:
                         exp_limit_1 = exp
                     if exp_limit_1 >= user_get_exp_max_1:
-                        await XiuxianDataManage().update_exp(user_1['user_id'], user_get_exp_max_1, 0)
+                        await XiuxianDataManager().update_exp(user_1['user_id'], user_get_exp_max_1, 0)
                         msg += f"{user_1['user_name']}修为到达上限，增加修为{user_get_exp_max_1}。"
                     else:
-                        await XiuxianDataManage().update_exp(user_1['user_id'], exp_limit_1, 0)
+                        await XiuxianDataManager().update_exp(user_1['user_id'], exp_limit_1, 0)
                         msg += f"{user_1['user_name']}增加修为{exp_limit_1}。"
-                    await XiuxianDataManage().update_power2(user_1['user_id'])
+                    await XiuxianDataManager().update_power2(user_1['user_id'])
 
                     if user_2['sect_position'] is None:
                         max_exp_limit = 4
@@ -497,12 +497,12 @@ async def two_exp_(bot: Bot, event: GroupMessageEvent, args: Message = CommandAr
                     else:
                         exp_limit_2 = exp
                     if exp_limit_2 >= user_get_exp_max_2:
-                        await XiuxianDataManage().update_exp(user_2['user_id'], user_get_exp_max_2, 0)
+                        await XiuxianDataManager().update_exp(user_2['user_id'], user_get_exp_max_2, 0)
                         msg += f"{user_2['user_name']}修为到达上限，增加修为{user_get_exp_max_2}。"
                     else:
-                        await XiuxianDataManage().update_exp(user_2['user_id'], exp_limit_2, 0)
+                        await XiuxianDataManager().update_exp(user_2['user_id'], exp_limit_2, 0)
                         msg += f"{user_2['user_name']}增加修为{exp_limit_2}。"
-                    await XiuxianDataManage().update_power2(user_2['user_id'])
+                    await XiuxianDataManager().update_power2(user_2['user_id'])
                     two_exp_cd.add_user(user_1['user_id'])
                     two_exp_cd.add_user(user_2['user_id'])
                     if XiuConfig().img:
@@ -526,7 +526,7 @@ async def stone_exp_(bot: Bot, event: GroupMessageEvent, args: Message = Command
         await handle_send(bot, event, send_group_id, msg)
         await stone_exp.finish()
     user_id = user_info['user_id']
-    user_mes = await XiuxianDataManage().get_user_infos_by_ids(user_id)  # 获取用户信息
+    user_mes = await XiuxianDataManager().get_user_infos_by_ids(user_id)  # 获取用户信息
     level = user_mes['level']
     use_exp = user_mes['exp']
     use_stone = user_mes['stone']
@@ -557,17 +557,17 @@ async def stone_exp_(bot: Bot, event: GroupMessageEvent, args: Message = Command
     exp = int(stone_num / 10)
     if exp >= user_get_exp_max:
         # 用户获取的修为到达上限
-        await XiuxianDataManage().update_exp(user_id, user_get_exp_max, 0)
-        await XiuxianDataManage().update_power2(user_id)  # 更新战力
+        await XiuxianDataManager().update_exp(user_id, user_get_exp_max, 0)
+        await XiuxianDataManager().update_power2(user_id)  # 更新战力
         msg = f"修炼结束，本次修炼到达上限，共增加修为：{user_get_exp_max},消耗灵石：{user_get_exp_max * 10}"
-        await XiuxianDataManage().update_ls(user_id, int(user_get_exp_max * 10), 1)
+        await XiuxianDataManager().update_ls(user_id, int(user_get_exp_max * 10), 1)
         await handle_send(bot, event, send_group_id, msg)
         await stone_exp.finish()
     else:
-        await XiuxianDataManage().update_exp(user_id, exp, 0)
-        await XiuxianDataManage().update_power2(user_id)  # 更新战力
+        await XiuxianDataManager().update_exp(user_id, exp, 0)
+        await XiuxianDataManager().update_power2(user_id)  # 更新战力
         msg = f"修炼结束，本次修炼共增加修为：{exp},消耗灵石：{stone_num}"
-        await XiuxianDataManage().update_ls(user_id, int(stone_num), 1)
+        await XiuxianDataManager().update_ls(user_id, int(stone_num), 1)
         await handle_send(bot, event, send_group_id, msg)
         await stone_exp.finish()
 
@@ -588,7 +588,7 @@ async def in_closing_(bot: Bot, event: GroupMessageEvent):
         await handle_send(bot, event, send_group_id, msg)
         await in_closing.finish()
     if is_type:  # 符合
-        await XiuxianDataManage().in_closing(user_id, user_type)
+        await XiuxianDataManager().in_closing(user_id, user_type)
         msg = "进入闭关状态，如需出关，发送【出关】！"
         await handle_send(bot, event, send_group_id, msg)
         await in_closing.finish()
@@ -607,7 +607,7 @@ async def out_closing_(bot: Bot, event: GroupMessageEvent):
         await handle_send(bot, event, send_group_id, msg)
         await out_closing.finish()
     user_id = user_info['user_id']
-    user_mes = await XiuxianDataManage().get_user_infos_by_ids(user_id)  # 获取用户信息
+    user_mes = await XiuxianDataManager().get_user_infos_by_ids(user_id)  # 获取用户信息
     level = user_mes['level']
     use_exp = user_mes['exp']
     hp_speed = 25
@@ -623,7 +623,7 @@ async def out_closing_(bot: Bot, event: GroupMessageEvent):
         user_get_exp_max = 0
 
     now_time = datetime.now()
-    user_cd_message = await XiuxianDataManage().get_user_time(user_id)
+    user_cd_message = await XiuxianDataManager().get_user_time(user_id)
     is_type, msg = await check_user_type(user_id, 1)
     if not is_type:
         await handle_send(bot, event, send_group_id, msg)
@@ -634,7 +634,7 @@ async def out_closing_(bot: Bot, event: GroupMessageEvent):
         exp_time = (
                 OtherSet().date_diff(now_time, in_closing_time) // 60
         )  # 闭关时长计算(分钟) = second // 60
-        level_rate = await XiuxianDataManage().get_root_rate(user_mes['root_type'])  # 灵根倍率
+        level_rate = await XiuxianDataManager().get_root_rate(user_mes['root_type'])  # 灵根倍率
         realm_rate = jsondata.level_data()[level]["spend"]  # 境界倍率
         user_buff_data = UserBuffData(user_id)
         user_blessed_spot_data = (await user_buff_data.BuffInfo)['blessed_spot']
@@ -648,17 +648,17 @@ async def out_closing_(bot: Bot, event: GroupMessageEvent):
             # 洞天福地为加法
         )  # 本次闭关获取的修为
         # 计算传承增益
-        impart_data = await XiuxianDataManage().get_user_impart_info_with_id(user_id)
+        impart_data = await XiuxianDataManager().get_user_impart_info_with_id(user_id)
         impart_exp_addition = impart_data['impart_exp_addition'] if impart_data is not None else 0
         exp = int(exp * (1 + impart_exp_addition))
         if exp >= user_get_exp_max:
             # 用户获取的修为到达上限
-            await XiuxianDataManage().in_closing(user_id, user_type)
-            await XiuxianDataManage().update_exp(user_id, user_get_exp_max, 0)
-            await XiuxianDataManage().update_power2(user_id)  # 更新战力
+            await XiuxianDataManager().in_closing(user_id, user_type)
+            await XiuxianDataManager().update_exp(user_id, user_get_exp_max, 0)
+            await XiuxianDataManager().update_power2(user_id)  # 更新战力
 
             result_msg, result_hp_mp = await OtherSet().send_hp_mp(user_id, int(exp * hp_speed * (1 + mainbuffclors)), int(exp * mp_speed))
-            await XiuxianDataManage().update_user_attribute(user_id, result_hp_mp[0], result_hp_mp[1], int(result_hp_mp[2] / 10))
+            await XiuxianDataManager().update_user_attribute(user_id, result_hp_mp[0], result_hp_mp[1], int(result_hp_mp[2] / 10))
             msg = f"闭关结束，本次闭关到达上限，共增加修为：{user_get_exp_max}{result_msg[0]}{result_msg[1]}"
             await handle_send(bot, event, send_group_id, msg)
             await out_closing.finish()
@@ -670,13 +670,13 @@ async def out_closing_(bot: Bot, event: GroupMessageEvent):
                     user_stone = 0
                 if exp <= user_stone:
                     exp = exp * 2
-                    await XiuxianDataManage().in_closing(user_id, user_type)
-                    await XiuxianDataManage().update_exp(user_id, exp, 0)
-                    await XiuxianDataManage().update_ls(user_id, int(exp / 2), 1)
-                    await XiuxianDataManage().update_power2(user_id)  # 更新战力
+                    await XiuxianDataManager().in_closing(user_id, user_type)
+                    await XiuxianDataManager().update_exp(user_id, exp, 0)
+                    await XiuxianDataManager().update_ls(user_id, int(exp / 2), 1)
+                    await XiuxianDataManager().update_power2(user_id)  # 更新战力
 
                     result_msg, result_hp_mp = await OtherSet().send_hp_mp(user_id, int(exp * hp_speed * (1 + mainbuffclors)), int(exp * mp_speed))
-                    await XiuxianDataManage().update_user_attribute(user_id, result_hp_mp[0], result_hp_mp[1],
+                    await XiuxianDataManager().update_user_attribute(user_id, result_hp_mp[0], result_hp_mp[1],
                                                       int(result_hp_mp[2] / 10))
                     msg = f"闭关结束，共闭关{exp_time}分钟，本次闭关增加修为：{exp}，消耗灵石{int(exp / 2)}枚{result_msg[0]}{result_msg[1]}"
                     if XiuConfig().img:
@@ -687,12 +687,12 @@ async def out_closing_(bot: Bot, event: GroupMessageEvent):
                     await out_closing.finish()
                 else:
                     exp = exp + user_stone
-                    await XiuxianDataManage().in_closing(user_id, user_type)
-                    await XiuxianDataManage().update_exp(user_id, exp, 0)
-                    await XiuxianDataManage().update_ls(user_id, user_stone, 1)
-                    await XiuxianDataManage().update_power2(user_id)  # 更新战力
+                    await XiuxianDataManager().in_closing(user_id, user_type)
+                    await XiuxianDataManager().update_exp(user_id, exp, 0)
+                    await XiuxianDataManager().update_ls(user_id, user_stone, 1)
+                    await XiuxianDataManager().update_power2(user_id)  # 更新战力
                     result_msg, result_hp_mp = await OtherSet().send_hp_mp(user_id, int(exp * hp_speed * (1 + mainbuffclors)), int(exp * mp_speed))
-                    await XiuxianDataManage().update_user_attribute(user_id, result_hp_mp[0], result_hp_mp[1],
+                    await XiuxianDataManager().update_user_attribute(user_id, result_hp_mp[0], result_hp_mp[1],
                                                       int(result_hp_mp[2] / 10))
                     msg = f"闭关结束，共闭关{exp_time}分钟，本次闭关增加修为：{exp}，消耗灵石{user_stone}枚{result_msg[0]}{result_msg[1]}"
                     if XiuConfig().img:
@@ -702,11 +702,11 @@ async def out_closing_(bot: Bot, event: GroupMessageEvent):
                         await bot.send_group_msg(group_id=int(send_group_id), message=msg)
                     await out_closing.finish()
             else:
-                await XiuxianDataManage().in_closing(user_id, user_type)
-                await XiuxianDataManage().update_exp(user_id, exp, 0)
-                await XiuxianDataManage().update_power2(user_id)  # 更新战力
+                await XiuxianDataManager().in_closing(user_id, user_type)
+                await XiuxianDataManager().update_exp(user_id, exp, 0)
+                await XiuxianDataManager().update_power2(user_id)  # 更新战力
                 result_msg, result_hp_mp = await OtherSet().send_hp_mp(user_id, int(exp * hp_speed * (1 + mainbuffclors)), int(exp * mp_speed))
-                await XiuxianDataManage().update_user_attribute(user_id, result_hp_mp[0], result_hp_mp[1], int(result_hp_mp[2] / 10))
+                await XiuxianDataManager().update_user_attribute(user_id, result_hp_mp[0], result_hp_mp[1], int(result_hp_mp[2] / 10))
                 msg = f"闭关结束，共闭关{exp_time}分钟，本次闭关增加修为：{exp}{result_msg[0]}{result_msg[1]}"
                 if XiuConfig().img:
                     pic = await get_msg_pic(f"@{user_info['user_name'] or event.sender.nickname}\n" + msg)
@@ -725,12 +725,12 @@ async def mind_state_(bot: Bot, event: GroupMessageEvent):
         await handle_send(bot, event, send_group_id, msg)
         await mind_state.finish()
     user_id = user_info['user_id']
-    await XiuxianDataManage().update_last_check_info_time(user_id) # 更新查看修仙信息时间
+    await XiuxianDataManager().update_last_check_info_time(user_id) # 更新查看修仙信息时间
     if user_info['hp'] is None or user_info['hp'] == 0:
-        await XiuxianDataManage().update_user_hp(user_id)
-    user_msg = await XiuxianDataManage().get_user_real_info(user_id)
+        await XiuxianDataManager().update_user_hp(user_id)
+    user_msg = await XiuxianDataManager().get_user_real_info(user_id)
 
-    level_rate = await XiuxianDataManage().get_root_rate(user_msg['root_type'])  # 灵根倍率
+    level_rate = await XiuxianDataManager().get_root_rate(user_msg['root_type'])  # 灵根倍率
     realm_rate = jsondata.level_data()[user_msg['level']]["spend"]  # 境界倍率
     user_buff_data = UserBuffData(user_id)
     user_blessed_spot_data = (await user_buff_data.BuffInfo)['blessed_spot']
@@ -779,7 +779,7 @@ async def mind_state_(bot: Bot, event: GroupMessageEvent):
         exp_meg = f"位面至高"
     else:
         is_updata_level = OtherSet().level[now_index + 1]
-        need_exp = await XiuxianDataManage().get_level_power(is_updata_level)
+        need_exp = await XiuxianDataManager().get_level_power(is_updata_level)
         get_exp = need_exp - user_msg['exp']
         if get_exp > 0:
             exp_meg = f"还需{number_to(get_exp)}修为可突破！"
@@ -789,7 +789,7 @@ async def mind_state_(bot: Bot, event: GroupMessageEvent):
     main_buff_rate_buff = main_buff_data['ratebuff'] if main_buff_data is not None else 0
     main_hp_buff = main_buff_data['hpbuff'] if main_buff_data is not None else 0
     main_mp_buff = main_buff_data['mpbuff'] if main_buff_data is not None else 0
-    impart_data = await XiuxianDataManage().get_user_impart_info_with_id(user_id)
+    impart_data = await XiuxianDataManager().get_user_impart_info_with_id(user_id)
     impart_hp_addition = impart_data['impart_hp_addition'] if impart_data is not None else 0
     impart_mp_addition = impart_data['impart_mp_addition'] if impart_data is not None else 0
     impart_crit_addition = impart_data['impart_crit_addition'] if impart_data is not None else 0
@@ -816,7 +816,7 @@ async def mind_state_(bot: Bot, event: GroupMessageEvent):
 boss战增益:{int(impart_boss_atk_addition * 100)}%
 会心伤害增益:{int((1.5 + float(impart_crit_dmg_addition) + float(weapon_critatk) + float(main_critatk)) * 100)}%
 """
-    await XiuxianDataManage().update_last_check_info_time(user_id)
+    await XiuxianDataManager().update_last_check_info_time(user_id)
     await handle_send(bot, event, send_group_id, msg)
     await mind_state.finish()
 
@@ -868,7 +868,7 @@ async def del_exp_decimal_(bot: Bot, event: GroupMessageEvent):
         await del_exp_decimal.finish()
     user_id = user_info['user_id']
     exp = user_info['exp']
-    await XiuxianDataManage().del_exp_decimal(user_id, exp)
+    await XiuxianDataManager().del_exp_decimal(user_id, exp)
     msg = f"黑暗动乱暂时抑制成功！"
     await handle_send(bot, event, send_group_id, msg)
     await del_exp_decimal.finish()
@@ -885,7 +885,7 @@ async def my_exp_num_(bot: Bot, event: GroupMessageEvent):
         await my_exp_num.finish()
     user_id = user_info['user_id']
     limt = two_exp_cd.find_user(user_id)
-    impart_data = await XiuxianDataManage().get_user_impart_info_with_id(user_id)
+    impart_data = await XiuxianDataManager().get_user_impart_info_with_id(user_id)
     impart_two_exp_quantity = impart_data['impart_two_exp_quantity'] if impart_data is not None else 0
     
     main_two_data = await UserBuffData(user_id).get_user_main_buff_data()

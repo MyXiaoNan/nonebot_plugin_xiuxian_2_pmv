@@ -23,7 +23,7 @@ from ..xiuxian_utils.lay_out import assign_bot, put_bot, layout_bot_dict, Cooldo
 from nonebot.permission import SUPERUSER
 from nonebot.log import logger
 from ..xiuxian_utils.xiuxian2_handle import (
-    XiuxianDataManage ,OtherSet, UserBuffData, leave_harm_time
+    XiuxianDataManager ,OtherSet, UserBuffData, leave_harm_time
 )
 from ..xiuxian_config import convert_rank, XiuConfig, JsonConfig
 from .makeboss import createboss, createboss_jj
@@ -299,7 +299,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
         await battle.finish()
 
     user_id = user_info['user_id']
-    await XiuxianDataManage().update_last_check_info_time(user_id) # 更新查看修仙信息时间
+    await XiuxianDataManager().update_last_check_info_time(user_id) # 更新查看修仙信息时间
     msg = args.extract_plain_text().strip()
     group_id = str(event.group_id)
     boss_num = re.findall(r"\d+", msg)  # boss编号
@@ -307,7 +307,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
     isInGroup = isInGroups(event)
     if not isInGroup:  # 不在配置表内
         msg = f"本群尚未开启世界Boss,请联系管理员开启!"
-        await XiuxianDataManage().update_user_stamina(user_id, 20, 1)
+        await XiuxianDataManager().update_user_stamina(user_id, 20, 1)
         await handle_send(bot, event, send_group_id, msg)
         await battle.finish()
 
@@ -315,7 +315,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
         boss_num = int(boss_num[0])
     else:
         msg = f"请输入正确的世界Boss编号!"
-        await XiuxianDataManage().update_user_stamina(user_id, 20, 1)
+        await XiuxianDataManager().update_user_stamina(user_id, 20, 1)
         await handle_send(bot, event, send_group_id, msg)
         await battle.finish()
     bosss = None
@@ -323,13 +323,13 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
         bosss = group_boss[group_id]
     except:
         msg = f"本群尚未生成世界Boss,请等待世界boss刷新!"
-        await XiuxianDataManage().update_user_stamina(user_id, 20, 1)
+        await XiuxianDataManager().update_user_stamina(user_id, 20, 1)
         await handle_send(bot, event, send_group_id, msg)
         await battle.finish()
 
     if not bosss:
         msg = f"本群尚未生成世界Boss,请等待世界boss刷新!"
-        await XiuxianDataManage().update_user_stamina(user_id, 20, 1)
+        await XiuxianDataManager().update_user_stamina(user_id, 20, 1)
         await handle_send(bot, event, send_group_id, msg)
         await battle.finish()
 
@@ -342,21 +342,21 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
 
     if user_info['hp'] is None or user_info['hp'] == 0:
         # 判断用户气血是否为空
-        await XiuxianDataManage().update_user_hp(user_id)
+        await XiuxianDataManager().update_user_hp(user_id)
 
     if user_info['hp'] <= user_info['exp'] / 10:
         time = await leave_harm_time(user_id)
         msg = f"重伤未愈，动弹不得！距离脱离危险还需要{time}分钟！\n"
         msg += f"请道友进行闭关，或者使用药品恢复气血，不要干等，没有自动回血！！！"
-        await XiuxianDataManage().update_user_stamina(user_id, 20, 1)
+        await XiuxianDataManager().update_user_stamina(user_id, 20, 1)
         await handle_send(bot, event, send_group_id, msg)
         await battle.finish()
 
     player = {"user_id": None, "道号": None, "气血": None, "攻击": None, "真元": None, '会心': None, '防御': 0}
-    userinfo = await XiuxianDataManage().get_user_real_info(user_id)
+    userinfo = await XiuxianDataManager().get_user_real_info(user_id)
     user_weapon_data = await UserBuffData(userinfo['user_id']).get_user_weapon_data()
 
-    impart_data = await XiuxianDataManage().get_user_impart_info_with_id(user_id)
+    impart_data = await XiuxianDataManager().get_user_impart_info_with_id(user_id)
     impart_boss_atk_addition = impart_data['impart_boss_atk_addition'] if impart_data['impart_boss_atk_addition'] is not None else 0
     user_armor_data = await UserBuffData(userinfo['user_id']).get_user_armor_buff_data() #boss战防具会心
     user_main_data = await UserBuffData(userinfo['user_id']).get_user_main_buff_data() #boss战功法会心
@@ -402,7 +402,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
     result, victor, bossinfo_new, get_stone = await Boss_fight(player, bossinfo, bot_id=bot.self_id)
     if victor == "Boss赢了":
         group_boss[group_id][boss_num - 1] = bossinfo_new
-        await XiuxianDataManage().update_ls(user_id, get_stone, 0)
+        await XiuxianDataManager().update_ls(user_id, get_stone, 0)
         # 新增boss战斗积分点数
         boss_now_hp = bossinfo_new['气血']  # 打之后的血量
         boss_all_hp = bossinfo['总血量']  # 总血量
@@ -416,7 +416,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
 
         user_boss_fight_info = get_user_boss_fight_info(user_id)
         user_boss_fight_info['boss_integral'] += boss_integral
-        top_user_info = await XiuxianDataManage().get_top1_user()
+        top_user_info = await XiuxianDataManager().get_top1_user()
         top_user_exp = top_user_info['exp']
         save_user_boss_fight_info(user_id, user_boss_fight_info)
         
@@ -424,7 +424,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
             now_exp = int(((top_user_exp * 0.1) / user_info['exp']) / (exp_buff * (1 / (convert_rank(user_info['level'])[0] + 1))))
             if now_exp > 1000000:
                 now_exp = int(1000000 / random.randint(5, 10))
-            await XiuxianDataManage().update_exp(user_id, now_exp, 0)
+            await XiuxianDataManager().update_exp(user_id, now_exp, 0)
             exp_msg = f"，获得修为{int(now_exp)}点！"
         else:
             exp_msg = f" "
@@ -453,14 +453,14 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
                 boss_integral = 0
                 more_msg = f"道友的境界超过boss太多了,不齿！"
                 
-        top_user_info = await XiuxianDataManage().get_top1_user()
+        top_user_info = await XiuxianDataManager().get_top1_user()
         top_user_exp = top_user_info['exp']
         
         if exp_buff > 0 and user_info['root'] != "器师":
             now_exp = int(((top_user_exp * 0.1) / user_info['exp']) / (exp_buff * (1 / (convert_rank(user_info['level'])[0] + 1))))
             if now_exp > 1000000:
                 now_exp = int(1000000 / random.randint(5, 10))
-            await XiuxianDataManage().update_exp(user_id, now_exp, 0)
+            await XiuxianDataManager().update_exp(user_id, now_exp, 0)
             exp_msg = f"，获得修为{int(now_exp)}点！"
         else:
             exp_msg = f" "
@@ -470,13 +470,13 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
             drops_msg = " "
         elif boss_rank < convert_rank('遁一境中期')[0]:           
             drops_msg = f"boss的尸体上好像有什么东西， 凑近一看居然是{drops_info['name']}！ "
-            await XiuxianDataManage().send_back(user_info['user_id'], drops_info['id'],drops_info['name'], drops_info['type'], 1)
+            await XiuxianDataManager().send_back(user_info['user_id'], drops_info['id'],drops_info['name'], drops_info['type'], 1)
         else :
             drops_msg = " "
             
         group_boss[group_id].remove(group_boss[group_id][boss_num - 1])
         battle_flag[group_id] = False
-        await XiuxianDataManage().update_ls(user_id, get_stone, 0)
+        await XiuxianDataManager().update_ls(user_id, get_stone, 0)
         user_boss_fight_info = get_user_boss_fight_info(user_id)
         user_boss_fight_info['boss_integral'] += boss_integral
         save_user_boss_fight_info(user_id, user_boss_fight_info)
@@ -757,7 +757,7 @@ async def boss_integral_use_(bot: Bot, event: GroupMessageEvent, args: Message =
             user_boss_fight_info['boss_integral'] -= total_cost
             save_user_boss_fight_info(user_id, user_boss_fight_info)
             item_info = Items().get_data_by_item_id(item_id)
-            await XiuxianDataManage().send_back(user_id, item_id, item_info['name'], item_info['type'], quantity)  # 兑换指定数量
+            await XiuxianDataManager().send_back(user_id, item_id, item_info['name'], item_info['type'], quantity)  # 兑换指定数量
             msg = f"道友成功兑换获得：{item_info['name']}{quantity}个"
             await handle_send(bot, event, send_group_id, msg)
             await boss_integral_use.finish()

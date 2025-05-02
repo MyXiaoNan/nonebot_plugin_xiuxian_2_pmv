@@ -30,7 +30,7 @@ from ..xiuxian_utils.utils import (
     Txt2Img, number_to, handle_send
 )
 from ..xiuxian_utils.xiuxian2_handle import (
-    XiuxianDataManage, get_weapon_info_msg, get_armor_info_msg,
+    XiuxianDataManager, get_weapon_info_msg, get_armor_info_msg,
     get_sec_msg, get_main_info_msg, get_sub_info_msg, UserBuffData
 )
 from ..xiuxian_config import XiuConfig, convert_rank
@@ -96,7 +96,7 @@ __back_help__ = f"""
 # 重置丹药每日使用次数
 @reset_day_num_scheduler.scheduled_job("cron", hour=0, minute=0, )
 async def reset_day_num_scheduler_():
-    await XiuxianDataManage().day_num_reset()
+    await XiuxianDataManager().day_num_reset()
     logger.opt(colors=True).info(f"<green>每日丹药使用次数重置成功！</green>")
 
 
@@ -141,7 +141,7 @@ async def set_auction_by_scheduler_():
     for idx, (auction_id, item_quantity, start_price, is_user_auction) in enumerate(auction_items):
         item_name = items.get_data_by_item_id(auction_id)['name']
         if is_user_auction:
-            owner_info = await XiuxianDataManage().get_user_infos_by_ids(get_user_auction_price_by_id(auction_id)['user_id'])
+            owner_info = await XiuxianDataManager().get_user_infos_by_ids(get_user_auction_price_by_id(auction_id)['user_id'])
             owner_name = owner_info['user_name']
             msg += f"{idx + 1}号：{item_name}x{item_quantity}（由{owner_name}道友提供）\n"
         else:
@@ -234,7 +234,7 @@ async def set_auction_by_scheduler_():
             auction = {}
             continue
         
-        user_info = await XiuxianDataManage().get_user_infos_by_ids(auction['user_id'])
+        user_info = await XiuxianDataManager().get_user_infos_by_ids(auction['user_id'])
         msg = f"(拍卖锤落下)！！！\n"
         msg += f"恭喜来自群{auction['group_id']}的{user_info['user_name']}道友成功拍下：{auction['type']}-{auction['name']}x{auction['quantity']}，将在拍卖会结算后送到您手中。\n"
         if i + 1 == len(auction_items):
@@ -267,19 +267,19 @@ async def set_auction_by_scheduler_():
             end_msg += f"{idx + 1}号拍卖品：{item_name}x{quantity} - 流拍了\n"
             continue
             
-        final_user_info = await XiuxianDataManage().get_user_infos_by_ids(user_id)
+        final_user_info = await XiuxianDataManager().get_user_infos_by_ids(user_id)
         if final_user_info['stone'] < (int(final_price) * quantity):
             end_msg += f"{idx + 1}号拍卖品：{item_name}x{quantity} - 道友{final_user_info['user_name']}的灵石不足，流拍了\n"
         else:
-            await XiuxianDataManage().update_ls(user_id, int(final_price) * quantity, 1)
-            await XiuxianDataManage().send_back(user_id, auction_id, item_name, item_type, quantity)
+            await XiuxianDataManager().update_ls(user_id, int(final_price) * quantity, 1)
+            await XiuxianDataManager().send_back(user_id, auction_id, item_name, item_type, quantity)
             end_msg += f"{idx + 1}号拍卖品：{item_name}x{quantity}由群{group_id}的{final_user_info['user_name']}道友成功拍下\n"
 
         user_auction_info = get_user_auction_price_by_id(auction_id)
         if user_auction_info:
             seller_id = user_auction_info['user_id']
             auction_earnings = int(final_price) * quantity * 0.7 # 收个手续费
-            await XiuxianDataManage().update_ls(seller_id, auction_earnings, 0)
+            await XiuxianDataManager().update_ls(seller_id, auction_earnings, 0)
 
         remove_auction_item(auction_id)
 
@@ -403,8 +403,8 @@ async def buy_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
             shop_user_name = shop_data[group_id][str(arg)]['user_name']
             shop_goods_id = shop_data[group_id][str(arg)]['goods_id']
             shop_goods_type = shop_data[group_id][str(arg)]['goods_type']
-            await XiuxianDataManage().update_ls(user_id, goods_price, 1)
-            await XiuxianDataManage().send_back(user_id, shop_goods_id, shop_goods_name, shop_goods_type, purchase_quantity)
+            await XiuxianDataManager().update_ls(user_id, goods_price, 1)
+            await XiuxianDataManager().send_back(user_id, shop_goods_id, shop_goods_name, shop_goods_type, purchase_quantity)
             save_shop(shop_data)
 
             if shop_user_id == 0:  # 0为系统
@@ -418,7 +418,7 @@ async def buy_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
                 service_charge = int(goods_price * 0.1)  # 手续费10%
                 give_stone = goods_price - service_charge
                 msg = f"道友成功购买{purchase_quantity}个{shop_user_name}道友寄售的{shop_goods_name}，消耗灵石{goods_price}枚,坊市收取手续费：{service_charge}枚灵石！"
-                await XiuxianDataManage().update_ls(shop_user_id, give_stone, 0)
+                await XiuxianDataManager().update_ls(shop_user_id, give_stone, 0)
             shop_data[group_id] = reset_dict_num(shop_data[group_id])
             save_shop(shop_data)
             await handle_send(bot, event, send_group_id, msg)
@@ -556,7 +556,7 @@ async def shop_added_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
         # 提供了物品名称、价格和数量
         goods_name, price_str, quantity_str = args[0], args[1], args[2]
 
-    back_msg = await XiuxianDataManage().get_back_msg(user_id)  # 背包sql信息,dict
+    back_msg = await XiuxianDataManager().get_back_msg(user_id)  # 背包sql信息,dict
     if back_msg is None:
         msg = "道友的背包空空如也！"
         await handle_send(bot, event, send_group_id, msg)
@@ -645,7 +645,7 @@ async def shop_added_(bot: Bot, event: GroupMessageEvent, args: Message = Comman
         'user_name': user_info['user_name'],
         'stock': quantity,  # 物品数量
     }
-    await XiuxianDataManage().update_back_j(user_id, goods_id, num = quantity)
+    await XiuxianDataManager().update_back_j(user_id, goods_id, num = quantity)
     save_shop(shop_data)
     msg = f"物品：{goods_name}成功上架坊市，金额：{price}枚灵石，数量{quantity}！"
     await handle_send(bot, event, send_group_id, msg)
@@ -667,7 +667,7 @@ async def goods_re_root_(bot: Bot, event: GroupMessageEvent, args: Message = Com
         await handle_send(bot, event, send_group_id, msg)
         await goods_re_root.finish()
     goods_name = args[0]
-    back_msg = await XiuxianDataManage().get_back_msg(user_id)  # 背包sql信息,list(back)
+    back_msg = await XiuxianDataManager().get_back_msg(user_id)  # 背包sql信息,list(back)
     if back_msg is None:
         msg = "道友的背包空空如也！"
         await handle_send(bot, event, send_group_id, msg)
@@ -710,8 +710,8 @@ async def goods_re_root_(bot: Bot, event: GroupMessageEvent, args: Message = Com
         await handle_send(bot, event, send_group_id, msg)
         await goods_re_root.finish()
 
-    await XiuxianDataManage().update_back_j(user_id, goods_id, num=num)
-    await XiuxianDataManage().update_ls(user_id, price, 0)
+    await XiuxianDataManager().update_back_j(user_id, goods_id, num=num)
+    await XiuxianDataManager().update_ls(user_id, price, 0)
     msg = f"物品：{goods_name} 数量：{num} 炼金成功，凝聚{price}枚灵石！"
     await handle_send(bot, event, send_group_id, msg)
     await goods_re_root.finish()
@@ -747,7 +747,7 @@ async def shop_off_(bot: Bot, event: GroupMessageEvent, args: Message = CommandA
         await shop_off.finish()
 
     if shop_data[group_id][str(arg)]['user_id'] == user_id:
-        await XiuxianDataManage().send_back(user_id, shop_data[group_id][str(arg)]['goods_id'],
+        await XiuxianDataManager().send_back(user_id, shop_data[group_id][str(arg)]['goods_id'],
                               shop_data[group_id][str(arg)]['goods_name'], shop_data[group_id][str(arg)]['goods_type'],
                               shop_data[group_id][str(arg)]['stock'])
         msg = f"成功下架物品：{shop_data[group_id][str(arg)]['goods_name']}！"
@@ -766,7 +766,7 @@ async def shop_off_(bot: Bot, event: GroupMessageEvent, args: Message = CommandA
             await handle_send(bot, event, send_group_id, msg)
             await shop_off.finish()
         else:
-            await XiuxianDataManage().send_back(shop_data[group_id][str(arg)]['user_id'], shop_data[group_id][str(arg)]['goods_id'],
+            await XiuxianDataManager().send_back(shop_data[group_id][str(arg)]['user_id'], shop_data[group_id][str(arg)]['goods_id'],
                                   shop_data[group_id][str(arg)]['goods_name'],
                                   shop_data[group_id][str(arg)]['goods_type'], shop_data[group_id][str(arg)]['stock'])
             msg1 = f"道友上架的{shop_data[group_id][str(arg)]['stock']}个{shop_data[group_id][str(arg)]['goods_name']}已被管理员{user_info['user_name']}下架！"
@@ -829,7 +829,7 @@ async def auction_withdraw_(bot: Bot, event: GroupMessageEvent, args: Message = 
         await handle_send(bot, event, send_group_id, msg)
         await auction_withdraw.finish()
 
-    await XiuxianDataManage().send_back(details['user_id'], details['id'], goods_name, details['goods_type'], details['quantity'])
+    await XiuxianDataManager().send_back(details['user_id'], details['id'], goods_name, details['goods_type'], details['quantity'])
     user_auctions.pop(auction_index)
     config['user_auctions'] = user_auctions
     savef_auction(config)
@@ -887,7 +887,7 @@ async def no_use_zb_(bot: Bot, event: GroupMessageEvent, args: Message = Command
     user_id = user_info['user_id']
     arg = args.extract_plain_text().strip()
 
-    back_msg = await XiuxianDataManage().get_back_msg(user_id)  # 背包sql信息,list(back)
+    back_msg = await XiuxianDataManager().get_back_msg(user_id)  # 背包sql信息,list(back)
     if back_msg is None:
         msg = "道友的背包空空如也！"
         await handle_send(bot, event, send_group_id, msg)
@@ -910,11 +910,11 @@ async def no_use_zb_(bot: Bot, event: GroupMessageEvent, args: Message = Command
         if not await check_equipment_can_use(user_id, goods_id):
             sql_str, item_type = await get_no_use_equipment_sql(user_id, goods_id)
             for sql in sql_str:
-                await XiuxianDataManage().update_back_equipment(sql)
+                await XiuxianDataManager().update_back_equipment(sql)
             if item_type == "法器":
-                await XiuxianDataManage().updata_user_faqi_buff(user_id, 0)
+                await XiuxianDataManager().updata_user_faqi_buff(user_id, 0)
             if item_type == "防具":
-                await XiuxianDataManage().updata_user_armor_buff(user_id, 0)
+                await XiuxianDataManager().updata_user_armor_buff(user_id, 0)
             msg = f"成功卸载装备{arg}！"
             await handle_send(bot, event, send_group_id, msg)
             await no_use_zb.finish()
@@ -942,7 +942,7 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
     user_id = user_info['user_id']
     args = args.extract_plain_text().split()
     arg = args[0]  # 
-    back_msg = await XiuxianDataManage().get_back_msg(user_id)  # 背包sql信息,dict
+    back_msg = await XiuxianDataManager().get_back_msg(user_id)  # 背包sql信息,dict
     if back_msg is None:
         msg = "道友的背包空空如也！"
         await handle_send(bot, event, send_group_id, msg)
@@ -971,11 +971,11 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
         else:  # 可以装备
             sql_str, item_type = await get_use_equipment_sql(user_id, goods_id)
             for sql in sql_str:
-                await XiuxianDataManage().update_back_equipment(sql)
+                await XiuxianDataManager().update_back_equipment(sql)
             if item_type == "法器":
-                await XiuxianDataManage().updata_user_faqi_buff(user_id, goods_id)
+                await XiuxianDataManager().updata_user_faqi_buff(user_id, goods_id)
             if item_type == "防具":
-                await XiuxianDataManage().updata_user_armor_buff(user_id, goods_id)
+                await XiuxianDataManager().updata_user_armor_buff(user_id, goods_id)
             msg = f"成功装备{arg}！"
             await handle_send(bot, event, send_group_id, msg)
             await use.finish()
@@ -987,22 +987,22 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
             if int(user_buff_info['ultimate_skill']) == int(goods_id):
                 msg = f"道友已学会该神通：{skill_info['name']}，请勿重复学习！"
             else:  # 学习sql
-                await XiuxianDataManage().update_back_j(user_id, goods_id)
-                await XiuxianDataManage().updata_user_sec_buff(user_id, goods_id)
+                await XiuxianDataManager().update_back_j(user_id, goods_id)
+                await XiuxianDataManager().updata_user_sec_buff(user_id, goods_id)
                 msg = f"恭喜道友学会神通：{skill_info['name']}！"
         elif skill_type == "功法":
             if int(user_buff_info['main_skill']) == int(goods_id):
                 msg = f"道友已学会该功法：{skill_info['name']}，请勿重复学习！"
             else:  # 学习sql
-                await XiuxianDataManage().update_back_j(user_id, goods_id)
-                await XiuxianDataManage().updata_user_main_buff(user_id, goods_id)
+                await XiuxianDataManager().update_back_j(user_id, goods_id)
+                await XiuxianDataManager().updata_user_main_buff(user_id, goods_id)
                 msg = f"恭喜道友学会功法：{skill_info['name']}！"
         elif skill_type == "辅修功法": #辅修功法1
             if int(user_buff_info['support_skill']) == int(goods_id):
                 msg = f"道友已学会该辅修功法：{skill_info['name']}，请勿重复学习！"
             else:#学习sql
-                await XiuxianDataManage().update_back_j(user_id, goods_id)
-                await XiuxianDataManage().updata_user_sub_buff(user_id, goods_id)
+                await XiuxianDataManager().update_back_j(user_id, goods_id)
+                await XiuxianDataManager().updata_user_sub_buff(user_id, goods_id)
                 msg = f"恭喜道友学会辅修功法：{skill_info['name']}！"
         else:
             msg = "发生未知错误！"
@@ -1043,7 +1043,7 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
         except ValueError:
             num = 1
         goods_info = items.get_data_by_item_id(goods_id)
-        user_info = await XiuxianDataManage().get_user_infos_by_ids(user_id)
+        user_info = await XiuxianDataManager().get_user_infos_by_ids(user_id)
         user_rank = convert_rank(user_info['level'])[0]
         goods_rank = goods_info['rank']
         goods_name = goods_info['name']
@@ -1054,10 +1054,10 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
                 user_hp = int(user_info['hp'] + (exp / 2))
                 user_mp = int(user_info['mp'] + exp)
                 user_atk = int(user_info['atk'] + (exp / 10))
-                await XiuxianDataManage().update_exp(user_id, exp, 0)
-                await XiuxianDataManage().update_power2(user_id)  # 更新战力
-                await XiuxianDataManage().update_user_attribute(user_id, user_hp, user_mp, user_atk)  # 这种事情要放在update_exp方法里
-                await XiuxianDataManage().update_back_j(user_id, goods_id, num=num, use_key=1)
+                await XiuxianDataManager().update_exp(user_id, exp, 0)
+                await XiuxianDataManager().update_power2(user_id)  # 更新战力
+                await XiuxianDataManager().update_user_attribute(user_id, user_hp, user_mp, user_atk)  # 这种事情要放在update_exp方法里
+                await XiuxianDataManager().update_back_j(user_id, goods_id, num=num, use_key=1)
                 msg = f"道友成功使用神物：{goods_name} {num}个 ,修为增加{exp}点！"
         await handle_send(bot, event, send_group_id, msg)
         await use.finish()
@@ -1079,7 +1079,7 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
             num = 1
 
         goods_info = items.get_data_by_item_id(goods_id)
-        user_info = await XiuxianDataManage().get_user_infos_by_ids(user_id)
+        user_info = await XiuxianDataManager().get_user_infos_by_ids(user_id)
         goods_name = goods_info['name']
 
         msg_parts = []
@@ -1098,7 +1098,7 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
 
             if goods_name == "灵石":
                 key = 0 if goods_amount > 0 else 1
-                await XiuxianDataManage().update_ls(user_id, abs(goods_amount), key)
+                await XiuxianDataManager().update_ls(user_id, abs(goods_amount), key)
                 if goods_amount > 0:
                     msg_parts.append(f"获得灵石{number_to(goods_amount)}枚！\n")
                 else:
@@ -1107,12 +1107,12 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
                 buff_id = goods_info.get(buff_key)
                 goods_type = goods_info.get(type_key)
                 if buff_id is not None:
-                    await XiuxianDataManage().send_back(user_id, buff_id, goods_name, goods_type, goods_amount, 1)
+                    await XiuxianDataManager().send_back(user_id, buff_id, goods_name, goods_type, goods_amount, 1)
                 msg_parts.append(f"获得{goods_name}{goods_amount}个\n")
 
             i += 1
 
-        await XiuxianDataManage().update_back_j(user_id, goods_id, num, 0)
+        await XiuxianDataManager().update_back_j(user_id, goods_id, num, 0)
         msg = f"道友打开了{num}个{goods_info['name']}:\n" + "".join(msg_parts)
 
         await handle_send(bot, event, send_group_id, msg)
@@ -1159,7 +1159,7 @@ async def auction_view_(bot: Bot, event: GroupMessageEvent, args: Message = Comm
     
     for idx, auction in enumerate(user_auctions):
         for goods_name, details in auction.items():
-            user_info = await XiuxianDataManage().get_user_infos_by_ids(details['user_id'])
+            user_info = await XiuxianDataManager().get_user_infos_by_ids(details['user_id'])
             auction_list_msg += f"编号: {idx + 1}\n物品名称: {goods_name}\n物品类型：{details['goods_type']}\n所有者：{user_info['user_name']}\n底价: {details['start_price']} 枚灵石\n数量: {details['quantity']}\n"
             auction_list_msg += "☆------------------------------☆\n"
 
@@ -1239,7 +1239,7 @@ async def creat_auction_(bot: Bot, event: GroupMessageEvent):
     for idx, (auction_id, item_quantity, start_price, is_user_auction) in enumerate(auction_items):
         item_name = items.get_data_by_item_id(auction_id)['name']
         if is_user_auction:
-            owner_info = await XiuxianDataManage().get_user_infos_by_ids(get_user_auction_price_by_id(auction_id)['user_id'])
+            owner_info = await XiuxianDataManager().get_user_infos_by_ids(get_user_auction_price_by_id(auction_id)['user_id'])
             owner_name = owner_info['user_name']
             msg += f"{idx + 1}号：{item_name}x{item_quantity}（由{owner_name}道友提供）\n"
         else:
@@ -1329,7 +1329,7 @@ async def creat_auction_(bot: Bot, event: GroupMessageEvent):
             auction = {}
             continue
         
-        user_info = await XiuxianDataManage().get_user_infos_by_ids(auction['user_id'])
+        user_info = await XiuxianDataManager().get_user_infos_by_ids(auction['user_id'])
         msg = f"(拍卖锤落下)！！！\n"
         msg += f"恭喜来自群{auction['group_id']}的{user_info['user_name']}道友成功拍下：{auction['type']}-{auction['name']}x{auction['quantity']}，将在拍卖会结算后送到您手中。\n"
         if i + 1 == len(auction_items):
@@ -1358,19 +1358,19 @@ async def creat_auction_(bot: Bot, event: GroupMessageEvent):
             end_msg += f"{idx + 1}号拍卖品：{item_name}x{quantity} - 流拍了\n"
             continue
             
-        final_user_info = await XiuxianDataManage().get_user_infos_by_ids(user_id)
+        final_user_info = await XiuxianDataManager().get_user_infos_by_ids(user_id)
         if final_user_info['stone'] < (int(final_price) * quantity):
             end_msg += f"{idx + 1}号拍卖品：{item_name}x{quantity} - 道友{final_user_info['user_name']}的灵石不足，流拍了\n"
         else:
-            await XiuxianDataManage().update_ls(user_id, int(final_price) * quantity, 1)
-            await XiuxianDataManage().send_back(user_id, auction_id, item_name, item_type, quantity)
+            await XiuxianDataManager().update_ls(user_id, int(final_price) * quantity, 1)
+            await XiuxianDataManager().send_back(user_id, auction_id, item_name, item_type, quantity)
             end_msg += f"{idx + 1}号拍卖品：{item_name}x{quantity}由群{group_id}的{final_user_info['user_name']}道友成功拍下\n"
 
         user_auction_info = get_user_auction_price_by_id(auction_id)
         if user_auction_info:
             seller_id = user_auction_info['user_id']
             auction_earnings = int(final_price) * quantity * 0.7 # 收个手续费
-            await XiuxianDataManage().update_ls(seller_id, auction_earnings, 0)
+            await XiuxianDataManager().update_ls(seller_id, auction_earnings, 0)
 
         remove_auction_item(auction_id)
 
@@ -1527,7 +1527,7 @@ async def auction_added_(bot: Bot, event: GroupMessageEvent, args: Message = Com
         await handle_send(bot, event, send_group_id, msg)
         await auction_added.finish()
 
-    back_msg = await XiuxianDataManage().get_back_msg(user_id)  # 获取背包信息
+    back_msg = await XiuxianDataManager().get_back_msg(user_id)  # 获取背包信息
     if back_msg is None:
         msg = f"道友的背包空空如也！"
         await handle_send(bot, event, send_group_id, msg)
@@ -1596,7 +1596,7 @@ async def auction_added_(bot: Bot, event: GroupMessageEvent, args: Message = Com
     config['user_auctions'].append(user_auction)
 
     savef_auction(config)
-    await XiuxianDataManage().update_back_j(user_id, goods_id, num=quantity)
+    await XiuxianDataManager().update_back_j(user_id, goods_id, num=quantity)
 
     msg = f"道友的拍卖品：{goods_name}成功提交，底价：{price}枚灵石，数量：{quantity}"
     msg += f"\n下次拍卖将优先拍卖道友的拍卖品！！！"
@@ -1756,7 +1756,7 @@ async def shop_off_all_(bot: Bot, event: GroupMessageEvent):
             del shop_data[group_id][str(x)]
             save_shop(shop_data)
         else:
-            await XiuxianDataManage().send_back(shop_data[group_id][str(x)]['user_id'], shop_data[group_id][str(x)]['goods_id'],
+            await XiuxianDataManager().send_back(shop_data[group_id][str(x)]['user_id'], shop_data[group_id][str(x)]['goods_id'],
                                   shop_data[group_id][str(x)]['goods_name'],
                                   shop_data[group_id][str(x)]['goods_type'], shop_data[group_id][str(x)]['stock'])
             msg += f"成功下架{shop_data[group_id][str(x)]['user_name']}的{shop_data[group_id][str(x)]['stock']}个{shop_data[group_id][str(x)]['goods_name']}!\n"

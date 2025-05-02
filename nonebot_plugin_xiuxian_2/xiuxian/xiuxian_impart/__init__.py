@@ -23,7 +23,7 @@ from ..xiuxian_utils.utils import (
     send_msg_handler,
     build_forward_msg_list,
 )
-from ..xiuxian_utils.xiuxian2_handle import XiuxianDataManage
+from ..xiuxian_utils.xiuxian2_handle import XiuxianDataManager
 from .impart_data import impart_data_json
 from .impart_uitls import (
     get_image_representation,
@@ -183,9 +183,9 @@ async def impart_draw_(bot: Bot, event: GroupMessageEvent):
                 list_tp = build_forward_msg_list(bot, summary, msg, images, image_params)
                 
                 # 抽到重复卡，抽数归零，加3540分钟闭关时间
-                await XiuxianDataManage().add_impart_exp_day(3540, user_id)
-                await XiuxianDataManage().update_stone_num(10, user_id, 1)
-                await XiuxianDataManage().update_impart_wish(0, user_id)
+                await XiuxianDataManager().add_impart_exp_day(3540, user_id)
+                await XiuxianDataManager().update_stone_num(10, user_id, 1)
+                await XiuxianDataManager().update_impart_wish(0, user_id)
                 # 更新传承数据
                 await re_impart_data(user_id)
                 
@@ -215,9 +215,9 @@ async def impart_draw_(bot: Bot, event: GroupMessageEvent):
                 list_tp = build_forward_msg_list(bot, summary, msg, images, image_params)
                 
                 # 抽到新卡，抽数归零
-                await XiuxianDataManage().add_impart_exp_day(660, user_id)
-                await XiuxianDataManage().update_stone_num(10, user_id, 1)
-                await XiuxianDataManage().update_impart_wish(0, user_id)
+                await XiuxianDataManager().add_impart_exp_day(660, user_id)
+                await XiuxianDataManager().update_stone_num(10, user_id, 1)
+                await XiuxianDataManager().update_impart_wish(0, user_id)
                 # 更新传承数据
                 await re_impart_data(user_id)
                 
@@ -249,9 +249,9 @@ async def impart_draw_(bot: Bot, event: GroupMessageEvent):
             list_tp = build_forward_msg_list(bot, summary, msg, time_img, image_params)
             
             # 没抽到新卡，只加660分钟
-            await XiuxianDataManage().add_impart_exp_day(660, user_id)
-            await XiuxianDataManage().update_stone_num(10, user_id, 1)
-            await XiuxianDataManage().add_impart_wish(10, user_id)
+            await XiuxianDataManager().add_impart_exp_day(660, user_id)
+            await XiuxianDataManager().update_stone_num(10, user_id, 1)
+            await XiuxianDataManager().add_impart_wish(10, user_id)
             # 更新传承数据
             await re_impart_data(user_id)
             

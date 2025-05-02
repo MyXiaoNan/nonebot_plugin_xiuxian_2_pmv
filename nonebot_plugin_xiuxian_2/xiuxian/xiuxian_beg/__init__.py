@@ -9,7 +9,7 @@ from nonebot.adapters.onebot.v11 import (
     MessageSegment
 )
 from nonebot.log import logger
-from ..xiuxian_utils.xiuxian2_handle import XiuxianDataManage
+from ..xiuxian_utils.xiuxian2_handle import XiuxianDataManager
 from ..xiuxian_config import XiuConfig
 from ..xiuxian_utils.item_json import Items
 from ..xiuxian_utils.data_source import jsondata
@@ -29,7 +29,7 @@ cache_beg_help = {}
 # 重置奇缘
 @scheduler.scheduled_job("cron", hour=0, minute=0)
 async def xiuxian_beg_():
-    await XiuxianDataManage().beg_remake()
+    await XiuxianDataManager().beg_remake()
     logger.opt(colors=True).info(f"<green>仙途奇缘重置成功！</green>")
 
 __beg_help__ = f"""
@@ -64,7 +64,7 @@ async def beg_stone_(bot: Bot, event: GroupMessageEvent):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     user_id = int(event.get_user_id())
     isUser, user_info, msg = await check_user(event)
-    user_msg = await XiuxianDataManage().get_user_infos_by_ids(user_id)
+    user_msg = await XiuxianDataManager().get_user_infos_by_ids(user_id)
     user_root = user_msg['root_type']
     sect = user_info['sect_id']
     level = user_info['level']
@@ -79,7 +79,7 @@ async def beg_stone_(bot: Bot, event: GroupMessageEvent):
         await handle_send(bot, event, send_group_id, msg)
         await beg_stone.finish()
     
-    await XiuxianDataManage().update_last_check_info_time(user_id) # 更新查看修仙信息时间
+    await XiuxianDataManager().update_last_check_info_time(user_id) # 更新查看修仙信息时间
     if sect != None and user_root == "伪灵根":
         msg = f"道友已有宗门庇佑，又何必来此寻求机缘呢？"
         await handle_send(bot, event, send_group_id, msg)
@@ -101,7 +101,7 @@ async def beg_stone_(bot: Bot, event: GroupMessageEvent):
         await beg_stone.finish()
 
     else:
-        stone = await XiuxianDataManage().get_beg(user_id)
+        stone = await XiuxianDataManager().get_beg(user_id)
         if stone is None:
             msg = '贪心的人是不会有好运的！'
         else:

@@ -1,6 +1,6 @@
 from typing import List
 import random
-from ..xiuxian_utils.xiuxian2_handle import XiuxianDataManage
+from ..xiuxian_utils.xiuxian2_handle import XiuxianDataManager
 
 def random_bullet() -> List[int]:
     """
@@ -13,11 +13,11 @@ def random_bullet() -> List[int]:
 
 
 async def impart_pk_check(user_id):
-    if await XiuxianDataManage().get_user_impart_info_with_id(user_id) is None:
-        await XiuxianDataManage().create_impart_user(user_id)
-        return await XiuxianDataManage().get_user_impart_info_with_id(user_id)
+    if await XiuxianDataManager().get_user_impart_info_with_id(user_id) is None:
+        await XiuxianDataManager().create_impart_user(user_id)
+        return await XiuxianDataManager().get_user_impart_info_with_id(user_id)
     else:
-        return await XiuxianDataManage().get_user_impart_info_with_id(user_id)
+        return await XiuxianDataManager().get_user_impart_info_with_id(user_id)
 
 
 msg_pass = {

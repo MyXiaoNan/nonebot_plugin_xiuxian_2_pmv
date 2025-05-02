@@ -15,7 +15,7 @@ from nonebot.adapters.onebot.v11 import (
     MessageSegment,
 )
 from ..xiuxian_utils.lay_out import assign_bot, Cooldown
-from ..xiuxian_utils.xiuxian2_handle import XiuxianDataManage
+from ..xiuxian_utils.xiuxian2_handle import XiuxianDataManager
 from datetime import datetime
 from .bankconfig import get_config
 from ..xiuxian_utils.utils import check_user, get_msg_pic, handle_send
@@ -105,7 +105,7 @@ async def bank_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Rege
         if bankinfo['savestone'] > max:
             # 如果超过了，将超出部分加到用户灵石中
             overflow = bankinfo['savestone'] - max
-            await XiuxianDataManage().update_ls(user_id, overflow, 0)
+            await XiuxianDataManager().update_ls(user_id, overflow, 0)
             msg = f"道友本次结息时间为：{days_diff:.1f}天，获得灵石：{number_to(give_stone)}枚!\n已达到存款上限，多余的{number_to(overflow)}灵石已返还给道友。"
             bankinfo['savestone'] = max
             savef(user_id, bankinfo)
@@ -131,9 +131,9 @@ async def bank_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Rege
         userinfonowstone = int(user_info['stone']) - num
         # 更新利息后的存款金额再加上新存款
         bankinfo['savestone'] += num
-        await XiuxianDataManage().update_ls(user_id, num, 1)
+        await XiuxianDataManager().update_ls(user_id, num, 1)
         # 将之前结算的利息加给用户
-        await XiuxianDataManage().update_ls(user_id, give_stone, 0)
+        await XiuxianDataManager().update_ls(user_id, give_stone, 0)
         bankinfo['savetime'] = str(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
         savef(user_id, bankinfo)
         msg = f"道友本次结息时间为：{days_diff:.1f}天，获得灵石：{number_to(give_stone)}枚!\n道友存入灵石{number_to(num)}枚，当前所拥有灵石{number_to(userinfonowstone + give_stone)}枚，灵庄存有灵石{number_to(bankinfo['savestone'])}枚"
@@ -161,7 +161,7 @@ async def bank_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Rege
 
         userinfonowstone = int(user_info['stone']) + num
         bankinfo['savestone'] -= num
-        await XiuxianDataManage().update_ls(user_id, num, 0)
+        await XiuxianDataManager().update_ls(user_id, num, 0)
         savef(user_id, bankinfo)
         msg = f"道友本次结息时间为：{days_diff:.1f}天，获得灵石：{number_to(give_stone)}枚!\n取出灵石{number_to(num)}枚，当前所拥有灵石{number_to(userinfonowstone)}枚，灵庄存有灵石{number_to(bankinfo['savestone'])}枚!"
         if XiuConfig().img:
@@ -193,7 +193,7 @@ async def bank_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Rege
                 await bot.send_group_msg(group_id=int(send_group_id), message=msg)
             await bank.finish()
 
-        await XiuxianDataManage().update_ls(user_id, stonecost, 1)
+        await XiuxianDataManager().update_ls(user_id, stonecost, 1)
         bankinfo['banklevel'] = f"{int(userlevel) + 1}"
         savef(user_id, bankinfo)
         msg = f"道友成功升级灵庄会员等级，消耗灵石{number_to(stonecost)}枚，当前为：{BANKLEVEL[str(int(userlevel) + 1)]['level']}，灵庄可存有灵石上限{number_to(BANKLEVEL[str(int(userlevel) + 1)]['savemax'])}枚"
@@ -231,7 +231,7 @@ async def bank_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Rege
             # 如果超过了，将超出部分加到用户灵石中
             overflow = (bankinfo['savestone'] + give_stone) - max
             actual_give = give_stone - overflow
-            await XiuxianDataManage().update_ls(user_id, give_stone, 0)
+            await XiuxianDataManager().update_ls(user_id, give_stone, 0)
             bankinfo['savestone'] = max
             savef(user_id, bankinfo)
             msg = f"道友本次结息时间为：{days_diff:.1f}天，获得灵石：{number_to(give_stone)}枚！\n已达到存款上限，多余的{number_to(overflow)}灵石已返还给道友。"

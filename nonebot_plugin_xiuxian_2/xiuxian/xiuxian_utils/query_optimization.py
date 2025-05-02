@@ -2,13 +2,10 @@
 查询优化模块
 用于提供PostgreSQL查询优化功能
 """
-import asyncpg
-import json
-from typing import List, Dict, Any, Optional, Tuple, Union
+from typing import List, Dict
 import time
 import logging
 
-# 初始化日志记录器
 logger = logging.getLogger("xiuxian_query_optimizer")
 
 # 全局连接池引用
@@ -43,7 +40,8 @@ async def explain_query(query: str, params: List = None) -> List[Dict]:
     async with _POOL.acquire() as conn:
         result = await conn.fetch(explain_query, *params)
         return result[0][0]
- 
+
+
 async def optimize_query(query: str, params: List = None) -> Dict:
     """
     分析并提供查询优化建议
@@ -192,6 +190,36 @@ async def cached_query(query: str, params: List = None, ttl: int = 60):
     
     return result
 
+async def force_query(query: str, params: List = None):
+    """
+    强制查询数据库，不使用缓存
+    适用于需要绝对最新数据的场景
+    
+    参数:
+        query: SQL查询
+        params: 查询参数
+    
+    返回:
+        查询结果
+    """
+    if _POOL is None:
+        raise ValueError("连接池未初始化")
+    
+    params = params or []
+    
+    # 直接执行查询，跳过缓存
+    start_time = time.time()
+    async with _POOL.acquire() as conn:
+        result = await conn.fetch(query, *params)
+    
+    query_time = time.time() - start_time
+    
+    # 记录慢查询
+    if query_time > SLOW_QUERY_THRESHOLD:
+        logger.warning(f"强制查询 ({query_time:.2f}s): {query}")
+    
+    return result
+
 # 查询统计
 _QUERY_STATS = {
     "total_queries": 0,
@@ -266,75 +294,8 @@ def reset_query_stats():
         "query_times": {}
     }
 
-# 常见查询的优化版本
-async def get_user_data_optimized(user_id: int):
-    """
-    优化版获取用户数据
-    同时获取用户主要信息，减少多次查询
-    """
-    query = """
-    SELECT u.*, t.level_up_time, t.last_active_time, b.* 
-    FROM xiuxian_user u
-    LEFT JOIN xiuxian_time t ON u.user_id = t.user_id
-    LEFT JOIN xiuxian_buff b ON u.user_id = b.user_id
-    WHERE u.user_id = $1
-    """
-    
-    async with _POOL.acquire() as conn:
-        result = await conn.fetchrow(query, user_id)
-        return result
 
-async def get_top_users_optimized(limit: int = 10, offset: int = 0):
-    """
-    优化版获取顶级用户列表
-    使用窗口函数减少查询
-    """
-    query = """
-    WITH RankedUsers AS (
-        SELECT 
-            u.*,
-            ROW_NUMBER() OVER (ORDER BY u.exp DESC) as rank
-        FROM xiuxian_user u
-    )
-    SELECT * FROM RankedUsers
-    WHERE rank > $1 AND rank <= $1 + $2
-    """
-    
-    async with _POOL.acquire() as conn:
-        return await conn.fetch(query, offset, limit)
-
-# 创建优化的数据访问函数
-async def bulk_update_exp(updates: List[Tuple[int, int]]):
-    """
-    批量更新用户经验值
-    
-    参数:
-        updates: (user_id, exp_value)元组列表
-    """
-    if not updates:
-        return 0
-        
-    # 构建批量更新SQL
-    params = []
-    case_statements = []
-    
-    for i, (user_id, exp_value) in enumerate(updates):
-        params.extend([user_id, exp_value])
-        idx = i * 2 + 1
-        case_statements.append(f"WHEN user_id = ${idx} THEN exp + ${idx+1}")
-    
-    sql = f"""
-    UPDATE xiuxian_user
-    SET exp = CASE {' '.join(case_statements)} ELSE exp END
-    WHERE user_id IN ({', '.join([f'${i*2+1}' for i in range(len(updates))])})
-    """
-    
-    async with _POOL.acquire() as conn:
-        async with conn.transaction():
-            result = await conn.execute(sql, *params)
-            return int(result.split()[1])  # 提取更新行数
-
-# 物化视图 - 需要在数据库中创建
+# 物化视图
 MATERIALIZED_VIEWS = {
     "create_user_stats_view": """
     CREATE MATERIALIZED VIEW IF NOT EXISTS xiuxian_user_stats AS

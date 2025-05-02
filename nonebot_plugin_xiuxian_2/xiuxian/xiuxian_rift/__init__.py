@@ -16,7 +16,7 @@ from .. import DRIVER
 from ..xiuxian_utils.lay_out import assign_bot, assign_bot_group, Cooldown
 from nonebot.permission import SUPERUSER
 from nonebot.log import logger
-from ..xiuxian_utils.xiuxian2_handle import XiuxianDataManage
+from ..xiuxian_utils.xiuxian2_handle import XiuxianDataManager
 from ..xiuxian_utils.utils import (
     check_user, check_user_type,
     send_msg_handler, get_msg_pic, CommandObjectID, handle_send
@@ -191,7 +191,7 @@ async def _(bot: Bot, event: GroupMessageEvent):
         }
 
         save_rift_data(user_id, rift_data)
-        await XiuxianDataManage().do_work(user_id, 3, rift_data["time"])
+        await XiuxianDataManager().do_work(user_id, 3, rift_data["time"])
         if group_rift[group_id].count == 0:
             del group_rift[group_id]
             logger.opt(colors=True).info(f"<green>群{group_id}秘境已到上限次数！</green>")
@@ -229,11 +229,11 @@ async def complete_rift_(bot: Bot, event: GroupMessageEvent):
             rift_info = read_rift_data(user_id)
         except:
             msg = '发生未知错误！'
-            await XiuxianDataManage().do_work(user_id, 0)
+            await XiuxianDataManager().do_work(user_id, 0)
             await handle_send(bot, event, send_group_id, msg)
             await complete_rift.finish()
 
-        user_cd_message = await XiuxianDataManage().get_user_time(user_id)
+        user_cd_message = await XiuxianDataManager().get_user_time(user_id)
         work_time = datetime.strptime(
             user_cd_message['schedule_create_time'], "%Y-%m-%d %H:%M:%S.%f"
         )
@@ -244,7 +244,7 @@ async def complete_rift_(bot: Bot, event: GroupMessageEvent):
             await handle_send(bot, event, send_group_id, msg)
             await complete_rift.finish()
         else:  # 秘境结算逻辑
-            await XiuxianDataManage().do_work(user_id, 0)
+            await XiuxianDataManager().do_work(user_id, 0)
             rift_rank = rift_info["rank"]  # 秘境等级
             rift_type = get_story_type()  # 无事、宝物、战斗
             if rift_type == "无事":
@@ -310,11 +310,11 @@ async def break_rift_(bot: Bot, event: GroupMessageEvent):
             rift_info = read_rift_data(user_id)
         except:
             msg = '发生未知错误！'
-            await XiuxianDataManage().do_work(user_id, 0)
+            await XiuxianDataManager().do_work(user_id, 0)
             await handle_send(bot, event, send_group_id, msg)
             await break_rift.finish()
 
-        await XiuxianDataManage().do_work(user_id, 0)
+        await XiuxianDataManager().do_work(user_id, 0)
         msg = f"已终止{rift_info['name']}秘境的探索！"
         await handle_send(bot, event, send_group_id, msg)
         await break_rift.finish()
@@ -385,7 +385,7 @@ async def close_rift_(bot: Bot, event: GroupMessageEvent):
     # 检查是否有修仙者在秘境中
     users_in_rift = []
     for user_id in current_rift.l_user_id:
-        user_cd_message = await XiuxianDataManage().get_user_time(user_id)
+        user_cd_message = await XiuxianDataManager().get_user_time(user_id)
         if user_cd_message:
             if user_cd_message['type'] == 3:  # 类型3表示在秘境中
                 users_in_rift.append(user_id)

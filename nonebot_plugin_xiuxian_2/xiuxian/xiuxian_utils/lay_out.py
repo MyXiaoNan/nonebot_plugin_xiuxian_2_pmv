@@ -11,7 +11,7 @@ from nonebot.params import Depends
 from nonebot.adapters.onebot.v11.event import MessageEvent, GroupMessageEvent
 from nonebot.adapters.onebot.v11 import Bot, MessageSegment
 from ..xiuxian_config import XiuConfig, JsonConfig
-from .xiuxian2_handle import XiuxianDataManage
+from .xiuxian2_handle import XiuxianDataManager
 from .utils import check_user, get_msg_pic, is_qbot
 from nonebot_plugin_uninfo import Uninfo
 
@@ -27,7 +27,7 @@ limit_num = 99999
 async def auto_recover_hp_():
     """恢复生命值的定时任务"""
     try:
-        await XiuxianDataManage().auto_recover_hp()
+        await XiuxianDataManager().auto_recover_hp()
     except Exception as e:
         logger.opt(colors=True).error(f"<red>生命值恢复定时任务出错：{e}</red>")
 
@@ -42,7 +42,7 @@ def limit_all_message_():
 async def limit_all_stamina_():
     """恢复体力值的定时任务"""
     try:
-        await XiuxianDataManage().update_all_users_stamina(XiuConfig().max_stamina, XiuConfig().stamina_recovery_points)
+        await XiuxianDataManager().update_all_users_stamina(XiuConfig().max_stamina, XiuConfig().stamina_recovery_points)
     except Exception as e:
         logger.opt(colors=True).error(f"<red>体力恢复定时任务出错：{e}</red>")
 
@@ -208,7 +208,7 @@ def Cooldown(
                 await matcher.finish()
 
         if stamina_cost > 0:
-            user_data = await XiuxianDataManage().get_user_infos_by_ids(user_id)
+            user_data = await XiuxianDataManager().get_user_infos_by_ids(user_id)
             if user_data:
                 if user_data['stamina'] < stamina_cost:
                     msg = "你没有足够的体力，请等待体力恢复后再试！"
@@ -218,7 +218,7 @@ def Cooldown(
                     else:
                         await bot.send_group_msg(group_id=int(group_id), message=msg)
                     await matcher.finish()
-                await XiuxianDataManage().update_user_stamina(user_id, stamina_cost, 2)  # 减少体力
+                await XiuxianDataManager().update_user_stamina(user_id, stamina_cost, 2)  # 减少体力
         if running[key] <= 0:
             if cd_time >= 1.5:
                 time = int(cd_time - (loop.time() - time_sy[key]))

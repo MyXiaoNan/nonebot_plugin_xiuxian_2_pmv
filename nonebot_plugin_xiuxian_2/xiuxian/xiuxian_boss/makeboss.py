@@ -1,6 +1,6 @@
 import random
 from pathlib import Path
-from ..xiuxian_utils.xiuxian2_handle import XiuxianDataManage
+from ..xiuxian_utils.xiuxian2_handle import XiuxianDataManager
 from .bossconfig import get_boss_config
 import json
 
@@ -56,7 +56,7 @@ def get_boss_exp(boss_jj):
 
 
 async def createboss():
-    top_user_info = await XiuxianDataManage().get_realm_top1_user() # 改成了境界第一
+    top_user_info = await XiuxianDataManager().get_realm_top1_user() # 改成了境界第一
     top_user_level = top_user_info['level']
     if len(top_user_level) == 5:
         level = top_user_level[:3] 

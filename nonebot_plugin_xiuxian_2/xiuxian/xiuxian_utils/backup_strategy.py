@@ -1,18 +1,15 @@
 """
 PostgreSQL数据库自动备份模块
-每30分钟自动备份一次数据库
+每分钟自动备份一次数据库
 """
 import asyncio
 import os
 import subprocess
-import time
 import logging
 import datetime
 import tarfile
 import shutil
 from pathlib import Path
-import asyncpg
-from functools import partial
 
 # 初始化日志
 logging.basicConfig(
@@ -24,9 +21,30 @@ logging.basicConfig(
     ]
 )
 logger = logging.getLogger("xiuxian_backup")
+BOT_PATH = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+BOT_PATH = os.path.dirname(BOT_PATH)
+READPATH = Path(BOT_PATH) / "data" / "xiuxian"
+BACKUPPATH = READPATH / "备份"
+
+# 获取数据路径
+try:
+    # 确保备份路径存在
+    if not os.path.exists(BACKUPPATH):
+        os.makedirs(BACKUPPATH, exist_ok=True)
+    logger.info(f"备份路径设置为: {BACKUPPATH}")
+except Exception as e:
+    logger.error(f"设置备份路径时出错: {e}")
+    # 回退到默认路径
+    if not os.path.exists(READPATH / "备份"):
+        os.makedirs(READPATH / "备份", exist_ok=True)
+    logger.info(f"回退备份路径设置为: {READPATH / '备份'}")
 
 # 全局连接池引用
 _POOL = None
+# 备份服务状态
+_BACKUP_SERVICE_RUNNING = False
+# 备份任务
+_BACKUP_TASK = None
 
 def set_pool(pool):
     """设置全局连接池引用"""
@@ -35,12 +53,12 @@ def set_pool(pool):
 
 # 备份配置
 BACKUP_CONFIG = {
-    "backup_dir": os.path.expanduser("~/zhenxun_bot/data/xiuxian/backups"),
+    "backup_dir": BACKUPPATH,  # 使用正确的备份路径
     "pg_dump_path": "pg_dump",  # 可能需要指定完整路径，如 "/usr/bin/pg_dump"
     "database_name": "xiuxian",
     "pg_url": None,  # 将在运行时设置
-    "keep_backups": 48,  # 保留48个备份（24小时）
-    "backup_interval": 30 * 60,  # 30分钟
+    "keep_backups": 60,  # 保留60个备份（1小时）
+    "backup_interval": 60,  # 60秒 = 1分钟
     "compress_backups": True
 }
 
@@ -138,21 +156,54 @@ async def create_backup():
 
 async def automatic_backup_task():
     """自动备份任务"""
+    backup_count = 0
+    last_error = None
+    
     while True:
         try:
-            logger.info("开始计划备份...")
-            await create_backup()
+            backup_count += 1
+            logger.info(f"开始计划备份 #{backup_count}...")
+            
+            # 尝试创建备份
+            backup_path = await create_backup()
+            
+            if backup_path:
+                logger.info(f"备份 #{backup_count} 成功创建: {backup_path}, 大小: {os.path.getsize(backup_path) / 1024:.2f} KB")
+                last_error = None  # 重置错误状态
+                
+                # 记录当前拥有的备份数量
+                backup_files = list(Path(BACKUP_CONFIG["backup_dir"]).glob("xiuxian_backup_*.sql*"))
+                logger.info(f"当前备份文件数量: {len(backup_files)}, 最大保留数量: {BACKUP_CONFIG['keep_backups']}")
+            else:
+                logger.warning(f"备份 #{backup_count} 创建失败")
             
             # 检查/更新数据库结构
-            await check_db_structure()
+            try:
+                await check_db_structure()
+            except Exception as e:
+                logger.error(f"数据库结构检查失败: {e}")
             
             # 等待下一次备份
-            logger.info(f"备份完成，等待 {BACKUP_CONFIG['backup_interval'] // 60} 分钟后再次备份")
+            interval_minutes = BACKUP_CONFIG['backup_interval'] // 60
+            logger.info(f"备份 #{backup_count} 完成，{interval_minutes} 分钟后进行下一次备份")
+            
+            # 精确计算下一次备份时间
+            next_backup_time = datetime.datetime.now() + datetime.timedelta(seconds=BACKUP_CONFIG["backup_interval"])
+            logger.info(f"下一次备份计划时间: {next_backup_time.strftime('%Y-%m-%d %H:%M:%S')}")
+            
             await asyncio.sleep(BACKUP_CONFIG["backup_interval"])
         
+        except asyncio.CancelledError:
+            logger.info("备份任务被取消")
+            break
         except Exception as e:
-            logger.error(f"自动备份任务出错: {e}")
+            # 避免不停地记录相同的错误
+            if str(e) != str(last_error):
+                logger.error(f"自动备份任务 #{backup_count} 出错: {e}")
+                last_error = e
+            
             # 出错后等待一小段时间再重试
+            logger.info("将在60秒后重试备份")
             await asyncio.sleep(60)
 
 async def check_db_structure():
@@ -262,41 +313,37 @@ def list_available_backups():
 
 async def start_backup_service():
     """启动备份服务"""
-    # 确保目录存在
-    ensure_backup_dir()
+    global _BACKUP_SERVICE_RUNNING, _BACKUP_TASK
     
-    # 创建初始备份
-    await create_backup()
+    # 检查服务是否已经在运行
+    if _BACKUP_SERVICE_RUNNING:
+        logger.info("备份服务已经在运行，跳过重复启动")
+        return _BACKUP_TASK
+        
+    logger.info("正在启动数据库备份服务...")
+    
+    # 检查配置
+    if not BACKUP_CONFIG["pg_url"]:
+        logger.error("未设置PostgreSQL连接URL，无法启动备份服务")
+        return None
+    
+    # 确保备份目录存在
+    backup_dir = ensure_backup_dir()
+    logger.info(f"备份将保存到: {backup_dir}")
+    
+    # 创建一个初始备份
+    try:
+        initial_backup = await create_backup()
+        if initial_backup:
+            logger.info(f"初始备份创建成功: {initial_backup}")
+        else:
+            logger.warning("初始备份创建失败")
+    except Exception as e:
+        logger.error(f"创建初始备份时出错: {e}")
     
     # 启动自动备份任务
-    asyncio.create_task(automatic_backup_task())
+    _BACKUP_TASK = asyncio.create_task(automatic_backup_task())
+    _BACKUP_SERVICE_RUNNING = True
+    logger.info("数据库备份服务已启动，每分钟进行一次备份")
     
-    logger.info("备份服务已启动")
-
-# 用于命令行测试的入口点
-if __name__ == "__main__":
-    import argparse
-    
-    parser = argparse.ArgumentParser(description="修仙数据库备份工具")
-    parser.add_argument("--backup", action="store_true", help="创建备份")
-    parser.add_argument("--list", action="store_true", help="列出所有备份")
-    parser.add_argument("--restore", type=str, help="恢复指定备份")
-    parser.add_argument("--start-service", action="store_true", help="启动备份服务")
-    parser.add_argument("--pg-url", type=str, help="PostgreSQL连接URL")
-    args = parser.parse_args()
-    
-    # 设置PostgreSQL URL
-    if args.pg_url:
-        set_pg_url(args.pg_url)
-    
-    # 执行请求的操作
-    if args.backup:
-        asyncio.run(create_backup())
-    elif args.list:
-        backups = list_available_backups()
-        for b in backups:
-            print(f"{b['filename']} ({b['size_mb']}MB) - {b['created_at']}")
-    elif args.restore:
-        asyncio.run(restore_backup(args.restore))
-    elif args.start_service:
-        asyncio.run(start_backup_service()) 
+    return _BACKUP_TASK

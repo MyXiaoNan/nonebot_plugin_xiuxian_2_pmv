@@ -2,7 +2,7 @@ from ..xiuxian_utils.lay_out import assign_bot, Cooldown
 from nonebot.params import CommandArg
 from nonebot import on_command
 from ..xiuxian_config import XiuConfig
-from ..xiuxian_utils.xiuxian2_handle import XiuxianDataManage
+from ..xiuxian_utils.xiuxian2_handle import XiuxianDataManager
 from nonebot.adapters.onebot.v11 import (
     Bot,
     GROUP,
@@ -52,7 +52,7 @@ async def fusion_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
         await fusion.finish()
 
     user_id = user_info['user_id']
-    back_msg = await XiuxianDataManage().get_back_msg(user_id)
+    back_msg = await XiuxianDataManager().get_back_msg(user_id)
     if back_msg is None:
         msg = "道友的背包空空如也！"
         await handle_send(bot, event, send_group_id, msg)
@@ -115,11 +115,11 @@ async def fusion_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
         await handle_send(bot, event, send_group_id, msg)
         await fusion.finish()
 
-    await XiuxianDataManage().update_ls(user_id, int(fusion_info.get('need_stone', 0)), 1) # 扣灵石
+    await XiuxianDataManager().update_ls(user_id, int(fusion_info.get('need_stone', 0)), 1) # 扣灵石
     for item_id, amount_needed in needed_items.items():
-        await XiuxianDataManage().update_back_j(user_id, int(item_id), amount_needed) # 扣道具
+        await XiuxianDataManager().update_back_j(user_id, int(item_id), amount_needed) # 扣道具
 
-    await XiuxianDataManage().send_back(user_id, int(equipment_id), equipment['name'], equipment['type'], 1, 1)
+    await XiuxianDataManager().send_back(user_id, int(equipment_id), equipment['name'], equipment['type'], 1, 1)
 
     item_type = equipment.get('type', '物品')
     msg = f"道友成功合成了{item_type}: {equipment['name']}！！"

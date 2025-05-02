@@ -8,7 +8,7 @@ from nonebot.adapters.onebot.v11 import (
 )
 
 from ..xiuxian_config import XiuConfig
-from ..xiuxian_utils.xiuxian2_handle import XiuxianDataManage
+from ..xiuxian_utils.xiuxian2_handle import XiuxianDataManager
 from .impart_data import impart_data_json
 
 img_path = Path() / os.getcwd() / "data" / "xiuxian" / "卡图"
@@ -30,7 +30,7 @@ def character_probability(count):
 
 
 async def get_rank(user_id):
-    impart_data = await XiuxianDataManage().get_user_impart_info_with_id(user_id)
+    impart_data = await XiuxianDataManager().get_user_impart_info_with_id(user_id)
     value = random_int()
     num = int(impart_data["impart_wish_quantity"])
     for x in range(num, num + 10):
@@ -44,11 +44,11 @@ async def get_rank(user_id):
 
 async def impart_check(user_id):
     impart_data_json.find_user_impart(user_id)
-    if await XiuxianDataManage().get_user_impart_info_with_id(user_id) is None:
-        await XiuxianDataManage()._create_user(user_id)
-        return await XiuxianDataManage().get_user_impart_info_with_id(user_id)
+    if await XiuxianDataManager().get_user_impart_info_with_id(user_id) is None:
+        await XiuxianDataManager()._create_user(user_id)
+        return await XiuxianDataManager().get_user_impart_info_with_id(user_id)
     else:
-        return await XiuxianDataManage().get_user_impart_info_with_id(user_id)
+        return await XiuxianDataManager().get_user_impart_info_with_id(user_id)
     
     
 
@@ -101,16 +101,16 @@ async def re_impart_data(user_id):
                 pass
         
         await asyncio.gather(
-            XiuxianDataManage().update_impart_two_exp(impart_two_exp_quantity, user_id),
-            XiuxianDataManage().update_impart_exp_up(impart_exp_addition, user_id),
-            XiuxianDataManage().update_impart_atk_per(impart_atk_addition, user_id),
-            XiuxianDataManage().update_impart_hp_per(impart_hp_addition, user_id),
-            XiuxianDataManage().update_impart_mp_per(impart_mp_addition, user_id),
-            XiuxianDataManage().update_boss_atk(impart_boss_atk_addition, user_id),
-            XiuxianDataManage().update_impart_know_per(impart_crit_addition, user_id),
-            XiuxianDataManage().update_impart_burst_per(impart_crit_dmg_addition, user_id),
-            XiuxianDataManage().update_impart_mix_per(impart_mix_addition, user_id),
-            XiuxianDataManage().update_impart_reap_per(impart_reap_addition, user_id)
+            XiuxianDataManager().update_impart_two_exp(impart_two_exp_quantity, user_id),
+            XiuxianDataManager().update_impart_exp_up(impart_exp_addition, user_id),
+            XiuxianDataManager().update_impart_atk_per(impart_atk_addition, user_id),
+            XiuxianDataManager().update_impart_hp_per(impart_hp_addition, user_id),
+            XiuxianDataManager().update_impart_mp_per(impart_mp_addition, user_id),
+            XiuxianDataManager().update_boss_atk(impart_boss_atk_addition, user_id),
+            XiuxianDataManager().update_impart_know_per(impart_crit_addition, user_id),
+            XiuxianDataManager().update_impart_burst_per(impart_crit_dmg_addition, user_id),
+            XiuxianDataManager().update_impart_mix_per(impart_mix_addition, user_id),
+            XiuxianDataManager().update_impart_reap_per(impart_reap_addition, user_id)
         )
         return True
 
@@ -122,9 +122,9 @@ async def update_user_impart_data(user_id, time: int):
         user_id: 用户QQ号
         time: 传承时间
     """
-    await XiuxianDataManage().add_impart_exp_day(time, user_id)
-    await XiuxianDataManage().update_stone_num(10, user_id, 1)
-    await XiuxianDataManage().update_impart_wish(0, user_id)
+    await XiuxianDataManager().add_impart_exp_day(time, user_id)
+    await XiuxianDataManager().update_stone_num(10, user_id, 1)
+    await XiuxianDataManager().update_impart_wish(0, user_id)
     # 更新传承数据
     await re_impart_data(user_id)
 

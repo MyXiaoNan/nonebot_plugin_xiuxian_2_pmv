@@ -11,7 +11,7 @@ from nonebot.adapters.onebot.v11 import (
     MessageSegment
 )
 from nonebot.params import RegexGroup
-from ..xiuxian_utils.xiuxian2_handle import XiuxianDataManage
+from ..xiuxian_utils.xiuxian2_handle import XiuxianDataManager
 from ..xiuxian_config import XiuConfig
 from ..xiuxian_utils.utils import (
     check_user,
@@ -61,7 +61,7 @@ async def dufang_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Re
         await handle_send(bot, event, send_group_id, msg)
         await dufang.finish()
 
-    user_message = await XiuxianDataManage().get_user_infos_by_ids(user_id)
+    user_message = await XiuxianDataManager().get_user_infos_by_ids(user_id)
 
     if args[2] is None:
         msg = f"请输入正确的指令，例如金银阁10大、金银阁10奇、金银阁10猜3"
@@ -90,32 +90,32 @@ async def dufang_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Re
     result = f"[CQ:dice,value={value}]"
 
     if value >= 4 and str(mode) == "大":
-        await XiuxianDataManage().update_ls(user_id, price_num, 0)
+        await XiuxianDataManager().update_ls(user_id, price_num, 0)
         await bot.send_group_msg(group_id=int(send_group_id), message=result)
         msg = f"最终结果为{value}，你猜对了，收获灵石{price_num}块"
         await handle_send(bot, event, send_group_id, msg)
         
     elif value <= 3 and str(mode) == "小":
-        await XiuxianDataManage().update_ls(user_id, price_num, 0)
+        await XiuxianDataManager().update_ls(user_id, price_num, 0)
         await bot.send_group_msg(group_id=int(send_group_id), message=result)
         msg = f"最终结果为{value}，你猜对了，收获灵石{price_num}块"
         await handle_send(bot, event, send_group_id, msg)
     elif value %2==1 and str(mode) == "奇":
-        await XiuxianDataManage().update_ls(user_id, price_num, 0)
+        await XiuxianDataManager().update_ls(user_id, price_num, 0)
         await bot.send_group_msg(group_id=int(send_group_id), message=result)
         msg = f"最终结果为{value}，你猜对了，收获灵石{price_num}块"
         await handle_send(bot, event, send_group_id, msg)
     elif value %2==0 and str(mode) == "偶":
-        await XiuxianDataManage().update_ls(user_id, price_num, 0)
+        await XiuxianDataManager().update_ls(user_id, price_num, 0)
         msg = f"最终结果为{value}，你猜对了，收获灵石{price_num}块"
         await handle_send(bot, event, send_group_id, msg)
 
     elif str(value) == str(mode_num) and str(mode) == "猜":
-        await XiuxianDataManage().update_ls(user_id, price_num * 5, 0)
+        await XiuxianDataManager().update_ls(user_id, price_num * 5, 0)
         msg = f"最终结果为{value}，你猜对了，收获灵石{price_num * 5}块"
         await handle_send(bot, event, send_group_id, msg)
 
     else:
-        await XiuxianDataManage().update_ls(user_id, price_num, 1)
+        await XiuxianDataManager().update_ls(user_id, price_num, 1)
         msg = f"最终结果为{value}，你猜错了，损失灵石{price_num}块"
         await handle_send(bot, event, send_group_id, msg)

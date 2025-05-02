@@ -24,10 +24,10 @@ logger = logging.getLogger("xiuxian_optimizer")
 
 # 优化模块路径
 MODULE_PATHS = {
-    "transaction": "transaction_optimization.py",
-    "query": "query_optimization.py",
-    "backup": "backup_strategy.py",
-    "vacuum": "vacuum_optimization.py"
+    "transaction": os.path.join(os.path.dirname(__file__), "transaction_optimization.py"),
+    "query": os.path.join(os.path.dirname(__file__), "query_optimization.py"),
+    "backup": os.path.join(os.path.dirname(__file__), "backup_strategy.py"),
+    "vacuum": os.path.join(os.path.dirname(__file__), "vacuum_optimization.py")
 }
 
 # 数据库配置
@@ -42,6 +42,8 @@ DB_CONFIG = {
 
 # 全局连接池
 _POOL = None
+# 初始化标志，防止重复初始化
+_INITIALIZED = False
 
 def set_pg_url(url: str):
     """设置PostgreSQL连接URL"""
@@ -53,6 +55,11 @@ async def create_pool() -> asyncpg.Pool:
     
     if not DB_CONFIG["pg_url"]:
         raise ValueError("未设置PostgreSQL连接URL")
+    
+    # 如果连接池已存在，直接返回
+    if _POOL is not None:
+        logger.info("数据库连接池已存在，跳过创建")
+        return _POOL
     
     logger.info("创建数据库连接池...")
     
@@ -88,6 +95,18 @@ def load_module(module_name: str, module_path: str):
         if not os.path.exists(abs_path):
             logger.error(f"模块文件不存在: {abs_path}")
             return None
+            
+        # 检查模块是否已加载
+        if module_name in sys.modules:
+            logger.info(f"模块 {module_name} 已加载，跳过重复加载")
+            return sys.modules[module_name]
+        
+        # 获取模块所在目录
+        module_dir = os.path.dirname(abs_path)
+        
+        # 将模块目录添加到sys.path，以便相对导入能够工作
+        if module_dir not in sys.path:
+            sys.path.insert(0, module_dir)
         
         # 加载模块
         spec = importlib.util.spec_from_file_location(module_name, abs_path)
@@ -108,13 +127,25 @@ def load_module(module_name: str, module_path: str):
 
 class OptimizationManager:
     """优化管理器类"""
-    def __init__(self):
-        self.pool = None
-        self.modules = {}
-        self.services_running = False
+    # 单例模式实例
+    _instance = None
+    
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(OptimizationManager, cls).__new__(cls)
+            cls._instance.initialized = False
+            cls._instance.pool = None
+            cls._instance.modules = {}
+            cls._instance.services_running = False
+        return cls._instance
     
     async def initialize(self, pg_url: str):
         """初始化优化管理器"""
+        # 检查是否已初始化
+        if self.initialized:
+            logger.info("优化管理器已初始化，跳过重复初始化")
+            return True
+            
         try:
             # 设置数据库URL
             set_pg_url(pg_url)
@@ -133,6 +164,7 @@ class OptimizationManager:
             if self.modules.get("backup") and hasattr(self.modules["backup"], "set_pg_url"):
                 self.modules["backup"].set_pg_url(pg_url)
             
+            self.initialized = True
             logger.info("优化管理器初始化完成")
             return True
             
@@ -142,9 +174,13 @@ class OptimizationManager:
     
     async def start_services(self):
         """启动所有优化服务"""
+        if not self.initialized:
+            logger.error("优化管理器未初始化，无法启动服务")
+            return False
+            
         if self.services_running:
-            logger.warning("服务已经在运行中")
-            return
+            logger.warning("服务已经在运行中，跳过重复启动")
+            return True
         
         try:
             # 启动备份服务
@@ -161,14 +197,17 @@ class OptimizationManager:
             
             self.services_running = True
             logger.info("所有优化服务已启动")
+            return True
             
         except Exception as e:
             logger.error(f"启动优化服务时出错: {e}")
+            return False
     
     async def stop_services(self):
         """停止所有服务"""
         if not self.services_running:
-            return
+            logger.info("服务未运行，无需停止")
+            return True
         
         try:
             # 关闭连接池
@@ -176,9 +215,11 @@ class OptimizationManager:
             
             self.services_running = False
             logger.info("所有优化服务已停止")
+            return True
             
         except Exception as e:
             logger.error(f"停止优化服务时出错: {e}")
+            return False
     
     async def run_manual_vacuum(self, full: bool = False):
         """手动执行VACUUM"""
@@ -306,6 +347,13 @@ def get_manager() -> OptimizationManager:
 
 async def apply_all_optimizations(pg_url: str):
     """应用所有优化"""
+    global _INITIALIZED
+    
+    # 检查是否已初始化
+    if _INITIALIZED:
+        logger.info("优化功能已应用，跳过重复初始化")
+        return True
+        
     manager = get_manager()
     
     # 初始化管理器
@@ -315,52 +363,8 @@ async def apply_all_optimizations(pg_url: str):
         return False
     
     # 启动所有服务
-    await manager.start_services()
+    success = await manager.start_services()
+    if success:
+        _INITIALIZED = True
     
-    return True
-
-# 用于命令行测试的入口点
-if __name__ == "__main__":
-    import argparse
-    
-    parser = argparse.ArgumentParser(description="数据库优化管理器")
-    parser.add_argument("--pg-url", type=str, required=True, help="PostgreSQL连接URL")
-    parser.add_argument("--start", action="store_true", help="启动所有优化服务")
-    parser.add_argument("--vacuum", action="store_true", help="执行手动VACUUM")
-    parser.add_argument("--vacuum-full", action="store_true", help="执行手动VACUUM FULL")
-    parser.add_argument("--backup", action="store_true", help="创建手动备份")
-    parser.add_argument("--refresh-views", action="store_true", help="刷新物化视图")
-    args = parser.parse_args()
-    
-    async def main():
-        if args.start:
-            # 应用所有优化
-            success = await apply_all_optimizations(args.pg_url)
-            if success:
-                print("所有优化服务已启动")
-                # 保持程序运行
-                try:
-                    while True:
-                        await asyncio.sleep(3600)
-                except KeyboardInterrupt:
-                    print("正在停止服务...")
-                    await get_manager().stop_services()
-        else:
-            # 单独执行某个操作
-            manager = get_manager()
-            await manager.initialize(args.pg_url)
-            
-            if args.vacuum:
-                await manager.run_manual_vacuum()
-            elif args.vacuum_full:
-                await manager.run_manual_vacuum(full=True)
-            elif args.backup:
-                backup_path = await manager.create_backup()
-                if backup_path:
-                    print(f"备份已创建: {backup_path}")
-            elif args.refresh_views:
-                await manager.refresh_views()
-            
-            await manager.stop_services()
-    
-    asyncio.run(main()) 
+    return success

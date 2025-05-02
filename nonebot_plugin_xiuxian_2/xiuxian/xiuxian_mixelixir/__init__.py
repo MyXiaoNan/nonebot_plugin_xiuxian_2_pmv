@@ -11,7 +11,7 @@ from nonebot.adapters.onebot.v11 import (
 )
 from ..xiuxian_utils.lay_out import assign_bot, Cooldown
 from ..xiuxian_utils.xiuxian2_handle import (
-    XiuxianDataManage, get_player_info, save_player_info, 
+    XiuxianDataManager, get_player_info, save_player_info, 
     UserBuffData
 )
 from ..xiuxian_utils.utils import (
@@ -151,7 +151,7 @@ async def yaocai_get_(bot: Bot, event: GroupMessageEvent):
         if timedeff >= round(GETCONFIG['time_cost'] * (1 - (GETCONFIG['加速基数'] * mix_elixir_info['药材速度'])), 2):
             yaocai_id_list = items.get_random_id_list_by_rank_and_item_type(convert_rank(user_info['level'])[0], ['药材'])
             # 加入传承
-            impart_data = await XiuxianDataManage().get_user_impart_info_with_id(user_id)
+            impart_data = await XiuxianDataManager().get_user_impart_info_with_id(user_id)
             impart_reap_addition = impart_data['impart_reap_addition'] if impart_data is not None else 0
             #功法灵田收取加成
             main_reap = UserBuffData(user_id).get_user_main_buff_data()
@@ -163,7 +163,7 @@ async def yaocai_get_(bot: Bot, event: GroupMessageEvent):
             num = mix_elixir_info['灵田数量'] + mix_elixir_info['收取等级'] + impart_reap_addition + reap_buff
             msg = ''
             if not yaocai_id_list:
-                await XiuxianDataManage().send_back(user_info['user_id'], 3001, '恒心草', '药材', num)  # 没有合适的，保底
+                await XiuxianDataManager().send_back(user_info['user_id'], 3001, '恒心草', '药材', num)  # 没有合适的，保底
                 msg += f"道友成功收获药材：恒心草 {num} 个！\n"
             else:
                 i = 1
@@ -179,7 +179,7 @@ async def yaocai_get_(bot: Bot, event: GroupMessageEvent):
                 for k, v in give_dict.items():
                     goods_info = items.get_data_by_item_id(k)
                     msg += f"道友成功收获药材：{goods_info['name']} {v} 个！\n"
-                    await XiuxianDataManage().send_back(user_info['user_id'], k, goods_info['name'], '药材', v)
+                    await XiuxianDataManager().send_back(user_info['user_id'], k, goods_info['name'], '药材', v)
             mix_elixir_info['收取时间'] = nowtime
             save_player_info(user_id, mix_elixir_info, "mix_elixir_info")
             await handle_send(bot, event, send_group_id, msg)
@@ -258,7 +258,7 @@ async def mix_elixir_(bot: Bot, event: GroupMessageEvent):
         await handle_send(bot, event, send_group_id, msg)
         await mix_elixir.finish()
     user_id = user_info['user_id']
-    user_back = await XiuxianDataManage().get_back_msg(user_id)
+    user_back = await XiuxianDataManager().get_back_msg(user_id)
     yaocai_dict = {}
     user_ldl_flag[user_id] = False  # 初始化炼丹炉标志
     for back in user_back:
@@ -395,7 +395,7 @@ async def mix_elixir_(bot: Bot, event: GroupMessageEvent, mode: str = EventPlain
                 mix_elixir_info = get_player_info(user_id, 'mix_elixir_info')
                 goods_info = Items().get_data_by_item_id(id)
                 # 加入传承
-                impart_data = await XiuxianDataManage().get_user_impart_info_with_id(user_id)
+                impart_data = await XiuxianDataManager().get_user_impart_info_with_id(user_id)
                 impart_mix_addition = impart_data['impart_mix_addition'] if impart_data is not None else 0
                 #功法炼丹数加成
                 main_dan_data = UserBuffData(user_id).get_user_main_buff_data()
@@ -415,10 +415,10 @@ async def mix_elixir_(bot: Bot, event: GroupMessageEvent, mode: str = EventPlain
                 num = 1 + ldl_info['buff'] + mix_elixir_info['丹药控火'] + impart_mix_addition + main_dan#炼丹数量提升
                 msg = f"恭喜道友成功炼成丹药：{goods_info['name']}{num}枚"
                 # 背包sql
-                await XiuxianDataManage().send_back(user_id, id, goods_info['name'], "丹药", num) #将炼制的丹药加入背包
-                await XiuxianDataManage().update_back_j(user_id, zhuyao_goods_id, zhuyao_num) #将消耗的药材从背包中减去
-                await XiuxianDataManage().update_back_j(user_id, fuyao_goods_id, fuyao_num)
-                await XiuxianDataManage().update_back_j(user_id, yaoyin_goods_id, yaoyin_num)
+                await XiuxianDataManager().send_back(user_id, id, goods_info['name'], "丹药", num) #将炼制的丹药加入背包
+                await XiuxianDataManager().update_back_j(user_id, zhuyao_goods_id, zhuyao_num) #将消耗的药材从背包中减去
+                await XiuxianDataManager().update_back_j(user_id, fuyao_goods_id, fuyao_num)
+                await XiuxianDataManager().update_back_j(user_id, yaoyin_goods_id, yaoyin_num)
                 try:
                     var = mix_elixir_info['炼丹记录'][id]
                     now_num = mix_elixir_info['炼丹记录'][id]['num'] #now_num 已经炼制的丹药数量
@@ -458,7 +458,7 @@ async def mix_elixir_(bot: Bot, event: GroupMessageEvent, mode: str = EventPlain
 async def check_yaocai_name_in_back(user_id, yaocai_name, yaocai_num):
     flag = False
     goods_id = 0
-    user_back = await XiuxianDataManage().get_back_msg(user_id)
+    user_back = await XiuxianDataManager().get_back_msg(user_id)
     for back in user_back:
         if back['goods_type'] == '药材':
             if Items().get_data_by_item_id(back['goods_id'])['name'] == yaocai_name:
@@ -476,7 +476,7 @@ async def check_yaocai_name_in_back(user_id, yaocai_name, yaocai_num):
 async def check_ldl_name_in_back(user_id, ldl_name):
     flag = False
     goods_info = {}
-    user_back = await XiuxianDataManage().get_back_msg(user_id)
+    user_back = await XiuxianDataManager().get_back_msg(user_id)
     for back in user_back:
         if back['goods_type'] == '炼丹炉':
             if back['goods_name'] == ldl_name:
