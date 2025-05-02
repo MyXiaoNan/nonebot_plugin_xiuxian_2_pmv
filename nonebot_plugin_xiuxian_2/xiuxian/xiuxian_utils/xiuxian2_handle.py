@@ -1142,7 +1142,7 @@ class XiuxianDataManager:
         :result[2] = 丹房等级 elixir_room_level 
         """
         await self.ensure_pool()
-        sql = f"SELECT sect_id, sect_scale, elixir_room_level FROM xiuxian_sect WHERE sect_owner is NOT NULL ORDER BY sect_scale DESC"
+        sql = f"SELECT sect_id, sect_scale, sect_elixir_room_level FROM xiuxian_sect WHERE sect_owner is NOT NULL ORDER BY sect_scale DESC"
         async with self.pool.acquire() as conn:
             result = await conn.fetch(sql)
             return result
@@ -3322,7 +3322,7 @@ def get_weapon_info_msg(weapon_id, weapon_info=None):
     msg = ''
     if weapon_info is None:
         weapon_info = items.get_data_by_item_id(weapon_id)
-    atk_buff_msg = f"提升{int(weapon_info['atk'] * 100)}%攻击力！" if weapon_info['atk'] != 0 else ''
+    atk_buff_msg = f"提升{int(weapon_info['atk_buff'] * 100)}%攻击力！" if weapon_info['atk_buff'] != 0 else ''
     crit_buff_msg = f"提升{int(weapon_info['crit_buff'] * 100)}%会心率！" if weapon_info['crit_buff'] != 0 else ''
     crit_atk_msg = f"提升{int(weapon_info['critatk'] * 100)}%会心伤害！" if weapon_info['critatk'] != 0 else ''
     def_buff_msg = f"{'提升' if weapon_info['def_buff'] > 0 else '降低'}{int(abs(weapon_info['def_buff']) * 100)}%减伤率！" if weapon_info['def_buff'] != 0 else ''

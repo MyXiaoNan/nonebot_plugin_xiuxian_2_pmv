@@ -122,7 +122,7 @@ async def check_equipment_use_msg(user_id, goods_id):
     检测装备是否已用
     """
     user_back = await XiuxianDataManager().get_item_by_good_id_and_user_id(user_id, goods_id)
-    state = user_back['state']
+    state = user_back['goods_state']
     is_use = False
     if state == 0:
         is_use = False
@@ -149,28 +149,28 @@ async def get_user_main_back_msg(user_id):
         return l_msg
     for user_back in user_backs:
         if user_back['goods_type'] == "装备":
-            l_equipment_msg = get_equipment_msg(l_equipment_msg, user_id, user_back['goods_id'], user_back['goods_num'], user_back['goods_bind_num'])
+            l_equipment_msg = await get_equipment_msg(l_equipment_msg, user_id, user_back['goods_id'], user_back['goods_num'], user_back['goods_bind_num'])
 
         elif user_back['goods_type'] == "技能":
-            l_skill_msg = get_skill_msg(l_skill_msg, user_back['goods_id'], user_back['goods_num'], user_back['goods_bind_num'])
+            l_skill_msg = await get_skill_msg(l_skill_msg, user_back['goods_id'], user_back['goods_num'], user_back['goods_bind_num'])
         
         elif user_back['goods_type'] == "丹药":
-            l_elixir_msg = get_elixir_msg(l_elixir_msg, user_back['goods_id'], user_back['goods_num'], user_back['goods_bind_num'])
+            l_elixir_msg = await get_elixir_msg(l_elixir_msg, user_back['goods_id'], user_back['goods_num'], user_back['goods_bind_num'])
 
         elif user_back['goods_type'] == "神物":
-            l_shenwu_msg = get_shenwu_msg(l_shenwu_msg, user_back['goods_id'], user_back['goods_num'], user_back['goods_bind_num'])
+            l_shenwu_msg = await get_shenwu_msg(l_shenwu_msg, user_back['goods_id'], user_back['goods_num'], user_back['goods_bind_num'])
 
         elif user_back['goods_type'] == "聚灵旗":
-            l_xiulianitem_msg = get_jlq_msg(l_xiulianitem_msg, user_back['goods_id'], user_back['goods_num'], user_back['goods_bind_num'])
+            l_xiulianitem_msg = await get_jlq_msg(l_xiulianitem_msg, user_back['goods_id'], user_back['goods_num'], user_back['goods_bind_num'])
         
         elif user_back['goods_type'] == "炼丹炉":
-            l_ldl_msg = get_ldl_msg(l_ldl_msg, user_back['goods_id'], user_back['goods_num'], user_back['goods_bind_num'])
+            l_ldl_msg = await get_ldl_msg(l_ldl_msg, user_back['goods_id'], user_back['goods_num'], user_back['goods_bind_num'])
         
         elif user_back['goods_type'] == "药材":
-            l_yaocai_msg = get_yaocai_msg(l_yaocai_msg, user_back['goods_id'], user_back['goods_num'], user_back['goods_bind_num'])
+            l_yaocai_msg = await get_yaocai_msg(l_yaocai_msg, user_back['goods_id'], user_back['goods_num'], user_back['goods_bind_num'])
 
         elif user_back['goods_type'] == "礼包":
-            l_libao_msg = get_libao_msg(l_libao_msg, user_back['goods_id'], user_back['goods_num'], user_back['goods_bind_num'])
+            l_libao_msg = await get_libao_msg(l_libao_msg, user_back['goods_id'], user_back['goods_num'], user_back['goods_bind_num'])
 
     if l_equipment_msg:
         l_msg.append("☆------我的装备------☆")
@@ -278,7 +278,7 @@ def get_yaocai_info(yaocai_info):
     return msg
 
 
-def get_equipment_msg(l_msg, user_id, goods_id, goods_num, bind_num):
+async def get_equipment_msg(l_msg, user_id, goods_id, goods_num, bind_num):
     """
     获取背包内的装备信息
     """
@@ -289,7 +289,7 @@ def get_equipment_msg(l_msg, user_id, goods_id, goods_num, bind_num):
     elif item_info['item_type'] == '法器':
         msg = get_weapon_info_msg(goods_id, item_info)
     msg += f"\n拥有数量:{goods_num}，绑定数量:{bind_num}"
-    is_use = check_equipment_use_msg(user_id, goods_id)
+    is_use = await check_equipment_use_msg(user_id, goods_id)
     if is_use:
         msg += f"\n已装备"
     else:
@@ -298,7 +298,7 @@ def get_equipment_msg(l_msg, user_id, goods_id, goods_num, bind_num):
     return l_msg
 
 
-def get_skill_msg(l_msg, goods_id, goods_num, bind_num):
+async def get_skill_msg(l_msg, goods_id, goods_num, bind_num):
     """
     获取背包内的技能信息
     """
@@ -318,7 +318,7 @@ def get_skill_msg(l_msg, goods_id, goods_num, bind_num):
     return l_msg
 
 
-def get_elixir_msg(l_msg, goods_id, goods_num, bind_num):
+async def get_elixir_msg(l_msg, goods_id, goods_num, bind_num):
     """
     获取背包内的丹药信息
     """
@@ -329,7 +329,7 @@ def get_elixir_msg(l_msg, goods_id, goods_num, bind_num):
     l_msg.append(msg)
     return l_msg
 
-def get_shenwu_msg(l_msg, goods_id, goods_num, bind_num):
+async def get_shenwu_msg(l_msg, goods_id, goods_num, bind_num):
     """
     获取背包内的神物信息
     """
@@ -346,7 +346,7 @@ def get_shenwu_msg(l_msg, goods_id, goods_num, bind_num):
     return l_msg
 
 
-def get_item_msg(goods_id):
+async def get_item_msg(goods_id):
     """
     获取单个物品的消息
     """
@@ -362,26 +362,26 @@ def get_item_msg(goods_id):
     elif item_info['item_type'] == '神通':
         msg = f"名字：{item_info['name']}\n"
         msg += f"品阶：{item_info['level']}\n"
-        msg += f"效果：{get_sec_msg(item_info)}"
+        msg += f"效果：{await get_sec_msg(item_info)}"
 
     elif item_info['item_type'] == '功法':
         msg = f"名字：{item_info['name']}\n"
         msg += f"品阶：{item_info['level']}\n"
-        msg += f"效果：{get_main_info_msg(goods_id)[1]}"
+        msg += f"效果：{await get_main_info_msg(goods_id)[1]}"
         
     elif item_info['item_type'] == '辅修功法':#辅修功法11
         msg = f"名字：{item_info['name']}\n"
         msg += f"品阶：{item_info['level']}\n"
-        msg += f"效果：{get_sub_info_msg(goods_id)[1]}"
+        msg += f"效果：{await get_sub_info_msg(goods_id)[1]}"
 
     elif item_info['item_type'] == '防具':
-        msg = get_armor_info_msg(goods_id, item_info)
+        msg = await get_armor_info_msg(goods_id, item_info)
 
     elif item_info['item_type'] == '法器':
-        msg = get_weapon_info_msg(goods_id, item_info)
+        msg = await get_weapon_info_msg(goods_id, item_info)
 
     elif item_info['item_type'] == "药材":
-        msg = get_yaocai_info_msg(goods_id, item_info)
+        msg = await get_yaocai_info_msg(goods_id, item_info)
 
     elif item_info['item_type'] == "聚灵旗":
         msg = f"名字：{item_info['name']}\n"
@@ -409,7 +409,7 @@ def get_item_msg(goods_id):
     return msg
 
 
-def get_item_msg_rank(goods_id):
+async def get_item_msg_rank(goods_id):
     """
     获取单个物品的rank
     """
@@ -435,7 +435,7 @@ def get_item_msg_rank(goods_id):
     return int(msg)
 
 
-def get_yaocai_info_msg(goods_id, item_info):
+async def get_yaocai_info_msg(goods_id, item_info):
     msg = f"名字：{item_info['name']}\n"
     msg += f"品级：{item_info['level']}\n"
     msg += get_yaocai_info(item_info)
@@ -600,16 +600,16 @@ async def get_use_jlq_msg(user_id, goods_id):
     return msg
 
 
-def get_shop_data(group_id):
+async def get_shop_data(group_id):
     try:
-        data = read_shop()
+        data = await read_shop()
     except:
         data = {}
     try:
         data[group_id]
     except:
         data[group_id] = {}
-    save_shop(data)
+    await save_shop(data)
     return data
 
 
@@ -617,13 +617,13 @@ PATH = Path(__file__).parent
 FILEPATH = PATH / 'shop.json'
 
 
-def read_shop():
+async def read_shop():
     with open(FILEPATH, "r", encoding="UTF-8") as f:
         data = f.read()
     return json.loads(data)
 
 
-def save_shop(data):
+async def save_shop(data):
     data = json.dumps(data, ensure_ascii=False, indent=4)
     savemode = "w" if os.path.exists(FILEPATH) else "x"
     with open(FILEPATH, mode=savemode, encoding="UTF-8") as f:

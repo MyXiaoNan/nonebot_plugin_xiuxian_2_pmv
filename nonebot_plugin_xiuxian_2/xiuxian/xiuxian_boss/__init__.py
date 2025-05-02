@@ -457,7 +457,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
         top_user_exp = top_user_info['exp']
         
         if exp_buff > 0 and user_info['root'] != "器师":
-            now_exp = int(((top_user_exp * 0.1) / user_info['exp']) / (exp_buff * (1 / (convert_rank(user_info['level'])[0] + 1))))
+            now_exp = int(((float(top_user_exp) * 0.1) / float(user_info['exp'])) / (exp_buff * (1 / (convert_rank(user_info['level'])[0] + 1))))
             if now_exp > 1000000:
                 now_exp = int(1000000 / random.randint(5, 10))
             await XiuxianDataManager().update_exp(user_id, now_exp, 0)

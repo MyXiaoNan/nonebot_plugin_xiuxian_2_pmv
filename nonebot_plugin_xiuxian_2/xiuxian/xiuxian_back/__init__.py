@@ -695,7 +695,7 @@ async def goods_re_root_(bot: Bot, event: GroupMessageEvent, args: Message = Com
         await handle_send(bot, event, send_group_id, msg)
         await goods_re_root.finish()
 
-    if get_item_msg_rank(goods_id) == 520:
+    if await get_item_msg_rank(goods_id) == 520:
         msg = "此类物品不支持！"
         await handle_send(bot, event, send_group_id, msg)
         await goods_re_root.finish()
@@ -704,7 +704,7 @@ async def goods_re_root_(bot: Bot, event: GroupMessageEvent, args: Message = Com
             num = int(args[1])
     except:
             num = 1 
-    price = int((convert_rank('江湖好手')[0] + 5) * 100000 - get_item_msg_rank(goods_id) * 100000) * num
+    price = int((convert_rank('江湖好手')[0] + 5) * 100000 - await get_item_msg_rank(goods_id) * 100000) * num
     if price <= 0:
         msg = f"物品：{goods_name}炼金失败，凝聚{price}枚灵石，记得通知晓楠！"
         await handle_send(bot, event, send_group_id, msg)
@@ -1119,7 +1119,7 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
         await use.finish()
         
     elif goods_type == "聚灵旗":
-        msg = get_use_jlq_msg(user_id, goods_id)
+        msg = await get_use_jlq_msg(user_id, goods_id)
         await handle_send(bot, event, send_group_id, msg)
         await use.finish()
     else:

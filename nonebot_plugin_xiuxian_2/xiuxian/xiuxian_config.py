@@ -131,8 +131,10 @@ class XiuConfig:
         self.admin_debug = False # 管理员调试模式，开启后只响应超管指令
         # 数据库地址，格式为 postgres://user:password@127.0.0.1:5432/database 注意密码中如果有@符号记得转换成%40
         self.postgresql_url=""
-        self.min_database_connection = 20
-        self.max_database_connection = 100
+        self.min_database_connection = 20 # 数据库连接池最小连接数
+        self.max_database_connection = 100 # 数据库连接池最大连接数
+        self.backup_quantity = 60 # 保留备份数量
+        self.backup_interval = 30 # 备份间隔/分钟
         self.version = "xiuxian_2.3" # 修仙插件版本，别动
 
 

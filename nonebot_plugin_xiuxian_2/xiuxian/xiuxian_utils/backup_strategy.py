@@ -10,6 +10,7 @@ import datetime
 import tarfile
 import shutil
 from pathlib import Path
+from ..xiuxian_config import XiuConfig
 
 # 初始化日志
 logging.basicConfig(
@@ -57,8 +58,8 @@ BACKUP_CONFIG = {
     "pg_dump_path": "pg_dump",  # 可能需要指定完整路径，如 "/usr/bin/pg_dump"
     "database_name": "xiuxian",
     "pg_url": None,  # 将在运行时设置
-    "keep_backups": 60,  # 保留60个备份（1小时）
-    "backup_interval": 60,  # 60秒 = 1分钟
+    "keep_backups": XiuConfig().backup_quantity,  # 保留60个备份（1小时）
+    "backup_interval":  XiuConfig().backup_interval * 60,  # 60秒 = 1分钟
     "compress_backups": True
 }
 
