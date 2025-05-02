@@ -233,9 +233,9 @@ async def complete_rift_(bot: Bot, event: GroupMessageEvent):
             await handle_send(bot, event, send_group_id, msg)
             await complete_rift.finish()
 
-        user_cd_message = await XiuxianDataManage().get_user_cd(user_id)
+        user_cd_message = await XiuxianDataManage().get_user_time(user_id)
         work_time = datetime.strptime(
-            user_cd_message['create_time'], "%Y-%m-%d %H:%M:%S.%f"
+            user_cd_message['schedule_create_time'], "%Y-%m-%d %H:%M:%S.%f"
         )
         exp_time = (datetime.now() - work_time).seconds // 60  # 时长计算
         time2 = rift_info["time"]
@@ -385,7 +385,7 @@ async def close_rift_(bot: Bot, event: GroupMessageEvent):
     # 检查是否有修仙者在秘境中
     users_in_rift = []
     for user_id in current_rift.l_user_id:
-        user_cd_message = await XiuxianDataManage().get_user_cd(user_id)
+        user_cd_message = await XiuxianDataManage().get_user_time(user_id)
         if user_cd_message:
             if user_cd_message['type'] == 3:  # 类型3表示在秘境中
                 users_in_rift.append(user_id)

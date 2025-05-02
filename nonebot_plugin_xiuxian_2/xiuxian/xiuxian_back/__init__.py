@@ -984,21 +984,21 @@ async def use_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg())
         skill_info = items.get_data_by_item_id(goods_id)
         skill_type = skill_info['item_type']
         if skill_type == "神通":
-            if int(user_buff_info['sec_buff']) == int(goods_id):
+            if int(user_buff_info['ultimate_skill']) == int(goods_id):
                 msg = f"道友已学会该神通：{skill_info['name']}，请勿重复学习！"
             else:  # 学习sql
                 await XiuxianDataManage().update_back_j(user_id, goods_id)
                 await XiuxianDataManage().updata_user_sec_buff(user_id, goods_id)
                 msg = f"恭喜道友学会神通：{skill_info['name']}！"
         elif skill_type == "功法":
-            if int(user_buff_info['main_buff']) == int(goods_id):
+            if int(user_buff_info['main_skill']) == int(goods_id):
                 msg = f"道友已学会该功法：{skill_info['name']}，请勿重复学习！"
             else:  # 学习sql
                 await XiuxianDataManage().update_back_j(user_id, goods_id)
                 await XiuxianDataManage().updata_user_main_buff(user_id, goods_id)
                 msg = f"恭喜道友学会功法：{skill_info['name']}！"
         elif skill_type == "辅修功法": #辅修功法1
-            if int(user_buff_info['sub_buff']) == int(goods_id):
+            if int(user_buff_info['support_skill']) == int(goods_id):
                 msg = f"道友已学会该辅修功法：{skill_info['name']}，请勿重复学习！"
             else:#学习sql
                 await XiuxianDataManage().update_back_j(user_id, goods_id)

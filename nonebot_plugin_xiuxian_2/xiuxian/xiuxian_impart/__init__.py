@@ -146,7 +146,7 @@ async def impart_draw_(bot: Bot, event: GroupMessageEvent):
         msg = f"发生未知错误，多次尝试无果请找晓楠！"
         await handle_send(bot, event, send_group_id, msg)
         await impart_draw.finish()
-    if impart_data_draw['stone_num'] < 10:
+    if impart_data_draw['impart_stone_quantity'] < 10:
         msg = f"思恋结晶数量不足10个,无法抽卡!"
         await handle_send(bot, event, send_group_id, msg)
         await impart_draw.finish()
@@ -284,21 +284,21 @@ async def impart_back_(bot: Bot, event: GroupMessageEvent):
     
     # 组合要显示的文本信息
     msg_text = f"""--道友{name}的传承物资--
-思恋结晶：{impart_data_draw["stone_num"]}颗
-抽卡次数：{impart_data_draw["wish"]}/90次
-累计闭关时间：{impart_data_draw["exp_day"]}分钟
+思恋结晶：{impart_data_draw["impart_stone_quantity"]}颗
+抽卡次数：{impart_data_draw["impart_wish_quantity"]}/90次
+累计闭关时间：{impart_data_draw["impart_exp_day_quantity"]}分钟
 
 --道友{name}的传承总属性--
-攻击提升:{int(impart_data_draw["impart_atk_per"] * 100)}%
-气血提升:{int(impart_data_draw["impart_hp_per"] * 100)}%
-真元提升:{int(impart_data_draw["impart_mp_per"] * 100)}%
-会心提升：{int(impart_data_draw["impart_know_per"] * 100)}%
-会心伤害提升：{int(impart_data_draw["impart_burst_per"] * 100)}%
-闭关经验提升：{int(impart_data_draw["impart_exp_up"] * 100)}%
-炼丹收获数量提升：{impart_data_draw["impart_mix_per"]}颗
-灵田收取数量提升：{impart_data_draw["impart_reap_per"]}颗
-每日双修次数提升：{impart_data_draw["impart_two_exp"]}次
-boss战攻击提升:{int(impart_data_draw["boss_atk"] * 100)}%
+攻击提升:{int(impart_data_draw["impart_atk_addition"] * 100)}%
+气血提升:{int(impart_data_draw["impart_hp_addition"] * 100)}%
+真元提升:{int(impart_data_draw["impart_mp_addition"] * 100)}%
+会心提升：{int(impart_data_draw["impart_crit_addition"] * 100)}%
+会心伤害提升：{int(impart_data_draw["impart_crit_dmg_addition"] * 100)}%
+闭关经验提升：{int(impart_data_draw["impart_exp_addition"] * 100)}%
+炼丹收获数量提升：{impart_data_draw["impart_mix_addition"]}颗
+灵田收取数量提升：{impart_data_draw["impart_reap_addition"]}颗
+每日双修次数提升：{impart_data_draw["impart_two_exp_quantity"]}次
+boss战攻击提升:{int(impart_data_draw["impart_boss_atk_addition"] * 100)}%
 道友拥有的传承卡片如下:"""
 
     # 获取用户的卡片列表
@@ -363,8 +363,8 @@ async def impart_info_(bot: Bot, event: GroupMessageEvent):
         return
 
     msg = f"""--道友{user_info["user_name"]}的传承物资--
-思恋结晶：{impart_data_draw["stone_num"]}颗
-抽卡次数：{impart_data_draw["wish"]}/90次
-累计闭关时间：{impart_data_draw["exp_day"]}分钟
+思恋结晶：{impart_data_draw["impart_stone_quantity"]}颗
+抽卡次数：{impart_data_draw["impart_wish_quantity"]}/90次
+累计闭关时间：{impart_data_draw["impart_exp_day_quantity"]}分钟
     """
     await handle_send(bot, event, send_group_id, msg)

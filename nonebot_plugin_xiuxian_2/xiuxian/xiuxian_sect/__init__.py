@@ -469,7 +469,7 @@ async def sect_mainbuff_learn_(bot: Bot, event: GroupMessageEvent, args: Message
 
             userbuffinfo = await UserBuffData(user_info['user_id']).BuffInfo
             mainbuffid = get_mainnameid(msg, sectmainbuffidlist)
-            if str(userbuffinfo['main_buff']) == str(mainbuffid):
+            if str(userbuffinfo['main_skill']) == str(mainbuffid):
                 msg = f"道友请勿重复学习！"
                 if XiuConfig().img:
                     pic = await get_msg_pic(f"@{user_info['user_name'] or event.sender.nickname}\n" + msg)
@@ -712,7 +712,7 @@ async def sect_secbuff_learn_(bot: Bot, event: GroupMessageEvent, args: Message 
 
             userbuffinfo = await UserBuffData(user_info['user_id']).BuffInfo
             secbuffid = get_secnameid(msg, sectsecbuffidlist)
-            if str(userbuffinfo['sec_buff']) == str(secbuffid):
+            if str(userbuffinfo['ultimate_skill']) == str(secbuffid):
                 msg = f"道友请勿重复学习！"
                 if XiuConfig().img:
                     pic = await get_msg_pic(f"@{user_info['user_name'] or event.sender.nickname}\n" + msg)
@@ -773,7 +773,7 @@ async def upatkpractice_(bot: Bot, event: GroupMessageEvent, args: Message = Com
         level_up_count = 1
     if sect_id:
         sect_materials = int(await XiuxianDataManage().get_sect_info(sect_id)['sect_materials'])  # 当前资材
-        useratkpractice = int(user_info['atkpractice'])  # 当前等级
+        useratkpractice = int(user_info['atk_practice_level'])  # 当前等级
         if useratkpractice == 50:
             msg = f"道友的攻击修炼等级已达到最高等级!"
             await handle_send(bot, event, send_group_id, msg)

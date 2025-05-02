@@ -46,7 +46,7 @@ async def check_equipment_can_use(user_id, goods_id):
     """
     flag = False
     back_equipment = await XiuxianDataManage().get_item_by_good_id_and_user_id(user_id, goods_id)
-    if back_equipment['state'] == 0:
+    if back_equipment['goods_state'] == 0:
         flag = True
     return flag
 
@@ -63,21 +63,21 @@ async def get_use_equipment_sql(user_id, goods_id):
     item_type = ''
     if item_info['item_type'] == "法器":
         item_type = "法器"
-        in_use_id = user_buff_info['faqi_buff']
+        in_use_id = user_buff_info['weapon']
         sql_str.append(
-            f"UPDATE xiuxian_back set update_time='{now_time}',action_time='{now_time}',state=1 WHERE user_id={user_id} and goods_id={goods_id}")  # 装备
+            f"UPDATE xiuxian_back set goods_update_time='{now_time}',goods_action_time='{now_time}',goods_state = 1 WHERE user_id={user_id} and goods_id = {goods_id}")  # 装备
         if in_use_id != 0:
             sql_str.append(
-                f"UPDATE xiuxian_back set update_time='{now_time}',action_time='{now_time}',state=0 WHERE user_id={user_id} and goods_id={in_use_id}")  # 取下原有的
+                f"UPDATE xiuxian_back set goods_update_time='{now_time}',goods_action_time='{now_time}',goods_state = 0 WHERE user_id = {user_id} and goods_id = {in_use_id}")  # 取下原有的
 
     if item_info['item_type'] == "防具":
         item_type = "防具"
-        in_use_id = user_buff_info['armor_buff']
+        in_use_id = user_buff_info['armor']
         sql_str.append(
-            f"UPDATE xiuxian_back set update_time='{now_time}',action_time='{now_time}',state=1 WHERE user_id={user_id} and goods_id={goods_id}")  # 装备
+            f"UPDATE xiuxian_back set goods_update_time='{now_time}',goods_action_time='{now_time}',goods_state = 1 WHERE user_id = {user_id} and goods_id = {goods_id}")  # 装备
         if in_use_id != 0:
             sql_str.append(
-                f"UPDATE xiuxian_back set update_time='{now_time}',action_time='{now_time}',state=0 WHERE user_id={user_id} and goods_id={in_use_id}")  # 取下原有的
+                f"UPDATE xiuxian_back set goods_update_time='{now_time}',goods_action_time='{now_time}',goods_state = 0 WHERE user_id = {user_id} and goods_id = {in_use_id}")  # 取下原有的
 
     return sql_str, item_type
 
@@ -96,10 +96,10 @@ async def get_no_use_equipment_sql(user_id, goods_id):
     # 检查装备类型，并确定要卸载的是哪种buff
     if item_info['item_type'] == "法器":
         item_type = "法器"
-        in_use_id = user_buff_info['faqi_buff']
+        in_use_id = user_buff_info['weapon']
     elif item_info['item_type'] == "防具":
         item_type = "防具"
-        in_use_id = user_buff_info['armor_buff']
+        in_use_id = user_buff_info['armor']
     else:
         return sql_str, item_type
 
@@ -149,28 +149,28 @@ async def get_user_main_back_msg(user_id):
         return l_msg
     for user_back in user_backs:
         if user_back['goods_type'] == "装备":
-            l_equipment_msg = get_equipment_msg(l_equipment_msg, user_id, user_back['goods_id'], user_back['goods_num'], user_back['bind_num'])
+            l_equipment_msg = get_equipment_msg(l_equipment_msg, user_id, user_back['goods_id'], user_back['goods_num'], user_back['goods_bind_num'])
 
         elif user_back['goods_type'] == "技能":
-            l_skill_msg = get_skill_msg(l_skill_msg, user_back['goods_id'], user_back['goods_num'], user_back['bind_num'])
+            l_skill_msg = get_skill_msg(l_skill_msg, user_back['goods_id'], user_back['goods_num'], user_back['goods_bind_num'])
         
         elif user_back['goods_type'] == "丹药":
-            l_elixir_msg = get_elixir_msg(l_elixir_msg, user_back['goods_id'], user_back['goods_num'], user_back['bind_num'])
+            l_elixir_msg = get_elixir_msg(l_elixir_msg, user_back['goods_id'], user_back['goods_num'], user_back['goods_bind_num'])
 
         elif user_back['goods_type'] == "神物":
-            l_shenwu_msg = get_shenwu_msg(l_shenwu_msg, user_back['goods_id'], user_back['goods_num'], user_back['bind_num'])
+            l_shenwu_msg = get_shenwu_msg(l_shenwu_msg, user_back['goods_id'], user_back['goods_num'], user_back['goods_bind_num'])
 
         elif user_back['goods_type'] == "聚灵旗":
-            l_xiulianitem_msg = get_jlq_msg(l_xiulianitem_msg, user_back['goods_id'], user_back['goods_num'], user_back['bind_num'])
+            l_xiulianitem_msg = get_jlq_msg(l_xiulianitem_msg, user_back['goods_id'], user_back['goods_num'], user_back['goods_bind_num'])
         
         elif user_back['goods_type'] == "炼丹炉":
-            l_ldl_msg = get_ldl_msg(l_ldl_msg, user_back['goods_id'], user_back['goods_num'], user_back['bind_num'])
+            l_ldl_msg = get_ldl_msg(l_ldl_msg, user_back['goods_id'], user_back['goods_num'], user_back['goods_bind_num'])
         
         elif user_back['goods_type'] == "药材":
-            l_yaocai_msg = get_yaocai_msg(l_yaocai_msg, user_back['goods_id'], user_back['goods_num'], user_back['bind_num'])
+            l_yaocai_msg = get_yaocai_msg(l_yaocai_msg, user_back['goods_id'], user_back['goods_num'], user_back['goods_bind_num'])
 
         elif user_back['goods_type'] == "礼包":
-            l_libao_msg = get_libao_msg(l_libao_msg, user_back['goods_id'], user_back['goods_num'], user_back['bind_num'])
+            l_libao_msg = get_libao_msg(l_libao_msg, user_back['goods_id'], user_back['goods_num'], user_back['goods_bind_num'])
 
     if l_equipment_msg:
         l_msg.append("☆------我的装备------☆")

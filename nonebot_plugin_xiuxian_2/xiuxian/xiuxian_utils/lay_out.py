@@ -210,7 +210,7 @@ def Cooldown(
         if stamina_cost > 0:
             user_data = await XiuxianDataManage().get_user_infos_by_ids(user_id)
             if user_data:
-                if user_data['user_stamina'] < stamina_cost:
+                if user_data['stamina'] < stamina_cost:
                     msg = "你没有足够的体力，请等待体力恢复后再试！"
                     if XiuConfig().img:
                         pic = await get_msg_pic(f"@{user_info['user_name'] or event.sender.nickname}\n" + msg)

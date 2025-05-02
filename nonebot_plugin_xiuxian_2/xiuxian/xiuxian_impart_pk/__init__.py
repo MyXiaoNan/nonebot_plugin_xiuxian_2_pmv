@@ -271,7 +271,7 @@ async def impart_pk_exp_(bot: Bot, event: GroupMessageEvent, args: Message = Com
         msg = f"输入解析异常，应全为数字!"
         await handle_send(bot, event, send_group_id, msg)
         await impart_pk_exp.finish()
-    if int(impaer_exp_time) > int(impart_data_draw['exp_day']):
+    if int(impaer_exp_time) > int(impart_data_draw['impart_exp_day_quantity']):
         msg = f"累计时间不足，修炼失败!"
         await handle_send(bot, event, send_group_id, msg)
         await impart_pk_exp.finish()

@@ -32,7 +32,7 @@ def character_probability(count):
 async def get_rank(user_id):
     impart_data = await XiuxianDataManage().get_user_impart_info_with_id(user_id)
     value = random_int()
-    num = int(impart_data["wish"])
+    num = int(impart_data["impart_wish_quantity"])
     for x in range(num, num + 10):
         index_5 = character_probability(x)
         if value <= index_5:
@@ -66,51 +66,51 @@ async def re_impart_data(user_id):
         return False
     else:
         all_data = impart_data_json.data_all_()
-        impart_two_exp = 0
-        impart_exp_up = 0
-        impart_atk_per = 0
-        impart_hp_per = 0
-        impart_mp_per = 0
-        boss_atk = 0
-        impart_know_per = 0
-        impart_burst_per = 0
-        impart_mix_per = 0
-        impart_reap_per = 0
+        impart_two_exp_quantity = 0
+        impart_exp_addition = 0
+        impart_atk_addition = 0
+        impart_hp_addition = 0
+        impart_mp_addition = 0
+        impart_boss_atk_addition = 0
+        impart_crit_addition = 0
+        impart_crit_dmg_addition = 0
+        impart_mix_addition = 0
+        impart_reap_addition = 0
         for x in list_tp:
-            if all_data[x]["type"] == "impart_two_exp":
-                impart_two_exp = impart_two_exp + all_data[x]["vale"]
-            elif all_data[x]["type"] == "impart_exp_up":
-                impart_exp_up = impart_exp_up + all_data[x]["vale"]
-            elif all_data[x]["type"] == "impart_atk_per":
-                impart_atk_per = impart_atk_per + all_data[x]["vale"]
-            elif all_data[x]["type"] == "impart_hp_per":
-                impart_hp_per = impart_hp_per + all_data[x]["vale"]
-            elif all_data[x]["type"] == "impart_mp_per":
-                impart_mp_per = impart_mp_per + all_data[x]["vale"]
-            elif all_data[x]["type"] == "boss_atk":
-                boss_atk = boss_atk + all_data[x]["vale"]
-            elif all_data[x]["type"] == "impart_know_per":
-                impart_know_per = impart_know_per + all_data[x]["vale"]
-            elif all_data[x]["type"] == "impart_burst_per":
-                impart_burst_per = impart_burst_per + all_data[x]["vale"]
-            elif all_data[x]["type"] == "impart_mix_per":
-                impart_mix_per = impart_mix_per + all_data[x]["vale"]
-            elif all_data[x]["type"] == "impart_reap_per":
-                impart_reap_per = impart_reap_per + all_data[x]["vale"]
+            if all_data[x]["type"] == "impart_two_exp_quantity":
+                impart_two_exp_quantity = impart_two_exp_quantity + all_data[x]["vale"]
+            elif all_data[x]["type"] == "impart_exp_addition":
+                impart_exp_addition = impart_exp_addition + all_data[x]["vale"]
+            elif all_data[x]["type"] == "impart_atk_addition":
+                impart_atk_addition = impart_atk_addition + all_data[x]["vale"]
+            elif all_data[x]["type"] == "impart_hp_addition":
+                impart_hp_addition = impart_hp_addition + all_data[x]["vale"]
+            elif all_data[x]["type"] == "impart_mp_addition":
+                impart_mp_addition = impart_mp_addition + all_data[x]["vale"]
+            elif all_data[x]["type"] == "impart_boss_atk_addition":
+                impart_boss_atk_addition = impart_boss_atk_addition + all_data[x]["vale"]
+            elif all_data[x]["type"] == "impart_crit_addition":
+                impart_crit_addition = impart_crit_addition + all_data[x]["vale"]
+            elif all_data[x]["type"] == "impart_crit_dmg_addition":
+                impart_crit_dmg_addition = impart_crit_dmg_addition + all_data[x]["vale"]
+            elif all_data[x]["type"] == "impart_mix_addition":
+                impart_mix_addition = impart_mix_addition + all_data[x]["vale"]
+            elif all_data[x]["type"] == "impart_reap_addition":
+                impart_reap_addition = impart_reap_addition + all_data[x]["vale"]
             else:
                 pass
         
         await asyncio.gather(
-            XiuxianDataManage().update_impart_two_exp(impart_two_exp, user_id),
-            XiuxianDataManage().update_impart_exp_up(impart_exp_up, user_id),
-            XiuxianDataManage().update_impart_atk_per(impart_atk_per, user_id),
-            XiuxianDataManage().update_impart_hp_per(impart_hp_per, user_id),
-            XiuxianDataManage().update_impart_mp_per(impart_mp_per, user_id),
-            XiuxianDataManage().update_boss_atk(boss_atk, user_id),
-            XiuxianDataManage().update_impart_know_per(impart_know_per, user_id),
-            XiuxianDataManage().update_impart_burst_per(impart_burst_per, user_id),
-            XiuxianDataManage().update_impart_mix_per(impart_mix_per, user_id),
-            XiuxianDataManage().update_impart_reap_per(impart_reap_per, user_id)
+            XiuxianDataManage().update_impart_two_exp(impart_two_exp_quantity, user_id),
+            XiuxianDataManage().update_impart_exp_up(impart_exp_addition, user_id),
+            XiuxianDataManage().update_impart_atk_per(impart_atk_addition, user_id),
+            XiuxianDataManage().update_impart_hp_per(impart_hp_addition, user_id),
+            XiuxianDataManage().update_impart_mp_per(impart_mp_addition, user_id),
+            XiuxianDataManage().update_boss_atk(impart_boss_atk_addition, user_id),
+            XiuxianDataManage().update_impart_know_per(impart_crit_addition, user_id),
+            XiuxianDataManage().update_impart_burst_per(impart_crit_dmg_addition, user_id),
+            XiuxianDataManage().update_impart_mix_per(impart_mix_addition, user_id),
+            XiuxianDataManage().update_impart_reap_per(impart_reap_addition, user_id)
         )
         return True
 

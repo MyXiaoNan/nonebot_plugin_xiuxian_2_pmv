@@ -229,10 +229,10 @@ async def get_treasure_info(user_info, rift_rank):
         give_main_info = get_main_info(user_info['level'], rift_rank)
         if give_main_info[0]:  # 获得了
             main_buff_id = give_main_info[1]
-            main_buff = items.get_data_by_item_id(main_buff_id)
-            temp_msg = f"{main_buff['level']}功法：{main_buff['name']}"
+            main_skill = items.get_data_by_item_id(main_buff_id)
+            temp_msg = f"{main_skill['level']}功法：{main_skill['name']}"
             msg = random.choice(TREASUREMSG_2).format(temp_msg)
-            await XiuxianDataManage().send_back(user_info['user_id'], main_buff_id, main_buff['name'], main_buff['type'], 1, 1)
+            await XiuxianDataManage().send_back(user_info['user_id'], main_buff_id, main_skill['name'], main_skill['type'], 1, 1)
         else:
             msg = '道友在秘境中获得一本书籍，翻开一看居然是绿野仙踪...'
 
@@ -240,10 +240,10 @@ async def get_treasure_info(user_info, rift_rank):
         give_sec_info = get_sec_info(user_info['level'], rift_rank)
         if give_sec_info[0]:  # 获得了
             sec_buff_id = give_sec_info[1]
-            sec_buff = items.get_data_by_item_id(sec_buff_id)
-            temp_msg = f"{sec_buff['level']}神通：{sec_buff['name']}!"
+            ultimate_skill = items.get_data_by_item_id(sec_buff_id)
+            temp_msg = f"{ultimate_skill['level']}神通：{ultimate_skill['name']}!"
             msg = random.choice(TREASUREMSG_3).format(temp_msg)
-            await XiuxianDataManage().send_back(user_info['user_id'], sec_buff_id, sec_buff['name'], sec_buff['type'], 1, 1)
+            await XiuxianDataManage().send_back(user_info['user_id'], sec_buff_id, ultimate_skill['name'], ultimate_skill['type'], 1, 1)
             # 背包sql
         else:
             msg = '道友在秘境中获得一本书籍，翻开一看居然是金瓶梅...'
@@ -252,10 +252,10 @@ async def get_treasure_info(user_info, rift_rank):
         give_sub_info = get_sub_info(user_info['level'], rift_rank)
         if give_sub_info[0]:  # 获得了
             sub_buff_id = give_sub_info[1]
-            sub_buff = items.get_data_by_item_id(sub_buff_id)
-            temp_msg = f"{sub_buff['level']}辅修功法：{sub_buff['name']}!"
+            support_skill = items.get_data_by_item_id(sub_buff_id)
+            temp_msg = f"{support_skill['level']}辅修功法：{support_skill['name']}!"
             msg = random.choice(TREASUREMSG_5).format(temp_msg)
-            await XiuxianDataManage().send_back(user_info['user_id'], sub_buff_id, sub_buff['name'], sub_buff['type'], 1, 1)
+            await XiuxianDataManage().send_back(user_info['user_id'], sub_buff_id, support_skill['name'], support_skill['type'], 1, 1)
             # 背包sql
         else:
             msg = '道友在秘境中获得一本书籍，翻开一看居然是四库全书...'

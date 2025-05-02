@@ -54,11 +54,11 @@ async def check_user_type(user_id, need_type):
     """
     isType = False
     msg = ""
-    user_cd_message = await XiuxianDataManage().get_user_cd(user_id)
+    user_cd_message = await XiuxianDataManage().get_user_time(user_id)
     if user_cd_message is None:
         user_type = 0
     else:
-        user_type = user_cd_message["type"]
+        user_type = user_cd_message["schedule_type"]
 
     if user_type == need_type:  # 状态一致
         isType = True

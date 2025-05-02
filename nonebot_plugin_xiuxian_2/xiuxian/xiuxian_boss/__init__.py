@@ -357,7 +357,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
     user_weapon_data = await UserBuffData(userinfo['user_id']).get_user_weapon_data()
 
     impart_data = await XiuxianDataManage().get_user_impart_info_with_id(user_id)
-    boss_atk = impart_data['boss_atk'] if impart_data['boss_atk'] is not None else 0
+    impart_boss_atk_addition = impart_data['impart_boss_atk_addition'] if impart_data['impart_boss_atk_addition'] is not None else 0
     user_armor_data = await UserBuffData(userinfo['user_id']).get_user_armor_buff_data() #boss战防具会心
     user_main_data = await UserBuffData(userinfo['user_id']).get_user_main_buff_data() #boss战功法会心
     user1_sub_buff_data = await UserBuffData(userinfo['user_id']).get_user_sub_buff_data() #boss战辅修功法信息
@@ -382,7 +382,7 @@ async def battle_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg
     player['user_id'] = userinfo['user_id']
     player['道号'] = userinfo['user_name']
     player['气血'] = userinfo['hp']
-    player['攻击'] = int(userinfo['atk'] * (1 + boss_atk))
+    player['攻击'] = int(userinfo['atk'] * (1 + impart_boss_atk_addition))
     player['真元'] = userinfo['mp']
     player['exp'] = userinfo['exp']
 

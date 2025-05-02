@@ -152,7 +152,7 @@ async def yaocai_get_(bot: Bot, event: GroupMessageEvent):
             yaocai_id_list = items.get_random_id_list_by_rank_and_item_type(convert_rank(user_info['level'])[0], ['药材'])
             # 加入传承
             impart_data = await XiuxianDataManage().get_user_impart_info_with_id(user_id)
-            impart_reap_per = impart_data['impart_reap_per'] if impart_data is not None else 0
+            impart_reap_addition = impart_data['impart_reap_addition'] if impart_data is not None else 0
             #功法灵田收取加成
             main_reap = UserBuffData(user_id).get_user_main_buff_data()
                 
@@ -160,7 +160,7 @@ async def yaocai_get_(bot: Bot, event: GroupMessageEvent):
                 reap_buff = main_reap['reap_buff']
             else:
                 reap_buff = 0
-            num = mix_elixir_info['灵田数量'] + mix_elixir_info['收取等级'] + impart_reap_per + reap_buff
+            num = mix_elixir_info['灵田数量'] + mix_elixir_info['收取等级'] + impart_reap_addition + reap_buff
             msg = ''
             if not yaocai_id_list:
                 await XiuxianDataManage().send_back(user_info['user_id'], 3001, '恒心草', '药材', num)  # 没有合适的，保底
@@ -396,7 +396,7 @@ async def mix_elixir_(bot: Bot, event: GroupMessageEvent, mode: str = EventPlain
                 goods_info = Items().get_data_by_item_id(id)
                 # 加入传承
                 impart_data = await XiuxianDataManage().get_user_impart_info_with_id(user_id)
-                impart_mix_per = impart_data['impart_mix_per'] if impart_data is not None else 0
+                impart_mix_addition = impart_data['impart_mix_addition'] if impart_data is not None else 0
                 #功法炼丹数加成
                 main_dan_data = UserBuffData(user_id).get_user_main_buff_data()
                 
@@ -412,7 +412,7 @@ async def mix_elixir_(bot: Bot, event: GroupMessageEvent, mode: str = EventPlain
                 else:
                     main_exp = 0
                 
-                num = 1 + ldl_info['buff'] + mix_elixir_info['丹药控火'] + impart_mix_per + main_dan#炼丹数量提升
+                num = 1 + ldl_info['buff'] + mix_elixir_info['丹药控火'] + impart_mix_addition + main_dan#炼丹数量提升
                 msg = f"恭喜道友成功炼成丹药：{goods_info['name']}{num}枚"
                 # 背包sql
                 await XiuxianDataManage().send_back(user_id, id, goods_info['name'], "丹药", num) #将炼制的丹药加入背包

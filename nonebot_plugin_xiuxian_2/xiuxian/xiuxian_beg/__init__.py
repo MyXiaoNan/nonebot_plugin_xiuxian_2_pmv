@@ -70,7 +70,7 @@ async def beg_stone_(bot: Bot, event: GroupMessageEvent):
     level = user_info['level']
     list_level_all = list(jsondata.level_data().keys())
 
-    create_time = user_info['create_time']
+    create_time = user_info['user_create_time']
     now_time = datetime.now()
     diff_time = now_time - create_time
     diff_days = diff_time.days # 距离创建账号时间的天数

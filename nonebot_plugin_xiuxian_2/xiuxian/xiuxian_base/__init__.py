@@ -58,7 +58,7 @@ rob_stone = on_command("抢灵石", aliases={"拿来吧你"}, priority=5, permis
 restate = on_command("重置状态", permission=SUPERUSER, priority=12, block=True)
 set_xiuxian = on_command("启用修仙功能", aliases={'禁用修仙功能'}, permission=GROUP and (SUPERUSER | GROUP_ADMIN | GROUP_OWNER), priority=5, block=True)
 user_leveluprate = on_command('我的突破概率', aliases={'突破概率'}, priority=5, permission=GROUP, block=True)
-user_stamina = on_command('我的体力', aliases={'体力'}, priority=5, permission=GROUP, block=True)
+stamina = on_command('我的体力', aliases={'体力'}, priority=5, permission=GROUP, block=True)
 xiuxian_updata_level = on_fullmatch('修仙适配', priority=15, permission=GROUP, block=True)
 xiuxian_uodata_data = on_fullmatch('更新记录', priority=15, permission=GROUP, block=True)
 level_help = on_command('境界帮助', aliases={"灵根帮助", "品阶帮助"}, priority=15, permission=GROUP,block=True)
@@ -422,14 +422,14 @@ async def level_up_(bot: Bot, event: GroupMessageEvent):
         await XiuxianDataManage().update_user_hp(user_id)
     user_msg = await XiuxianDataManage().get_user_infos_by_ids(user_id)  # 用户信息
     user_leveluprate = int(user_msg['level_up_rate'])  # 用户失败次数加成
-    level_cd = user_msg['level_up_cd']
+    level_cd = user_msg['level_up_time']
     if level_cd:
         # 校验是否存在CD
         time_now = datetime.now()
         cd = OtherSet().date_diff(time_now, level_cd)  # 获取second
-        if cd < XiuConfig().level_up_cd * 60:
+        if cd < XiuConfig().level_up_time * 60:
             # 如果cd小于配置的cd，返回等待时间
-            msg = f"目前无法突破，还需要{XiuConfig().level_up_cd - (cd // 60)}分钟"
+            msg = f"目前无法突破，还需要{XiuConfig().level_up_time - (cd // 60)}分钟"
             await XiuxianDataManage().update_user_stamina(user_id, 12, 1)
             await handle_send(bot, event, send_group_id, msg)
             await level_up.finish()
@@ -475,14 +475,15 @@ async def level_up_zj_(bot: Bot, event: GroupMessageEvent):
         # 判断用户气血是否为空
         await XiuxianDataManage().update_user_hp(user_id)
     user_msg = await XiuxianDataManage().get_user_infos_by_ids(user_id)  # 用户信息
-    level_cd = user_msg['level_up_cd']
+    user_time = await XiuxianDataManage().get_user_time(user_id)
+    level_cd = user_time['level_up_time'] or datetime.now()
     if level_cd:
         # 校验是否存在CD
         time_now = datetime.now()
         cd = OtherSet().date_diff(time_now, level_cd)  # 获取second
-        if cd < XiuConfig().level_up_cd * 60:
+        if cd < XiuConfig().level_up_time * 60:
             # 如果cd小于配置的cd，返回等待时间
-            msg = f"目前无法突破，还需要{XiuConfig().level_up_cd - (cd // 60)}分钟"
+            msg = f"目前无法突破，还需要{XiuConfig().level_up_time - (cd // 60)}分钟"
             await XiuxianDataManage().update_user_stamina(user_id, 6, 1)
             await handle_send(bot, event, send_group_id, msg)
             await level_up_zj.finish()
@@ -506,13 +507,13 @@ async def level_up_zj_(bot: Bot, event: GroupMessageEvent):
         )
         now_exp = int(int(exp) * ((percentage / 100) * (1 - exp_buff))) #功法突破扣修为减少
         await XiuxianDataManage().update_exp(user_id, now_exp, 1)  # 更新用户修为
-        nowhp = user_msg['hp'] - (now_exp / 2) if (user_msg['hp'] - (now_exp / 2)) > 0 else 1
-        nowmp = user_msg['mp'] - now_exp if (user_msg['mp'] - now_exp) > 0 else 1
+        nowhp = float(user_msg['hp']) - (float(now_exp) / 2) if (float(user_msg['hp']) - (float(now_exp) / 2)) > 0 else 1
+        nowmp = float(user_msg['mp']) - float(now_exp) if (float(user_msg['mp']) - float(now_exp)) > 0 else 1
         await XiuxianDataManage().update_user_hp_mp(user_id, nowhp, nowmp)  # 修为掉了，血量、真元也要掉
         update_rate = 1 if int(level_rate * XiuConfig().level_up_probability) <= 1 else int(
             level_rate * XiuConfig().level_up_probability)  # 失败增加突破几率
         await XiuxianDataManage().update_levelrate(user_id, leveluprate + update_rate)
-        msg = f"道友突破失败,境界受损,修为减少{now_exp}，下次突破成功率增加{update_rate}%，道友不要放弃！"
+        msg = f"道友突破失败,境界受损,修为减少{number_to(now_exp)}，下次突破成功率增加{update_rate}%，道友不要放弃！"
         await handle_send(bot, event, send_group_id, msg)
         await level_up_zj.finish()
 
@@ -546,14 +547,15 @@ async def level_up_drjd_(bot: Bot, event: GroupMessageEvent):
         # 判断用户气血是否为空
         await XiuxianDataManage().update_user_hp(user_id)
     user_msg = await XiuxianDataManage().get_user_infos_by_ids(user_id)  # 用户信息
-    level_cd = user_msg['level_up_cd']
+    user_time = await XiuxianDataManage().get_user_time(user_id)
+    level_cd = user_time['level_up_time'] or datetime.now()
     if level_cd:
         # 校验是否存在CD
         time_now = datetime.now()
         cd = OtherSet().date_diff(time_now, level_cd)  # 获取second
-        if cd < XiuConfig().level_up_cd * 60:
+        if cd < XiuConfig().level_up_time * 60:
             # 如果cd小于配置的cd，返回等待时间
-            msg = f"目前无法突破，还需要{XiuConfig().level_up_cd - (cd // 60)}分钟"
+            msg = f"目前无法突破，还需要{XiuConfig().level_up_time - (cd // 60)}分钟"
             await XiuxianDataManage().update_user_stamina(user_id, 4, 1)
             await handle_send(bot, event, send_group_id, msg)
             await level_up_drjd.finish()
@@ -609,7 +611,7 @@ async def level_up_drjd_(bot: Bot, event: GroupMessageEvent):
             update_rate = 1 if int(level_rate * XiuConfig().level_up_probability) <= 1 else int(
                 level_rate * XiuConfig().level_up_probability)  # 失败增加突破几率
             await XiuxianDataManage().update_levelrate(user_id, user_leveluprate + update_rate)
-            msg = f"没有检测到{elixir_name}，道友突破失败,境界受损,修为减少{now_exp}，下次突破成功率增加{update_rate}%，道友不要放弃！"
+            msg = f"没有检测到{elixir_name}，道友突破失败,境界受损,修为减少{number_to(now_exp)}，下次突破成功率增加{update_rate}%，道友不要放弃！"
         await handle_send(bot, event, send_group_id, msg)
         await level_up_drjd.finish()
 
@@ -645,14 +647,15 @@ async def level_up_dr_(bot: Bot, event: GroupMessageEvent):
         # 判断用户气血是否为空
         await XiuxianDataManage().update_user_hp(user_id)
     user_msg = await XiuxianDataManage().get_user_infos_by_ids(user_id)  # 用户信息
-    level_cd = user_msg['level_up_cd']
+    user_time = await XiuxianDataManage().get_user_time(user_id)
+    level_cd = user_time['level_up_time'] or datetime.now()
     if level_cd:
         # 校验是否存在CD
         time_now = datetime.now()
         cd = OtherSet().date_diff(time_now, level_cd)  # 获取second
-        if cd < XiuConfig().level_up_cd * 60:
+        if cd < XiuConfig().level_up_time * 60:
             # 如果cd小于配置的cd，返回等待时间
-            msg = f"目前无法突破，还需要{XiuConfig().level_up_cd - (cd // 60)}分钟"
+            msg = f"目前无法突破，还需要{XiuConfig().level_up_time - (cd // 60)}分钟"
             await XiuxianDataManage().update_user_stamina(user_id, 8, 1)
             await handle_send(bot, event, send_group_id, msg)
             await level_up_dr.finish()
@@ -696,17 +699,17 @@ async def level_up_dr_(bot: Bot, event: GroupMessageEvent):
             percentage = random.randint(
                 XiuConfig().level_punishment_floor, XiuConfig().level_punishment_limit
             )
-            main_exp_buff = await UserBuffData(user_id).get_user_main_buff_data()#功法突破扣修为减少
+            main_exp_buff = await UserBuffData(user_id).get_user_main_buff_data() # 功法突破扣修为减少
             exp_buff = main_exp_buff['exp_buff'] if main_exp_buff is not None else 0
             now_exp = int(int(exp) * ((percentage / 100) * (1 - exp_buff)))
             await XiuxianDataManage().update_exp(user_id, now_exp, 1)  # 更新用户修为
-            nowhp = user_msg['hp'] - (now_exp / 2) if (user_msg['hp'] - (now_exp / 2)) > 0 else 1
-            nowmp = user_msg['mp'] - now_exp if (user_msg['mp'] - now_exp) > 0 else 1
+            nowhp = float(user_msg['hp']) - (float(now_exp) / 2) if (float(user_msg['hp']) - (float(now_exp) / 2)) > 0 else 1
+            nowmp = float(user_msg['mp']) - float(now_exp) if (float(user_msg['mp']) - float(now_exp)) > 0 else 1
             await XiuxianDataManage().update_user_hp_mp(user_id, nowhp, nowmp)  # 修为掉了，血量、真元也要掉
             update_rate = 1 if int(level_rate * XiuConfig().level_up_probability) <= 1 else int(
                 level_rate * XiuConfig().level_up_probability)  # 失败增加突破几率
             await XiuxianDataManage().update_levelrate(user_id, user_leveluprate + update_rate)
-            msg = f"没有检测到{elixir_name}，道友突破失败,境界受损,修为减少{now_exp}，下次突破成功率增加{update_rate}%，道友不要放弃！"
+            msg = f"没有检测到{elixir_name}，道友突破失败,境界受损,修为减少{number_to(now_exp)}，下次突破成功率增加{update_rate}%，道友不要放弃！"
         await handle_send(bot, event, send_group_id, msg)
         await level_up_dr.finish()
 
@@ -749,17 +752,17 @@ async def user_leveluprate_(bot: Bot, event: GroupMessageEvent):
     await user_leveluprate.finish()
 
 
-@user_stamina.handle(parameterless=[Cooldown(at_sender=False)])
+@stamina.handle(parameterless=[Cooldown(at_sender=False)])
 async def user_stamina_(bot: Bot, event: GroupMessageEvent):
     """我的体力信息"""
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = await check_user(event)
     if not isUser:
         await handle_send(bot, event, send_group_id, msg)
-        await user_stamina.finish()
-    msg = f"当前体力：{user_info['user_stamina']}"
+        await stamina.finish()
+    msg = f"当前体力：{user_info['stamina']}"
     await handle_send(bot, event, send_group_id, msg)
-    await user_stamina.finish()
+    await stamina.finish()
 
 
 @give_stone.handle(parameterless=[Cooldown(at_sender=False)])
@@ -1204,9 +1207,9 @@ async def rob_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Command
                 player1['攻击'] = user_info['atk']
                 player1['真元'] = user_info['mp']
                 player1['会心'] = int(
-                    (0.01 + impart_data_1['impart_know_per'] if impart_data_1 is not None else 0) * 100)
+                    (0.01 + float(impart_data_1['impart_crit_addition']) if impart_data_1 is not None else 0) * 100)
                 player1['爆伤'] = int(
-                    1.5 + impart_data_1['impart_burst_per'] if impart_data_1 is not None else 0)
+                    1.5 + float(impart_data_1['impart_crit_dmg_addition']) if impart_data_1 is not None else 0)
                 user_buff_data = UserBuffData(user_id)
                 user_armor_data = await user_buff_data.get_user_armor_buff_data()
                 if user_armor_data is not None:
@@ -1222,9 +1225,9 @@ async def rob_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Command
                 player2['攻击'] = user_2['atk']
                 player2['真元'] = user_2['mp']
                 player2['会心'] = int(
-                    (0.01 + impart_data_2['impart_know_per'] if impart_data_2 is not None else 0) * 100)
+                    (0.01 + float(impart_data_2['impart_crit_addition']) if impart_data_2 is not None else 0) * 100)
                 player2['爆伤'] = int(
-                    1.5 + impart_data_2['impart_burst_per'] if impart_data_2 is not None else 0)
+                    1.5 + float(impart_data_2['impart_crit_dmg_addition']) if impart_data_2 is not None else 0)
                 user_buff_data = UserBuffData(user_2['user_id'])
                 user_armor_data = await user_buff_data.get_user_armor_buff_data()
                 if user_armor_data is not None:
