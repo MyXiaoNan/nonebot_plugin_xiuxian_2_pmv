@@ -180,6 +180,11 @@ def Cooldown(
             )
         else:
             key = CooldownIsolateLevel.GLOBAL.name
+
+        if XiuConfig().postgresql_url == "":
+            await bot.send(event=event, message="请先配置数据库地址!")
+            await matcher.finish()
+        
         if group_id not in conf_data["group"]:
             try:
                 is_official_bot = is_qbot(session)

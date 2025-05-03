@@ -1242,9 +1242,9 @@ async def rob_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Command
                 if victor == player1['道号']:
                     foe_stone = user_2['stone']
                     if foe_stone > 0:
-                        await XiuxianDataManager().update_ls(user_id, int(foe_stone * 0.1), 0)
-                        await XiuxianDataManager().update_ls(give_qq, int(foe_stone * 0.1), 1)
-                        exps = int(user_2['exp'] * 0.005)
+                        await XiuxianDataManager().update_ls(user_id, int(float(foe_stone) * 0.1), 0)
+                        await XiuxianDataManager().update_ls(give_qq, int(float(foe_stone) * 0.1), 1)
+                        exps = int(float(user_2['exp']) * 0.005)
                         await XiuxianDataManager().update_exp(user_id, exps, 0)
                         await XiuxianDataManager().update_exp(give_qq, exps / 2, 1)
                         msg = f"大战一番，战胜对手，获取灵石{number_to(foe_stone * 0.1)}枚，修为增加{number_to(exps)}，对手修为减少{number_to(exps / 2)}"
@@ -1255,7 +1255,7 @@ async def rob_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Command
                             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
                         await rob_stone.finish()
                     else:
-                        exps = int(user_2['exp'] * 0.005)
+                        exps = int(float(user_2['exp']) * 0.005)
                         await XiuxianDataManager().update_exp(user_id, exps, 0)
                         await XiuxianDataManager().update_exp(give_qq, exps / 2, 1)
                         msg = f"大战一番，战胜对手，结果对方是个穷光蛋，修为增加{number_to(exps)}，对手修为减少{number_to(exps / 2)}"
@@ -1269,12 +1269,12 @@ async def rob_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Command
                 elif victor == player2['道号']:
                     mind_stone = user_info['stone']
                     if mind_stone > 0:
-                        await XiuxianDataManager().update_ls(user_id, int(mind_stone * 0.1), 1)
-                        await XiuxianDataManager().update_ls(give_qq, int(mind_stone * 0.1), 0)
-                        exps = int(user_info['exp'] * 0.005)
+                        await XiuxianDataManager().update_ls(user_id, int(float(mind_stone) * 0.1), 1)
+                        await XiuxianDataManager().update_ls(give_qq, int(float(mind_stone) * 0.1), 0)
+                        exps = int(float(user_info['exp']) * 0.005)
                         await XiuxianDataManager().update_exp(user_id, exps, 1)
                         await XiuxianDataManager().update_exp(give_qq, exps / 2, 0)
-                        msg = f"大战一番，被对手反杀，损失灵石{number_to(mind_stone * 0.1)}枚，修为减少{number_to(exps)}，对手获取灵石{number_to(mind_stone * 0.1)}枚，修为增加{number_to(exps / 2)}"
+                        msg = f"大战一番，被对手反杀，损失灵石{number_to(float(mind_stone) * 0.1)}枚，修为减少{number_to(exps)}，对手获取灵石{number_to(float(mind_stone) * 0.1)}枚，修为增加{number_to(exps / 2)}"
                         if XiuConfig().img:
                             pic = await get_msg_pic(f"@{user_info['user_name'] or event.sender.nickname}\n" + msg)
                             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -1282,7 +1282,7 @@ async def rob_stone_(bot: Bot, event: GroupMessageEvent, args: Message = Command
                             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
                         await rob_stone.finish()
                     else:
-                        exps = int(user_info['exp'] * 0.005)
+                        exps = int(float(user_info['exp']) * 0.005)
                         await XiuxianDataManager().update_exp(user_id, exps, 1)
                         await XiuxianDataManager().update_exp(give_qq, exps / 2, 0)
                         msg = f"大战一番，被对手反杀，修为减少{number_to(exps)}，对手修为增加{number_to(exps / 2)}"

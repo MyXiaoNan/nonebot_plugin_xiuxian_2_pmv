@@ -988,7 +988,9 @@ class XiuxianDataManager:
         await self.ensure_pool()
         try:
             sql = f"SELECT user_name, stone FROM xiuxian_user WHERE user_name is NOT NULL ORDER BY stone DESC LIMIT 50"
-            return await self.monitored_query(sql)
+            async with self.pool.acquire() as conn:
+                result = await conn.fetch(sql)
+                return result
         except ImportError:
             async with self.pool.acquire() as conn:
                 sql = f"SELECT user_name, stone FROM xiuxian_user WHERE user_name is NOT NULL ORDER BY stone DESC LIMIT 50"
@@ -3295,7 +3297,7 @@ async def leave_harm_time(user_id):
     main_buff_rate_buff = main_buff_data['ratebuff'] if main_buff_data else 0 # 主功法修炼倍率
     
     try:
-       time = int(((user_mes['exp'] / 1.5) - user_mes['hp']) / ((XiuConfig().closing_exp * level_rate * realm_rate * (
+       time = int(((float(user_mes['exp']) / 1.5) - float(user_mes['hp'])) / ((XiuConfig().closing_exp * level_rate * realm_rate * (
                     1 + main_buff_rate_buff)) * hp_speed))
     except ZeroDivisionError:
         time = "无穷大"
