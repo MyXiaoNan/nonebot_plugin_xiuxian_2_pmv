@@ -424,6 +424,9 @@ async def level_up_(bot: Bot, event: GroupMessageEvent):
     user_leveluprate = int(user_msg['level_up_rate'])  # 用户失败次数加成
     user_time = await XiuxianDataManager().get_user_time(user_id)
     level_cd = user_time['level_up_time']
+    if level_cd is None:
+        await XiuxianDataManager().updata_level_cd(user_id)
+        level_cd = datetime.now()
     if level_cd:
         # 校验是否存在CD
         time_now = datetime.now()
@@ -477,7 +480,10 @@ async def level_up_zj_(bot: Bot, event: GroupMessageEvent):
         await XiuxianDataManager().update_user_hp(user_id)
     user_msg = await XiuxianDataManager().get_user_infos_by_ids(user_id)  # 用户信息
     user_time = await XiuxianDataManager().get_user_time(user_id)
-    level_cd = user_time['level_up_time'] or datetime.now()
+    level_cd = user_time['level_up_time']
+    if level_cd is None:
+        await XiuxianDataManager().updata_level_cd(user_id)
+        level_cd = datetime.now()
     if level_cd:
         # 校验是否存在CD
         time_now = datetime.now()
@@ -549,7 +555,10 @@ async def level_up_drjd_(bot: Bot, event: GroupMessageEvent):
         await XiuxianDataManager().update_user_hp(user_id)
     user_msg = await XiuxianDataManager().get_user_infos_by_ids(user_id)  # 用户信息
     user_time = await XiuxianDataManager().get_user_time(user_id)
-    level_cd = user_time['level_up_time'] or datetime.now()
+    level_cd = user_time['level_up_time']
+    if level_cd is None:
+        await XiuxianDataManager().updata_level_cd(user_id)
+        level_cd = datetime.now()
     if level_cd:
         # 校验是否存在CD
         time_now = datetime.now()
