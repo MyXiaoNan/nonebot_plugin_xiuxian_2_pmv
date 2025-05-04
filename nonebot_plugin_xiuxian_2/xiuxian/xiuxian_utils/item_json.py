@@ -3,13 +3,11 @@ try:
 except ImportError:
     import json
 import os
-import sys
 from pathlib import Path
 from typing import List
-import nonebot
 
 
-BOT_PATH = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+BOT_PATH = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
 BOT_PATH = os.path.dirname(BOT_PATH)
 READPATH = Path(BOT_PATH) / "data" / "xiuxian"
 SKILLPATH = READPATH / "功法"

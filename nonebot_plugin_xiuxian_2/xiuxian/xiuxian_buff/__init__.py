@@ -49,7 +49,7 @@ ling_tian_up = on_fullmatch("灵田开垦", priority=5, permission=GROUP, block=
 del_exp_decimal = on_fullmatch("抑制黑暗动乱", priority=9, permission=GROUP, block=True)
 my_exp_num = on_fullmatch("我的双修次数", priority=9, permission=GROUP, block=True)
 
-__buff_help__ = f"""
+__buff_help__ = """
 功法帮助信息:
 指令：
 1、我的功法:查看自身功法信息
@@ -67,7 +67,7 @@ __buff_help__ = f"""
 @two_exp_cd_up.scheduled_job("cron", hour=0, minute=0)
 async def two_exp_cd_up_():
     two_exp_cd.re_data()
-    logger.opt(colors=True).info(f"<green>双修次数已更新！</green>")
+    logger.opt(colors=True).info("<green>双修次数已更新！</green>")
 
 
 @buff_help.handle(parameterless=[Cooldown(at_sender=False)])
@@ -98,7 +98,7 @@ async def blessed_spot_creat_(bot: Bot, event: GroupMessageEvent):
         await blessed_spot_creat.finish()
     user_id = user_info['user_id']
     if int(user_info['blessed_spot_flag']) != 0:
-        msg = f"道友已经拥有洞天福地了，请发送洞天福地查看吧~"
+        msg = "道友已经拥有洞天福地了，请发送洞天福地查看吧~"
         await handle_send(bot, event, send_group_id, msg)
         await blessed_spot_creat.finish()
     if user_info['stone'] < BLESSEDSPOTCOST:
@@ -111,7 +111,7 @@ async def blessed_spot_creat_(bot: Bot, event: GroupMessageEvent):
         mix_elixir_info = get_player_info(user_id, "mix_elixir_info")
         mix_elixir_info['收取时间'] = str(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
         save_player_info(user_id, mix_elixir_info, 'mix_elixir_info')
-        msg = f"恭喜道友拥有了自己的洞天福地，请收集聚灵旗来提升洞天福地的等级吧~\n"
+        msg = "恭喜道友拥有了自己的洞天福地，请收集聚灵旗来提升洞天福地的等级吧~\n"
         msg += f"默认名称为：{user_info['user_name']}道友的家"
         await XiuxianDataManager().update_user_blessed_spot_name(user_id, f"{user_info['user_name']}道友的家")
         await handle_send(bot, event, send_group_id, msg)
@@ -128,10 +128,10 @@ async def blessed_spot_info_(bot: Bot, event: GroupMessageEvent):
         await blessed_spot_info.finish()
     user_id = user_info['user_id']
     if int(user_info['blessed_spot_flag']) == 0:
-        msg = f"道友还没有洞天福地呢，请发送洞天福地购买来购买吧~"
+        msg = "道友还没有洞天福地呢，请发送洞天福地购买来购买吧~"
         await handle_send(bot, event, send_group_id, msg)
         await blessed_spot_info.finish()
-    msg = f"\n道友的洞天福地:\n"
+    msg = "\n道友的洞天福地:\n"
     user_buff_data = await UserBuffData(user_id).BuffInfo
     if user_info['blessed_spot_name'] == 0:
         blessed_spot_name = "尚未命名"
@@ -155,7 +155,7 @@ async def ling_tian_up_(bot: Bot, event: GroupMessageEvent):
         await ling_tian_up.finish()
     user_id = user_info['user_id']
     if int(user_info['blessed_spot_flag']) == 0:
-        msg = f"道友还没有洞天福地呢，请发送洞天福地购买吧~"
+        msg = "道友还没有洞天福地呢，请发送洞天福地购买吧~"
         await handle_send(bot, event, send_group_id, msg)
         await ling_tian_up.finish()
     LINGTIANCONFIG = {
@@ -178,7 +178,7 @@ async def ling_tian_up_(bot: Bot, event: GroupMessageEvent):
     mix_elixir_info = get_player_info(user_id, "mix_elixir_info")
     now_num = mix_elixir_info['灵田数量']
     if now_num == len(LINGTIANCONFIG) + 1:
-        msg = f"道友的灵田已全部开垦完毕，无法继续开垦了！"
+        msg = "道友的灵田已全部开垦完毕，无法继续开垦了！"
     else:
         cost = LINGTIANCONFIG[str(now_num)]['level_up_cost']
         if int(user_info['stone']) < cost:
@@ -202,7 +202,7 @@ async def blessed_spot_rename_(bot: Bot, event: GroupMessageEvent, args: Message
         await blessed_spot_rename.finish()
     user_id = user_info['user_id']
     if int(user_info['blessed_spot_flag']) == 0:
-        msg = f"道友还没有洞天福地呢，请发送洞天福地购买吧~"
+        msg = "道友还没有洞天福地呢，请发送洞天福地购买吧~"
         await handle_send(bot, event, send_group_id, msg)
         await blessed_spot_rename.finish()
     arg = args.extract_plain_text().strip()
@@ -212,7 +212,7 @@ async def blessed_spot_rename_(bot: Bot, event: GroupMessageEvent, args: Message
         await handle_send(bot, event, send_group_id, msg)
         await blessed_spot_rename.finish()
     if len(arg) > 9:
-        msg = f"洞天福地的名字不可大于9位,请重新命名"
+        msg = "洞天福地的名字不可大于9位,请重新命名"
     else:
         msg = f"道友的洞天福地成功改名为：{arg}"
         await XiuxianDataManager().update_user_blessed_spot_name(user_id, arg)
@@ -266,18 +266,18 @@ async def qc_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
         user1_armor_crit_buff = await UserBuffData(user_id).get_user_armor_buff_data() #玩家1防具会心
         user1_main_data = await UserBuffData(user_id).get_user_main_buff_data() #玩家1功法会心
         
-        if  user1_main_data != None: #玩家1功法会心
-            main_crit_buff = user1_main_data['crit_buff']
+        if  user1_main_data is not None: #玩家1功法会心
+            main_crit_buff = user1_main_data['crit_buf']
         else:
             main_crit_buff = 0
         
         if user1_armor_crit_buff is not None: #玩家1防具会心
-            armor_crit_buff = user1_armor_crit_buff['crit_buff']
+            armor_crit_buff = user1_armor_crit_buff['crit_buf']
         else:
             armor_crit_buff = 0
             
         if user1_weapon_data is not None: #玩家1武器会心
-            player1['会心'] = int(((user1_weapon_data['crit_buff']) + (armor_crit_buff) + (main_crit_buff))* 100)
+            player1['会心'] = int(((user1_weapon_data['crit_buf']) + (armor_crit_buff) + (main_crit_buff))* 100)
         else:
             player1['会心'] = (armor_crit_buff + main_crit_buff) * 100
 
@@ -286,18 +286,18 @@ async def qc_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
         user2_armor_crit_buff = await UserBuffData(user2['user_id']).get_user_armor_buff_data() #玩家2防具会心
         user2_main_data = await UserBuffData(user2['user_id']).get_user_main_buff_data() #玩家2功法会心
         
-        if  user2_main_data != None: #玩家2功法会心
-            main_crit_buff2 = user2_main_data['crit_buff']
+        if  user2_main_data is not None: #玩家2功法会心
+            main_crit_buff2 = user2_main_data['crit_buf']
         else:
             main_crit_buff2 = 0
         
         if user2_armor_crit_buff is not None: #玩家2防具会心
-            armor_crit_buff2 = user2_armor_crit_buff['crit_buff']
+            armor_crit_buff2 = user2_armor_crit_buff['crit_buf']
         else:
             armor_crit_buff2 = 0
             
         if user2_weapon_data is not None: #玩家2武器会心
-            player2['会心'] = int(((user2_weapon_data['crit_buff']) + (armor_crit_buff2) + (main_crit_buff2) * 100))
+            player2['会心'] = int(((user2_weapon_data['crit_buf']) + (armor_crit_buff2) + (main_crit_buff2) * 100))
         else:
             player2['会心'] = (armor_crit_buff2 + main_crit_buff2) * 100
 
@@ -318,7 +318,7 @@ async def qc_(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
         result, victor = await Player_fight(player1, player2, 1, bot.self_id)
         await send_msg_handler(bot, event, result)
         if victor == "平局":
-            msg = f"双方平分秋色，不分胜负！"
+            msg = "双方平分秋色，不分胜负！"
         else:
             msg = f"获胜的是{victor}"
         await handle_send(bot, event, send_group_id, msg)
@@ -385,8 +385,8 @@ async def two_exp_(bot: Bot, event: GroupMessageEvent, args: Message = CommandAr
                 
                 main_two_data_1 = UserBuffData(user_1['user_id']).get_user_main_buff_data()#功法双修次数提升
                 main_two_data_2 = UserBuffData(user_2['user_id']).get_user_main_buff_data()
-                main_two_1 =  main_two_data_1['two_buff'] if main_two_data_1 is not None else 0
-                main_two_2 =  main_two_data_2['two_buff'] if main_two_data_2 is not None else 0
+                main_two_1 =  main_two_data_1['two_buf'] if main_two_data_1 is not None else 0
+                main_two_2 =  main_two_data_2['two_buf'] if main_two_data_2 is not None else 0
                 if limt_1 >= two_exp_limit + impart_two_exp_1 + main_two_1:
                     msg = "道友今天双修次数已经到达上限！"
                     if XiuConfig().img:
@@ -421,10 +421,10 @@ async def two_exp_(bot: Bot, event: GroupMessageEvent, args: Message = CommandAr
                 if random.randint(1, 100) in [13, 14, 52, 10, 66]:
                     exp = int((exp_1 + exp_2) * 0.0055)
 
-                    if user_1['sect_position'] is None:
-                        max_exp_limit = 4
-                    else:
-                        max_exp_limit = user_1['sect_position']
+                    # if user_1['sect_position'] is None:
+                    #     max_exp_limit = 4
+                    # else:
+                    #     max_exp_limit = user_1['sect_position']
                     max_exp = 1000000000 #jsondata.sect_config_data()[str(max_exp_limit)]["max_exp"] #双修上限罪魁祸首
                     if exp >= max_exp:
                         exp_limit_1 = max_exp
@@ -439,10 +439,10 @@ async def two_exp_(bot: Bot, event: GroupMessageEvent, args: Message = CommandAr
                         msg += f"{user_1['user_name']}增加修为{exp_limit_1}。"
                     await XiuxianDataManager().update_power2(user_1['user_id'])
 
-                    if user_2['sect_position'] is None:
-                        max_exp_limit = 4
-                    else:
-                        max_exp_limit = user_2['sect_position']
+                    # if user_2['sect_position'] is None:
+                    #     max_exp_limit = 4
+                    # else:
+                    #     max_exp_limit = user_2['sect_position']
                     max_exp = 1000000000 #jsondata.sect_config_data()[str(max_exp_limit)]["max_exp"] #双修上限罪魁祸首
                     if exp >= max_exp:
                         exp_limit_2 = max_exp
@@ -460,7 +460,7 @@ async def two_exp_(bot: Bot, event: GroupMessageEvent, args: Message = CommandAr
                     await XiuxianDataManager().update_levelrate(user_2['user_id'], user_2['level_up_rate'] + 2)
                     two_exp_cd.add_user(user_1['user_id'])
                     two_exp_cd.add_user(user_2['user_id'])
-                    msg += f"离开时双方互相留法宝为对方护道,双方各增加突破概率2%。"
+                    msg += "离开时双方互相留法宝为对方护道,双方各增加突破概率2%。"
                     if XiuConfig().img:
                         pic = await get_msg_pic(f"@{user_info['user_name'] or event.sender.nickname}\n" + msg)
                         await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -470,10 +470,10 @@ async def two_exp_(bot: Bot, event: GroupMessageEvent, args: Message = CommandAr
                 else:
                     exp = int((exp_1 + exp_2) * 0.0055)
 
-                    if user_1['sect_position'] is None:
-                        max_exp_limit = 4
-                    else:
-                        max_exp_limit = user_1['sect_position']
+                    # if user_1['sect_position'] is None:
+                    #     max_exp_limit = 4
+                    # else:
+                    #     max_exp_limit = user_1['sect_position']
                     max_exp = 1000000000 #jsondata.sect_config_data()[str(max_exp_limit)]["max_exp"] #双修上限罪魁祸首
                     if exp >= max_exp:
                         exp_limit_1 = max_exp
@@ -487,10 +487,10 @@ async def two_exp_(bot: Bot, event: GroupMessageEvent, args: Message = CommandAr
                         msg += f"{user_1['user_name']}增加修为{exp_limit_1}。"
                     await XiuxianDataManager().update_power2(user_1['user_id'])
 
-                    if user_2['sect_position'] is None:
-                        max_exp_limit = 4
-                    else:
-                        max_exp_limit = user_2['sect_position']
+                    # if user_2['sect_position'] is None:
+                    #     max_exp_limit = 4
+                    # else:
+                    #     max_exp_limit = user_2['sect_position']
                     max_exp = 1000000000 #jsondata.sect_config_data()[str(max_exp_limit)]["max_exp"] #双修上限罪魁祸首
                     if exp >= max_exp:
                         exp_limit_2 = max_exp
@@ -639,9 +639,9 @@ async def out_closing_(bot: Bot, event: GroupMessageEvent):
         user_buff_data = UserBuffData(user_id)
         user_blessed_spot_data = (await user_buff_data.BuffInfo)['blessed_spot']
         mainbuffdata = await user_buff_data.get_user_main_buff_data()
-        mainbuffratebuff = mainbuffdata['ratebuff'] if mainbuffdata != None else 0  # 功法修炼倍率
-        mainbuffcloexp = mainbuffdata['clo_exp'] if mainbuffdata != None else 0  # 功法闭关经验
-        mainbuffclors = mainbuffdata['clo_rs'] if mainbuffdata != None else 0  # 功法闭关回复
+        mainbuffratebuff = mainbuffdata['ratebuf'] if mainbuffdata is not None else 0  # 功法修炼倍率
+        mainbuffcloexp = mainbuffdata['clo_exp'] if mainbuffdata is not None else 0  # 功法闭关经验
+        mainbuffclors = mainbuffdata['clo_rs'] if mainbuffdata is not None else 0  # 功法闭关回复
         
         exp = int(
             (exp_time * XiuConfig().closing_exp) * ((level_rate * realm_rate * (1 + mainbuffratebuff) * (1 + mainbuffcloexp) * (1 + user_blessed_spot_data)))
@@ -741,42 +741,42 @@ async def mind_state_(bot: Bot, event: GroupMessageEvent):
     user_main_data = await UserBuffData(user_id).get_user_main_buff_data() #我的状态功法减伤
     
     if user_main_data is not None:
-        main_def = user_main_data['def_buff'] * 100 #我的状态功法减伤
+        main_def = user_main_data['def_buf'] * 100 #我的状态功法减伤
     else:
         main_def = 0
     
     if user_armor_crit_data is not None: #我的状态防具会心
-        armor_crit_buff = ((user_armor_crit_data['crit_buff']) * 100)
+        armor_crit_buff = ((user_armor_crit_data['crit_buf']) * 100)
     else:
         armor_crit_buff = 0
         
     if user_weapon_data is not None:
-        crit_buff = ((user_weapon_data['crit_buff']) * 100)
+        crit_buff = ((user_weapon_data['crit_buf']) * 100)
     else:
         crit_buff = 0
 
     user_armor_data = await user_buff_data.get_user_armor_buff_data()
     if user_armor_data is not None:
-        def_buff = int(user_armor_data['def_buff'] * 100) #我的状态防具减伤
+        def_buff = int(user_armor_data['def_buf'] * 100) #我的状态防具减伤
     else:
         def_buff = 0
     
     user_armor_data = await user_buff_data.get_user_armor_buff_data()
     
     if user_weapon_data is not None:
-        weapon_def = int(user_weapon_data['def_buff'] * 100) #我的状态武器减伤
+        weapon_def = int(user_weapon_data['def_buf'] * 100) #我的状态武器减伤
     else:
         weapon_def = 0
 
     if user_main_crit_data is not None: #我的状态功法会心
-        main_crit_buff = ((user_main_crit_data['crit_buff']) * 100)
+        main_crit_buff = ((user_main_crit_data['crit_buf']) * 100)
     else:
         main_crit_buff = 0
     
     list_all = len(OtherSet().level) - 1
     now_index = OtherSet().level.index(user_msg['level'])
     if list_all == now_index:
-        exp_meg = f"位面至高"
+        exp_meg = "位面至高"
     else:
         is_updata_level = OtherSet().level[now_index + 1]
         need_exp = await XiuxianDataManager().get_level_power(is_updata_level)
@@ -784,14 +784,14 @@ async def mind_state_(bot: Bot, event: GroupMessageEvent):
         if get_exp > 0:
             exp_meg = f"还需{number_to(get_exp)}修为可突破！"
         else:
-            exp_meg = f"可突破！"
+            exp_meg = "可突破！"
     
-    main_buff_rate_buff = main_buff_data['ratebuff'] if main_buff_data is not None else 0
-    main_hp_buff = main_buff_data['hpbuff'] if main_buff_data is not None else 0
-    main_mp_buff = main_buff_data['mpbuff'] if main_buff_data is not None else 0
+    main_buff_rate_buff = main_buff_data['ratebuf'] if main_buff_data is not None else 0
+    main_hp_buff = main_buff_data['hpbuf'] if main_buff_data is not None else 0
+    # main_mp_buff = main_buff_data['mpbuf'] if main_buff_data is not None else 0
     impart_data = await XiuxianDataManager().get_user_impart_info_with_id(user_id)
     impart_hp_addition = impart_data['impart_hp_addition'] if impart_data is not None else 0
-    impart_mp_addition = impart_data['impart_mp_addition'] if impart_data is not None else 0
+    # impart_mp_addition = impart_data['impart_mp_addition'] if impart_data is not None else 0
     impart_crit_addition = impart_data['impart_crit_addition'] if impart_data is not None else 0
     impart_crit_dmg_addition = impart_data['impart_crit_dmg_addition'] if impart_data is not None else 0
     impart_boss_atk_addition = impart_data['impart_boss_atk_addition'] if impart_data is not None else 0
@@ -832,13 +832,13 @@ async def buffinfo_(bot: Bot, event: GroupMessageEvent):
 
     user_id = user_info['user_id']
     mainbuffdata = await UserBuffData(user_id).get_user_main_buff_data()
-    if mainbuffdata != None:
+    if mainbuffdata is not None:
         s, mainbuffmsg = get_main_info_msg(str(get_user_buff(user_id)['main_skill']))
     else:
         mainbuffmsg = ''
         
     subbuffdata = await UserBuffData(user_id).get_user_sub_buff_data()#辅修功法13
-    if subbuffdata != None:
+    if subbuffdata is not None:
         sub, subbuffmsg = get_sub_info_msg(str(get_user_buff(user_id)['support_skill']))
     else:
         subbuffmsg = ''
@@ -846,11 +846,11 @@ async def buffinfo_(bot: Bot, event: GroupMessageEvent):
     secbuffdata = await UserBuffData(user_id).get_user_sec_buff_data()
     secbuffmsg = get_sec_msg(secbuffdata) if get_sec_msg(secbuffdata) != '无' else ''
     msg = f"""
-道友的主功法：{mainbuffdata["name"] if mainbuffdata != None else '无'}
+道友的主功法：{mainbuffdata["name"] if mainbuffdata is not None else '无'}
 {mainbuffmsg}
-道友的辅修功法：{subbuffdata["name"] if subbuffdata != None else '无'}
+道友的辅修功法：{subbuffdata["name"] if subbuffdata is not None else '无'}
 {subbuffmsg}
-道友的神通：{secbuffdata["name"] if secbuffdata != None else '无'}
+道友的神通：{secbuffdata["name"] if secbuffdata is not None else '无'}
 {secbuffmsg}
 """
 
@@ -869,7 +869,7 @@ async def del_exp_decimal_(bot: Bot, event: GroupMessageEvent):
     user_id = user_info['user_id']
     exp = user_info['exp']
     await XiuxianDataManager().del_exp_decimal(user_id, exp)
-    msg = f"黑暗动乱暂时抑制成功！"
+    msg = "黑暗动乱暂时抑制成功！"
     await handle_send(bot, event, send_group_id, msg)
     await del_exp_decimal.finish()
 

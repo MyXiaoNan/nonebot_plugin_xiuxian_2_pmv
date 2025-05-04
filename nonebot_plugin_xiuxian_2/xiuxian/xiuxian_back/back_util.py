@@ -291,9 +291,9 @@ async def get_equipment_msg(l_msg, user_id, goods_id, goods_num, bind_num):
     msg += f"\n拥有数量:{goods_num}，绑定数量:{bind_num}"
     is_use = await check_equipment_use_msg(user_id, goods_id)
     if is_use:
-        msg += f"\n已装备"
+        msg += "\n已装备"
     else:
-        msg += f"\n可装备"
+        msg += "\n可装备"
     l_msg.append(msg)
     return l_msg
 
@@ -460,7 +460,7 @@ async def check_use_elixir(user_id, goods_id, num):
         else:  # 检查完毕
             await XiuxianDataManager().update_back_j(user_id, goods_id, num, 1)
             await XiuxianDataManager().update_levelrate(user_id, user_info['level_up_rate'] + goods_info['buff'] * num)
-            msg = f"道友成功使用丹药：{goods_name}{num}颗，下一次突破的成功概率提高{goods_info['buff'] * num}%!"
+            msg = f"道友成功使用丹药：{goods_name}{num}颗，下一次突破的成功概率提高{goods_info['buf'] * num}%!"
 
     elif goods_info['buff_type'] == "level_up_big":  # 增加大境界突破概率的丹药
         if goods_rank != user_rank:  # 使用限制
@@ -476,16 +476,16 @@ async def check_use_elixir(user_id, goods_id, num):
                     msg = f"道友成功使用丹药：{goods_name}{num}颗, 下一次突破的成功概率提高{goods_info['buff'] * num}%!"
 
                 await XiuxianDataManager().update_back_j(user_id, goods_id, num, 1)
-                await XiuxianDataManager().update_levelrate(user_id, user_info['level_up_rate'] + goods_info['buff'] * num)
+                await XiuxianDataManager().update_levelrate(user_id, user_info['level_up_rate'] + goods_info['buf'] * num)
 
     elif goods_info['buff_type'] == "hp":  # 回复状态的丹药
         if user_info['root'] == "器师":
             user_max_hp = int(user_info['exp'] / 2)
             user_max_mp = int(user_info['exp'])
             if user_info['hp'] == user_max_hp and user_info['mp'] == user_max_mp:
-                msg = f"道友的状态是满的，用不了哦！"
+                msg = "道友的状态是满的，用不了哦！"
             else:
-                buff = goods_info['buff']
+                buff = goods_info['buf']
                 buff = round((0.016 * user_rank + 0.104) * buff , 2)
                 recover_hp = int(buff * user_max_hp * num)
                 recover_mp = int(buff * user_max_mp * num)
@@ -507,9 +507,9 @@ async def check_use_elixir(user_id, goods_id, num):
                 user_max_hp = int(user_info['exp'] / 2)
                 user_max_mp = int(user_info['exp'])
                 if user_info['hp'] == user_max_hp and user_info['mp'] == user_max_mp:
-                    msg = f"道友的状态是满的，用不了哦！"
+                    msg = "道友的状态是满的，用不了哦！"
                 else:
-                    buff = goods_info['buff']
+                    buff = goods_info['buf']
                     buff = round((0.016 * user_rank + 0.104) * buff , 2)
                     recover_hp = int(buff * user_max_hp * num)
                     recover_mp = int(buff * user_max_mp * num)
@@ -530,7 +530,7 @@ async def check_use_elixir(user_id, goods_id, num):
             user_max_hp = int(user_info['exp'] / 2)
             user_max_mp = int(user_info['exp'])
             if user_info['hp'] == user_max_hp and user_info['mp'] == user_max_mp:
-                msg = f"道友的状态是满的，用不了哦！"
+                msg = "道友的状态是满的，用不了哦！"
             else:
                 await XiuxianDataManager().update_back_j(user_id, goods_id, use_key=1)
                 await XiuxianDataManager().update_user_hp(user_id)
@@ -542,13 +542,13 @@ async def check_use_elixir(user_id, goods_id, num):
                 user_max_hp = int(user_info['exp'] / 2)
                 user_max_mp = int(user_info['exp'])
                 if user_info['hp'] == user_max_hp and user_info['mp'] == user_max_mp:
-                    msg = f"道友的状态是满的，用不了哦！"
+                    msg = "道友的状态是满的，用不了哦！"
                 else:
                     await XiuxianDataManager().update_back_j(user_id, goods_id, use_key=1)
                     await XiuxianDataManager().update_user_hp(user_id)
                     msg = f"道友成功使用丹药：{goods_name}1颗,状态已全部恢复!"
 
-    elif goods_info['buff_type'] == "atk_buff":  # 永久加攻击buff的丹药
+    elif goods_info['buff_type'] == "atk_buf":  # 永久加攻击buff的丹药
         if user_info['root'] == "器师":
             buff = goods_info['buff'] * num
             await XiuxianDataManager().updata_user_atk_buff(user_id, buff)
@@ -567,7 +567,7 @@ async def check_use_elixir(user_id, goods_id, num):
         if goods_rank < user_rank:  # 使用限制
             msg = f"丹药：{goods_name}的使用境界为{goods_info['境界']}以上，道友不满足使用条件！"
         else:
-            exp = goods_info['buff'] * num
+            exp = goods_info['buf'] * num
             user_hp = int(user_info['hp'] + (exp / 2))
             user_mp = int(user_info['mp'] + exp)
             user_atk = int(user_info['atk'] + (exp / 10))
@@ -577,19 +577,19 @@ async def check_use_elixir(user_id, goods_id, num):
             await XiuxianDataManager().update_back_j(user_id, goods_id, num=num, use_key=1)
             msg = f"道友成功使用丹药：{goods_name}{num}颗,修为增加{exp}点！"
     else:
-        msg = f"该类型的丹药目前暂时不支持使用！"
+        msg = "该类型的丹药目前暂时不支持使用！"
     return msg
 
 
 async def get_use_jlq_msg(user_id, goods_id):
     user_info = await XiuxianDataManager().get_user_infos_by_ids(user_id)
     if user_info['blessed_spot_flag'] == 0:
-        msg = f"道友还未拥有洞天福地，无法使用该物品"
+        msg = "道友还未拥有洞天福地，无法使用该物品"
     else:
         item_info = items.get_data_by_item_id(goods_id)
         user_buff_data = await UserBuffData(user_id).BuffInfo
         if int(user_buff_data['blessed_spot']) >= item_info['修炼速度']:
-            msg = f"该聚灵旗的等级不能满足道友的福地了，使用了也没效果"
+            msg = "该聚灵旗的等级不能满足道友的福地了，使用了也没效果"
         else:
             mix_elixir_info = get_player_info(user_id, "mix_elixir_info")
             mix_elixir_info['药材速度'] = item_info['药材速度']
@@ -603,11 +603,11 @@ async def get_use_jlq_msg(user_id, goods_id):
 async def get_shop_data(group_id):
     try:
         data = await read_shop()
-    except:
+    except ValueError:
         data = {}
     try:
         data[group_id]
-    except:
+    except ValueError:
         data[group_id] = {}
     await save_shop(data)
     return data

@@ -52,7 +52,7 @@ async def draw_user_info_img(user_id, DETAIL_MAP):
         img.resize((based_w, based_h), Image.Resampling.LANCZOS)
         # 贴一层黑色遮罩
         img.paste(i := Image.new("RGBA", (based_w, based_h), (0, 0, 0, 168)), mask=i)
-    except:
+    except ValueError:
         logger.opt(colors=True).info("<red>下载随机背景图失败，使用默认背景图</red>")
         img = Image.open(TEXT_PATH / 'back.png').resize((based_w, based_h)).convert("RGBA")
     # 获取用户头像圆框

@@ -13,7 +13,6 @@ from ..xiuxian_config import XiuConfig, convert_rank
 from .. import DRIVER
 from .item_json import Items
 from typing import Dict, List, Optional, Any
-import asyncio
 
 WORKDATA = Path() / "data" / "xiuxian" / "work"
 PLAYERSDATA = Path() / "data" / "xiuxian" / "players"
@@ -111,6 +110,8 @@ class XiuxianDataManager:
         if XiuxianDataManager._pool is None:
             try:
                 pg_url = XiuConfig().postgresql_url
+                if not pg_url:
+                    raise ValueError("数据库连接字符串为空，请先在xiuxian_config.py文件中配置数据库地址!")
                 pg_url_parts = pg_url.split('/')
                 base_pg_url = '/'.join(pg_url_parts[:-1]) + '/postgres'
                 conn = await asyncpg.connect(base_pg_url)
@@ -123,7 +124,7 @@ class XiuxianDataManager:
                     if not exists:
                         # 创建数据库
                         await conn.execute("CREATE DATABASE xiuxian")
-                        logger.opt(colors=True).info(f"<green>数据库xiuxian创建成功！</green>")
+                        logger.opt(colors=True).info("<green>数据库xiuxian创建成功！</green>")
                 finally:
                     await conn.close()
                 
@@ -133,11 +134,11 @@ class XiuxianDataManager:
                     min_size=XiuConfig().min_database_connection,
                     max_size=XiuConfig().max_database_connection
                 )
-                logger.opt(colors=True).info(f"<green>修仙PostgreSQL数据库连接池已创建！</green>")
+                logger.opt(colors=True).info("<green>修仙PostgreSQL数据库连接池已创建！</green>")
                 
                 # 先创建所有必要的表结构
                 await self._check_data()
-                logger.opt(colors=True).info(f"<green>修仙数据库表结构创建完成！</green>")
+                logger.opt(colors=True).info("<green>修仙数据库表结构创建完成！</green>")
                 
                 # 初始化优化模块
                 try:
@@ -149,11 +150,11 @@ class XiuxianDataManager:
                     except Exception as e:
                         logger.opt(colors=True).warning(f"<yellow>应用数据库优化失败: {e}</yellow>")
                         
-                    logger.opt(colors=True).info(f"<green>修仙数据库优化模块已初始化！</green>")
+                    logger.opt(colors=True).info("<green>修仙数据库优化模块已初始化！</green>")
                 except Exception as e:
                     logger.opt(colors=True).warning(f"<yellow>初始化数据库优化模块时出错: {e}</yellow>")
                 
-                logger.opt(colors=True).info(f"<green>修仙数据库初始化完成！</green>")
+                logger.opt(colors=True).info("<green>修仙数据库初始化完成！</green>")
                 
             except Exception as e:
                 logger.opt(colors=True).error(f"<red>PostgreSQL连接池创建失败：{e}</red>")
@@ -178,7 +179,7 @@ class XiuxianDataManager:
         if XiuxianDataManager._pool:
             await XiuxianDataManager._pool.close()
             XiuxianDataManager._pool = None
-            logger.opt(colors=True).info(f"<green>修仙PostgreSQL数据库连接池已关闭！</green>")
+            logger.opt(colors=True).info("<green>修仙PostgreSQL数据库连接池已关闭！</green>")
 
     @classmethod
     async def close_dbs(cls):
@@ -243,7 +244,7 @@ class XiuxianDataManager:
                     CREATE INDEX IF NOT EXISTS idx_xiuxian_user_is_elixir ON xiuxian_user(is_elixir);
                     CREATE INDEX IF NOT EXISTS idx_xiuxian_user_sect_task_quantity ON xiuxian_user(sect_task_quantity);
                 """)
-                logger.opt(colors=True).info(f"<green>xiuxian_user表及索引创建成功</green>")
+                logger.opt(colors=True).info("<green>xiuxian_user表及索引创建成功</green>")
 
             try:
                 await conn.execute("SELECT count(1) FROM xiuxian_time LIMIT 1")
@@ -264,7 +265,7 @@ class XiuxianDataManager:
                 CREATE INDEX IF NOT EXISTS idx_xiuxian_time_schedule_type ON xiuxian_time(schedule_type);
                 CREATE INDEX IF NOT EXISTS idx_xiuxian_time_level_up_time ON xiuxian_time(level_up_time);
                 """)
-                logger.opt(colors=True).info(f"<green>xiuxian_time表及索引创建成功</green>")
+                logger.opt(colors=True).info("<green>xiuxian_time表及索引创建成功</green>")
                 
             try:
                 await conn.execute("SELECT count(1) FROM xiuxian_buff LIMIT 1")
@@ -291,7 +292,7 @@ class XiuxianDataManager:
                     CREATE INDEX IF NOT EXISTS idx_xiuxian_buff_armor ON xiuxian_buff(armor);
                     CREATE INDEX IF NOT EXISTS idx_xiuxian_buff_atk ON xiuxian_buff(atk);
                 """)
-                logger.opt(colors=True).info(f"<green>xiuxian_buff表及索引创建成功</green>")
+                logger.opt(colors=True).info("<green>xiuxian_buff表及索引创建成功</green>")
 
             
             try:
@@ -317,7 +318,7 @@ class XiuxianDataManager:
                     CREATE INDEX IF NOT EXISTS idx_xiuxian_sect_name ON xiuxian_sect(sect_name);
                     CREATE INDEX IF NOT EXISTS idx_xiuxian_sect_owner ON xiuxian_sect(sect_owner);
                 """)
-                logger.opt(colors=True).info(f"<green>xiuxian_sect表及索引创建成功</green>")
+                logger.opt(colors=True).info("<green>xiuxian_sect表及索引创建成功</green>")
 
             
             try:
@@ -348,7 +349,7 @@ class XiuxianDataManager:
                     CREATE INDEX IF NOT EXISTS idx_xiuxian_back_goods_receive_time ON xiuxian_back(goods_receive_time);
                     CREATE INDEX IF NOT EXISTS idx_xiuxian_back_goods_update_time ON xiuxian_back(goods_update_time);
                 """)
-                logger.opt(colors=True).info(f"<green>xiuxian_back表及索引创建成功</green>")
+                logger.opt(colors=True).info("<green>xiuxian_back表及索引创建成功</green>")
             
             try:
                 await conn.execute("SELECT count(1) FROM xiuxian_impart LIMIT 1")
@@ -376,7 +377,7 @@ class XiuxianDataManager:
                 await conn.execute("""
                     CREATE INDEX IF NOT EXISTS idx_xiuxian_impart_user_id ON xiuxian_impart(user_id);
                 """)
-                logger.opt(colors=True).info(f"<green>xiuxian_impart表及索引创建成功</green>")
+                logger.opt(colors=True).info("<green>xiuxian_impart表及索引创建成功</green>")
             try:
                 await conn.execute("""
                 UPDATE xiuxian_time
@@ -385,11 +386,6 @@ class XiuxianDataManager:
                 """, current_time)
             except asyncpg.exceptions.UndefinedTableError:
                 pass
-
-    @classmethod
-    async def close_dbs(cls):
-        """关闭所有数据库连接"""
-        await XiuxianDataManager().close()
 
     async def _create_user(self, user_id: int, root: str, type: str, power: str, user_create_time: str, user_name: str) -> None:
         """在数据库中创建用户并初始化"""
@@ -429,17 +425,17 @@ class XiuxianDataManager:
         await self.ensure_pool()
         async with self.pool.acquire() as conn:
             if key == 0:
-                sql = f"UPDATE xiuxian_user SET stamina = stamina + $1 WHERE user_id = $2"
+                sql = "UPDATE xiuxian_user SET stamina = stamina + $1 WHERE user_id = $2"
                 await conn.execute(sql, stamina_change, user_id)
             elif key == 1:
-                sql = f"UPDATE xiuxian_user SET stamina = stamina - $1 WHERE user_id = $2"
+                sql = "UPDATE xiuxian_user SET stamina = stamina - $1 WHERE user_id = $2"
                 await conn.execute(sql, stamina_change, user_id)
 
     async def get_user_real_info(self, user_id: int):
         """根据USER_ID获取用户信息,获取功法加成"""
         await self.ensure_pool()
         async with self.pool.acquire() as conn:
-            sql = f"SELECT * FROM xiuxian_user WHERE user_id = $1"
+            sql = "SELECT * FROM xiuxian_user WHERE user_id = $1"
             result = await conn.fetchrow(sql, int(user_id))
             if result:
                 user_dict = dict(result)
@@ -456,7 +452,7 @@ class XiuxianDataManager:
         """
         await self.ensure_pool()
         async with self.pool.acquire() as conn:
-            sql = f"SELECT * from xiuxian_sect WHERE sect_id = $1"
+            sql = "SELECT * from xiuxian_sect WHERE sect_id = $1"
             result = await conn.fetchrow(sql, sect_id)
             if result:
                 return dict(result)
@@ -467,7 +463,7 @@ class XiuxianDataManager:
         """获取所有宗主的 user_id"""
         await self.ensure_pool()
         async with self.pool.acquire() as conn:
-            sql = f"SELECT user_id FROM xiuxian_user WHERE sect_position = 0"
+            sql = "SELECT user_id FROM xiuxian_user WHERE sect_position = 0"
             result = await conn.fetch(sql)
             return [row[0] for row in result]
     
@@ -476,7 +472,7 @@ class XiuxianDataManager:
         """获取所有长老的user_id"""
         await self.ensure_pool()
         async with self.pool.acquire() as conn:
-            sql = f"SELECT user_id FROM xiuxian_user WHERE sect_position = 1"
+            sql = "SELECT user_id FROM xiuxian_user WHERE sect_position = 1"
             result = await conn.fetch(sql)
             return [row[0] for row in result]
 
@@ -484,14 +480,14 @@ class XiuxianDataManager:
         """校验用户是否存在"""
         await self.ensure_pool()
         async with self.pool.acquire() as conn:
-            sql = f"SELECT * FROM xiuxian_user WHERE user_id = $1"
+            sql = "SELECT * FROM xiuxian_user WHERE user_id = $1"
             result = await conn.fetchrow(sql, int(user_id))
             if not result:
                 await self._create_user(user_id, args[0], args[1], args[2], args[3], args[4]) # root, type, power, create_time, user_name
                 welcome_msg = f"欢迎进入修仙世界的，你的灵根为：{args[0]},类型是：{args[1]},你的战力为：{args[2]},当前境界：江湖好手"
                 return True, welcome_msg
             else:
-                return False, f"您已经迈入修仙世界\n输入【我的修仙信息】获取数据吧！"
+                return False, "您已经迈入修仙世界\n输入【我的修仙信息】获取数据吧！"
 
     async def get_sign(self, user_id: int):
         """获取用户签到信息"""
@@ -500,25 +496,25 @@ class XiuxianDataManager:
             sql = "SELECT is_sign FROM xiuxian_user WHERE user_id = $1"
             result = await conn.fetchval(sql, int(user_id))
             if result is None:
-                return f"修仙界没有你的足迹，输入 我要修仙 加入修仙世界吧！"
+                return "修仙界没有你的足迹，输入 我要修仙 加入修仙世界吧！"
             elif result == 0:
                 ls = random.randint(XiuConfig().sign_in_lingshi_lower_limit, XiuConfig().sign_in_lingshi_upper_limit)
-                sql2 = f"UPDATE xiuxian_user SET is_sign = 1, stone = stone + $1 WHERE user_id = $2"
+                sql2 = "UPDATE xiuxian_user SET is_sign = 1, stone = stone + $1 WHERE user_id = $2"
                 await conn.execute(sql2, ls, user_id)
                 
                 return f"签到成功，获取{ls}块灵石!"
             elif result == 1:
-                return f"贪心的人是不会有好运的！"
+                return "贪心的人是不会有好运的！"
         
     async def get_beg(self, user_id: int):
         """获取仙途奇缘信息"""
         await self.ensure_pool()
         async with self.pool.acquire() as conn:
-            sql = f"SELECT is_beg FROM xiuxian_user WHERE user_id = $1"
+            sql = "SELECT is_beg FROM xiuxian_user WHERE user_id = $1"
             is_beg = await conn.fetchval(sql, int(user_id))
             if is_beg == 0:
                 ls = random.randint(XiuConfig().beg_lingshi_lower_limit, XiuConfig().beg_lingshi_upper_limit)
-                sql2 = f"UPDATE xiuxian_user SET is_beg = 1, stone = stone + $1 WHERE user_id = $2"
+                sql2 = "UPDATE xiuxian_user SET is_beg = 1, stone = stone + $1 WHERE user_id = $2"
                 await conn.execute(sql2, ls, user_id)
                 
                 return ls
@@ -529,7 +525,7 @@ class XiuxianDataManager:
         """洗灵根"""
         await self.ensure_pool()
         async with self.pool.acquire() as conn:
-            sql = f"UPDATE xiuxian_user SET root = $1, root_type = $2, stone = stone - $3 WHERE user_id = $4"
+            sql = "UPDATE xiuxian_user SET root = $1, root_type = $2, stone = stone - $3 WHERE user_id = $4"
             await conn.execute(sql, lg, type, XiuConfig().remake, user_id)
             await self.update_power2(user_id)
             return f"逆天之行，重获新生，新的灵根为：{lg}，类型为：{type}"
@@ -562,7 +558,7 @@ class XiuxianDataManager:
         async with self.pool.acquire() as conn:
             level = jsondata.level_data()
             power = int(level[UserMessage['level']]['power']) * float(await self.get_root_rate(UserMessage['root_type']))
-            sql = f"UPDATE xiuxian_user SET power = $1 WHERE user_id = $2"
+            sql = "UPDATE xiuxian_user SET power = $1 WHERE user_id = $2"
             await conn.execute(sql, int(power), user_id)
 
     async def update_ls(self, user_id: int, price: int, key: int):
@@ -571,9 +567,9 @@ class XiuxianDataManager:
         await self.ensure_pool()
         async with self.pool.acquire() as conn:
             if key == 0:
-                sql = f"UPDATE xiuxian_user SET stone = stone + $1 WHERE user_id = $2"
+                sql = "UPDATE xiuxian_user SET stone = stone + $1 WHERE user_id = $2"
             elif key == 1:
-                sql = f"UPDATE xiuxian_user SET stone = stone - $1 WHERE user_id = $2"
+                sql = "UPDATE xiuxian_user SET stone = stone - $1 WHERE user_id = $2"
         
             await conn.execute(sql, price, user_id)
 
@@ -582,43 +578,43 @@ class XiuxianDataManager:
         await self.ensure_pool()
         async with self.pool.acquire() as conn:
             if int(key) == 1:
-                sql = f"UPDATE xiuxian_user SET root = $1, root_type = $2 WHERE user_id = $3"
+                sql = "UPDATE xiuxian_user SET root = $1, root_type = $2 WHERE user_id = $3"
                 await conn.execute(sql, "全属性灵根", "混沌灵根", user_id)
                 root_name = "混沌灵根"
                 
             
             elif int(key) == 2:
-                sql = f"UPDATE xiuxian_user SET root = $1, root_type = $2 WHERE user_id = $3"
+                sql = "UPDATE xiuxian_user SET root = $1, root_type = $2 WHERE user_id = $3"
                 await conn.execute(sql, "融合万物灵根", "融合灵根", user_id)
                 root_name = "融合灵根"
                 
                 
             elif int(key) == 3:
-                sql = f"UPDATE xiuxian_user SET root = $1, root_type = $2 WHERE user_id = $3"
+                sql = "UPDATE xiuxian_user SET root = $1, root_type = $2 WHERE user_id = $3"
                 await conn.execute(sql, "月灵根", "超灵根", user_id)
                 root_name = "超灵根"
                 
                 
             elif int(key) == 4:
-                sql = f"UPDATE xiuxian_user SET root = $1, root_type = $2 WHERE user_id = $3"
+                sql = "UPDATE xiuxian_user SET root = $1, root_type = $2 WHERE user_id = $3"
                 await conn.execute(sql, "言灵灵根", "龙灵根", user_id)
                 root_name = "龙灵根"
                 
                 
             elif int(key) == 5:
-                sql = f"UPDATE xiuxian_user SET root = $1, root_type = $2 WHERE user_id = $3"
+                sql = "UPDATE xiuxian_user SET root = $1, root_type = $2 WHERE user_id = $3"
                 await conn.execute(sql, "金灵根", "天灵根", user_id)
                 root_name = "天灵根"
                 
                 
             elif int(key) == 6:
-                sql = f"UPDATE xiuxian_user SET root = $1, root_type = $2 WHERE user_id = $3"
+                sql = "UPDATE xiuxian_user SET root = $1, root_type = $2 WHERE user_id = $3"
                 await conn.execute(sql, "轮回千次不灭，只为臻至巅峰", "轮回道果", user_id)
                 root_name = "轮回道果"
                 
                 
             elif int(key) == 7:
-                sql = f"UPDATE xiuxian_user SET root = $1, root_type = $2 WHERE user_id = $3"
+                sql = "UPDATE xiuxian_user SET root = $1, root_type = $2 WHERE user_id = $3"
                 await conn.execute(sql, "轮回万次不灭，只为超越巅峰", "真·轮回道果", user_id)
                 root_name = "真·轮回道果"
                 
@@ -629,7 +625,7 @@ class XiuxianDataManager:
         """所有用户增加灵石"""
         await self.ensure_pool()
         async with self.pool.acquire() as conn:
-            sql = f"UPDATE xiuxian_user SET stone = stone + $1"
+            sql = "UPDATE xiuxian_user SET stone = stone + $1"
             await conn.execute(sql, price)
             
     
@@ -637,7 +633,7 @@ class XiuxianDataManager:
         """修为排行"""
         await self.ensure_pool()
         async with self.pool.acquire() as conn:
-            sql = f"SELECT rank from(SELECT user_id,exp,dense_rank() over (ORDER BY exp desc) as rank FROM xiuxian_user) WHERE user_id = $1"
+            sql = "SELECT rank from(SELECT user_id,exp,dense_rank() over (ORDER BY exp desc) as rank FROM xiuxian_user) WHERE user_id = $1"
             rank = await conn.fetchval(sql, int(user_id))
             return rank
 
@@ -645,7 +641,7 @@ class XiuxianDataManager:
         """灵石排行"""
         await self.ensure_pool()
         async with self.pool.acquire() as conn:
-            sql = f"SELECT rank from(SELECT user_id,stone,dense_rank() over (ORDER BY stone desc) as rank FROM xiuxian_user) WHERE user_id = $1"
+            sql = "SELECT rank from(SELECT user_id,stone,dense_rank() over (ORDER BY stone desc) as rank FROM xiuxian_user) WHERE user_id = $1"
             rank = await conn.fetchval(sql, int(user_id))
             return rank
     
@@ -653,7 +649,7 @@ class XiuxianDataManager:
         """灵石排行榜"""
         await self.ensure_pool()
         async with self.pool.acquire() as conn:
-            sql = f"SELECT user_id,stone FROM xiuxian_user  WHERE stone > 0 ORDER BY stone DESC LIMIT 5"
+            sql = "SELECT user_id,stone FROM xiuxian_user  WHERE stone > 0 ORDER BY stone DESC LIMIT 5"
             result = await conn.fetch(sql, )
             return result
 
@@ -661,7 +657,7 @@ class XiuxianDataManager:
         """重置签到"""
         await self.ensure_pool()
         async with self.pool.acquire() as conn:
-            sql = f"UPDATE xiuxian_user SET is_sign = 0"
+            sql = "UPDATE xiuxian_user SET is_sign = 0"
             await conn.execute(sql, )
             
 
@@ -669,7 +665,7 @@ class XiuxianDataManager:
         """重置仙途奇缘"""
         await self.ensure_pool()
         async with self.pool.acquire() as conn:
-            sql = f"UPDATE xiuxian_user SET is_beg = 0"
+            sql = "UPDATE xiuxian_user SET is_beg = 0"
             await conn.execute(sql, )
             
 
@@ -677,7 +673,7 @@ class XiuxianDataManager:
         """小黑屋"""
         await self.ensure_pool()
         async with self.pool.acquire() as conn:
-            sql = f"UPDATE xiuxian_user SET is_ban = 1 WHERE user_id = $1"
+            sql = "UPDATE xiuxian_user SET is_ban = 1 WHERE user_id = $1"
             await conn.execute(sql, int(user_id))
             
 
@@ -685,12 +681,12 @@ class XiuxianDataManager:
         """更新用户道号"""
         await self.ensure_pool()
         async with self.pool.acquire() as conn:
-            get_name = f"SELECT user_name FROM xiuxian_user WHERE user_name = $1"
+            get_name = "SELECT user_name FROM xiuxian_user WHERE user_name = $1"
             result = await conn.fetchval(get_name, user_name)
             if result:
                 return "已存在该道号！"
             else:
-                sql = f"UPDATE xiuxian_user SET user_name = $1 WHERE user_id = $2"
+                sql = "UPDATE xiuxian_user SET user_name = $1 WHERE user_id = $2"
                 await conn.execute(sql, user_name, user_id)
                 
                 return '道友的道号更新成功拉~'
@@ -699,7 +695,7 @@ class XiuxianDataManager:
         """更新突破境界CD"""
         await self.ensure_pool()
         async with self.pool.acquire() as conn:
-            sql = f"UPDATE xiuxian_time SET level_up_time = $1 WHERE user_id = $2"
+            sql = "UPDATE xiuxian_time SET level_up_time = $1 WHERE user_id = $2"
             await conn.execute(sql, datetime.now(), user_id)
             
     
@@ -707,7 +703,7 @@ class XiuxianDataManager:
         """更新查看修仙信息时间"""
         await self.ensure_pool()
         async with self.pool.acquire() as conn:
-            sql = f"UPDATE xiuxian_time SET last_active_time = $1 WHERE user_id = $2"
+            sql = "UPDATE xiuxian_time SET last_active_time = $1 WHERE user_id = $2"
             await conn.execute(sql, datetime.now(), user_id)
             
 
@@ -715,13 +711,13 @@ class XiuxianDataManager:
         """获取最后一次查看修仙信息时间"""
         await self.ensure_pool()
         async with self.pool.acquire() as conn:
-            sql = f"SELECT last_active_time FROM xiuxian_time WHERE user_id = $1"
+            sql = "SELECT last_active_time FROM xiuxian_time WHERE user_id = $1"
             time_str = await conn.fetchval(sql, int(user_id))
             if time_str:
                 if isinstance(time_str, datetime):
                     return time_str
                 else:
-                    return datetime.strptime(time_str, '%Y-%m-%d %H:%M:%S.%f')
+                    return datetime.strptime(time_str, '%Y-%m-%d %H:%M:%S.%')
             else:
                 return None
 
@@ -730,7 +726,7 @@ class XiuxianDataManager:
         """更新境界"""
         await self.ensure_pool()
         async with self.pool.acquire() as conn:
-            sql = f"UPDATE xiuxian_user SET level = $1 WHERE user_id = $2"
+            sql = "UPDATE xiuxian_user SET level = $1 WHERE user_id = $2"
             await conn.execute(sql, level_name, user_id)
             
 
@@ -743,7 +739,7 @@ class XiuxianDataManager:
         """
         await self.ensure_pool()
         async with self.pool.acquire() as conn:
-            sql = f"SELECT * FROM xiuxian_time WHERE user_id = $1"
+            sql = "SELECT * FROM xiuxian_time WHERE user_id = $1"
             result = await conn.fetchrow(sql, int(user_id))
             if result:
                 return dict(result)
@@ -759,7 +755,7 @@ class XiuxianDataManager:
         """
         await self.ensure_pool()
         async with self.pool.acquire() as conn:
-            sql = f"INSERT INTO xiuxian_time (user_id) VALUES ($1)"
+            sql = "INSERT INTO xiuxian_time (user_id) VALUES ($1)"
             await conn.execute(sql, int(user_id))
             
 
@@ -773,7 +769,7 @@ class XiuxianDataManager:
         """
         await self.ensure_pool()
         async with self.pool.acquire() as conn:
-            sql = f"INSERT INTO xiuxian_sect(sect_name, sect_owner, sect_scale, sect_used_stone) VALUES ($1,$2,0,0)"
+            sql = "INSERT INTO xiuxian_sect(sect_name, sect_owner, sect_scale, sect_used_stone) VALUES ($1,$2,0,0)"
             await conn.execute(sql, sect_name, user_id)
             
 
@@ -786,12 +782,12 @@ class XiuxianDataManager:
         """
         await self.ensure_pool()
         async with self.pool.acquire() as conn:
-            get_sect_name = f"SELECT sect_name from xiuxian_sect WHERE sect_name = $1"
+            get_sect_name = "SELECT sect_name from xiuxian_sect WHERE sect_name = $1"
             result = await conn.fetchrow(get_sect_name, sect_name)
             if result:
                 return False
             else:
-                sql = f"UPDATE xiuxian_sect SET sect_name = $1 WHERE sect_id = $2"
+                sql = "UPDATE xiuxian_sect SET sect_name = $1 WHERE sect_id = $2"
                 await conn.execute(sql, sect_name, sect_id)
                 
                 return True
@@ -804,7 +800,7 @@ class XiuxianDataManager:
         """
         await self.ensure_pool()
         async with self.pool.acquire() as conn:
-            sql = f"SELECT * from xiuxian_sect WHERE sect_owner = $1"
+            sql = "SELECT * from xiuxian_sect WHERE sect_owner = $1"
             result = await conn.fetchrow(sql, int(user_id))
             if result:
                 return dict(result)
@@ -819,7 +815,7 @@ class XiuxianDataManager:
         """
         await self.ensure_pool()
         async with self.pool.acquire() as conn:
-            sql = f"SELECT * from xiuxian_sect WHERE sect_id = $1"
+            sql = "SELECT * from xiuxian_sect WHERE sect_id = $1"
             result = await conn.fetchrow(sql, sect_id)
             if result:
                 return dict(result)
@@ -837,7 +833,7 @@ class XiuxianDataManager:
         """
         await self.ensure_pool()
         async with self.pool.acquire() as conn:
-            sql = f"UPDATE xiuxian_user SET sect_id = $1,sect_position = $2 WHERE user_id = $3"
+            sql = "UPDATE xiuxian_user SET sect_id = $1,sect_position = $2 WHERE user_id = $3"
             await conn.execute(sql, usr_sect_id, usr_sect_position, user_id)
             
 
@@ -850,7 +846,7 @@ class XiuxianDataManager:
         """
         await self.ensure_pool()
         async with self.pool.acquire() as conn:
-            sql = f"UPDATE xiuxian_sect SET sect_owner = $1 WHERE sect_id = $2"
+            sql = "UPDATE xiuxian_sect SET sect_owner = $1 WHERE sect_id = $2"
             await conn.execute(sql, user_id, sect_id)
             
 
@@ -987,20 +983,20 @@ class XiuxianDataManager:
         """这也是灵石排行榜"""
         await self.ensure_pool()
         try:
-            sql = f"SELECT user_name, stone FROM xiuxian_user WHERE user_name is NOT NULL ORDER BY stone DESC LIMIT 50"
+            sql = "SELECT user_name, stone FROM xiuxian_user WHERE user_name is NOT NULL ORDER BY stone DESC LIMIT 50"
             async with self.pool.acquire() as conn:
                 result = await conn.fetch(sql)
                 return result
         except ImportError:
             async with self.pool.acquire() as conn:
-                sql = f"SELECT user_name, stone FROM xiuxian_user WHERE user_name is NOT NULL ORDER BY stone DESC LIMIT 50"
+                sql = "SELECT user_name, stone FROM xiuxian_user WHERE user_name is NOT NULL ORDER BY stone DESC LIMIT 50"
                 result = await conn.fetch(sql)
                 return result
 
     async def power_top(self):
         """战力排行榜"""
         await self.ensure_pool()
-        sql = f"SELECT user_name,power FROM xiuxian_user WHERE user_name is NOT NULL ORDER BY power DESC LIMIT 50"
+        sql = "SELECT user_name,power FROM xiuxian_user WHERE user_name is NOT NULL ORDER BY power DESC LIMIT 50"
         async with self.pool.acquire() as conn:
             result = await conn.fetch(sql)
             return result
@@ -1011,7 +1007,7 @@ class XiuxianDataManager:
         :return:
         """
         await self.ensure_pool()
-        sql = f"SELECT sect_id, sect_name, sect_scale FROM xiuxian_sect WHERE sect_owner is NOT NULL ORDER BY sect_scale DESC"
+        sql = "SELECT sect_id, sect_name, sect_scale FROM xiuxian_sect WHERE sect_owner is NOT NULL ORDER BY sect_scale DESC"
         async with self.pool.acquire() as conn:
             result = await conn.fetch(sql)
             return result
@@ -1023,7 +1019,7 @@ class XiuxianDataManager:
         :return: 宗门信息字典列表
         """
         await self.ensure_pool()
-        sql = f"SELECT * FROM xiuxian_sect WHERE sect_owner is NOT NULL"
+        sql = "SELECT * FROM xiuxian_sect WHERE sect_owner is NOT NULL"
         async with self.pool.acquire() as conn:
             result = await conn.fetch(sql)
             results = []
@@ -1068,7 +1064,7 @@ class XiuxianDataManager:
         """
         await self.ensure_pool()
         async with self.pool.acquire() as conn:
-            sql = f"SELECT * FROM xiuxian_user ORDER BY exp DESC LIMIT 1"
+            sql = "SELECT * FROM xiuxian_user ORDER BY exp DESC LIMIT 1"
             result = await conn.fetch(sql)
             if result:
                 return dict(result[0])
@@ -1102,7 +1098,7 @@ class XiuxianDataManager:
     async def donate_update(self, sect_id: int, stone_num: int):
         """宗门捐献更新建设度及可用灵石"""
         await self.ensure_pool()
-        sql = f"UPDATE xiuxian_sect SET sect_used_stone=sect_used_stone + $1,sect_scale=sect_scale + $2 WHERE sect_id = $3"
+        sql = "UPDATE xiuxian_sect SET sect_used_stone=sect_used_stone + $1,sect_scale=sect_scale + $2 WHERE sect_id = $3"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, stone_num, stone_num * 1, sect_id)
             
@@ -1113,11 +1109,11 @@ class XiuxianDataManager:
         await self.ensure_pool()
         async with self.pool.acquire() as conn:
             if key == 0:
-                sql = f"UPDATE xiuxian_sect SET sect_used_stone=sect_used_stone + $1 WHERE sect_id = $2"
+                sql = "UPDATE xiuxian_sect SET sect_used_stone=sect_used_stone + $1 WHERE sect_id = $2"
                 await conn.execute(sql, sect_used_stone, sect_id)
                 
             elif key == 1:
-                sql = f"UPDATE xiuxian_sect SET sect_used_stone=sect_used_stone - $1 WHERE sect_id = $2"
+                sql = "UPDATE xiuxian_sect SET sect_used_stone=sect_used_stone - $1 WHERE sect_id = $2"
                 await conn.execute(sql, sect_used_stone, sect_id)
                 
 
@@ -1127,11 +1123,11 @@ class XiuxianDataManager:
         await self.ensure_pool()
         async with self.pool.acquire() as conn:
             if key == 0:
-                sql = f"UPDATE xiuxian_sect SET sect_materials=sect_materials + $1 WHERE sect_id = $2"
+                sql = "UPDATE xiuxian_sect SET sect_materials=sect_materials + $1 WHERE sect_id = $2"
                 await conn.execute(sql, sect_materials, sect_id)
                 
             elif key == 1:
-                sql = f"UPDATE xiuxian_sect SET sect_materials=sect_materials - $1 WHERE sect_id = $2"
+                sql = "UPDATE xiuxian_sect SET sect_materials=sect_materials - $1 WHERE sect_id = $2"
                 await conn.execute(sql, sect_materials, sect_id)
                 
 
@@ -1144,7 +1140,7 @@ class XiuxianDataManager:
         :result[2] = 丹房等级 elixir_room_level 
         """
         await self.ensure_pool()
-        sql = f"SELECT sect_id, sect_scale, sect_elixir_room_level FROM xiuxian_sect WHERE sect_owner is NOT NULL ORDER BY sect_scale DESC"
+        sql = "SELECT sect_id, sect_scale, sect_elixir_room_level FROM xiuxian_sect WHERE sect_owner is NOT NULL ORDER BY sect_scale DESC"
         async with self.pool.acquire() as conn:
             result = await conn.fetch(sql)
             return result
@@ -1155,7 +1151,7 @@ class XiuxianDataManager:
         :return: 成员列表
         """
         await self.ensure_pool()
-        sql = f"SELECT * FROM xiuxian_user WHERE sect_id = $1"
+        sql = "SELECT * FROM xiuxian_user WHERE sect_id = $1"
         async with self.pool.acquire() as conn:
             result = await conn.fetch(sql, sect_id)
             results = []
@@ -1185,7 +1181,7 @@ class XiuxianDataManager:
             now_time = datetime.now()
             
         # 确保sc_time是正确的类型，修复整数类型转换错误
-        sql = f"UPDATE xiuxian_time SET schedule_type = $1, schedule_create_time = $2, schedule = $3 WHERE user_id = $4"
+        sql = "UPDATE xiuxian_time SET schedule_type = $1, schedule_create_time = $2, schedule = $3 WHERE user_id = $4"
         async with self.pool.acquire() as conn:
             try:
                 await conn.execute(sql, the_type, now_time, sc_time, user_id)
@@ -1199,7 +1195,7 @@ class XiuxianDataManager:
     async def update_levelrate(self, user_id: int, rate: int):
         """更新突破成功率"""
         await self.ensure_pool()
-        sql = f"UPDATE xiuxian_user SET level_up_rate = $1 WHERE user_id = $2"
+        sql = "UPDATE xiuxian_user SET level_up_rate = $1 WHERE user_id = $2"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, rate, user_id)
             
@@ -1207,7 +1203,7 @@ class XiuxianDataManager:
     async def update_user_attribute(self, user_id: int, hp: int, mp: int, atk: int):
         """更新用户HP,MP,ATK信息"""
         await self.ensure_pool()
-        sql = f"UPDATE xiuxian_user SET hp = $1,mp = $2,atk = $3 WHERE user_id = $4"
+        sql = "UPDATE xiuxian_user SET hp = $1,mp = $2,atk = $3 WHERE user_id = $4"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, hp, mp, atk, user_id)
             
@@ -1215,7 +1211,7 @@ class XiuxianDataManager:
     async def update_user_hp_mp(self, user_id: int, hp: int, mp: int):
         """更新用户HP,MP信息"""
         await self.ensure_pool()
-        sql = f"UPDATE xiuxian_user SET hp = $1,mp = $2 WHERE user_id = $3"
+        sql = "UPDATE xiuxian_user SET hp = $1,mp = $2 WHERE user_id = $3"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, hp, mp, user_id)
             
@@ -1223,7 +1219,7 @@ class XiuxianDataManager:
     async def update_user_sect_contribution(self, user_id: int, sect_contribution: int):
         """更新用户宗门贡献度"""
         await self.ensure_pool()
-        sql = f"UPDATE xiuxian_user SET sect_contribution = $1 WHERE user_id = $2"
+        sql = "UPDATE xiuxian_user SET sect_contribution = $1 WHERE user_id = $2"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, sect_contribution, user_id)
             
@@ -1231,7 +1227,7 @@ class XiuxianDataManager:
     async def update_user_hp(self, user_id: int):
         """重置用户hp,mp信息"""
         await self.ensure_pool()
-        sql = f"UPDATE xiuxian_user SET hp = exp / 2,mp = exp, atk = exp / 10 WHERE user_id = $1"
+        sql = "UPDATE xiuxian_user SET hp = exp / 2,mp = exp, atk = exp / 10 WHERE user_id = $1"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, int(user_id))
             
@@ -1240,12 +1236,12 @@ class XiuxianDataManager:
         """重置所有用户状态或重置对应人状态"""
         await self.ensure_pool()
         if user_id is None:
-            sql = f"UPDATE xiuxian_user SET hp = exp / 2,mp = exp, atk = exp / 10"
+            sql = "UPDATE xiuxian_user SET hp = exp / 2,mp = exp, atk = exp / 10"
             async with self.pool.acquire() as conn:
                 await conn.execute(sql, )
                 
         else:
-            sql = f"UPDATE xiuxian_user SET hp = exp / 2,mp = exp, atk = exp / 10 WHERE user_id = $1"
+            sql = "UPDATE xiuxian_user SET hp = exp / 2,mp = exp, atk = exp / 10 WHERE user_id = $1"
             async with self.pool.acquire() as conn:
                 await conn.execute(sql, int(user_id))
     
@@ -1271,7 +1267,6 @@ class XiuxianDataManager:
             return {} if not is_single_id else None
         
         try:
-            # 尝试使用缓存查询，提高性能
             placeholders = ','.join(f'${i+1}' for i in range(len(user_ids)))
             sql = f"""
             SELECT * FROM xiuxian_user WHERE user_id IN ({placeholders})
@@ -1301,18 +1296,19 @@ class XiuxianDataManager:
     async def auto_recover_hp(self):
         """自动回血函数"""
         await self.ensure_pool()
-        sql = f"""
+        sql = """
         UPDATE xiuxian_user 
         SET hp = LEAST(hp + exp * 0.001, exp / 2)
         WHERE hp < exp / 2
         """
         async with self.pool.acquire() as conn:
             await conn.execute(sql)
+        logger.opt(colors=True).info("<green>已为所有用户自动回血</green>")
 
     async def get_back_msg(self, user_id: int):
         """获取用户背包信息"""
         await self.ensure_pool()
-        sql = f"SELECT * FROM xiuxian_back WHERE user_id = $1 and goods_num >= 1"
+        sql = "SELECT * FROM xiuxian_back WHERE user_id = $1 and goods_num >= 1"
         async with self.pool.acquire() as conn:
             result = await conn.fetch(sql, int(user_id))
             if not result:
@@ -1352,7 +1348,7 @@ class XiuxianDataManager:
     async def update_user_atkpractice(self, user_id: int, atk_practice_level: int):
         """更新用户攻击修炼等级"""
         await self.ensure_pool()
-        sql = f"UPDATE xiuxian_user SET atk_practice_level = $1 WHERE user_id = $2"
+        sql = "UPDATE xiuxian_user SET atk_practice_level = $1 WHERE user_id = $2"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, atk_practice_level, user_id)
             
@@ -1360,7 +1356,7 @@ class XiuxianDataManager:
     async def update_user_sect_task(self, user_id: int, sect_task: int):
         """更新用户宗门任务次数"""
         await self.ensure_pool()
-        sql = f"UPDATE xiuxian_user SET sect_task = $1 WHERE user_id = $2"
+        sql = "UPDATE xiuxian_user SET sect_task = $1 WHERE user_id = $2"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, sect_task, user_id)
             
@@ -1368,7 +1364,7 @@ class XiuxianDataManager:
     async def sect_task_reset(self):
         """重置宗门任务次数"""
         await self.ensure_pool()
-        sql = f"UPDATE xiuxian_user SET sect_task = 0"
+        sql = "UPDATE xiuxian_user SET sect_task = 0"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, )
             
@@ -1376,7 +1372,7 @@ class XiuxianDataManager:
     async def update_sect_scale_and_used_stone(self, sect_id: int, sect_used_stone: int, sect_scale: int):
         """更新宗门灵石、建设度"""
         await self.ensure_pool()
-        sql = f"UPDATE xiuxian_sect SET sect_used_stone = $1, sect_scale = $2 WHERE sect_id = $3"
+        sql = "UPDATE xiuxian_sect SET sect_used_stone = $1, sect_scale = $2 WHERE sect_id = $3"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, sect_used_stone, sect_scale, sect_id)
             
@@ -1384,7 +1380,7 @@ class XiuxianDataManager:
     async def update_sect_elixir_room_level(self, sect_id: int, level: int):
         """更新宗门丹房等级"""
         await self.ensure_pool()
-        sql = f"UPDATE xiuxian_sect SET elixir_room_level = $1 WHERE sect_id = $2"
+        sql = "UPDATE xiuxian_sect SET elixir_room_level = $1 WHERE sect_id = $2"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, level, sect_id)
             
@@ -1392,7 +1388,7 @@ class XiuxianDataManager:
     async def update_user_sect_elixir_get_num(self, user_id: int):
         """更新用户每日领取丹药领取次数"""
         await self.ensure_pool()
-        sql = f"UPDATE xiuxian_user SET sect_elixir_get = 1 WHERE user_id = $1"
+        sql = "UPDATE xiuxian_user SET sect_elixir_get = 1 WHERE user_id = $1"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, int(user_id))
             
@@ -1400,7 +1396,7 @@ class XiuxianDataManager:
     async def sect_elixir_get_num_reset(self):
         """重置宗门丹药领取次数"""
         await self.ensure_pool()
-        sql = f"UPDATE xiuxian_user SET sect_elixir_get = 0"
+        sql = "UPDATE xiuxian_user SET sect_elixir_get = 0"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, )
             
@@ -1408,7 +1404,7 @@ class XiuxianDataManager:
     async def update_sect_mainbuff(self, sect_id: int, mainbuffid: int):
         """更新宗门当前的主修功法"""
         await self.ensure_pool()
-        sql = f"UPDATE xiuxian_sect SET mainbuff = $1 WHERE sect_id = $2"
+        sql = "UPDATE xiuxian_sect SET mainbuff = $1 WHERE sect_id = $2"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, mainbuffid, sect_id)
             
@@ -1416,7 +1412,7 @@ class XiuxianDataManager:
     async def update_sect_secbuff(self, sect_id: int, secbuffid: int):
         """更新宗门当前的神通"""
         await self.ensure_pool()
-        sql = f"UPDATE xiuxian_sect SET secbuff = $1 WHERE sect_id = $2"
+        sql = "UPDATE xiuxian_sect SET secbuff = $1 WHERE sect_id = $2"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, secbuffid, sect_id)
             
@@ -1424,7 +1420,7 @@ class XiuxianDataManager:
     async def initialize_user_buff_info(self, user_id: int):
         """初始化用户buff信息"""
         await self.ensure_pool()
-        sql = f"INSERT INTO xiuxian_buff (user_id,main_skill,ultimate_skill,weapon) VALUES ($1,0,0,0)"
+        sql = "INSERT INTO xiuxian_buff (user_id,main_skill,ultimate_skill,weapon) VALUES ($1,0,0,0)"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, int(user_id))
             
@@ -1432,7 +1428,7 @@ class XiuxianDataManager:
     async def get_user_buff_info(self, user_id: int):
         """获取用户buff信息"""
         await self.ensure_pool()
-        sql = f"SELECT * from xiuxian_buff WHERE user_id = $1"
+        sql = "SELECT * from xiuxian_buff WHERE user_id = $1"
         async with self.pool.acquire() as conn:
             result = await conn.fetchrow(sql, int(user_id))
             if result:
@@ -1443,7 +1439,7 @@ class XiuxianDataManager:
     async def updata_user_main_buff(self, user_id: int, id: int):
         """更新用户主功法信息"""
         await self.ensure_pool()
-        sql = f"UPDATE xiuxian_buff SET main_skill = $1 WHERE user_id = $2"
+        sql = "UPDATE xiuxian_buff SET main_skill = $1 WHERE user_id = $2"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, id, user_id)
             
@@ -1451,7 +1447,7 @@ class XiuxianDataManager:
     async def updata_user_sub_buff(self, user_id: int, id: int): #辅修功法3
         """更新用户辅修功法信息"""
         await self.ensure_pool()
-        sql = f"UPDATE xiuxian_buff SET support_skill = $1 WHERE user_id = $2"
+        sql = "UPDATE xiuxian_buff SET support_skill = $1 WHERE user_id = $2"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, id, user_id)
             
@@ -1459,7 +1455,7 @@ class XiuxianDataManager:
     async def updata_user_sec_buff(self, user_id: int, id: int):
         """更新用户副功法信息"""
         await self.ensure_pool()
-        sql = f"UPDATE xiuxian_buff SET ultimate_skill = $1 WHERE user_id = $2"
+        sql = "UPDATE xiuxian_buff SET ultimate_skill = $1 WHERE user_id = $2"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, id, user_id)
             
@@ -1467,14 +1463,14 @@ class XiuxianDataManager:
     async def updata_user_faqi_buff(self, user_id: int, id: int):
         """更新用户法器信息"""
         await self.ensure_pool()
-        sql = f"UPDATE xiuxian_buff SET weapon = $1 WHERE user_id = $2"
+        sql = "UPDATE xiuxian_buff SET weapon = $1 WHERE user_id = $2"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, id, user_id)
             
     async def updata_user_armor_buff(self, user_id: int, id: int):
         """更新用户防具信息"""
         await self.ensure_pool()
-        sql = f"UPDATE xiuxian_buff SET armor = $1 WHERE user_id = $2"
+        sql = "UPDATE xiuxian_buff SET armor = $1 WHERE user_id = $2"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, id, user_id)
             
@@ -1482,7 +1478,7 @@ class XiuxianDataManager:
     async def updata_user_atk_buff(self, user_id: int, buff: int):
         """更新用户永久攻击buff信息"""
         await self.ensure_pool()
-        sql = f"UPDATE xiuxian_buff SET atk = atk + $1 WHERE user_id = $2"
+        sql = "UPDATE xiuxian_buff SET atk = atk + $1 WHERE user_id = $2"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, buff, user_id)
             
@@ -1490,7 +1486,7 @@ class XiuxianDataManager:
     async def updata_user_blessed_spot(self, user_id: int, blessed_spot: int):
         """更新用户洞天福地等级"""
         await self.ensure_pool()
-        sql = f"UPDATE xiuxian_buff SET blessed_spot = $1 WHERE user_id = $2"
+        sql = "UPDATE xiuxian_buff SET blessed_spot = $1 WHERE user_id = $2"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, blessed_spot, user_id)
             
@@ -1498,7 +1494,7 @@ class XiuxianDataManager:
     async def update_user_blessed_spot_flag(self, user_id: int):
         """更新用户洞天福地是否开启"""
         await self.ensure_pool()
-        sql = f"UPDATE xiuxian_user SET blessed_spot_flag = 1 WHERE user_id = $1"
+        sql = "UPDATE xiuxian_user SET blessed_spot_flag = 1 WHERE user_id = $1"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, int(user_id))
             
@@ -1506,7 +1502,7 @@ class XiuxianDataManager:
     async def update_user_blessed_spot_name(self, user_id: int, blessed_spot_name: str):
         """更新用户洞天福地的名字"""
         await self.ensure_pool()
-        sql = f"UPDATE xiuxian_user SET blessed_spot_name = $1 WHERE user_id = $2"
+        sql = "UPDATE xiuxian_user SET blessed_spot_name = $1 WHERE user_id = $2"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, blessed_spot_name, user_id)
             
@@ -1514,7 +1510,7 @@ class XiuxianDataManager:
     async def day_num_reset(self):
         """重置丹药每日使用次数"""
         await self.ensure_pool()
-        sql = f"UPDATE xiuxian_back SET day_num = 0 WHERE goods_type = '丹药'"
+        sql = "UPDATE xiuxian_back SET day_num = 0 WHERE goods_type = '丹药'"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, )
             
@@ -1522,7 +1518,7 @@ class XiuxianDataManager:
     async def reset_work_num(self):
         """重置用户悬赏令刷新次数"""
         await self.ensure_pool()
-        sql = f"UPDATE xiuxian_user SET work_quantity = 0"
+        sql = "UPDATE xiuxian_user SET work_quantity = 0"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, )
             
@@ -1530,7 +1526,7 @@ class XiuxianDataManager:
     async def get_work_num(self, user_id: int):
         """获取用户悬赏令刷新次数"""
         await self.ensure_pool()
-        sql = f"SELECT work_quantity FROM xiuxian_user WHERE user_id = $1"
+        sql = "SELECT work_quantity FROM xiuxian_user WHERE user_id = $1"
         async with self.pool.acquire() as conn:
             work_num = await conn.fetchval(sql, int(user_id))
             return work_num
@@ -1539,7 +1535,7 @@ class XiuxianDataManager:
     async def update_work_num(self, user_id: int, work_num: int):
         """更新用户悬赏令刷新次数"""
         await self.ensure_pool()
-        sql = f"UPDATE xiuxian_user SET work_quantity = $1 WHERE user_id = $2"
+        sql = "UPDATE xiuxian_user SET work_quantity = $1 WHERE user_id = $2"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, work_num, user_id)
             
@@ -1567,7 +1563,7 @@ class XiuxianDataManager:
             else:
                 bind_num = back['goods_bind_num']
             goods_nums = back['goods_num'] + goods_num
-            sql = f"UPDATE xiuxian_back set goods_num = $1,goods_update_time = $2, goods_bind_num = $3 WHERE user_id = $4 and goods_id = $5"
+            sql = "UPDATE xiuxian_back set goods_num = $1,goods_update_time = $2, goods_bind_num = $3 WHERE user_id = $4 and goods_id = $5"
             async with self.pool.acquire() as conn:
                 await conn.execute(sql, goods_nums, now_time, bind_num, user_id, goods_id)
                 
@@ -1577,7 +1573,7 @@ class XiuxianDataManager:
                 bind_num = goods_num
             else:
                 bind_num = 0
-            sql = f"""INSERT INTO xiuxian_back (user_id, goods_id, goods_name, goods_type, goods_num, goods_receive_time, goods_update_time, goods_bind_num)
+            sql = """INSERT INTO xiuxian_back (user_id, goods_id, goods_name, goods_type, goods_num, goods_receive_time, goods_update_time, goods_bind_num)
             VALUES ($1,$2,$3,$4,$5,$6,$7,$8)"""
             async with self.pool.acquire() as conn:
                 await conn.execute(sql, user_id, goods_id, goods_name, goods_type, goods_num, now_time, now_time, bind_num)
@@ -1589,7 +1585,7 @@ class XiuxianDataManager:
         await self.ensure_pool()
         # 确保goods_id是整数类型
         goods_id = int(goods_id)
-        sql = f"SELECT * FROM xiuxian_back WHERE user_id = $1 and goods_id = $2"
+        sql = "SELECT * FROM xiuxian_back WHERE user_id = $1 and goods_id = $2"
         async with self.pool.acquire() as conn:
             result = await conn.fetchrow(sql, user_id, goods_id)
             if not result:
@@ -1608,7 +1604,7 @@ class XiuxianDataManager:
     async def reset_user_drug_resistance(self, user_id: int):
         """重置用户耐药性"""
         await self.ensure_pool()
-        sql = f"UPDATE xiuxian_back SET goods_all_limit = 0 WHERE goods_type = '丹药' and user_id = $1"
+        sql = "UPDATE xiuxian_back SET goods_all_limit = 0 WHERE goods_type = '丹药' and user_id = $1"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, int(user_id))
             
@@ -1634,7 +1630,7 @@ class XiuxianDataManager:
             all_num = back['goods_all_limit']
         goods_num = back['goods_num'] - num
         now_time = datetime.now()
-        sql = f"UPDATE xiuxian_back set goods_update_time = $1, goods_action_time = $2, goods_num = $3, goods_day_limit = $4, goods_all_limit = $5, goods_bind_num = $6 WHERE user_id = $7 and goods_id = $8"
+        sql = "UPDATE xiuxian_back set goods_update_time = $1, goods_action_time = $2, goods_num = $3, goods_day_limit = $4, goods_all_limit = $5, goods_bind_num = $6 WHERE user_id = $7 and goods_id = $8"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, now_time, now_time, goods_num, day_num, all_num, bind_num, user_id, goods_id)
             
@@ -1644,7 +1640,7 @@ class XiuxianDataManager:
     async def create_impart_user(self, user_id: str) -> None:
         """在数据库中创建用户并初始化"""
         await self.ensure_pool()
-        sql = f"INSERT INTO xiuxian_impart (user_id, impart_hp_addition, impart_atk_addition, impart_mp_addition, impart_exp_addition ,impart_boss_atk_addition,impart_crit_addition,impart_crit_dmg_addition,impart_mix_addition,impart_reap_addition,impart_two_exp_quantity,impart_stone_quantity,impart_exp_day_quantity,impart_wish_quantity) VALUES($1, 0, 0, 0, 0 ,0, 0, 0, 0, 0 ,0 ,0 ,0, 0)"
+        sql = "INSERT INTO xiuxian_impart (user_id, impart_hp_addition, impart_atk_addition, impart_mp_addition, impart_exp_addition ,impart_boss_atk_addition,impart_crit_addition,impart_crit_dmg_addition,impart_mix_addition,impart_reap_addition,impart_two_exp_quantity,impart_stone_quantity,impart_exp_day_quantity,impart_wish_quantity) VALUES($1, 0, 0, 0, 0 ,0, 0, 0, 0, 0 ,0 ,0 ,0, 0)"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, int(user_id))
             
@@ -1653,7 +1649,7 @@ class XiuxianDataManager:
     async def get_user_impart_info_with_id(self, user_id: int):
         """根据USER_ID获取用户impart_buff信息"""
         await self.ensure_pool()
-        sql = f"SELECT * from xiuxian_impart WHERE user_id = $1"
+        sql = "SELECT * from xiuxian_impart WHERE user_id = $1"
         async with self.pool.acquire() as conn:
             result = await conn.fetchrow(sql, int(user_id))
             if result:
@@ -1665,7 +1661,7 @@ class XiuxianDataManager:
     async def update_impart_hp_per(self, impart_num: int, user_id: int):
         """更新impart_hp_per"""
         await self.ensure_pool()
-        sql = f"UPDATE xiuxian_impart SET impart_hp_addition = $1 WHERE user_id = $2"
+        sql = "UPDATE xiuxian_impart SET impart_hp_addition = $1 WHERE user_id = $2"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, impart_num, user_id)
             
@@ -1674,7 +1670,7 @@ class XiuxianDataManager:
     async def add_impart_hp_per(self, impart_num: int, user_id: int):
         """add impart_hp_addition"""
         await self.ensure_pool()
-        sql = f"UPDATE xiuxian_impart SET impart_hp_addition = impart_hp_addition + $1 WHERE user_id = $2"
+        sql = "UPDATE xiuxian_impart SET impart_hp_addition = impart_hp_addition + $1 WHERE user_id = $2"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, impart_num, user_id)
             
@@ -1683,7 +1679,7 @@ class XiuxianDataManager:
     async def update_impart_atk_per(self, impart_num: int, user_id: int):
         """更新impart_atk_per"""
         await self.ensure_pool()
-        sql = f"UPDATE xiuxian_impart SET impart_atk_addition = $1 WHERE user_id = $2"
+        sql = "UPDATE xiuxian_impart SET impart_atk_addition = $1 WHERE user_id = $2"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, impart_num, user_id)
             
@@ -1692,7 +1688,7 @@ class XiuxianDataManager:
     async def add_impart_atk_per(self, impart_num: int, user_id: int):
         """增加impart_atk_per"""
         await self.ensure_pool()
-        sql = f"UPDATE xiuxian_impart SET impart_atk_addition=impart_atk_addition + $1 WHERE user_id = $2"
+        sql = "UPDATE xiuxian_impart SET impart_atk_addition=impart_atk_addition + $1 WHERE user_id = $2"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, impart_num, user_id)
             
@@ -1701,7 +1697,7 @@ class XiuxianDataManager:
     async def update_impart_mp_per(self, impart_num: int, user_id: int):
         """更新impart_mp_per"""
         await self.ensure_pool()
-        sql = f"UPDATE xiuxian_impart SET impart_mp_addition = $1 WHERE user_id = $2"
+        sql = "UPDATE xiuxian_impart SET impart_mp_addition = $1 WHERE user_id = $2"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, impart_num, user_id)
             
@@ -1710,7 +1706,7 @@ class XiuxianDataManager:
     async def add_impart_mp_per(self, impart_num: int, user_id: int):
         """增加impart_mp_per"""
         await self.ensure_pool()
-        sql = f"UPDATE xiuxian_impart SET impart_mp_addition=impart_mp_addition + $1 WHERE user_id = $2"
+        sql = "UPDATE xiuxian_impart SET impart_mp_addition=impart_mp_addition + $1 WHERE user_id = $2"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, impart_num, user_id)
             
@@ -1719,7 +1715,7 @@ class XiuxianDataManager:
     async def update_impart_exp_up(self, impart_num: int, user_id: int):
         """更新impart_exp_up"""
         await self.ensure_pool()
-        sql = f"UPDATE xiuxian_impart SET impart_exp_addition = $1 WHERE user_id = $2"
+        sql = "UPDATE xiuxian_impart SET impart_exp_addition = $1 WHERE user_id = $2"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, impart_num, user_id)
             
@@ -1728,7 +1724,7 @@ class XiuxianDataManager:
     async def add_impart_exp_up(self, impart_num: int, user_id: int):
         """增加impart_exp_up"""
         await self.ensure_pool()
-        sql = f"UPDATE xiuxian_impart SET impart_exp_addition=impart_exp_addition + $1 WHERE user_id = $2"
+        sql = "UPDATE xiuxian_impart SET impart_exp_addition=impart_exp_addition + $1 WHERE user_id = $2"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, impart_num, user_id)
             
@@ -1737,7 +1733,7 @@ class XiuxianDataManager:
     async def update_boss_atk(self, impart_num: int, user_id: int):
         """更新boss_atk"""
         await self.ensure_pool()
-        sql = f"UPDATE xiuxian_impart SET impart_boss_atk_addition = $1 WHERE user_id = $2"
+        sql = "UPDATE xiuxian_impart SET impart_boss_atk_addition = $1 WHERE user_id = $2"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, impart_num, user_id)
             
@@ -1746,7 +1742,7 @@ class XiuxianDataManager:
     async def add_boss_atk(self, impart_num: int, user_id: int):
         """增加boss_atk"""
         await self.ensure_pool()
-        sql = f"UPDATE xiuxian_impart SET impart_boss_atk_addition=impart_boss_atk_addition + $1 WHERE user_id = $2"
+        sql = "UPDATE xiuxian_impart SET impart_boss_atk_addition=impart_boss_atk_addition + $1 WHERE user_id = $2"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, impart_num, user_id)
             
@@ -1755,7 +1751,7 @@ class XiuxianDataManager:
     async def update_impart_know_per(self, impart_num: int, user_id: int):
         """更新impart_know_per"""
         await self.ensure_pool()
-        sql = f"UPDATE xiuxian_impart SET impart_crit_addition = $1 WHERE user_id = $2"
+        sql = "UPDATE xiuxian_impart SET impart_crit_addition = $1 WHERE user_id = $2"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, impart_num, user_id)
             
@@ -1764,7 +1760,7 @@ class XiuxianDataManager:
     async def add_impart_know_per(self, impart_num: int, user_id: int):
         """增加impart_know_per"""
         await self.ensure_pool()
-        sql = f"UPDATE xiuxian_impart SET impart_crit_addition = impart_crit_addition + $1 WHERE user_id = $2"
+        sql = "UPDATE xiuxian_impart SET impart_crit_addition = impart_crit_addition + $1 WHERE user_id = $2"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, impart_num, user_id)
             
@@ -1773,7 +1769,7 @@ class XiuxianDataManager:
     async def update_impart_burst_per(self, impart_num: int, user_id: int):
         """更新impart_burst_per"""
         await self.ensure_pool()
-        sql = f"UPDATE xiuxian_impart SET impart_crit_dmg_addition = $1 WHERE user_id = $2"
+        sql = "UPDATE xiuxian_impart SET impart_crit_dmg_addition = $1 WHERE user_id = $2"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, impart_num, user_id)
             
@@ -1782,7 +1778,7 @@ class XiuxianDataManager:
     async def add_impart_burst_per(self, impart_num: int, user_id: int):
         """增加impart_burst_per"""
         await self.ensure_pool()
-        sql = f"UPDATE xiuxian_impart SET impart_crit_dmg_addition = impart_crit_dmg_addition + $1 WHERE user_id = $2"
+        sql = "UPDATE xiuxian_impart SET impart_crit_dmg_addition = impart_crit_dmg_addition + $1 WHERE user_id = $2"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, impart_num, user_id)
             
@@ -1791,7 +1787,7 @@ class XiuxianDataManager:
     async def update_impart_mix_per(self, impart_num: int, user_id: int):
         """更新impart_mix_per"""
         await self.ensure_pool()
-        sql = f"UPDATE xiuxian_impart SET impart_mix_addition = $1 WHERE user_id = $2"
+        sql = "UPDATE xiuxian_impart SET impart_mix_addition = $1 WHERE user_id = $2"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, impart_num, user_id)
             
@@ -1800,7 +1796,7 @@ class XiuxianDataManager:
     async def add_impart_mix_per(self, impart_num: int, user_id: int):
         """增加impart_mix_per"""
         await self.ensure_pool()
-        sql = f"UPDATE xiuxian_impart SET impart_mix_addition = impart_mix_addition + $1 WHERE user_id = $2"
+        sql = "UPDATE xiuxian_impart SET impart_mix_addition = impart_mix_addition + $1 WHERE user_id = $2"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, impart_num, user_id)
             
@@ -1809,7 +1805,7 @@ class XiuxianDataManager:
     async def update_impart_reap_per(self, impart_num: int, user_id: int):
         """更新impart_reap_per"""
         await self.ensure_pool()
-        sql = f"UPDATE xiuxian_impart SET impart_reap_addition = $1 WHERE user_id = $2"
+        sql = "UPDATE xiuxian_impart SET impart_reap_addition = $1 WHERE user_id = $2"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, impart_num, user_id)
             
@@ -1818,7 +1814,7 @@ class XiuxianDataManager:
     async def add_impart_reap_per(self, impart_num: int, user_id: int):
         """增加impart_reap_per"""
         await self.ensure_pool()
-        sql = f"UPDATE xiuxian_impart SET impart_reap_addition = impart_reap_addition + $1 WHERE user_id = $2"
+        sql = "UPDATE xiuxian_impart SET impart_reap_addition = impart_reap_addition + $1 WHERE user_id = $2"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, impart_num, user_id)
             
@@ -1827,7 +1823,7 @@ class XiuxianDataManager:
     async def update_impart_two_exp(self, impart_num: int, user_id: int):
         """更新双修经验"""
         await self.ensure_pool()
-        sql = f"UPDATE xiuxian_impart SET impart_two_exp_quantity = $1 WHERE user_id = $2"
+        sql = "UPDATE xiuxian_impart SET impart_two_exp_quantity = $1 WHERE user_id = $2"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, impart_num, user_id)
             
@@ -1836,7 +1832,7 @@ class XiuxianDataManager:
     async def add_impart_two_exp(self, impart_num: int, user_id: int):
         """增加双修经验"""
         await self.ensure_pool()
-        sql = f"UPDATE xiuxian_impart SET impart_two_exp_quantity = impart_two_exp_quantity + $1 WHERE user_id = $2"
+        sql = "UPDATE xiuxian_impart SET impart_two_exp_quantity = impart_two_exp_quantity + $1 WHERE user_id = $2"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, impart_num, user_id)
             
@@ -1845,7 +1841,7 @@ class XiuxianDataManager:
     async def update_impart_wish(self, impart_num: int, user_id: int):
         """更新抽卡次数"""
         await self.ensure_pool()
-        sql = f"UPDATE xiuxian_impart SET impart_wish_quantity = $1 WHERE user_id = $2"
+        sql = "UPDATE xiuxian_impart SET impart_wish_quantity = $1 WHERE user_id = $2"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, impart_num, user_id)
             
@@ -1854,7 +1850,7 @@ class XiuxianDataManager:
     async def add_impart_wish(self, impart_num: int, user_id: int):
         """增加抽卡次数"""
         await self.ensure_pool()
-        sql = f"UPDATE xiuxian_impart SET impart_wish_quantity = impart_wish_quantity + $1 WHERE user_id = $2"
+        sql = "UPDATE xiuxian_impart SET impart_wish_quantity = impart_wish_quantity + $1 WHERE user_id = $2"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, impart_num, user_id)
             
@@ -1864,13 +1860,13 @@ class XiuxianDataManager:
         """更新结晶数量, 0为增加, 1为减少"""
         await self.ensure_pool()
         if type_ == 0:
-            sql = f"UPDATE xiuxian_impart SET impart_stone_quantity = impart_stone_quantity + $1 WHERE user_id = $2"
+            sql = "UPDATE xiuxian_impart SET impart_stone_quantity = impart_stone_quantity + $1 WHERE user_id = $2"
             async with self.pool.acquire() as conn:
                 await conn.execute(sql, impart_num, user_id)
                 
             return True
         if type_ == 1:
-            sql = f"UPDATE xiuxian_impart SET impart_stone_quantity = impart_stone_quantity - $1 WHERE user_id = $2"
+            sql = "UPDATE xiuxian_impart SET impart_stone_quantity = impart_stone_quantity - $1 WHERE user_id = $2"
             async with self.pool.acquire() as conn:
                 await conn.execute(sql, impart_num, user_id)
                 
@@ -1879,7 +1875,7 @@ class XiuxianDataManager:
     async def update_impart_stone_all(self, impart_stone: int):
         """所有用户增加结晶"""
         await self.ensure_pool()
-        sql = f"UPDATE xiuxian_impart SET impart_stone_quantity = impart_stone_quantity + $1"
+        sql = "UPDATE xiuxian_impart SET impart_stone_quantity = impart_stone_quantity + $1"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, impart_stone)
             
@@ -1888,7 +1884,7 @@ class XiuxianDataManager:
     async def add_impart_exp_day(self, impart_num: int, user_id: int):
         """增加虚神界经验"""
         await self.ensure_pool()
-        sql = f"UPDATE xiuxian_impart SET impart_exp_day_quantity = impart_exp_day_quantity + $1 WHERE user_id = $2"
+        sql = "UPDATE xiuxian_impart SET impart_exp_day_quantity = impart_exp_day_quantity + $1 WHERE user_id = $2"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, int(impart_num), int(user_id))
             
@@ -1897,7 +1893,7 @@ class XiuxianDataManager:
     async def use_impart_exp_day(self, impart_num: int, user_id: int):
         """使用虚神界经验"""
         await self.ensure_pool()
-        sql = f"UPDATE xiuxian_impart SET impart_exp_day_quantity = impart_exp_day_quantity - $1 WHERE user_id = $2"
+        sql = "UPDATE xiuxian_impart SET impart_exp_day_quantity = impart_exp_day_quantity - $1 WHERE user_id = $2"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, int(impart_num), int(user_id))
             
@@ -1937,7 +1933,7 @@ class XiuxianDataManager:
                 results["indexes_rebuilt"] = await reindex_all_tables()
                 logger.opt(colors=True).info(f"<green>索引重建{'成功' if results['indexes_rebuilt'] else '失败'}</green>")
             except ImportError:
-                logger.opt(colors=True).warning(f"<yellow>索引优化模块未加载，跳过索引重建</yellow>")
+                logger.opt(colors=True).warning("<yellow>索引优化模块未加载，跳过索引重建</yellow>")
             
             return results
             
@@ -1946,7 +1942,7 @@ class XiuxianDataManager:
             return results
 
 
-class XiuxianJsonDate:
+class XiuxianJsonData:
     def __init__(self):
         self.root_jsonpath = DATABASE / "灵根.json"
         self.level_jsonpath = DATABASE / "突破概率.json"
@@ -2057,12 +2053,12 @@ class OtherSet(XiuConfig):
         if isinstance(new_time, datetime):
             pass
         else:
-            new_time = datetime.strptime(new_time, '%Y-%m-%d %H:%M:%S.%f')
+            new_time = datetime.strptime(new_time, '%Y-%m-%d %H:%M:%S.%')
 
         if isinstance(old_time, datetime):
             pass
         else:
-            old_time = datetime.strptime(old_time, '%Y-%m-%d %H:%M:%S.%f')
+            old_time = datetime.strptime(old_time, '%Y-%m-%d %H:%M:%S.%')
 
         day = (new_time - old_time).days
         sec = (new_time - old_time).seconds
@@ -2630,15 +2626,15 @@ class XiuXianNameGenerator:
         Returns:
             包含name和rarity的字典
         """
-        l = length or 1
+        len = length or 1
         rarity = "common"
         
         if not length:
             r = self._get_rarity()
             if r["value"] < RARITY_VALUES["rare"]:
-                l = 3
+                len = 3
             elif r["value"] < RARITY_VALUES["uncommon"]:
-                l = 2
+                len = 2
             rarity = r["rarity"]
         else:
             if length > 2:
@@ -2653,7 +2649,7 @@ class XiuXianNameGenerator:
                 common.extend(self.data["common"][category])
         
         name = ""
-        for _ in range(l):
+        for _ in range(len):
             name += random.choice(common)
         
         pre = prefix or ""
@@ -3255,17 +3251,17 @@ async def final_user_data(user_data, columns):
     armor_atk_buff = 0
     if int(user_buff_data['armor']) != 0:
         armor_info = items.get_data_by_item_id(user_buff_data['armor'])
-        armor_atk_buff = float(armor_info['atk_buff'])
+        armor_atk_buff = float(armor_info['atk_buf'])
         
     weapon_atk_buff = 0
     if int(user_buff_data['weapon']) != 0:
         weapon_info = items.get_data_by_item_id(user_buff_data['weapon'])
-        weapon_atk_buff = float(weapon_info['atk_buff'])
+        weapon_atk_buff = float(weapon_info['atk_buf'])
     
     main_buff_data = await UserBuffData(user_dict['user_id']).get_user_main_buff_data()
-    main_hp_buff = float(main_buff_data['hpbuff']) if main_buff_data is not None else 0
-    main_mp_buff = float(main_buff_data['mpbuff']) if main_buff_data is not None else 0
-    main_atk_buff = float(main_buff_data['atkbuff']) if main_buff_data is not None else 0
+    main_hp_buff = float(main_buff_data['hpbuf']) if main_buff_data is not None else 0
+    main_mp_buff = float(main_buff_data['mpbuf']) if main_buff_data is not None else 0
+    main_atk_buff = float(main_buff_data['atkbuf']) if main_buff_data is not None else 0
     
     # 确保所有值都是float类型，然后再进行计算
     user_atk = float(user_dict['atk'])
@@ -3294,7 +3290,7 @@ async def leave_harm_time(user_id):
     main_buff_id = user_buff_data.get('main_skill', 0)
     if main_buff_id != 0:
         main_buff_data = items.get_data_by_item_id(main_buff_id)
-    main_buff_rate_buff = main_buff_data['ratebuff'] if main_buff_data else 0 # 主功法修炼倍率
+    main_buff_rate_buff = main_buff_data['ratebuf'] if main_buff_data else 0 # 主功法修炼倍率
     
     try:
        time = int(((float(user_mes['exp']) / 1.5) - float(user_mes['hp'])) / ((XiuConfig().closing_exp * level_rate * realm_rate * (
@@ -3324,12 +3320,12 @@ def get_weapon_info_msg(weapon_id, weapon_info=None):
     msg = ''
     if weapon_info is None:
         weapon_info = items.get_data_by_item_id(weapon_id)
-    atk_buff_msg = f"提升{int(weapon_info['atk_buff'] * 100)}%攻击力！" if weapon_info['atk_buff'] != 0 else ''
-    crit_buff_msg = f"提升{int(weapon_info['crit_buff'] * 100)}%会心率！" if weapon_info['crit_buff'] != 0 else ''
+    atk_buff_msg = f"提升{int(weapon_info['atk_buff'] * 100)}%攻击力！" if weapon_info['atk_buf'] != 0 else ''
+    crit_buff_msg = f"提升{int(weapon_info['crit_buff'] * 100)}%会心率！" if weapon_info['crit_buf'] != 0 else ''
     crit_atk_msg = f"提升{int(weapon_info['critatk'] * 100)}%会心伤害！" if weapon_info['critatk'] != 0 else ''
-    def_buff_msg = f"{'提升' if weapon_info['def_buff'] > 0 else '降低'}{int(abs(weapon_info['def_buff']) * 100)}%减伤率！" if weapon_info['def_buff'] != 0 else ''
-    zw_buff_msg = f"装备专属武器时提升伤害！！" if weapon_info['zw'] != 0 else ''
-    mp_buff_msg = f"降低真元消耗{int(weapon_info['mp_buff'] * 100)}%！" if weapon_info['mp_buff'] != 0 else ''
+    def_buff_msg = f"{'提升' if weapon_info['def_buff'] > 0 else '降低'}{int(abs(weapon_info['def_buff']) * 100)}%减伤率！" if weapon_info['def_buf'] != 0 else ''
+    zw_buff_msg = "装备专属武器时提升伤害！！" if weapon_info['zw'] != 0 else ''
+    mp_buff_msg = f"降低真元消耗{int(weapon_info['mp_buff'] * 100)}%！" if weapon_info['mp_buf'] != 0 else ''
     msg += f"名字：{weapon_info['name']}\n"
     msg += f"品阶：{weapon_info['level']}\n"
     msg += f"效果：{atk_buff_msg}{crit_buff_msg}{crit_atk_msg}{def_buff_msg}{mp_buff_msg}{zw_buff_msg}"
@@ -3348,7 +3344,7 @@ def get_armor_info_msg(armor_id, armor_info=None):
         armor_info = items.get_data_by_item_id(armor_id)
     def_buff_msg = f"提升{int(armor_info['def_buff'] * 100)}%减伤率！"
     atk_buff_msg = f"提升{int(armor_info['atk'] * 100)}%攻击力！" if armor_info['atk'] != 0 else ''
-    crit_buff_msg = f"提升{int(armor_info['crit_buff'] * 100)}%会心率！" if armor_info['crit_buff'] != 0 else ''
+    crit_buff_msg = f"提升{int(armor_info['crit_buff'] * 100)}%会心率！" if armor_info['crit_buf'] != 0 else ''
     msg += f"名字：{armor_info['name']}\n"
     msg += f"品阶：{armor_info['level']}\n"
     msg += f"效果：{def_buff_msg}{atk_buff_msg}{crit_buff_msg}"
@@ -3358,25 +3354,25 @@ def get_armor_info_msg(armor_id, armor_info=None):
 def get_main_info_msg(id):
     """获取一个主功法信息msg"""
     mainbuff = items.get_data_by_item_id(id)
-    hpmsg = f"提升{round(mainbuff['hpbuff'] * 100, 0)}%气血" if mainbuff['hpbuff'] != 0 else ''
-    mpmsg = f"，提升{round(mainbuff['mpbuff'] * 100, 0)}%真元" if mainbuff['mpbuff'] != 0 else ''
-    atkmsg = f"，提升{round(mainbuff['atkbuff'] * 100, 0)}%攻击力" if mainbuff['atkbuff'] != 0 else ''
-    ratemsg = f"，提升{round(mainbuff['ratebuff'] * 100, 0)}%修炼速度" if mainbuff['ratebuff'] != 0 else ''
+    hpmsg = f"提升{round(mainbuff['hpbuff'] * 100, 0)}%气血" if mainbuff['hpbuf'] != 0 else ''
+    mpmsg = f"，提升{round(mainbuff['mpbuff'] * 100, 0)}%真元" if mainbuff['mpbuf'] != 0 else ''
+    atkmsg = f"，提升{round(mainbuff['atkbuff'] * 100, 0)}%攻击力" if mainbuff['atkbuf'] != 0 else ''
+    ratemsg = f"，提升{round(mainbuff['ratebuff'] * 100, 0)}%修炼速度" if mainbuff['ratebuf'] != 0 else ''
     
-    cri_tmsg = f"，提升{round(mainbuff['crit_buff'] * 100, 0)}%会心率" if mainbuff['crit_buff'] != 0 else ''
-    def_msg = f"，{'提升' if mainbuff['def_buff'] > 0 else '降低'}{round(abs(mainbuff['def_buff']) * 100, 0)}%减伤率" if mainbuff['def_buff'] != 0 else ''
-    dan_msg = f"，增加炼丹产出{round(mainbuff['dan_buff'])}枚" if mainbuff['dan_buff'] != 0 else ''
+    cri_tmsg = f"，提升{round(mainbuff['crit_buff'] * 100, 0)}%会心率" if mainbuff['crit_buf'] != 0 else ''
+    def_msg = f"，{'提升' if mainbuff['def_buff'] > 0 else '降低'}{round(abs(mainbuff['def_buff']) * 100, 0)}%减伤率" if mainbuff['def_buf'] != 0 else ''
+    dan_msg = f"，增加炼丹产出{round(mainbuff['dan_buff'])}枚" if mainbuff['dan_buf'] != 0 else ''
     dan_exp_msg = f"，每枚丹药额外增加{round(mainbuff['dan_exp'])}炼丹经验" if mainbuff['dan_exp'] != 0 else ''
-    reap_msg = f"，提升药材收取数量{round(mainbuff['reap_buff'])}个" if mainbuff['reap_buff'] != 0 else ''
-    exp_msg = f"，突破失败{round(mainbuff['exp_buff'] * 100, 0)}%经验保护" if mainbuff['exp_buff'] != 0 else ''
+    reap_msg = f"，提升药材收取数量{round(mainbuff['reap_buff'])}个" if mainbuff['reap_buf'] != 0 else ''
+    exp_msg = f"，突破失败{round(mainbuff['exp_buff'] * 100, 0)}%经验保护" if mainbuff['exp_buf'] != 0 else ''
     critatk_msg = f"，提升{round(mainbuff['critatk'] * 100, 0)}%会心伤害" if mainbuff['critatk'] != 0 else ''
-    two_msg = f"，增加{round(mainbuff['two_buff'])}次双修次数" if mainbuff['two_buff'] != 0 else ''
+    two_msg = f"，增加{round(mainbuff['two_buff'])}次双修次数" if mainbuff['two_buf'] != 0 else ''
     number_msg = f"，提升{round(mainbuff['number'])}%突破概率" if mainbuff['number'] != 0 else ''
     
     clo_exp_msg = f"，提升{round(mainbuff['clo_exp'] * 100, 0)}%闭关经验" if mainbuff['clo_exp'] != 0 else ''
     clo_rs_msg = f"，提升{round(mainbuff['clo_rs'] * 100, 0)}%闭关生命回复" if mainbuff['clo_rs'] != 0 else ''
-    random_buff_msg = f"，战斗时随机获得一个战斗属性" if mainbuff['random_buff'] != 0 else ''
-    ew_msg =  f"，使用专属武器时伤害增加50%！" if mainbuff['ew'] != 0 else ''
+    random_buff_msg = "，战斗时随机获得一个战斗属性" if mainbuff['random_buf'] != 0 else ''
+    ew_msg =  "，使用专属武器时伤害增加50%！" if mainbuff['ew'] != 0 else ''
     msg = f"{mainbuff['name']}: {hpmsg}{mpmsg}{atkmsg}{ratemsg}{cri_tmsg}{def_msg}{dan_msg}{dan_exp_msg}{reap_msg}{exp_msg}{critatk_msg}{two_msg}{number_msg}{clo_exp_msg}{clo_rs_msg}{random_buff_msg}{ew_msg}！"
     return mainbuff, msg
 
@@ -3385,21 +3381,21 @@ def get_sub_info_msg(id): #辅修功法8
     subbuff = items.get_data_by_item_id(id)
     submsg = ""
     if subbuff['buff_type'] == '1':
-        submsg = "提升" + subbuff['buff'] + "%攻击力"
+        submsg = "提升" + subbuff['buf'] + "%攻击力"
     if subbuff['buff_type'] == '2':
-        submsg = "提升" + subbuff['buff'] + "%暴击率"
+        submsg = "提升" + subbuff['buf'] + "%暴击率"
     if subbuff['buff_type'] == '3':
-        submsg = "提升" + subbuff['buff'] + "%暴击伤害"
+        submsg = "提升" + subbuff['buf'] + "%暴击伤害"
     if subbuff['buff_type'] == '4':
-        submsg = "提升" + subbuff['buff'] + "%每回合气血回复"
+        submsg = "提升" + subbuff['buf'] + "%每回合气血回复"
     if subbuff['buff_type'] == '5':
-        submsg = "提升" + subbuff['buff'] + "%每回合真元回复"
+        submsg = "提升" + subbuff['buf'] + "%每回合真元回复"
     if subbuff['buff_type'] == '6':
-        submsg = "提升" + subbuff['buff'] + "%气血吸取"
+        submsg = "提升" + subbuff['buf'] + "%气血吸取"
     if subbuff['buff_type'] == '7':
-        submsg = "提升" + subbuff['buff'] + "%真元吸取"
+        submsg = "提升" + subbuff['buf'] + "%真元吸取"
     if subbuff['buff_type'] == '8':
-        submsg = "给对手造成" + subbuff['buff'] + "%中毒"
+        submsg = "给对手造成" + subbuff['buf'] + "%中毒"
     if subbuff['buff_type'] == '9':
         submsg = f"提升{subbuff['buff']}%气血吸取,提升{subbuff['buff2']}%真元吸取"
 
@@ -3480,7 +3476,7 @@ def get_player_info(user_id, info_name):
                 if key not in list(player_info.keys()):
                     player_info[key] = MIXELIXIRINFOCONFIG[key]
             save_player_info(user_id, player_info, info_name)
-        except:
+        except ValueError:
             player_info = MIXELIXIRINFOCONFIG
             save_player_info(user_id, player_info, info_name)
     return player_info
@@ -3498,7 +3494,7 @@ def save_player_info(user_id, data, info_name):
     user_id = str(user_id)
 
     if not os.path.exists(PLAYERSDATA / user_id):
-        logger.opt(colors=True).info(f"<green>用户目录不存在，创建目录</green>")
+        logger.opt(colors=True).info("<green>用户目录不存在，创建目录</green>")
         os.makedirs(PLAYERSDATA / user_id)
 
     FILEPATH = PLAYERSDATA / user_id / f"{info_name}.json"
@@ -3518,4 +3514,4 @@ async def init_db():
     """初始化数据库连接和表结构"""
     data_manager = XiuxianDataManager()
     await data_manager._init_db_and_pool()
-    logger.opt(colors=True).info(f"<green>修仙数据库初始化完成！</green>")
+    logger.opt(colors=True).info("<green>修仙数据库初始化完成！</green>")

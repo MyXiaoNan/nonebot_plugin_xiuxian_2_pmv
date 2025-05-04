@@ -27,7 +27,8 @@ limit_num = 99999
 async def auto_recover_hp_():
     """恢复生命值的定时任务"""
     try:
-        await XiuxianDataManager().auto_recover_hp()
+        if XiuConfig().postgresql_url != "":
+            await XiuxianDataManager().auto_recover_hp()
     except Exception as e:
         logger.opt(colors=True).error(f"<red>生命值恢复定时任务出错：{e}</red>")
 
@@ -36,13 +37,14 @@ def limit_all_message_():
     # 重置消息字典
     global limit_all_data
     limit_all_data  = {}
-    logger.opt(colors=True).success(f"<green>已重置消息字典！</green>")
+    logger.opt(colors=True).success("<green>已重置消息字典！</green>")
 
 @limit_all_stamina.scheduled_job('interval', minutes=1)
 async def limit_all_stamina_():
     """恢复体力值的定时任务"""
     try:
-        await XiuxianDataManager().update_all_users_stamina(XiuConfig().max_stamina, XiuConfig().stamina_recovery_points)
+        if XiuConfig().postgresql_url != "":
+            await XiuxianDataManager().update_all_users_stamina(XiuConfig().max_stamina, XiuConfig().stamina_recovery_points)
     except Exception as e:
         logger.opt(colors=True).error(f"<red>体力恢复定时任务出错：{e}</red>")
 
@@ -54,18 +56,18 @@ def limit_all_run(user_id: str):
     try:
         num = limit_all_data[user_id]["num"]
         tip = limit_all_data[user_id]["tip"]
-    except:
+    except KeyError:
         limit_all_data[user_id] = {"num": 0,
                                    "tip" : False}
         num = 0
         tip = False
     num += 1    
-    if num > limit_num and tip == False:
+    if num > limit_num and tip is False:
         tip = True
         limit_all_data[user_id]["num"] = num
         limit_all_data[user_id]["tip"] = tip
         return True
-    if num > limit_num and tip == True:
+    if num > limit_num and tip is True:
         limit_all_data[user_id]["num"] = num
         return False
     else:
@@ -150,7 +152,11 @@ def Cooldown(
         user_id = int(event.get_user_id())
         group_id = str(event.group_id)
         conf_data = JsonConfig().read_data()
-        isUser, user_info, msg = await check_user(event)
+
+        # 首先检查数据库连接
+        if XiuConfig().postgresql_url == "":
+            await bot.send(event=event, message="请先在xiuxian_config.py文件中配置数据库地址!", reply_message=True)
+            await matcher.finish()
 
         limit_type = limit_all_run(user_id)
         if limit_type is True:
@@ -161,6 +167,8 @@ def Cooldown(
             await matcher.finish()
         else:
             pass
+
+        isUser, user_info, msg = await check_user(event)
 
         loop = get_running_loop()
 
@@ -181,10 +189,6 @@ def Cooldown(
         else:
             key = CooldownIsolateLevel.GLOBAL.name
 
-        if XiuConfig().postgresql_url == "":
-            await bot.send(event=event, message="请先配置数据库地址!")
-            await matcher.finish()
-        
         if group_id not in conf_data["group"]:
             try:
                 is_official_bot = is_qbot(session)
@@ -199,9 +203,9 @@ def Cooldown(
                 ):
                     bot = await assign_bot_group(group_id=group_id)
                     if at_sender:
-                        await bot.send(event=event, message=MessageSegment.at(event.get_user_id()) + "本群已关闭修仙模组,请联系管理员开启,开启命令为【启用修仙功能】!")
+                        await bot.send(event=event, message=MessageSegment.at(event.get_user_id()) + "本群已关闭修仙模组,请联系管理员开启,开启命令为【启用修仙功能】!", reply_message=True)
                     else:
-                        await bot.send(event=event, message="本群已关闭修仙模组,请联系管理员开启,开启命令为【启用修仙功能】!")
+                        await bot.send(event=event, message="本群已关闭修仙模组,请联系管理员开启,开启命令为【启用修仙功能】!", reply_message=True)
                     await matcher.finish()
                 else:
                     await matcher.finish()
@@ -295,7 +299,7 @@ async def assign_bot(bot=None, event=None):  # 按字典分配对应qq发送消�
             bot = get_bots()[random.choice(bot_id)]
         else:
             bot = bot
-    except:
+    except ValueError:
         bot = bot
     return bot, group_id
 
@@ -319,7 +323,7 @@ async def assign_bot_group(group_id):  # 只导入群号，按字典分配对应
         try:
             bot = get_bot()
         except ValueError:
-            logger.opt(colors=True).error(f"<red>未找到对应的bot实例,请检查实现端链接状况！</red>")
+            logger.opt(colors=True).error("<red>未找到对应的bot实例,请检查实现端链接状况！</red>")
             bot = None
 
     return bot

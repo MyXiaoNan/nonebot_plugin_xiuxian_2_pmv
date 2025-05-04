@@ -12,7 +12,6 @@ from nonebot import get_driver
 from .xiuxian_config import XiuConfig
 from pathlib import Path
 from pkgutil import iter_modules
-from nonebot.log import logger
 from nonebot import require, load_all_plugins, get_plugin_by_module_name
 from .xiuxian_utils.config import config as _config
 
@@ -23,7 +22,7 @@ try:
     NICKNAME: str = list(DRIVER.config.nickname)[0]
 except Exception as e:
     logger.opt(colors=True).info(f"<red>缺少超级用户配置文件，{e}!</red>")
-    logger.opt(colors=True).info(f"<red>请去.env.dev文件中设置超级用户QQ号以及nickname!</red>")
+    logger.opt(colors=True).info("<red>请去.env.dev文件中设置超级用户QQ号以及nickname!</red>")
     NICKNAME = 'bot'
 
 try:
@@ -37,13 +36,13 @@ shield_group = XiuConfig().shield_group
 
 try:
     put_bot_ = put_bot[0]
-except:
-    logger.opt(colors=True).info(f"<green>修仙插件没有配置put_bot,如果有多个qq和nb链接,请务必配置put_bot,具体介绍参考【风控帮助】！</green>")
+except IndexError:
+    logger.opt(colors=True).info("<green>修仙插件没有配置put_bot,如果有多个qq和nb链接,请务必配置put_bot,具体介绍参考【风控帮助】！</green>")
 
 require('nonebot_plugin_apscheduler')
 
 if get_plugin_by_module_name("xiuxian"):
-    logger.opt(colors=True).info(f"<green>推荐直接加载 xiuxian 仓库文件夹</green>")
+    logger.opt(colors=True).info("<green>推荐直接加载 xiuxian 仓库文件夹</green>")
     load_all_plugins(
         [
             f"xiuxian.{module.name}"

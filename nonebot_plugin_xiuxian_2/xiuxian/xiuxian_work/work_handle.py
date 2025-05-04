@@ -1,9 +1,12 @@
-from ..xiuxian_utils.xiuxian2_handle import *
-from .workmake import *
+import json
+import random
+from ..xiuxian_utils.xiuxian2_handle import XiuxianJsonData
+from .workmake import workmake
 from ..xiuxian_utils.xiuxian2_handle import XiuxianDataManager
 from ..xiuxian_utils.item_json import Items
+from .reward_data_source import savef, readf
 
-class workhandle(XiuxianJsonDate):
+class workhandle(XiuxianJsonData):
 
     async def do_work(self, key, work_list=None, name=None, level="江湖好手", exp=None, user_id=None):
         """悬赏令获取"""
@@ -24,7 +27,7 @@ class workhandle(XiuxianJsonDate):
             try:
                 data = readf(user_id)
                 return data[name][2]
-            except:
+            except ValueError:
                 pass
 
         elif key == 2:  # 如果是结算，则获取结果

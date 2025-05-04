@@ -11,6 +11,7 @@ import tarfile
 import shutil
 from pathlib import Path
 from ..xiuxian_config import XiuConfig
+from ..xiuxian_utils.item_json import BACKUPPATH, READPATH
 
 # 初始化日志
 logging.basicConfig(
@@ -22,10 +23,6 @@ logging.basicConfig(
     ]
 )
 logger = logging.getLogger("xiuxian_backup")
-BOT_PATH = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-BOT_PATH = os.path.dirname(BOT_PATH)
-READPATH = Path(BOT_PATH) / "data" / "xiuxian"
-BACKUPPATH = READPATH / "备份"
 
 # 获取数据路径
 try:
@@ -241,7 +238,7 @@ async def restore_backup(backup_path):
             # 找到解压后的SQL文件
             sql_files = list(Path(temp_dir).glob("*.sql"))
             if not sql_files:
-                logger.error(f"备份文件中没有找到SQL文件")
+                logger.error("备份文件中没有找到SQL文件")
                 shutil.rmtree(temp_dir)
                 return False
                 

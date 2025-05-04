@@ -38,10 +38,10 @@ async def get_avatar_by_user_id_and_save(user_id):
 
     try:
         if USER_AVATAR_PATH.exists():
-            logger.opt(colors=True).info(f"<green>用户头像已存在，跳过下载！</green>")
+            logger.opt(colors=True).info("<green>用户头像已存在，跳过下载！</green>")
             im = Image.open(USER_AVATAR_PATH).resize((280, 280)).convert("RGBA")
         else:
-            logger.opt(colors=True).info(f"<green>开始下载用户头像！</green>")
+            logger.opt(colors=True).info("<green>开始下载用户头像！</green>")
             image_bytes = await download_avatar(user_id)
             im = Image.open(io.BytesIO(image_bytes)).resize((280, 280)).convert("RGBA")
             if not os.path.exists(PLAYERSDATA / user_id):

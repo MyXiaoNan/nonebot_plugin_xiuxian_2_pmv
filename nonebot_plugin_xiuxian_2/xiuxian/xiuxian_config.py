@@ -45,48 +45,6 @@ def convert_rank(rank_name):
     
 class XiuConfig:
     def __init__(self):
-        self.sql_table = [
-            "xiuxian_user", 
-            "xiuxian_time", 
-            "xiuxian_buff",
-            "xiuxian_sect",
-            "xiuxian_back",
-            "xiuxian_impart",
-            "xiuxian_work",
-        ]
-        self.sql_user = ["user_id", "user_name", "stone", "root",
-                                 "root_type", "level", "power",
-                                 "create_time", "is_sign", "is_beg", "is_ban",
-                                 "exp", "work_num", "level_up_time",
-                                 "level_up_rate", "sect_id",
-                                 "sect_position", "hp", "mp", "atk",
-                                 "atk_practice_level", "sect_task", "sect_contribution",
-                                 "sect_elixir_get", "blessed_spot_flag", "blessed_spot_name", "stamina"]
-        self.sql_time = ["user_id", "type", "create_time", "scheduled_time", "last_active_time"]
-        self.sql_sect = ["sect_id", "sect_name", "sect_owner", "sect_scale", "sect_used_stone", "sect_fairyland",
-                          "sect_materials", "mainbuff", "secbuff", "elixir_room_level"]
-        self.sql_buff = ["id", "user_id", "main_skill", "ultimate_skill", "weapon", "fabao_weapon", "armor",
-                         "atk", "support_skill", "blessed_spot"]
-        self.sql_back = ["user_id", "goods_id", "goods_name", "goods_type", "goods_num", "create_time", "update_time",
-                         "remake", "day_num", "all_num", "action_time", "state", "bind_num"]
-        self.sql_impart = ["impart_hp_addition", "impart_atk_addition", "impart_mp_addition",
-                            "impart_exp_addition", "impart_boss_atk_addition", "impart_crit_addition", "impart_crit_dmg_addition",
-                            "impart_mix_addition", "impart_reap_addition", "impart_two_exp_quantity", "impart_stone_quantity"]
-        self.sql_work = [
-            "id", 
-            "user_id", 
-            "work_name", 
-            "work_type", 
-            "success_rate", 
-            "exp_reward", 
-            "time_cost", 
-            "item_id", 
-            "success_msg", 
-            "fail_msg", 
-            "create_time", 
-            "status"
-        ]
-        # 上面是数据库校验,不知道做什么的话别动
         self.level = convert_rank('江湖好手')[1] # 境界列表，别动
         self.img = True # 是否使用图片发送消息
         self.user_info_image = True # 是否使用图片发送个人信息

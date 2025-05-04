@@ -68,7 +68,7 @@ def get_config():
             if key not in list(config.keys()):
                 config[key] = CONFIG[key]
         savef(config)
-    except:
+    except FileNotFoundError:
         config = CONFIG
         savef(config)
     return config

@@ -19,7 +19,7 @@ from ..xiuxian_utils.utils import (
 
 items = Items()
 
-fusion_help_text = f"""
+fusion_help_text = """
 合成帮助:
 1.合成 物品名:合成指定的物品。
 2.查看可合成物品 [物品名参数可选] 可以查看当前可合成的所有物品以及相关信息。

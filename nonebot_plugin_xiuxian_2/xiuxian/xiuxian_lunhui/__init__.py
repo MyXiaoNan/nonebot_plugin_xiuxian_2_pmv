@@ -162,7 +162,7 @@ async def resetting_(bot: Bot, event: GroupMessageEvent, session_id: int = Comma
         await handle_send(bot, event, send_group_id, msg)
         await resetting.finish()
     else:
-        msg = f"道友境界未达要求，自废修为的最低境界为搬血境！"
+        msg = "道友境界未达要求，自废修为的最低境界为搬血境！"
         await handle_send(bot, event, send_group_id, msg)
         await resetting.finish()
         

@@ -33,7 +33,7 @@ count = 3  # 免费次数
 @resetrefreshnum.scheduled_job("cron", hour=0, minute=0)
 async def resetrefreshnum_():
     await XiuxianDataManager().reset_work_num()
-    logger.opt(colors=True).info(f"<green>用户悬赏令刷新次数重置成功</green>")
+    logger.opt(colors=True).info("<green>用户悬赏令刷新次数重置成功</green>")
 
 
 last_work = on_command("最后的悬赏令", priority=15, block=True)
@@ -43,7 +43,7 @@ do_work = on_regex(
     permission=GROUP,
     block=True
 )
-__work_help__ = f"""
+__work_help__ = """
 悬赏令帮助信息:
 指令：
 1、悬赏令:获取对应实力的悬赏令(每次随机生成3-5个任务)
@@ -75,7 +75,7 @@ async def last_work_(bot: Bot, event: GroupMessageEvent):
         # 判断create_time是str还是datetime对象
         create_time = user_cd_message['schedule_create_time']
         if isinstance(create_time, str):
-            work_time = datetime.strptime(create_time, "%Y-%m-%d %H:%M:%S.%f")
+            work_time = datetime.strptime(create_time, "%Y-%m-%d %H:%M:%S.%")
         else:
             work_time = create_time
         exp_time = (datetime.now() - work_time).seconds // 60  # 时长计算
@@ -198,7 +198,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
             # 判断create_time是str还是datetime对象
             create_time = user_cd_message['schedule_create_time']
             if isinstance(create_time, str):
-                work_time = datetime.strptime(create_time, "%Y-%m-%d %H:%M:%S.%f")
+                work_time = datetime.strptime(create_time, "%Y-%m-%d %H:%M:%S.%")
             else:
                 work_time = create_time
             exp_time = (datetime.now() - work_time).seconds // 60  # 时长计算
@@ -218,7 +218,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
             # 判断create_time是str还是datetime对象
             create_time = user_cd_message['schedule_create_time']
             if isinstance(create_time, str):
-                work_time = datetime.strptime(create_time, "%Y-%m-%d %H:%M:%S.%f")
+                work_time = datetime.strptime(create_time, "%Y-%m-%d %H:%M:%S.%")
             else:
                 work_time = create_time
             exp_time = (datetime.now() - work_time).seconds // 60
@@ -254,7 +254,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
         work_msg = await workhandle().do_work(0, level=user_level, exp=user_info['exp'], user_id=user_id)
         n = 1
         work_list = []
-        work_msg_f = f"☆------道友的个人悬赏令------☆\n"
+        work_msg_f = "☆------道友的个人悬赏令------☆\n"
         for i in work_msg:
             work_list.append([i[0], i[3]])
             work_msg_f += f"{n}、{get_work_msg(i)}"
@@ -291,7 +291,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
             # 判断create_time是str还是datetime对象
             create_time = user_cd_message['schedule_create_time']
             if isinstance(create_time, str):
-                work_time = datetime.strptime(create_time, "%Y-%m-%d %H:%M:%S.%f")
+                work_time = datetime.strptime(create_time, "%Y-%m-%d %H:%M:%S.%")
             else:
                 work_time = create_time
             exp_time = (datetime.now() - work_time).seconds // 60  # 时长计算

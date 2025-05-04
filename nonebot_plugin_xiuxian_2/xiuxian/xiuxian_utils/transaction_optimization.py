@@ -3,7 +3,7 @@
 用于提供PostgreSQL事务和并发处理的优化功能
 """
 import asyncio
-from typing import Callable, Any, List, Dict, Optional
+from typing import Any, List
 import asyncpg
 from contextlib import asynccontextmanager
 from functools import wraps

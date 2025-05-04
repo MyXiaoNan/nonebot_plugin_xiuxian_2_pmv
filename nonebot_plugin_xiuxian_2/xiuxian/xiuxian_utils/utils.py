@@ -8,21 +8,17 @@ import unicodedata
 from base64 import b64encode
 from io import BytesIO
 from pathlib import Path
-
-from nonebot.adapters import MessageSegment
 from nonebot.adapters.onebot.v11 import (
     Bot,
     GroupMessageEvent,
-    MessageSegment,
+    MessageSegment
 )
 from nonebot.params import Depends
 from PIL import Image, ImageDraw, ImageFont
 from wcwidth import wcwidth
-from pydantic import BaseModel, Field
 from ..xiuxian_config import XiuConfig
 from .data_source import jsondata
 from .xiuxian2_handle import XiuxianDataManager
-from nonebot_plugin_uninfo import SupportScope, Uninfo
 
   # sql类
 boss_img_path = Path() / "data" / "xiuxian" / "boss_img"
@@ -86,9 +82,16 @@ async def check_user(event: GroupMessageEvent):
       * `user_info: 用户
       * `msg: 消息体
     """
-
+    from ..xiuxian_config import XiuConfig
+    
     isUser = False
     user_id = int(event.get_user_id())
+
+    if XiuConfig().postgresql_url is None or XiuConfig().postgresql_url == "":
+        user_info = None
+        msg = "请先在xiuxian_config.py文件中配置数据库地址!"
+        return isUser, user_info, msg
+    
     user_info = await XiuxianDataManager().get_user_infos_by_ids(user_id)
     if user_info is None:
         msg = "修仙界没有道友的信息，请输入【我要修仙】加入！"
@@ -357,7 +360,7 @@ class Txt2Img:
             )
             # 四元组(left, top, right, bottom)
             user_w = user_bbox[2] - user_bbox[0]  # 宽度 = right - left
-            user_h = user_bbox[3] - user_bbox[1]
+            # user_h = user_bbox[3] - user_bbox[1]
             draw.text(
                 ((w - user_w) // 2, out_padding + padding),
                 title,
@@ -415,7 +418,7 @@ class Txt2Img:
                 out_img.save(img_byte_arr, format="JPEG", quality=compression_quality)
             else:
                 out_img.save(img_byte_arr, format="WebP", quality=compression_quality)
-        except:
+        except ValueError:
             # 尝试降级为 JPEG
             out_img.save(img_byte_arr, format="JPEG", quality=compression_quality)
 

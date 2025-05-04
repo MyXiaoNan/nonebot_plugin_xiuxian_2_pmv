@@ -5,8 +5,6 @@ PostgreSQL数据库垃圾回收优化模块
 import asyncio
 import logging
 import datetime
-import asyncpg
-from typing import List, Dict, Optional, Union
 
 # 初始化日志
 logger = logging.getLogger("xiuxian_vacuum")
@@ -453,7 +451,7 @@ async def reindex_table(table: str):
         
         async with _POOL.acquire() as conn:
             # 获取表的所有索引
-            indexes = await conn.fetch(f"""
+            indexes = await conn.fetch("""
             SELECT indexname 
             FROM pg_indexes 
             WHERE tablename = '{table}'

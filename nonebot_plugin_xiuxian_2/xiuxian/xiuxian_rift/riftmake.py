@@ -129,17 +129,17 @@ async def get_boss_battle_info(user_info, rift_rank, bot_id):
     user_main_crit_data = await UserBuffData(user_info['user_id']).get_user_main_buff_data() #秘境战斗功法会心
     
     if user_main_crit_data is not None: #秘境战斗功法会心
-        main_crit_buff = ((user_main_crit_data['crit_buff']) * 100)
+        main_crit_buff = ((user_main_crit_data['crit_buf']) * 100)
     else:
         main_crit_buff = 0
     
-    if  user_armor_data != None: #秘境战斗防具会心
-        armor_crit_buff = user_armor_data['crit_buff']
+    if  user_armor_data is not None: #秘境战斗防具会心
+        armor_crit_buff = user_armor_data['crit_buf']
     else:
         armor_crit_buff = 0
 
     if user1_weapon_data is not None:
-        player['会心'] = int(((user1_weapon_data['crit_buff']) + armor_crit_buff +  main_crit_buff) * 100) 
+        player['会心'] = int(((user1_weapon_data['crit_buf']) + armor_crit_buff +  main_crit_buff) * 100) 
     else:
         player['会心'] = (armor_crit_buff + main_crit_buff) * 100
 
@@ -279,7 +279,7 @@ def get_dict_type_rate(data_dict):
     for i, v in data_dict.items():
         try:
             temp_dict[i] = v["type_rate"]
-        except:
+        except ValueError:
             continue
     key = OtherSet().calculated(temp_dict)
     return key

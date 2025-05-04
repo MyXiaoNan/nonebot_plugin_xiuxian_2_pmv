@@ -73,7 +73,7 @@ sect_users = on_command("宗门成员查看", aliases={"查看宗门成员"}, pr
 sect_elixir_room_make = on_command("宗门丹房建设", aliases={"建设宗门丹房"}, priority=5, permission=GROUP, block=True)
 sect_elixir_get = on_command("宗门丹药领取", aliases={"领取宗门丹药领取"}, priority=5, permission=GROUP, block=True)
 sect_rename = on_command("宗门改名", priority=5,  permission=GROUP, block=True)
-__sect_help__ = f"""
+__sect_help__ = """
 指令：
 1、我的宗门:查看当前所处宗门信息
 2、创建宗门:创建宗门，需求：{XiuConfig().sect_create_cost}灵石，需求境界{XiuConfig().sect_min_level}
@@ -108,7 +108,7 @@ async def materialsupdate_():
     for s in all_sects:
         await XiuxianDataManager().update_sect_materials(sect_id=s[0], sect_materials=s[1] * config["发放宗门资材"]["倍率"], key=0)
 
-    logger.opt(colors=True).info(f"<green>已更新所有宗门的资材</green>")
+    logger.opt(colors=True).info("<green>已更新所有宗门的资材</green>")
 
 
 # 每日0点重置用户宗门任务次数、宗门丹药领取次数
@@ -127,12 +127,12 @@ async def resetusertask_():
                 continue
             else:
                 await XiuxianDataManager().update_sect_materials(sect_id=sect_info['sect_id'], sect_materials=elixir_room_cost, key=1)
-    logger.opt(colors=True).info(f"<green>已重置所有宗门任务次数、宗门丹药领取次数，已扣除丹房维护费</green>")
+    logger.opt(colors=True).info("<green>已重置所有宗门任务次数、宗门丹药领取次数，已扣除丹房维护费</green>")
 
 # 定时任务每1小时自动检测不常玩的宗主
 @auto_sect_owner_change.scheduled_job("interval", hours=1)
 async def auto_sect_owner_change_():
-    logger.opt(colors=True).info(f"<yellow>开始检测不常玩的宗主</yellow>")
+    logger.opt(colors=True).info("<yellow>开始检测不常玩的宗主</yellow>")
     
     all_sect_owners_id = await XiuxianDataManager().get_sect_owners()
     
@@ -146,7 +146,7 @@ async def auto_sect_owner_change_():
     
     all_active = all(check_results)
     if all_active:
-        logger.opt(colors=True).info(f"<green>各宗宗主在修行之途上勤勉不辍，宗门安危无忧，可喜可贺！</green>")
+        logger.opt(colors=True).info("<green>各宗宗主在修行之途上勤勉不辍，宗门安危无忧，可喜可贺！</green>")
 
     for owner_id in all_sect_owners_id:
         last_check_time = await XiuxianDataManager().get_last_check_info_time(owner_id)
@@ -206,7 +206,7 @@ async def sect_elixir_room_make_(bot: Bot, event: GroupMessageEvent):
             sect_info = await XiuxianDataManager().get_sect_info(sect_id)
             elixir_room_level = sect_info['elixir_room_level']  # 宗门丹房等级
             if int(elixir_room_level) == len(elixir_room_level_up_config):
-                msg = f"宗门丹房等级已经达到最高等级，无法继续建设了！"
+                msg = "宗门丹房等级已经达到最高等级，无法继续建设了！"
                 if XiuConfig().img:
                     pic = await get_msg_pic(f"@{user_info['user_name'] or event.sender.nickname}\n" + msg)
                     await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -247,11 +247,11 @@ async def sect_elixir_room_make_(bot: Bot, event: GroupMessageEvent):
                     await bot.send_group_msg(group_id=int(send_group_id), message=msg)
                 await sect_elixir_room_make.finish()
         else:
-            msg = f"道友不是宗主，无法使用该命令！"
+            msg = "道友不是宗主，无法使用该命令！"
             await handle_send(bot, event, send_group_id, msg)
             await sect_elixir_room_make.finish()
     else:
-        msg = f"道友尚未加入宗门！"
+        msg = "道友尚未加入宗门！"
         await handle_send(bot, event, send_group_id, msg)
         await sect_elixir_room_make.finish()
 
@@ -272,13 +272,13 @@ async def sect_elixir_get_(bot: Bot, event: GroupMessageEvent):
         sect_position = user_info['sect_position']
         elixir_room_config = config['宗门丹房参数']
         if sect_position == 4:
-            msg = f"""道友所在宗门的职位为：{jsondata.sect_config_data()[f"{sect_position}"]['title']}，不满足领取要求!"""
+            msg = """道友所在宗门的职位为：{jsondata.sect_config_data()[f"{sect_position}"]['title']}，不满足领取要求!"""
             await handle_send(bot, event, send_group_id, msg)
             await sect_elixir_get.finish()
         else:
             sect_info = await XiuxianDataManager().get_sect_info(sect_id)
             if int(sect_info['elixir_room_level']) == 0:
-                msg = f"道友的宗门目前还未建设丹房！"
+                msg = "道友的宗门目前还未建设丹房！"
                 if XiuConfig().img:
                     pic = await get_msg_pic(f"@{user_info['user_name'] or event.sender.nickname}\n" + msg)
                     await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -304,7 +304,7 @@ async def sect_elixir_get_(bot: Bot, event: GroupMessageEvent):
                     await bot.send_group_msg(group_id=int(send_group_id), message=msg)
                 await sect_elixir_get.finish()
             if int(user_info['sect_elixir_get']) == 1:
-                msg = f"道友已经领取过了，不要贪心哦~"
+                msg = "道友已经领取过了，不要贪心哦~"
                 if XiuConfig().img:
                     pic = await get_msg_pic(f"@{user_info['user_name'] or event.sender.nickname}\n" + msg)
                     await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -312,7 +312,7 @@ async def sect_elixir_get_(bot: Bot, event: GroupMessageEvent):
                     await bot.send_group_msg(group_id=int(send_group_id), message=msg)
                 await sect_elixir_get.finish()
             if int(sect_info['elixir_room_level']) == 1:
-                msg = f"道友成功领取到丹药:渡厄丹 3 枚！"
+                msg = "道友成功领取到丹药:渡厄丹 3 枚！"
                 await XiuxianDataManager().send_back(user_info['user_id'], 1999, "渡厄丹", "丹药", 3, 1)  # 1级丹房送1个渡厄丹
                 await XiuxianDataManager().update_user_sect_elixir_get_num(user_info['user_id'])
                 if XiuConfig().img:
@@ -329,7 +329,7 @@ async def sect_elixir_get_(bot: Bot, event: GroupMessageEvent):
                 give_elixir_id_list = items.get_random_id_list_by_rank_and_item_type(
                     fanil_rank=convert_rank(user_info['level'])[0] - rank_up, item_type=['丹药'])
                 if not give_elixir_id_list:  # 没有合适的ID，全部给渡厄丹
-                    msg = f"道友成功领取到丹药：渡厄丹 3 枚！"
+                    msg = "道友成功领取到丹药：渡厄丹 3 枚！"
                     await XiuxianDataManager().send_back(user_info['user_id'], 1999, "渡厄丹", "丹药", 3, 1)  # 送1个渡厄丹
                     await XiuxianDataManager().update_user_sect_elixir_get_num(user_info['user_id'])
                     if XiuConfig().img:
@@ -347,10 +347,10 @@ async def sect_elixir_get_(bot: Bot, event: GroupMessageEvent):
                         try:
                             give_dict[id] += 1
                             i += 1
-                        except:
+                        except ValueError:
                             give_dict[id] = 1
                             i += 1
-                msg = f"道友成功领取到丹药:渡厄丹 5 枚!\n"
+                msg = "道友成功领取到丹药:渡厄丹 5 枚!\n"
                 await XiuxianDataManager().send_back(user_info['user_id'], 1999, "渡厄丹", "丹药", 5, 1)  # 送1个渡厄丹
                 for k, v in give_dict.items():
                     goods_info = items.get_data_by_item_id(k)
@@ -364,7 +364,7 @@ async def sect_elixir_get_(bot: Bot, event: GroupMessageEvent):
                     await bot.send_group_msg(group_id=int(send_group_id), message=msg)
                 await sect_elixir_get.finish()
     else:
-        msg = f"道友尚未加入宗门！"
+        msg = "道友尚未加入宗门！"
         await handle_send(bot, event, send_group_id, msg)
         await sect_elixir_get.finish()
 
@@ -380,16 +380,16 @@ async def sect_buff_info_(bot: Bot, event: GroupMessageEvent):
     sect_id = user_info['sect_id']
     if sect_id:
         sect_info = await XiuxianDataManager().get_sect_info(sect_id)
-        if sect_info['mainbuff'] == 0 and sect_info['secbuff'] == 0:
-            msg = f"本宗尚未获得任何功法、神通，请宗主发送宗门功法、神通搜寻来获得！"
+        if sect_info['mainbuf'] == 0 and sect_info['secbuf'] == 0:
+            msg = "本宗尚未获得任何功法、神通，请宗主发送宗门功法、神通搜寻来获得！"
             await handle_send(bot, event, send_group_id, msg)
             await sect_buff_info.finish()
 
         list_tp = []
         msg = ""
-        if sect_info['mainbuff'] != 0:
+        if sect_info['mainbuf'] != 0:
             mainbufflist = get_sect_mainbuff_id_list(sect_id)
-            main_msg = f"\n☆------宗门功法------☆\n"
+            main_msg = "\n☆------宗门功法------☆\n"
             msg += main_msg
             list_tp.append(
                 {"type": "node", "data": {"name": f"道友{user_info['user_name']}的宗门功法信息", "uin": bot.self_id,
@@ -402,9 +402,9 @@ async def sect_buff_info_(bot: Bot, event: GroupMessageEvent):
                     {"type": "node", "data": {"name": f"道友{user_info['user_name']}的宗门秘籍信息", "uin": bot.self_id,
                                               "content": mainmsg}})
 
-        if sect_info['secbuff'] != 0:
+        if sect_info['secbuf'] != 0:
             secbufflist = get_sect_secbuff_id_list(sect_id)
-            sec_msg = f"☆------宗门神通------☆\n"
+            sec_msg = "☆------宗门神通------☆\n"
             msg += sec_msg
             list_tp.append(
                 {"type": "node", "data": {"name": f"道友{user_info['user_name']}的宗门神通信息", "uin": bot.self_id,
@@ -424,7 +424,7 @@ async def sect_buff_info_(bot: Bot, event: GroupMessageEvent):
             await sect_buff_info.finish()
         await sect_buff_info.finish()
     else:
-        msg = f"道友尚未加入宗门！"
+        msg = "道友尚未加入宗门！"
         await handle_send(bot, event, send_group_id, msg)
         await sect_buff_info.finish()
 
@@ -447,8 +447,8 @@ async def sect_mainbuff_learn_(bot: Bot, event: GroupMessageEvent, args: Message
             await sect_mainbuff_learn.finish()
         else:
             sect_info = await XiuxianDataManager().get_sect_info(sect_id)
-            if sect_info['mainbuff'] == 0:
-                msg = f"本宗尚未获得宗门功法，请宗主发送宗门功法搜寻来获得宗门功法！"
+            if sect_info['mainbuf'] == 0:
+                msg = "本宗尚未获得宗门功法，请宗主发送宗门功法搜寻来获得宗门功法！"
                 if XiuConfig().img:
                     pic = await get_msg_pic(f"@{user_info['user_name'] or event.sender.nickname}\n" + msg)
                     await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -459,7 +459,7 @@ async def sect_mainbuff_learn_(bot: Bot, event: GroupMessageEvent, args: Message
             sectmainbuffidlist = get_sect_mainbuff_id_list(sect_id)
 
             if msg not in get_mainname_list(sectmainbuffidlist):
-                msg = f"本宗还没有该功法，请发送本宗有的功法进行学习！"
+                msg = "本宗还没有该功法，请发送本宗有的功法进行学习！"
                 if XiuConfig().img:
                     pic = await get_msg_pic(f"@{user_info['user_name'] or event.sender.nickname}\n" + msg)
                     await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -470,7 +470,7 @@ async def sect_mainbuff_learn_(bot: Bot, event: GroupMessageEvent, args: Message
             userbuffinfo = await UserBuffData(user_info['user_id']).BuffInfo
             mainbuffid = get_mainnameid(msg, sectmainbuffidlist)
             if str(userbuffinfo['main_skill']) == str(mainbuffid):
-                msg = f"道友请勿重复学习！"
+                msg = "道友请勿重复学习！"
                 if XiuConfig().img:
                     pic = await get_msg_pic(f"@{user_info['user_name'] or event.sender.nickname}\n" + msg)
                     await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -504,7 +504,7 @@ async def sect_mainbuff_learn_(bot: Bot, event: GroupMessageEvent, args: Message
                     await bot.send_group_msg(group_id=int(send_group_id), message=msg)
                 await sect_mainbuff_learn.finish()
     else:
-        msg = f"道友尚未加入宗门！"
+        msg = "道友尚未加入宗门！"
         await handle_send(bot, event, send_group_id, msg)
         await sect_mainbuff_learn.finish()
 
@@ -563,8 +563,8 @@ async def sect_mainbuff_get_(bot: Bot, event: GroupMessageEvent):
                 if success_count > 0:
                     msg += f"，搜寻到新功法{success_count}次。\n"
                 else:
-                    msg += f"，未搜寻到新功法！\n"
-                msg += f"\n".join(results)
+                    msg += "，未搜寻到新功法！\n"
+                msg += "\n".join(results)
 
                 if XiuConfig().img:
                     pic = await get_msg_pic(f"@{user_info['user_name'] or event.sender.nickname}\n" + msg)
@@ -581,11 +581,11 @@ async def sect_mainbuff_get_(bot: Bot, event: GroupMessageEvent):
                     await bot.send_group_msg(group_id=int(send_group_id), message=msg)
                 await sect_mainbuff_get.finish()
         else:
-            msg = f"道友不是宗主，无法使用该命令！"
+            msg = "道友不是宗主，无法使用该命令！"
             await handle_send(bot, event, send_group_id, msg)
             await sect_mainbuff_get.finish()
     else:
-        msg = f"道友尚未加入宗门！"
+        msg = "道友尚未加入宗门！"
         await handle_send(bot, event, send_group_id, msg)
         await sect_mainbuff_get.finish()
 
@@ -644,8 +644,8 @@ async def sect_secbuff_get_(bot: Bot, event: GroupMessageEvent):
                 if success_count > 0:
                     msg += f"，搜寻到新神通{success_count}次。\n"
                 else:
-                    msg += f"，未搜寻到新神通！\n"
-                msg += f"\n".join(results)
+                    msg += "，未搜寻到新神通！\n"
+                msg += "\n".join(results)
 
                 if XiuConfig().img:
                     pic = await get_msg_pic(f"@{user_info['user_name'] or event.sender.nickname}\n" + msg)
@@ -662,11 +662,11 @@ async def sect_secbuff_get_(bot: Bot, event: GroupMessageEvent):
                     await bot.send_group_msg(group_id=int(send_group_id), message=msg)
                 await sect_secbuff_get.finish()
         else:
-            msg = f"道友不是宗主，无法使用该命令！"
+            msg = "道友不是宗主，无法使用该命令！"
             await handle_send(bot, event, send_group_id, msg)
             await sect_secbuff_get.finish()
     else:
-        msg = f"道友尚未加入宗门！"
+        msg = "道友尚未加入宗门！"
         await handle_send(bot, event, send_group_id, msg)
         await sect_secbuff_get.finish()
 
@@ -689,8 +689,8 @@ async def sect_secbuff_learn_(bot: Bot, event: GroupMessageEvent, args: Message 
             await sect_secbuff_learn.finish()
         else:
             sect_info = await XiuxianDataManager().get_sect_info(sect_id)
-            if sect_info['secbuff'] == 0:
-                msg = f"本宗尚未获得宗门神通，请宗主发送宗门神通搜寻来获得宗门神通！"
+            if sect_info['secbuf'] == 0:
+                msg = "本宗尚未获得宗门神通，请宗主发送宗门神通搜寻来获得宗门神通！"
                 if XiuConfig().img:
                     pic = await get_msg_pic(f"@{user_info['user_name'] or event.sender.nickname}\n" + msg)
                     await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -701,7 +701,7 @@ async def sect_secbuff_learn_(bot: Bot, event: GroupMessageEvent, args: Message 
             sectsecbuffidlist = get_sect_secbuff_id_list(sect_id)
 
             if msg not in get_secname_list(sectsecbuffidlist):
-                msg = f"本宗还没有该神通，请发送本宗有的神通进行学习！"
+                msg = "本宗还没有该神通，请发送本宗有的神通进行学习！"
 
                 if XiuConfig().img:
                     pic = await get_msg_pic(f"@{user_info['user_name'] or event.sender.nickname}\n" + msg)
@@ -713,7 +713,7 @@ async def sect_secbuff_learn_(bot: Bot, event: GroupMessageEvent, args: Message 
             userbuffinfo = await UserBuffData(user_info['user_id']).BuffInfo
             secbuffid = get_secnameid(msg, sectsecbuffidlist)
             if str(userbuffinfo['ultimate_skill']) == str(secbuffid):
-                msg = f"道友请勿重复学习！"
+                msg = "道友请勿重复学习！"
                 if XiuConfig().img:
                     pic = await get_msg_pic(f"@{user_info['user_name'] or event.sender.nickname}\n" + msg)
                     await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -748,7 +748,7 @@ async def sect_secbuff_learn_(bot: Bot, event: GroupMessageEvent, args: Message 
                     await bot.send_group_msg(group_id=int(send_group_id), message=msg)
                 await sect_secbuff_learn.finish()
     else:
-        msg = f"道友尚未加入宗门！"
+        msg = "道友尚未加入宗门！"
         await handle_send(bot, event, send_group_id, msg)
         await sect_secbuff_learn.finish()
 
@@ -775,7 +775,7 @@ async def upatkpractice_(bot: Bot, event: GroupMessageEvent, args: Message = Com
         sect_materials = int(await XiuxianDataManager().get_sect_info(sect_id)['sect_materials'])  # 当前资材
         useratkpractice = int(user_info['atk_practice_level'])  # 当前等级
         if useratkpractice == 50:
-            msg = f"道友的攻击修炼等级已达到最高等级!"
+            msg = "道友的攻击修炼等级已达到最高等级!"
             await handle_send(bot, event, send_group_id, msg)
             await upatkpractice.finish()
 
@@ -786,7 +786,7 @@ async def upatkpractice_(bot: Bot, event: GroupMessageEvent, args: Message = Com
         # 确保用户不会尝试升级超过宗门等级的上限
         level_up_count = min(level_up_count, sect_level - useratkpractice)
         if sect_position == 4:
-            msg = f"""道友所在宗门的职位为：{jsondata.sect_config_data()[f"{sect_position}"]["title"]}，不满足使用资材的条件!"""
+            msg = """道友所在宗门的职位为：{jsondata.sect_config_data()[f"{sect_position}"]["title"]}，不满足使用资材的条件!"""
             await handle_send(bot, event, send_group_id, msg)
             await upatkpractice.finish()
 
@@ -815,7 +815,7 @@ async def upatkpractice_(bot: Bot, event: GroupMessageEvent, args: Message = Com
         await handle_send(bot, event, send_group_id, msg)
         await upatkpractice.finish()
     else:
-        msg = f"修炼逆天而行消耗巨大，请加入宗门再进行修炼！"
+        msg = "修炼逆天而行消耗巨大，请加入宗门再进行修炼！"
         await handle_send(bot, event, send_group_id, msg)
         await upatkpractice.finish()
 
@@ -837,12 +837,12 @@ async def sect_task_refresh_(bot: Bot, event: GroupMessageEvent):
             await handle_send(bot, event, send_group_id, msg)
             await sect_task_refresh.finish()
         else:
-            msg = f"道友目前还没有宗门任务，请发送指令宗门任务接取来获取吧"
+            msg = "道友目前还没有宗门任务，请发送指令宗门任务接取来获取吧"
             await handle_send(bot, event, send_group_id, msg)
             await sect_task_refresh.finish()
 
     else:
-        msg = f"道友尚未加入宗门，请加入宗门后再发送该指令！"
+        msg = "道友尚未加入宗门，请加入宗门后再发送该指令！"
         await handle_send(bot, event, send_group_id, msg)
         await sect_task_refresh.finish()
 
@@ -880,14 +880,14 @@ async def sect_users_(bot: Bot, event: GroupMessageEvent):
             msg_list.append(msg)
             i = 1
             for user in userlist:
-                msg = f"""编号{i}:{user['user_name']},{user['level']}\n宗门职位：{jsondata.sect_config_data()[f"{user['sect_position']}"]['title']}\n宗门贡献度：{user['sect_contribution']}\n"""
+                msg = """编号{i}:{user['user_name']},{user['level']}\n宗门职位：{jsondata.sect_config_data()[f"{user['sect_position']}"]['title']}\n宗门贡献度：{user['sect_contribution']}\n"""
                 msg += f"QQ号{user['user_id']}"
                 msg_list.append(msg)
                 i += 1
         else:
-            msg_list.append(f"一介散修，莫要再问。")
+            msg_list.append("一介散修，莫要再问。")
     else:
-        msg_list.append(f"未曾踏入修仙世界，输入【我要修仙】加入我们，看破这世间虚妄!")
+        msg_list.append("未曾踏入修仙世界，输入【我要修仙】加入我们，看破这世间虚妄!")
     await send_msg_handler(bot, event, '宗门成员', bot.self_id, msg_list)
     await sect_users.finish()
 
@@ -919,7 +919,7 @@ async def sect_task_(bot: Bot, event: GroupMessageEvent):
         await handle_send(bot, event, send_group_id, msg)
         await sect_task.finish()
     else:
-        msg = f"道友尚未加入宗门，请加入宗门后再获取任务！"
+        msg = "道友尚未加入宗门，请加入宗门后再获取任务！"
         await handle_send(bot, event, send_group_id, msg)
         await sect_task.finish()
 
@@ -936,7 +936,7 @@ async def sect_task_complete_(bot: Bot, event: GroupMessageEvent):
     sect_id = user_info['sect_id']
     if sect_id:
         if not isUserTask(user_id):
-            msg = f"道友当前没有接取宗门任务，道友浪费了一次出门机会哦！"
+            msg = "道友当前没有接取宗门任务，道友浪费了一次出门机会哦！"
             await handle_send(bot, event, send_group_id, msg)
             await sect_task_complete.finish()
 
@@ -944,8 +944,8 @@ async def sect_task_complete_(bot: Bot, event: GroupMessageEvent):
             costhp = int((user_info['exp'] / 2) * userstask[user_id]['任务内容']['cost'])
             if user_info['hp'] < user_info['exp'] / 10 or costhp >= user_info['hp']:
                 msg = (
-                    f"道友兴高采烈的出门做任务，结果状态欠佳，没过两招就力不从心，坚持不住了，"
-                    f"道友只好原路返回，浪费了一次出门机会，看你这么可怜，就不扣你任务次数了！"
+                    "道友兴高采烈的出门做任务，结果状态欠佳，没过两招就力不从心，坚持不住了，"
+                    "道友只好原路返回，浪费了一次出门机会，看你这么可怜，就不扣你任务次数了！"
                 )
                 if XiuConfig().img:
                     pic = await get_msg_pic(f"@{user_info['user_name'] or event.sender.nickname}\n" + msg)
@@ -966,7 +966,7 @@ async def sect_task_complete_(bot: Bot, event: GroupMessageEvent):
             max_exp_next = int((int(await OtherSet().set_closing_type(user_info['level'])) * XiuConfig().closing_exp_upper_limit))  # 获取下个境界需要的修为 * 1.5为闭关上限
             if int(get_exp + user_info['exp']) > max_exp_next:
                 get_exp = 1
-                msg = f"检测到修为将要到达上限！"
+                msg = "检测到修为将要到达上限！"
             sect_stone = int(userstask[user_id]['任务内容']['sect'])
             await XiuxianDataManager().update_user_hp_mp(user_id, user_info['hp'] - costhp, user_info['mp'])
             await XiuxianDataManager().update_exp(user_id, get_exp, 0)
@@ -985,7 +985,7 @@ async def sect_task_complete_(bot: Bot, event: GroupMessageEvent):
             if costls > int(user_info['stone']):
                 msg = (
                     f"道友兴高采烈的出门做任务，结果发现灵石带少了，当前任务所需灵石：{costls},"
-                    f"道友只好原路返回，浪费了一次出门机会，看你这么可怜，就不扣你任务次数了！")
+                    "道友只好原路返回，浪费了一次出门机会，看你这么可怜，就不扣你任务次数了！")
                 if XiuConfig().img:
                     pic = await get_msg_pic(f"@{user_info['user_name'] or event.sender.nickname}\n" + msg)
                     await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -1005,7 +1005,7 @@ async def sect_task_complete_(bot: Bot, event: GroupMessageEvent):
             max_exp_next = int((int(await OtherSet().set_closing_type(user_info['level'])) * XiuConfig().closing_exp_upper_limit))  # 获取下个境界需要的修为 * 1.5为闭关上限
             if int(get_exp + user_info['exp']) > max_exp_next:
                 get_exp = 1
-                msg = f"检测到修为将要到达上限！"
+                msg = "检测到修为将要到达上限！"
             sect_stone = int(userstask[user_id]['任务内容']['sect'])
             await XiuxianDataManager().update_ls(user_id, costls, 1)
             await XiuxianDataManager().update_exp(user_id, get_exp, 0)
@@ -1018,7 +1018,7 @@ async def sect_task_complete_(bot: Bot, event: GroupMessageEvent):
             await handle_send(bot, event, send_group_id, msg)
             await sect_task_complete.finish()
     else:
-        msg = f"道友尚未加入宗门，请加入宗门后再完成任务，但你申请出门的机会我已经用小本本记下来了！"
+        msg = "道友尚未加入宗门，请加入宗门后再完成任务，但你申请出门的机会我已经用小本本记下来了！"
         await handle_send(bot, event, send_group_id, msg)
         await sect_task_complete.finish()
 
@@ -1034,13 +1034,13 @@ async def sect_owner_change_(bot: Bot, event: GroupMessageEvent, args: Message =
         await sect_owner_change.finish()
     user_id = user_info['user_id']
     if not user_info['sect_id']:
-        msg = f"道友还未加入一方宗门。"
+        msg = "道友还未加入一方宗门。"
         await handle_send(bot, event, send_group_id, msg)
         await sect_owner_change.finish()
     position_this = [k for k, v in jsondata.sect_config_data().items() if v.get("title", "") == "宗主"]
     owner_position = int(position_this[0]) if len(position_this) == 1 else 0
     if user_info['sect_position'] != owner_position:
-        msg = f"只有宗主才能进行传位。"
+        msg = "只有宗主才能进行传位。"
         await handle_send(bot, event, send_group_id, msg)
         await sect_owner_change.finish()
     give_qq = None  # 艾特的时候存到这里
@@ -1049,7 +1049,7 @@ async def sect_owner_change_(bot: Bot, event: GroupMessageEvent, args: Message =
             give_qq = arg.data.get("qq", "")
     if give_qq:
         if give_qq == user_id:
-            msg = f"无法对自己的进行传位操作。"
+            msg = "无法对自己的进行传位操作。"
             await handle_send(bot, event, send_group_id, msg)
             await sect_owner_change.finish()
         else:
@@ -1080,7 +1080,7 @@ async def sect_owner_change_(bot: Bot, event: GroupMessageEvent, args: Message =
                     await bot.send_group_msg(group_id=int(send_group_id), message=msg)
                 await sect_owner_change.finish()
     else:
-        msg = f"请按照规范进行操作,ex:宗主传位@XXX,将XXX道友(需在自己管理下的宗门)升为宗主，自己则变为宗主下一等职位。"
+        msg = "请按照规范进行操作,ex:宗主传位@XXX,将XXX道友(需在自己管理下的宗门)升为宗主，自己则变为宗主下一等职位。"
         await handle_send(bot, event, send_group_id, msg)
         await sect_owner_change.finish()
 
@@ -1094,13 +1094,13 @@ async def sect_rename_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
         await handle_send(bot, event, send_group_id, msg)
         await sect_rename.finish()
     if not user_info['sect_id']:
-        msg = f"道友还未加入一方宗门。"
+        msg = "道友还未加入一方宗门。"
         await handle_send(bot, event, send_group_id, msg)
         await sect_rename.finish()
     position_this = [k for k, v in jsondata.sect_config_data().items() if v.get("title", "") == "宗主"]
     owner_position = int(position_this[0]) if len(position_this) == 1 else 0
     if user_info['sect_position'] != owner_position:
-        msg = f"只有宗主才能进行改名！"
+        msg = "只有宗主才能进行改名！"
         await handle_send(bot, event, send_group_id, msg)
         await sect_rename.finish()
     else:
@@ -1111,12 +1111,12 @@ async def sect_rename_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
         len_sect_name = len(update_sect_name.encode('gbk'))
 
         if len_sect_name > 20:
-            msg = f"道友输入的宗门名字过长,请重新输入！"
+            msg = "道友输入的宗门名字过长,请重新输入！"
             await handle_send(bot, event, send_group_id, msg)
             await sect_rename.finish()
 
         elif update_sect_name is None:
-            msg = f"道友确定要改名无名之宗门？还请三思。"
+            msg = "道友确定要改名无名之宗门？还请三思。"
             await handle_send(bot, event, send_group_id, msg)
             await sect_rename.finish()
 
@@ -1126,13 +1126,13 @@ async def sect_rename_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
             await sect_rename.finish()
 
         elif await XiuxianDataManager().update_sect_name(sect_id, update_sect_name) is False:
-            msg = f"已存在同名宗门(自己宗门名字一样的就不要改了),请重新输入！"
+            msg = "已存在同名宗门(自己宗门名字一样的就不要改了),请重新输入！"
             await handle_send(bot, event, send_group_id, msg)
             await sect_rename.finish()
         else:
             await XiuxianDataManager().update_sect_name(sect_id, update_sect_name)
             await XiuxianDataManager().update_sect_used_stone(sect_id, XiuConfig().sect_rename_cost, 1)
-            msg = f"""
+            msg = """
 传宗门——{sect_info['sect_name']}
 宗主{user_info['user_name']}法旨:
 宗门改名为{update_sect_name}！
@@ -1160,7 +1160,7 @@ async def create_sect_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = await check_user(event)
     if not isUser:
-        msg = f"区区凡人，也想创立万世仙门，大胆！"
+        msg = "区区凡人，也想创立万世仙门，大胆！"
         await handle_send(bot, event, send_group_id, msg)
         await create_sect.finish()
     user_id = user_info['user_id']
@@ -1186,7 +1186,7 @@ async def create_sect_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
             await XiuxianDataManager().update_ls(user_id, XiuConfig().sect_create_cost, 1)
             msg = f"恭喜{user_info['user_name']}道友创建宗门——{sect_name}，宗门编号为{new_sect['sect_id']}。为道友贺！为仙道贺！"
         else:
-            msg = f"道友确定要创建无名之宗门？还请三思。"
+            msg = "道友确定要创建无名之宗门？还请三思。"
     await handle_send(bot, event, send_group_id, msg)
     await create_sect.finish()
 
@@ -1201,7 +1201,7 @@ async def sect_kick_out_(bot: Bot, event: GroupMessageEvent, args: Message = Com
         await sect_kick_out.finish()
     user_id = user_info['user_id']
     if not user_info['sect_id']:
-        msg = f"道友还未加入一方宗门。"
+        msg = "道友还未加入一方宗门。"
         await handle_send(bot, event, send_group_id, msg)
         await sect_kick_out.finish()
     give_qq = None  # 艾特的时候存到这里
@@ -1212,12 +1212,12 @@ async def sect_kick_out_(bot: Bot, event: GroupMessageEvent, args: Message = Com
         msg = args.extract_plain_text().strip()
         give_qq = re.findall(r"\d+", msg)[0]  # QQ_ID
     if await XiuxianDataManager().get_user_infos_by_ids(give_qq) is None:
-        msg = f"修仙界没有此人,请输入正确QQ_ID或正规at!"
+        msg = "修仙界没有此人,请输入正确QQ_ID或正规at!"
         await handle_send(bot, event, send_group_id, msg)
         await sect_kick_out.finish()
     if give_qq:
         if give_qq == user_id:
-            msg = f"无法对自己的进行踢出操作，试试退出宗门？"
+            msg = "无法对自己的进行踢出操作，试试退出宗门？"
             await handle_send(bot, event, send_group_id, msg)
             await sect_kick_out.finish()
         else:
@@ -1227,7 +1227,7 @@ async def sect_kick_out_(bot: Bot, event: GroupMessageEvent, args: Message = Com
                 idx_position = int(position_zhanglao[0]) if len(position_zhanglao) == 1 else 1
                 if user_info['sect_position'] <= idx_position:
                     if give_user['sect_position'] <= user_info['sect_position']:
-                        msg = f"""{give_user['user_name']}的宗门职务为{jsondata.sect_config_data()[f"{give_user['sect_position']}"]['title']}，不在你之下，无权操作。"""
+                        msg = """{give_user['user_name']}的宗门职务为{jsondata.sect_config_data()[f"{give_user['sect_position']}"]['title']}，不在你之下，无权操作。"""
                         if XiuConfig().img:
                             pic = await get_msg_pic(f"@{user_info['user_name'] or event.sender.nickname}\n" + msg)
                             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -1246,7 +1246,7 @@ async def sect_kick_out_(bot: Bot, event: GroupMessageEvent, args: Message = Com
                             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
                         await sect_kick_out.finish()
                 else:
-                    msg = f"""你的宗门职务为{jsondata.sect_config_data()[f"{user_info['sect_position']}"]['title']}，只有长老及以上可执行踢出操作。"""
+                    msg = """你的宗门职务为{jsondata.sect_config_data()[f"{user_info['sect_position']}"]['title']}，只有长老及以上可执行踢出操作。"""
                     if XiuConfig().img:
                         pic = await get_msg_pic(f"@{user_info['user_name'] or event.sender.nickname}\n" + msg)
                         await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -1262,7 +1262,7 @@ async def sect_kick_out_(bot: Bot, event: GroupMessageEvent, args: Message = Com
                     await bot.send_group_msg(group_id=int(send_group_id), message=msg)
                 await sect_kick_out.finish()
     else:
-        msg = f"请按照规范进行操作,ex:踢出宗门@XXX,将XXX道友(需在自己管理下的宗门）踢出宗门"
+        msg = "请按照规范进行操作,ex:踢出宗门@XXX,将XXX道友(需在自己管理下的宗门）踢出宗门"
         await handle_send(bot, event, send_group_id, msg)
         await sect_kick_out.finish()
 
@@ -1277,7 +1277,7 @@ async def sect_out_(bot: Bot, event: GroupMessageEvent, args: Message = CommandA
         await sect_out.finish()
     user_id = user_info['user_id']
     if not user_info['sect_id']:
-        msg = f"道友还未加入一方宗门。"
+        msg = "道友还未加入一方宗门。"
         await handle_send(bot, event, send_group_id, msg)
         await sect_out.finish()
     position_this = [k for k, v in jsondata.sect_config_data().items() if v.get("title", "") == "宗主"]
@@ -1291,7 +1291,7 @@ async def sect_out_(bot: Bot, event: GroupMessageEvent, args: Message = CommandA
         await handle_send(bot, event, send_group_id, msg)
         await sect_out.finish()
     else:
-        msg = f"宗主无法直接退出宗门，如确有需要，请完成宗主传位后另行尝试。"
+        msg = "宗主无法直接退出宗门，如确有需要，请完成宗主传位后另行尝试。"
         await handle_send(bot, event, send_group_id, msg)
         await sect_out.finish()
 
@@ -1306,7 +1306,7 @@ async def sect_donate_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
         await sect_donate.finish()
     user_id = user_info['user_id']
     if not user_info['sect_id']:
-        msg = f"道友还未加入一方宗门。"
+        msg = "道友还未加入一方宗门。"
         await handle_send(bot, event, send_group_id, msg)
         await sect_donate.finish()
     msg = args.extract_plain_text().strip()
@@ -1324,7 +1324,7 @@ async def sect_donate_(bot: Bot, event: GroupMessageEvent, args: Message = Comma
             await handle_send(bot, event, send_group_id, msg)
             await sect_donate.finish()
     else:
-        msg = f"捐献的灵石数量解析异常"
+        msg = "捐献的灵石数量解析异常"
         await handle_send(bot, event, send_group_id, msg)
         await sect_donate.finish()
 
@@ -1342,7 +1342,7 @@ async def sect_position_update_(bot: Bot, event: GroupMessageEvent, args: Messag
     position_zhanglao = [k for k, v in jsondata.sect_config_data().items() if v.get("title", "") == "长老"]
     idx_position = int(position_zhanglao[0]) if len(position_zhanglao) == 1 else 1
     if user_info['sect_position'] > idx_position:
-        msg = f"""你的宗门职位为{jsondata.sect_config_data()[f"{user_info['sect_position']}"]['title']}，无权进行职位管理！"""
+        msg = """你的宗门职位为{jsondata.sect_config_data()[f"{user_info['sect_position']}"]['title']}，无权进行职位管理！"""
         await handle_send(bot, event, send_group_id, msg)
         await sect_position_update.finish()
 
@@ -1366,7 +1366,7 @@ async def sect_position_update_(bot: Bot, event: GroupMessageEvent, args: Messag
     
     if give_user:
         if str(give_qq) == str(user_id):
-            msg = f"无法对自己的职位进行管理。"
+            msg = "无法对自己的职位进行管理。"
             await handle_send(bot, event, send_group_id, msg)
             await sect_position_update.finish()
         else:
@@ -1374,7 +1374,7 @@ async def sect_position_update_(bot: Bot, event: GroupMessageEvent, args: Messag
                 if give_user['sect_id'] == user_info['sect_id'] and give_user['sect_position'] > user_info['sect_position']:
                     if int(position_num[0]) > user_info['sect_position']:
                         await XiuxianDataManager().update_usr_sect(give_user['user_id'], give_user['sect_id'], int(position_num[0]))
-                        msg = f"""传{jsondata.sect_config_data()[f"{user_info['sect_position']}"]['title']}{user_info['user_name']}法旨:即日起{give_user['user_name']}为本宗{jsondata.sect_config_data()[f"{int(position_num[0])}"]['title']}"""
+                        msg = """传{jsondata.sect_config_data()[f"{user_info['sect_position']}"]['title']}{user_info['user_name']}法旨:即日起{give_user['user_name']}为本宗{jsondata.sect_config_data()[f"{int(position_num[0])}"]['title']}"""
                         if XiuConfig().img:
                             pic = await get_msg_pic(f"@{user_info['user_name'] or event.sender.nickname}\n" + msg)
                             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -1382,7 +1382,7 @@ async def sect_position_update_(bot: Bot, event: GroupMessageEvent, args: Messag
                             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
                         await sect_position_update.finish()
                     else:
-                        msg = f"道友试图变更的职位品阶必须在你品阶之下"
+                        msg = "道友试图变更的职位品阶必须在你品阶之下"
                         if XiuConfig().img:
                             pic = await get_msg_pic(f"@{user_info['user_name'] or event.sender.nickname}\n" + msg)
                             await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -1390,7 +1390,7 @@ async def sect_position_update_(bot: Bot, event: GroupMessageEvent, args: Messag
                             await bot.send_group_msg(group_id=int(send_group_id), message=msg)
                         await sect_position_update.finish()
                 else:
-                    msg = f"请确保变更目标道友与你在同一宗门，且职位品阶在你之下。"
+                    msg = "请确保变更目标道友与你在同一宗门，且职位品阶在你之下。"
                     if XiuConfig().img:
                         pic = await get_msg_pic(f"@{user_info['user_name'] or event.sender.nickname}\n" + msg)
                         await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -1398,7 +1398,7 @@ async def sect_position_update_(bot: Bot, event: GroupMessageEvent, args: Messag
                         await bot.send_group_msg(group_id=int(send_group_id), message=msg)
                     await sect_position_update.finish()
             else:
-                msg = f"职位品阶数字解析异常，请输入宗门职位变更帮助，查看支持的数字解析配置"
+                msg = "职位品阶数字解析异常，请输入宗门职位变更帮助，查看支持的数字解析配置"
                 if XiuConfig().img:
                     pic = await get_msg_pic(f"@{user_info['user_name'] or event.sender.nickname}\n" + msg)
                     await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -1406,7 +1406,7 @@ async def sect_position_update_(bot: Bot, event: GroupMessageEvent, args: Messag
                     await bot.send_group_msg(group_id=int(send_group_id), message=msg)
                 await sect_position_update.finish()
     else:
-        msg = f"""请按照规范进行操作,有两种方式:
+        msg = """请按照规范进行操作,有两种方式:
 1. 宗门职位变更{position_num}@XXX
 2. 宗门职位变更{position_num}道号
 将指定道友(需在自己管理下的宗门)变更为{jsondata.sect_config_data().get(position_num, {'title': '没有找到2品阶'})['title']}"""
@@ -1420,7 +1420,7 @@ async def join_sect_(bot: Bot, event: GroupMessageEvent, args: Message = Command
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = await check_user(event)
     if not isUser:
-        msg = f"守山弟子：凡人，回去吧，仙途难入，莫要自误！"
+        msg = "守山弟子：凡人，回去吧，仙途难入，莫要自误！"
         await handle_send(bot, event, send_group_id, msg)
         await sect_position_update.finish()
     user_id = user_info['user_id']
@@ -1429,9 +1429,9 @@ async def join_sect_(bot: Bot, event: GroupMessageEvent, args: Message = Command
         sql_sects = await XiuxianDataManager().get_all_sect_id()
         sects_all = [tup[0] for tup in sql_sects]
         if not sect_no.isdigit():
-            msg = f"申请加入的宗门编号解析异常，应全为数字!"
+            msg = "申请加入的宗门编号解析异常，应全为数字!"
         elif int(sect_no) not in sects_all:
-            msg = f"申请加入的宗门编号似乎有误，未在宗门名录上发现!"
+            msg = "申请加入的宗门编号似乎有误，未在宗门名录上发现!"
         else:
             owner_idx = [k for k, v in jsondata.sect_config_data().items() if v.get("title", "") == "外门弟子"]
             owner_position = int(owner_idx[0]) if len(owner_idx) == 1 else 4
@@ -1439,7 +1439,7 @@ async def join_sect_(bot: Bot, event: GroupMessageEvent, args: Message = Command
             new_sect = await XiuxianDataManager().get_sect_info_by_id(int(sect_no))
             msg = f"欢迎{user_info['user_name']}师弟入我{new_sect['sect_name']}，共参天道。"
     else:
-        msg = f"守山弟子：我观道友气运中已有宗门气运加持，又何必与我为难。"
+        msg = "守山弟子：我观道友气运中已有宗门气运加持，又何必与我为难。"
     await handle_send(bot, event, send_group_id, msg)
     await join_sect.finish()
 
@@ -1451,7 +1451,7 @@ async def my_sect_(bot: Bot, event: GroupMessageEvent):
     bot, send_group_id = await assign_bot(bot=bot, event=event)
     isUser, user_info, msg = await check_user(event)
     if not isUser:
-        msg = f"守山弟子：凡人，回去吧，仙途难入，莫要自误！"
+        msg = "守山弟子：凡人，回去吧，仙途难入，莫要自误！"
         await handle_send(bot, event, send_group_id, msg)
         await sect_position_update.finish()
     elixir_room_level_up_config = config['宗门丹房参数']['elixir_room_level']
@@ -1483,7 +1483,7 @@ async def my_sect_(bot: Bot, event: GroupMessageEvent):
         if sect_position == owner_position:
             msg += f"\n宗门储备：{number_to(sect_info['sect_used_stone'])}枚灵石"
     else:
-        msg = f"一介散修，莫要再问。"
+        msg = "一介散修，莫要再问。"
 
     await handle_send(bot, event, send_group_id, msg)
     await my_sect.finish()
@@ -1501,7 +1501,7 @@ def isUserTask(user_id):
     Flag = False
     try:
         userstask[user_id]
-    except:
+    except ValueError:
         userstask[user_id] = {}
 
     if userstask[user_id] != {}:
@@ -1513,14 +1513,14 @@ def isUserTask(user_id):
 async def get_sect_mainbuff_id_list(sect_id):
     """获取宗门功法id列表"""
     sect_info = await XiuxianDataManager().get_sect_info(sect_id)
-    mainbufflist = str(sect_info['mainbuff'])[1:-1].split(',')
+    mainbufflist = str(sect_info['mainbuf'])[1:-1].split(',')
     return mainbufflist
 
 
 async def get_sect_secbuff_id_list(sect_id):
     """获取宗门神通id列表"""
     sect_info = await XiuxianDataManager().get_sect_info(sect_id)
-    secbufflist = str(sect_info['secbuff'])[1:-1].split(',')
+    secbufflist = str(sect_info['secbuf'])[1:-1].split(',')
     return secbufflist
 
 

@@ -157,7 +157,7 @@ def get_boss_config():
             if key not in list(config.keys()):
                 config[key] = CONFIG[key]
         savef_boss(config)
-    except:
+    except FileNotFoundError:
         config = CONFIG
         savef_boss(config)
     return config

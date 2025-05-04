@@ -11,14 +11,11 @@ from nonebot.adapters.onebot.v11 import (
     MessageSegment,
 )
 from nonebot.params import CommandArg
-
-from .. import NICKNAME
 from ..xiuxian_config import XiuConfig
 from ..xiuxian_utils.lay_out import Cooldown, assign_bot
 from ..xiuxian_utils.utils import (
     CommandObjectID,
     check_user,
-    get_msg_pic,
     handle_send,
     send_msg_handler,
     build_forward_msg_list,
@@ -31,7 +28,6 @@ from .impart_uitls import (
     img_path,
     impart_check,
     re_impart_data,
-    update_user_impart_data,
     build_draw_images
 )
 
@@ -68,7 +64,7 @@ re_impart_load = on_fullmatch("加载传承数据", priority=45, permission=GROU
 impart_img = on_command(
     "传承卡图", aliases={"传承卡片"}, priority=50, permission=GROUP, block=True
 )
-__impart_help__ = f"""
+__impart_help__ = """
 传承帮助信息:
 指令:
 1、传承抽卡:花费10颗思恋结晶获取一次传承卡片(抽到的卡片被动加成)
@@ -143,11 +139,11 @@ async def impart_draw_(bot: Bot, event: GroupMessageEvent):
     user_id = user_info['user_id']
     impart_data_draw = await impart_check(user_id)
     if impart_data_draw is None:
-        msg = f"发生未知错误，多次尝试无果请找晓楠！"
+        msg = "发生未知错误，多次尝试无果请找晓楠！"
         await handle_send(bot, event, send_group_id, msg)
         await impart_draw.finish()
     if impart_data_draw['impart_stone_quantity'] < 10:
-        msg = f"思恋结晶数量不足10个,无法抽卡!"
+        msg = "思恋结晶数量不足10个,无法抽卡!"
         await handle_send(bot, event, send_group_id, msg)
         await impart_draw.finish()
     else:
@@ -156,8 +152,8 @@ async def impart_draw_(bot: Bot, event: GroupMessageEvent):
             reap_img = None
             try:
                 reap_img = random.choice(img_list)
-            except:
-                msg = f"请检查卡图数据完整！"
+            except ValueError:
+                msg = "请检查卡图数据完整！"
                 await handle_send(bot, event, send_group_id, msg)
                 await impart_draw.finish()
                 
@@ -166,9 +162,9 @@ async def impart_draw_(bot: Bot, event: GroupMessageEvent):
             if impart_data_json.data_person_add(user_id, reap_img):
                 # 抽到重复卡
                 msg = f"检测到传承背包已经存在卡片{reap_img}\n"
-                msg += f"已转化为2880分钟闭关时间\n"
-                msg += f"累计共获得3540分钟闭关时间!\n"
-                msg += f"抽卡10次结果如下"
+                msg += "已转化为2880分钟闭关时间\n"
+                msg += "累计共获得3540分钟闭关时间!\n"
+                msg += "抽卡10次结果如下"
                 
                 images = await build_draw_images(time_img, reap_img)
                 
@@ -192,14 +188,14 @@ async def impart_draw_(bot: Bot, event: GroupMessageEvent):
                 try:
                     await send_msg_handler(bot, event, list_tp)
                 except ActionFailed:
-                    msg = f"未知原因，抽卡失败!"
+                    msg = "未知原因，抽卡失败!"
                     await handle_send(bot, event, send_group_id, msg)
                     await impart_draw.finish()
                 
                 await impart_draw.finish()
             else:
                 # 抽到新卡
-                msg = f"累计共获得660分钟闭关时间!\n"
+                msg = "累计共获得660分钟闭关时间!\n"
                 msg += f"抽卡10次结果如下,获得新的传承卡片{reap_img}"
                 
                 images = await build_draw_images(time_img, reap_img)
@@ -224,7 +220,7 @@ async def impart_draw_(bot: Bot, event: GroupMessageEvent):
                 try:
                     await send_msg_handler(bot, event, list_tp)
                 except ActionFailed:
-                    msg = f"未知原因，抽卡失败！"
+                    msg = "未知原因，抽卡失败！"
                     await handle_send(bot, event, send_group_id, msg)
                     await impart_draw.finish()
                 
@@ -232,8 +228,8 @@ async def impart_draw_(bot: Bot, event: GroupMessageEvent):
         else:
             # 没有抽到新卡
             summary = f"道友{user_info['user_name']}的传承抽卡"
-            msg = f"累计共获得660分钟闭关时间!\n"
-            msg += f"抽卡10次结果如下!"
+            msg = "累计共获得660分钟闭关时间!\n"
+            msg += "抽卡10次结果如下!"
             
             # 准备图片列表
             random.shuffle(time_img)
@@ -283,7 +279,7 @@ async def impart_back_(bot: Bot, event: GroupMessageEvent):
     summary = f"道友{name}的传承背包"
     
     # 组合要显示的文本信息
-    msg_text = f"""--道友{name}的传承物资--
+    msg_text = """--道友{name}的传承物资--
 思恋结晶：{impart_data_draw["impart_stone_quantity"]}颗
 抽卡次数：{impart_data_draw["impart_wish_quantity"]}/90次
 累计闭关时间：{impart_data_draw["impart_exp_day_quantity"]}分钟
@@ -362,7 +358,7 @@ async def impart_info_(bot: Bot, event: GroupMessageEvent):
         )
         return
 
-    msg = f"""--道友{user_info["user_name"]}的传承物资--
+    msg = """--道友{user_info["user_name"]}的传承物资--
 思恋结晶：{impart_data_draw["impart_stone_quantity"]}颗
 抽卡次数：{impart_data_draw["impart_wish_quantity"]}/90次
 累计闭关时间：{impart_data_draw["impart_exp_day_quantity"]}分钟

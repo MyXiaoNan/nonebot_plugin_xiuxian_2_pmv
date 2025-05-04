@@ -14,7 +14,7 @@ from ..xiuxian_config import XiuConfig
 from ..xiuxian_utils.item_json import Items
 from ..xiuxian_utils.data_source import jsondata
 from ..xiuxian_utils.utils import (
-    check_user,Txt2Img,
+    check_user,
     get_msg_pic,
     CommandObjectID,
     handle_send
@@ -30,9 +30,9 @@ cache_beg_help = {}
 @scheduler.scheduled_job("cron", hour=0, minute=0)
 async def xiuxian_beg_():
     await XiuxianDataManager().beg_remake()
-    logger.opt(colors=True).info(f"<green>仙途奇缘重置成功！</green>")
+    logger.opt(colors=True).info("<green>仙途奇缘重置成功！</green>")
 
-__beg_help__ = f"""
+__beg_help__ = """
 详情:
 为了让初入仙途的道友们更顺利地踏上修炼之路，特别开辟了额外的机缘
 天降灵石，助君一臂之力。
@@ -80,13 +80,13 @@ async def beg_stone_(bot: Bot, event: GroupMessageEvent):
         await beg_stone.finish()
     
     await XiuxianDataManager().update_last_check_info_time(user_id) # 更新查看修仙信息时间
-    if sect != None and user_root == "伪灵根":
-        msg = f"道友已有宗门庇佑，又何必来此寻求机缘呢？"
+    if sect is not None and user_root == "伪灵根":
+        msg = "道友已有宗门庇佑，又何必来此寻求机缘呢？"
         await handle_send(bot, event, send_group_id, msg)
         await beg_stone.finish()
 
     elif user_root in {"轮回道果", "真·轮回道果"}:
-        msg = f"道友已是轮回大能，又何必来此寻求机缘呢？"
+        msg = "道友已是轮回大能，又何必来此寻求机缘呢？"
         await handle_send(bot, event, send_group_id, msg)
         await beg_stone.finish()
 
@@ -96,7 +96,7 @@ async def beg_stone_(bot: Bot, event: GroupMessageEvent):
         await beg_stone.finish()
 
     elif diff_days > XiuConfig().beg_max_days:
-        msg = f"道友已经过了新手期,不能再来此寻求机缘了。"
+        msg = "道友已经过了新手期,不能再来此寻求机缘了。"
         await handle_send(bot, event, send_group_id, msg)
         await beg_stone.finish()
 

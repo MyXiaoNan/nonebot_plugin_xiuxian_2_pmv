@@ -24,15 +24,15 @@ def download_xiuxian_data():
             with open(version_path, 'r', encoding='utf-8') as f:
                 data = f.read()
                 f.close()
-        except:
+        except ValueError:
             pass
         if str(data) == str(XiuConfig().version):
-            logger.opt(colors=True).info(f"<green>修仙配置校核完成！</green>")
+            logger.opt(colors=True).info("<green>修仙配置校核完成！</green>")
         else:
-            logger.opt(colors=True).info(f"<green>正在更新修仙配置文件，请等待！</green>")
+            logger.opt(colors=True).info("<green>正在更新修仙配置文件，请等待！</green>")
             try:
                 get_data()  # data为byte字节
-                logger.opt(colors=True).info(f"<green>正在解压修仙配置文件！</green>")
+                logger.opt(colors=True).info("<green>正在解压修仙配置文件！</green>")
                 with zipfile.ZipFile(file=zipPath, mode='r') as zf:
                     for old_name in zf.namelist():
                         # 获取文件大小，目的是区分文件夹还是文件，如果是空文件应该不好用。
@@ -52,7 +52,7 @@ def download_xiuxian_data():
             finally:
                 try:
                     os.remove(zipPath)
-                    logger.opt(colors=True).info(f"<red>原始压缩包已删除！</red>")
-                except:
+                    logger.opt(colors=True).info("<red>原始压缩包已删除！</red>")
+                except ValueError:
                     logger.opt(colors=True).info(f"<red>原始压缩包删除失败，请手动删除，路径{zipPath}!</red>")
     return _main_()

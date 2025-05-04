@@ -1,6 +1,6 @@
 import random
 from datetime import datetime
-from nonebot import get_bots, on_command, require, on_fullmatch
+from nonebot import on_command, require, on_fullmatch
 from nonebot.params import CommandArg
 from nonebot.adapters.onebot.v11 import (
     Bot,
@@ -46,7 +46,7 @@ complete_rift = on_command("秘境结算", aliases={"结算秘境"}, priority=7,
 break_rift = on_command("秘境探索终止", aliases={"终止探索秘境"}, priority=7, permission=GROUP, block=True)
 close_rift = on_fullmatch("关闭秘境", priority=5, permission=GROUP and (SUPERUSER | GROUP_ADMIN | GROUP_OWNER), block=True)
 
-__rift_help__ = f"""
+__rift_help__ = """
 秘境帮助信息:
 指令：
 1、群秘境开启、关闭:开启本群的秘境生成，管理员权限
@@ -65,13 +65,13 @@ __rift_help__ = f"""
 async def read_rift_():
     global group_rift
     group_rift.update(old_rift_info.read_rift_info())
-    logger.opt(colors=True).info(f"<green>历史rift数据读取成功</green>")
+    logger.opt(colors=True).info("<green>历史rift数据读取成功</green>")
 
 @DRIVER.on_shutdown
 async def save_rift_():
     global group_rift
     old_rift_info.save_rift(group_rift)
-    logger.opt(colors=True).info(f"<green>rift数据已保存</green>")
+    logger.opt(colors=True).info("<green>rift数据已保存</green>")
 
 # 定时任务生成群秘境
 @set_rift.scheduled_job("cron", hour=8, minute=0)
@@ -161,7 +161,7 @@ async def _(bot: Bot, event: GroupMessageEvent):
             await explore_rift.finish()
         try:
             group_rift[group_id]
-        except:
+        except ValueError:
             msg = '野外秘境尚未生成，请道友耐心等待!'
             await handle_send(bot, event, send_group_id, msg)
             await explore_rift.finish()
@@ -227,7 +227,7 @@ async def complete_rift_(bot: Bot, event: GroupMessageEvent):
         rift_info = None
         try:
             rift_info = read_rift_data(user_id)
-        except:
+        except ValueError:
             msg = '发生未知错误！'
             await XiuxianDataManager().do_work(user_id, 0)
             await handle_send(bot, event, send_group_id, msg)
@@ -235,7 +235,7 @@ async def complete_rift_(bot: Bot, event: GroupMessageEvent):
 
         user_cd_message = await XiuxianDataManager().get_user_time(user_id)
         work_time = datetime.strptime(
-            user_cd_message['schedule_create_time'], "%Y-%m-%d %H:%M:%S.%f"
+            user_cd_message['schedule_create_time'], "%Y-%m-%d %H:%M:%S.%"
         )
         exp_time = (datetime.now() - work_time).seconds // 60  # 时长计算
         time2 = rift_info["time"]
@@ -308,7 +308,7 @@ async def break_rift_(bot: Bot, event: GroupMessageEvent):
         rift_info = None
         try:
             rift_info = read_rift_data(user_id)
-        except:
+        except ValueError:
             msg = '发生未知错误！'
             await XiuxianDataManager().do_work(user_id, 0)
             await handle_send(bot, event, send_group_id, msg)
@@ -330,14 +330,14 @@ async def set_group_rift_(bot: Bot, event: GroupMessageEvent, args: Message = Co
 
     if mode == '开启':
         if is_in_group:
-            msg = f"本群已开启群秘境，请勿重复开启!"
+            msg = "本群已开启群秘境，请勿重复开启!"
             await handle_send(bot, event, send_group_id, msg)
             await set_group_rift.finish()
 
         else:
             config['open'].append(group_id)
             savef_rift(config)
-            msg = f"已开启本群秘境!"
+            msg = "已开启本群秘境!"
             await handle_send(bot, event, send_group_id, msg)
             await set_group_rift.finish()
 
@@ -345,11 +345,11 @@ async def set_group_rift_(bot: Bot, event: GroupMessageEvent, args: Message = Co
         if is_in_group:
             config['open'].remove(group_id)
             savef_rift(config)
-            msg = f"已关闭本群秘境!"
+            msg = "已关闭本群秘境!"
             await handle_send(bot, event, send_group_id, msg)
             await set_group_rift.finish()
         else:
-            msg = f"本群未开启群秘境!"
+            msg = "本群未开启群秘境!"
             await handle_send(bot, event, send_group_id, msg)
             await set_group_rift.finish()
 

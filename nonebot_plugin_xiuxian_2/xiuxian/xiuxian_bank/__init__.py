@@ -18,7 +18,7 @@ from ..xiuxian_utils.lay_out import assign_bot, Cooldown
 from ..xiuxian_utils.xiuxian2_handle import XiuxianDataManager
 from datetime import datetime
 from .bankconfig import get_config
-from ..xiuxian_utils.utils import check_user, get_msg_pic, handle_send
+from ..xiuxian_utils.utils import check_user, get_msg_pic
 from ..xiuxian_config import XiuConfig
 
 config = get_config()
@@ -33,7 +33,7 @@ bank = on_regex(
     block=True
 )
 
-__bank_help__ = f"""
+__bank_help__ = """
 灵庄帮助信息:
 指令：
 1、灵庄:查看灵庄帮助信息
@@ -68,17 +68,17 @@ async def bank_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Rege
         try:
             num = int(num)
             if num <= 0:
-                msg = f"请输入正确的金额！"
+                msg = "请输入正确的金额！"
                 await handle_send(bot, event, send_group_id, msg)
                 await bank.finish()
         except ValueError:
-            msg = f"请输入正确的金额！"
+            msg = "请输入正确的金额！"
             await handle_send(bot, event, send_group_id, msg)
             await bank.finish()
     user_id = user_info['user_id']
     try:
         bankinfo = readf(user_id)
-    except:
+    except ValueError:
         bankinfo = {
             'savestone': 0,
             'savetime': str(datetime.now().strftime('%Y-%m-%d %H:%M:%S')),
@@ -175,7 +175,7 @@ async def bank_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Rege
     elif mode == '升级会员':  # 升级会员逻辑
         userlevel = bankinfo["banklevel"]
         if userlevel == str(len(BANKLEVEL)):
-            msg = f"道友已经是本灵庄最大的会员啦！"
+            msg = "道友已经是本灵庄最大的会员啦！"
             if XiuConfig().img:
                 pic = await get_msg_pic(msg)
                 await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
@@ -206,7 +206,7 @@ async def bank_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Rege
         await bank.finish()
 
     elif mode == '信息':  # 查询灵庄信息
-        msg = f'''道友的灵庄信息：
+        msg = '''道友的灵庄信息：
 已存：{number_to(bankinfo['savestone'])}灵石
 存入时间：{bankinfo['savetime']}
 灵庄会员等级：{BANKLEVEL[bankinfo['banklevel']]['level']}
@@ -230,7 +230,6 @@ async def bank_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Rege
         if bankinfo['savestone'] + give_stone > max:
             # 如果超过了，将超出部分加到用户灵石中
             overflow = (bankinfo['savestone'] + give_stone) - max
-            actual_give = give_stone - overflow
             await XiuxianDataManager().update_ls(user_id, give_stone, 0)
             bankinfo['savestone'] = max
             savef(user_id, bankinfo)
@@ -250,7 +249,7 @@ async def bank_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Rege
 
 
 def get_give_stone(bankinfo):
-    """获取利息：利息 = give_stone,结算时间 = days_diff"""
+    """获取利息：利息 = give_stone,结算时间 = days_dif"""
     savetime = bankinfo['savetime']  # str
     nowtime = datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # str
     days_diff = round((datetime.strptime(nowtime, '%Y-%m-%d %H:%M:%S') -
@@ -294,7 +293,7 @@ def readf(user_id):
 def savef(user_id, data):
     user_id = str(user_id)
     if not os.path.exists(PLAYERSDATA / user_id):
-        logger.opt(colors=True).info(f"<green>用户目录不存在，创建目录</green>")
+        logger.opt(colors=True).info("<green>用户目录不存在，创建目录</green>")
         os.makedirs(PLAYERSDATA / user_id)
     FILEPATH = PLAYERSDATA / user_id / "bankinfo.json"
     data = json.dumps(data, ensure_ascii=False, indent=3)

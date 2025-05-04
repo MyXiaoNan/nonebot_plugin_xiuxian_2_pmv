@@ -22,7 +22,7 @@ from ..xiuxian_utils.utils import (
 cache_help = {}
   # sql类
 
-__dufang_help__ = f"""
+__dufang_help__ = """
 封群的，不建议玩！！！
 超管可以调试，如果你真想玩并且不介意封群风险，可以让超管修改代码
 """.strip()
@@ -64,7 +64,7 @@ async def dufang_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Re
     user_message = await XiuxianDataManager().get_user_infos_by_ids(user_id)
 
     if args[2] is None:
-        msg = f"请输入正确的指令，例如金银阁10大、金银阁10奇、金银阁10猜3"
+        msg = "请输入正确的指令，例如金银阁10大、金银阁10奇、金银阁10猜3"
         await handle_send(bot, event, send_group_id, msg)
         await dufang.finish()
 
@@ -74,7 +74,7 @@ async def dufang_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = Re
     if mode == '猜':
         mode_num = args[3]  # 猜的数值
         if str(mode_num) not in ['1', '2', '3', '4', '5', '6']:
-            msg = f"请输入正确的指令，例如金银阁10大、、金银阁10奇、金银阁10猜3"
+            msg = "请输入正确的指令，例如金银阁10大、、金银阁10奇、金银阁10猜3"
             await handle_send(bot, event, send_group_id, msg)
             await dufang.finish()
     price_num = int(price)

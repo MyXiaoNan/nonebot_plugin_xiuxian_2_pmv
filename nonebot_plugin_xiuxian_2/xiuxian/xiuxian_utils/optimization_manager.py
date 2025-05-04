@@ -2,14 +2,11 @@
 数据库优化管理器
 整合事务、查询、备份和垃圾回收优化
 """
-import asyncio
 import logging
 import os
-from pathlib import Path
 import importlib.util
 import sys
 import asyncpg
-from typing import Optional, Dict, Any
 
 # 设置日志
 logging.basicConfig(
@@ -88,27 +85,20 @@ async def close_pool():
 def load_module(module_name: str, module_path: str):
     """动态加载Python模块"""
     try:
-        # 获取绝对路径
         abs_path = os.path.abspath(module_path)
-        
-        # 检查文件是否存在
+
         if not os.path.exists(abs_path):
             logger.error(f"模块文件不存在: {abs_path}")
             return None
-            
-        # 检查模块是否已加载
+
         if module_name in sys.modules:
             logger.info(f"模块 {module_name} 已加载，跳过重复加载")
             return sys.modules[module_name]
-        
-        # 获取模块所在目录
+
         module_dir = os.path.dirname(abs_path)
-        
-        # 将模块目录添加到sys.path，以便相对导入能够工作
         if module_dir not in sys.path:
             sys.path.insert(0, module_dir)
-        
-        # 加载模块
+
         spec = importlib.util.spec_from_file_location(module_name, abs_path)
         if not spec:
             logger.error(f"无法为 {module_path} 创建模块规范")
@@ -147,10 +137,7 @@ class OptimizationManager:
             return True
             
         try:
-            # 设置数据库URL
             set_pg_url(pg_url)
-            
-            # 创建连接池
             self.pool = await create_pool()
             
             # 加载所有模块
@@ -159,8 +146,7 @@ class OptimizationManager:
                 if module and hasattr(module, "set_pool"):
                     module.set_pool(self.pool)
                 self.modules[name] = module
-            
-            # 设置备份模块的PostgreSQL URL
+
             if self.modules.get("backup") and hasattr(self.modules["backup"], "set_pg_url"):
                 self.modules["backup"].set_pg_url(pg_url)
             

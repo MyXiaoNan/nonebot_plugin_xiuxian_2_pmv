@@ -7,7 +7,7 @@ from pathlib import Path
 DATABASE = Path() / "data" / "xiuxian"
 
 
-class JsonDate:
+class JsonData:
     """处理基础配置 JSON数据"""
 
     def __init__(self):
@@ -19,7 +19,7 @@ class JsonDate:
         self.BACKGROUND_FILE = DATABASE / "image" / "background.png"
         self.BOSS_IMG = DATABASE / "boss_img" 
         self.BANNER_FILE = DATABASE / "image" / "banner.png"
-        self.FONT_FILE = DATABASE / "font" / "SarasaMonoSC-Bold.ttf"
+        self.FONT_FILE = DATABASE / "font" / "SarasaMonoSC-Bold.tt"
 
     def level_data(self):
         """境界数据"""
@@ -57,4 +57,4 @@ class JsonDate:
             return data
 
 
-jsondata = JsonDate()
+jsondata = JsonData()
