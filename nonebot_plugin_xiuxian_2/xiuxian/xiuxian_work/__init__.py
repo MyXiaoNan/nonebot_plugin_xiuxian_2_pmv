@@ -179,22 +179,22 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
         msg = "道友的修为已经到达上限，悬赏令已无法再获得经验！"
         await handle_send(bot, event, send_group_id, msg)
         await do_work.finish()
-    if user_cd_message['type'] == 1:
+    if user_cd_message['schedule_type'] == 1:
         msg = "已经在闭关中，请输入【出关】结束后才能获取悬赏令！"
         await handle_send(bot, event, send_group_id, msg)
         await do_work.finish()
-    if user_cd_message['type'] == 3:
+    if user_cd_message['schedule_type'] == 3:
         msg = "道友在秘境中，请等待结束后才能获取悬赏令！"
         await handle_send(bot, event, send_group_id, msg)
         await do_work.finish()
 
     if mode is None:  # 接取逻辑
-        if (user_cd_message['schedule'] is None) or (user_cd_message['type'] == 0):
+        if (user_cd_message['schedule'] is None) or (user_cd_message['schedule_type'] == 0):
             try:
                 msg = work[user_id].msg
             except KeyError:
                 msg = "没有查到你的悬赏令信息呢，请刷新！"
-        elif user_cd_message['type'] == 2:
+        elif user_cd_message['schedule_type'] == 2:
             # 判断create_time是str还是datetime对象
             create_time = user_cd_message['schedule_create_time']
             if isinstance(create_time, str):
@@ -214,7 +214,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
 
     if mode == "刷新":  # 刷新逻辑
         stone_use = 0 #悬赏令刷新提示是否扣灵石
-        if user_cd_message['type'] == 2:
+        if user_cd_message['schedule_type'] == 2:
             # 判断create_time是str还是datetime对象
             create_time = user_cd_message['schedule_create_time']
             if isinstance(create_time, str):

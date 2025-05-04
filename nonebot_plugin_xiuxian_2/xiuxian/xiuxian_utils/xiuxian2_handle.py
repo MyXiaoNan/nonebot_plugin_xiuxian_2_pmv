@@ -1522,7 +1522,7 @@ class XiuxianDataManager:
     async def reset_work_num(self):
         """重置用户悬赏令刷新次数"""
         await self.ensure_pool()
-        sql = f"UPDATE xiuxian_user SET work_num = 0"
+        sql = f"UPDATE xiuxian_user SET work_quantity = 0"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, )
             
@@ -1530,7 +1530,7 @@ class XiuxianDataManager:
     async def get_work_num(self, user_id: int):
         """获取用户悬赏令刷新次数"""
         await self.ensure_pool()
-        sql = f"SELECT work_num FROM xiuxian_user WHERE user_id = $1"
+        sql = f"SELECT work_quantity FROM xiuxian_user WHERE user_id = $1"
         async with self.pool.acquire() as conn:
             work_num = await conn.fetchval(sql, int(user_id))
             return work_num
@@ -1539,7 +1539,7 @@ class XiuxianDataManager:
     async def update_work_num(self, user_id: int, work_num: int):
         """更新用户悬赏令刷新次数"""
         await self.ensure_pool()
-        sql = f"UPDATE xiuxian_user SET work_num = $1 WHERE user_id = $2"
+        sql = f"UPDATE xiuxian_user SET work_quantity = $1 WHERE user_id = $2"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, work_num, user_id)
             
