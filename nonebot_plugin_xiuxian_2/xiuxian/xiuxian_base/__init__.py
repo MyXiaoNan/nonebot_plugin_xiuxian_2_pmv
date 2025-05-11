@@ -502,7 +502,7 @@ async def level_up_zj_(bot: Bot, event: GroupMessageEvent):
     leveluprate = int(user_msg['level_up_rate'])  # 用户失败次数加成
     main_rate_buff = await UserBuffData(user_id).get_user_main_buff_data()#功法突破概率提升，别忘了还有渡厄突破
     main_exp_buff = await UserBuffData(user_id).get_user_main_buff_data()#功法突破扣修为减少
-    exp_buff = main_exp_buff['exp_buf'] if main_exp_buff is not None else 0
+    exp_buff = main_exp_buff['exp_buff'] if main_exp_buff is not None else 0
     number = main_rate_buff['number'] if main_rate_buff is not None else 0
     le = await OtherSet().get_type(exp, level_rate + leveluprate + number, level_name)
     if le == "失败":
@@ -612,7 +612,7 @@ async def level_up_drjd_(bot: Bot, event: GroupMessageEvent):
                 XiuConfig().level_punishment_floor, XiuConfig().level_punishment_limit
             )
             main_exp_buff = await UserBuffData(user_id).get_user_main_buff_data()#功法突破扣修为减少
-            exp_buff = main_exp_buff['exp_buf'] if main_exp_buff is not None else 0
+            exp_buff = main_exp_buff['exp_buff'] if main_exp_buff is not None else 0
             now_exp = int(int(exp) * ((percentage / 100) * exp_buff))
             await XiuxianDataManager().update_exp(user_id, now_exp, 1)  # 更新用户修为
             nowhp = user_msg['hp'] - (now_exp / 2) if (user_msg['hp'] - (now_exp / 2)) > 0 else 1
@@ -710,7 +710,7 @@ async def level_up_dr_(bot: Bot, event: GroupMessageEvent):
                 XiuConfig().level_punishment_floor, XiuConfig().level_punishment_limit
             )
             main_exp_buff = await UserBuffData(user_id).get_user_main_buff_data() # 功法突破扣修为减少
-            exp_buff = main_exp_buff['exp_buf'] if main_exp_buff is not None else 0
+            exp_buff = main_exp_buff['exp_buff'] if main_exp_buff is not None else 0
             now_exp = int(int(exp) * ((percentage / 100) * (1 - exp_buff)))
             await XiuxianDataManager().update_exp(user_id, now_exp, 1)  # 更新用户修为
             nowhp = float(user_msg['hp']) - (float(now_exp) / 2) if (float(user_msg['hp']) - (float(now_exp) / 2)) > 0 else 1

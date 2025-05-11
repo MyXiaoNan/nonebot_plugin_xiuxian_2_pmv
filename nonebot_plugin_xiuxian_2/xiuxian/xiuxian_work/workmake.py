@@ -74,7 +74,7 @@ def countrate(exp, needexp):
             r = exp / needexp * 100
             if r > 100:
                 tp += 1
-                exp /= 1.5
+                exp = float(exp) / 1.5
             else:
                 flag = False
 

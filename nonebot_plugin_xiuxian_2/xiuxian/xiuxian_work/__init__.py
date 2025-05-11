@@ -1,4 +1,5 @@
 import os
+import json
 from typing import Any, Tuple, Dict
 from nonebot import on_regex, require, on_command
 from nonebot.params import RegexGroup
@@ -21,8 +22,6 @@ from ..xiuxian_config import convert_rank, XiuConfig
 
 # 定时任务
 resetrefreshnum = require("nonebot_plugin_apscheduler").scheduler
-work = {}  # 悬赏令信息记录
-refreshnum: Dict[str, int] = {}  # 用户悬赏令刷新次数记录
   # sql类
 items = Items()
 lscost = 1000000000 # 刷新灵石消耗
@@ -163,7 +162,7 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
     user_rank = convert_rank(user_info['level'])[0]
     await XiuxianDataManager().update_last_check_info_time(user_id) # 更新查看修仙信息时间
     user_cd_message = await XiuxianDataManager().get_user_time(user_id)
-    if not os.path.exists(PLAYERSDATA / str(user_id) / "workinfo.json") and user_cd_message['type'] == 2:
+    if not os.path.exists(PLAYERSDATA / str(user_id) / "workinfo.json") and user_cd_message['schedule_type'] == 2:
         await XiuxianDataManager().do_work(user_id, 0)
         msg = "悬赏令已更新，已重置道友的状态！"
         await handle_send(bot, event, send_group_id, msg)
@@ -190,9 +189,11 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
 
     if mode is None:  # 接取逻辑
         if (user_cd_message['schedule'] is None) or (user_cd_message['schedule_type'] == 0):
-            try:
-                msg = work[user_id].msg
-            except KeyError:
+            # 从数据库获取
+            work_info = await XiuxianDataManager().get_work_info(user_id)
+            if work_info:
+                msg = work_info['work_msg']
+            else:
                 msg = "没有查到你的悬赏令信息呢，请刷新！"
         elif user_cd_message['schedule_type'] == 2:
             # 判断create_time是str还是datetime对象
@@ -262,11 +263,11 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
         work_msg_f += f"(悬赏令每日免费刷新次数：{count}，超过{count}次后，下次刷新消耗灵石{int(lscost / convert_rank(user_level_sx)[0])},今日可免费刷新次数：{freenum}次)"
         if int(stone_use) == 1:
             work_msg_f += f"\n道友消耗灵石{int(lscost / convert_rank(user_level_sx)[0])}枚，成功刷新悬赏令"
-        work[user_id] = do_is_work(user_id)
-        work[user_id].msg = work_msg_f
-        work[user_id].world = work_list
+        
+        # 保存到数据库
+        await XiuxianDataManager().save_work_info(user_id, work_msg_f, work_list)
         await XiuxianDataManager().update_work_num(user_id, usernums + 1)
-        msg = work[user_id].msg
+        msg = work_msg_f
         await handle_send(bot, event, send_group_id, msg)
         await do_work.finish()
 
@@ -379,14 +380,21 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
                 else:
                     await bot.send_group_msg(group_id=int(send_group_id), message=msg)
                 await do_work.finish()
-            work_num = 1
-            try:
-                if work[user_id]:
-                    work_num = int(num)  # 任务序号
+            
+            # 从数据库获取悬赏令信息
+            work_info = await XiuxianDataManager().get_work_info(user_id)
+            
+            if work_info is not None:
+                # 数据库中有记录
+                work_list = json.loads(work_info['work_list'])
+                work_num = int(num)  # 任务序号
+                
                 try:
-                    get_work = work[user_id].world[work_num - 1]
+                    get_work = work_list[work_num - 1]
                     await XiuxianDataManager().do_work(user_id, 2, get_work[0])
-                    del work[user_id]
+                    # 删除数据库中的悬赏令信息
+                    await XiuxianDataManager().delete_work_info(user_id)
+                    
                     msg = f"接取任务【{get_work[0]}】成功"
                     if XiuConfig().img:
                         pic = await get_msg_pic(f"@{user_info['user_name'] or event.sender.nickname}\n" + msg)
@@ -394,7 +402,6 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
                     else:
                         await bot.send_group_msg(group_id=int(send_group_id), message=msg)
                     await do_work.finish()
-
                 except IndexError:
                     msg = "没有这样的任务"
                     if XiuConfig().img:
@@ -403,15 +410,37 @@ async def do_work_(bot: Bot, event: GroupMessageEvent, args: Tuple[Any, ...] = R
                     else:
                         await bot.send_group_msg(group_id=int(send_group_id), message=msg)
                     await do_work.finish()
-
-            except KeyError:
-                msg = "没有查到你的悬赏令信息呢，请刷新！"
-                if XiuConfig().img:
-                    pic = await get_msg_pic(f"@{user_info['user_name'] or event.sender.nickname}\n" + msg)
-                    await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
-                else:
-                    await bot.send_group_msg(group_id=int(send_group_id), message=msg)
-                await do_work.finish()
+            else:
+                try:
+                    if user_id in work_list:
+                        work_num = int(num)  # 任务序号
+                        try:
+                            get_work = work_list[work_num - 1]
+                            await XiuxianDataManager().do_work(user_id, 2, get_work[0])
+                            await XiuxianDataManager().delete_work_info(user_id)
+                            msg = f"接取任务【{get_work[0]}】成功"
+                            if XiuConfig().img:
+                                pic = await get_msg_pic(f"@{user_info['user_name'] or event.sender.nickname}\n" + msg)
+                                await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+                            else:
+                                await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+                            await do_work.finish()
+                        except IndexError:
+                            msg = "没有这样的任务"
+                            if XiuConfig().img:
+                                pic = await get_msg_pic(f"@{user_info['user_name'] or event.sender.nickname}\n" + msg)
+                                await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+                            else:
+                                await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+                            await do_work.finish()
+                except KeyError:
+                    msg = "没有查到你的悬赏令信息呢，请刷新！"
+                    if XiuConfig().img:
+                        pic = await get_msg_pic(f"@{user_info['user_name'] or event.sender.nickname}\n" + msg)
+                        await bot.send_group_msg(group_id=int(send_group_id), message=MessageSegment.image(pic))
+                    else:
+                        await bot.send_group_msg(group_id=int(send_group_id), message=msg)
+                    await do_work.finish()
         else:
             msg = "没有查到你的悬赏令信息呢，请刷新！"
             await handle_send(bot, event, send_group_id, msg)

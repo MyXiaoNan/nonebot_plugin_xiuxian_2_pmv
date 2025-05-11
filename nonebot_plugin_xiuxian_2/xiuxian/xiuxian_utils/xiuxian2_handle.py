@@ -337,6 +337,22 @@ class XiuxianDataManager:
                     CREATE INDEX IF NOT EXISTS idx_xiuxian_sect_task_user_id ON xiuxian_sect_task(user_id);
                 """)
                 logger.opt(colors=True).info("<green>xiuxian_sect_task表及索引创建成功</green>")
+                
+            try:
+                await conn.execute("SELECT count(1) FROM xiuxian_work_info LIMIT 1")
+            except asyncpg.exceptions.UndefinedTableError:
+                await conn.execute("""
+                CREATE TABLE xiuxian_work_info (
+                    "user_id" BIGINT PRIMARY KEY,
+                    "work_msg" TEXT NOT NULL,
+                    "work_list" JSONB NOT NULL,
+                    "create_time" TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+                )""")
+                
+                await conn.execute("""
+                    CREATE INDEX IF NOT EXISTS idx_xiuxian_work_info_user_id ON xiuxian_work_info(user_id);
+                """)
+                logger.opt(colors=True).info("<green>xiuxian_work_info表及索引创建成功</green>")
 
             
             try:
@@ -1250,14 +1266,13 @@ class XiuxianDataManager:
             await conn.execute(sql, int(user_id))
             
 
-    async def restate(self, user_id: int = None):
+    async def restate(self, user_id: int | None = None):
         """重置所有用户状态或重置对应人状态"""
         await self.ensure_pool()
         if user_id is None:
             sql = "UPDATE xiuxian_user SET hp = exp / 2,mp = exp, atk = exp / 10"
             async with self.pool.acquire() as conn:
                 await conn.execute(sql, )
-                
         else:
             sql = "UPDATE xiuxian_user SET hp = exp / 2,mp = exp, atk = exp / 10 WHERE user_id = $1"
             async with self.pool.acquire() as conn:
@@ -1583,6 +1598,33 @@ class XiuxianDataManager:
         sql = "UPDATE xiuxian_user SET work_quantity = $1 WHERE user_id = $2"
         async with self.pool.acquire() as conn:
             await conn.execute(sql, work_num, user_id)
+            
+    async def get_work_info(self, user_id: int):
+        """获取用户的悬赏令信息"""
+        await self.ensure_pool()
+        sql = "SELECT * FROM xiuxian_work_info WHERE user_id = $1"
+        async with self.pool.acquire() as conn:
+            result = await conn.fetchrow(sql, user_id)
+            return result
+            
+    async def save_work_info(self, user_id: int, work_msg: str, work_list: list):
+        """保存用户的悬赏令信息"""
+        await self.ensure_pool()
+        sql = """
+        INSERT INTO xiuxian_work_info (user_id, work_msg, work_list) 
+        VALUES ($1, $2, $3)
+        ON CONFLICT (user_id) 
+        DO UPDATE SET work_msg = $2, work_list = $3, create_time = NOW()
+        """
+        async with self.pool.acquire() as conn:
+            await conn.execute(sql, user_id, work_msg, json.dumps(work_list))
+            
+    async def delete_work_info(self, user_id: int):
+        """删除用户的悬赏令信息"""
+        await self.ensure_pool()
+        sql = "DELETE FROM xiuxian_work_info WHERE user_id = $1"
+        async with self.pool.acquire() as conn:
+            await conn.execute(sql, user_id)
             
 
     async def send_back(self, user_id: int, goods_id: int, goods_name: str, goods_type: str, goods_num: int, bind_flag: int = 0):
@@ -3301,12 +3343,12 @@ async def final_user_data(user_data, columns):
     weapon_atk_buff = 0
     if int(user_buff_data['weapon']) != 0:
         weapon_info = items.get_data_by_item_id(user_buff_data['weapon'])
-        weapon_atk_buff = float(weapon_info['atk_buf'])
+        weapon_atk_buff = float(weapon_info['atk_buff'])
     
     main_buff_data = await UserBuffData(user_dict['user_id']).get_user_main_buff_data()
-    main_hp_buff = float(main_buff_data['hpbuf']) if main_buff_data is not None else 0
-    main_mp_buff = float(main_buff_data['mpbuf']) if main_buff_data is not None else 0
-    main_atk_buff = float(main_buff_data['atkbuf']) if main_buff_data is not None else 0
+    main_hp_buff = float(main_buff_data['hpbuff']) if main_buff_data is not None else 0
+    main_mp_buff = float(main_buff_data['mpbuff']) if main_buff_data is not None else 0
+    main_atk_buff = float(main_buff_data['atkbuff']) if main_buff_data is not None else 0
     
     # 确保所有值都是float类型，然后再进行计算
     user_atk = float(user_dict['atk'])
@@ -3426,21 +3468,21 @@ def get_sub_info_msg(id): #辅修功法8
     subbuff = items.get_data_by_item_id(id)
     submsg = ""
     if subbuff['buff_type'] == '1':
-        submsg = "提升" + subbuff['buf'] + "%攻击力"
+        submsg = "提升" + subbuff['buff'] + "%攻击力"
     if subbuff['buff_type'] == '2':
-        submsg = "提升" + subbuff['buf'] + "%暴击率"
+        submsg = "提升" + subbuff['buff'] + "%暴击率"
     if subbuff['buff_type'] == '3':
-        submsg = "提升" + subbuff['buf'] + "%暴击伤害"
+        submsg = "提升" + subbuff['buff'] + "%暴击伤害"
     if subbuff['buff_type'] == '4':
-        submsg = "提升" + subbuff['buf'] + "%每回合气血回复"
+        submsg = "提升" + subbuff['buff'] + "%每回合气血回复"
     if subbuff['buff_type'] == '5':
-        submsg = "提升" + subbuff['buf'] + "%每回合真元回复"
+        submsg = "提升" + subbuff['buff'] + "%每回合真元回复"
     if subbuff['buff_type'] == '6':
-        submsg = "提升" + subbuff['buf'] + "%气血吸取"
+        submsg = "提升" + subbuff['buff'] + "%气血吸取"
     if subbuff['buff_type'] == '7':
-        submsg = "提升" + subbuff['buf'] + "%真元吸取"
+        submsg = "提升" + subbuff['buff'] + "%真元吸取"
     if subbuff['buff_type'] == '8':
-        submsg = "给对手造成" + subbuff['buf'] + "%中毒"
+        submsg = "给对手造成" + subbuff['buff'] + "%中毒"
     if subbuff['buff_type'] == '9':
         submsg = f"提升{subbuff['buff']}%气血吸取,提升{subbuff['buff2']}%真元吸取"
 
