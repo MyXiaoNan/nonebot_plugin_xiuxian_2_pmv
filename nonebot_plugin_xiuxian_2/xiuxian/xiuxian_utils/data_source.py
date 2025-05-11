@@ -19,7 +19,7 @@ class JsonData:
         self.BACKGROUND_FILE = DATABASE / "image" / "background.png"
         self.BOSS_IMG = DATABASE / "boss_img" 
         self.BANNER_FILE = DATABASE / "image" / "banner.png"
-        self.FONT_FILE = DATABASE / "font" / "SarasaMonoSC-Bold.tt"
+        self.FONT_FILE = DATABASE / "font" / "SarasaMonoSC-Bold.ttf"
 
     def level_data(self):
         """境界数据"""

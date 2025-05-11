@@ -299,7 +299,7 @@ async def assign_bot(bot=None, event=None):  # 按字典分配对应qq发送消�
             bot = get_bots()[random.choice(bot_id)]
         else:
             bot = bot
-    except ValueError:
+    except KeyError:
         bot = bot
     return bot, group_id
 
