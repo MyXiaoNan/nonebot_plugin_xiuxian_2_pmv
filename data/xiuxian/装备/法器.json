@@ -806,7 +806,7 @@
         "atk_buff": 0.7,
         "crit_buff": 0.6,
         "def_buff": 0,
-        "critatk": 0,
+        "critatk": 0.6,
         "zw": 0,
         "mp_buff": 0,
         "rank": -5,
@@ -863,12 +863,12 @@
     },
     "15466": {
         "name": "少姜",
-        "atk_buff": 1,
-        "crit_buff": 1,
+        "atk_buff": 100,
+        "crit_buff": 100,
         "def_buff": 1,
-        "critatk": 1,
+        "critatk": 100,
         "zw": 0,
-        "mp_buff": 1,
+        "mp_buff": 100,
         "rank": -5,
         "level": "无上仙器",
         "type": "装备",
@@ -884,5 +884,17 @@
             "need_stone": "10000000000",
             "limit": 1
         }
+    },
+    "15467": {
+        "name": "荒",
+        "atk_buff": 0.9,
+        "crit_buff": 0.4,
+        "def_buff": 0.2,
+        "critatk": 1,
+        "zw": 0,
+        "mp_buff": 0.5,
+        "rank": -5,
+        "level": "无上仙器",
+        "type": "装备"
     }
 }

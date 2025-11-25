@@ -8,24 +8,23 @@ import unicodedata
 from base64 import b64encode
 from io import BytesIO
 from pathlib import Path
-
-from nonebot.adapters import MessageSegment
 from nonebot.adapters.onebot.v11 import (
     Bot,
     GroupMessageEvent,
-    MessageSegment,
+    MessageSegment
 )
 from nonebot.params import Depends
 from PIL import Image, ImageDraw, ImageFont
 from wcwidth import wcwidth
-
 from ..xiuxian_config import XiuConfig
 from .data_source import jsondata
-from .xiuxian2_handle import XiuxianDateManage
+from .xiuxian2_handle import XiuxianDataManager
 
-sql_message = XiuxianDateManage()  # sql类
+  # sql类
 boss_img_path = Path() / "data" / "xiuxian" / "boss_img"
 
+# 定义全局变量保存 QQ 官方 bot ID 映射
+QBOT_ID_DATA: dict[str, str] = {}
 
 class MyEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -41,7 +40,7 @@ class MyEncoder(json.JSONEncoder):
             return super(MyEncoder, self).default(obj)
 
 
-def check_user_type(user_id, need_type):
+async def check_user_type(user_id, need_type):
     """
     :说明: `check_user_type`
     > 匹配用户状态，返回是否状态一致
@@ -51,11 +50,11 @@ def check_user_type(user_id, need_type):
     """
     isType = False
     msg = ""
-    user_cd_message = sql_message.get_user_cd(user_id)
+    user_cd_message = await XiuxianDataManager().get_user_time(user_id)
     if user_cd_message is None:
         user_type = 0
     else:
-        user_type = user_cd_message["type"]
+        user_type = user_cd_message["schedule_type"]
 
     if user_type == need_type:  # 状态一致
         isType = True
@@ -75,7 +74,7 @@ def check_user_type(user_id, need_type):
     return isType, msg
 
 
-def check_user(event: GroupMessageEvent):
+async def check_user(event: GroupMessageEvent):
     """
     判断用户信息是否存在
     :返回参数:
@@ -83,10 +82,17 @@ def check_user(event: GroupMessageEvent):
       * `user_info: 用户
       * `msg: 消息体
     """
-
+    from ..xiuxian_config import XiuConfig
+    
     isUser = False
-    user_id = event.get_user_id()
-    user_info = sql_message.get_user_info_with_id(user_id)
+    user_id = int(event.get_user_id())
+
+    if XiuConfig().postgresql_url is None or XiuConfig().postgresql_url == "":
+        user_info = None
+        msg = "请先在xiuxian_config.py文件中配置数据库地址!"
+        return isUser, user_info, msg
+    
+    user_info = await XiuxianDataManager().get_user_infos_by_ids(user_id)
     if user_info is None:
         msg = "修仙界没有道友的信息，请输入【我要修仙】加入！"
     else:
@@ -354,7 +360,7 @@ class Txt2Img:
             )
             # 四元组(left, top, right, bottom)
             user_w = user_bbox[2] - user_bbox[0]  # 宽度 = right - left
-            user_h = user_bbox[3] - user_bbox[1]
+            # user_h = user_bbox[3] - user_bbox[1]
             draw.text(
                 ((w - user_w) // 2, out_padding + padding),
                 title,
@@ -412,7 +418,7 @@ class Txt2Img:
                 out_img.save(img_byte_arr, format="JPEG", quality=compression_quality)
             else:
                 out_img.save(img_byte_arr, format="WebP", quality=compression_quality)
-        except:
+        except ValueError:
             # 尝试降级为 JPEG
             out_img.save(img_byte_arr, format="JPEG", quality=compression_quality)
 
@@ -503,11 +509,24 @@ async def send_msg_handler(bot, event, *args):
         elif len(args) == 1 and isinstance(args[0], list):
             messages = args[0]
             img = Txt2Img()
-            messages = "\n".join([str(msg["data"]["content"]) for msg in messages])
+            
+            # 检查是否是name, uin, msgs格式
+            if len(messages) == 3 and not isinstance(messages[0], dict) and isinstance(messages[2], list):
+                name, uin, msgs = messages
+                messages_text = "\n".join(msgs)
+            else:
+                # 处理节点消息格式
+                try:
+                    messages_text = "\n".join([str(msg["data"]["content"]) for msg in messages])
+                except (TypeError, KeyError):
+                    # 如果遇到错误，尝试直接转换
+                    messages_text = "\n".join([str(msg) for msg in messages])
+            
             if XiuConfig().img_send_type == "io":
-                img_data = await img.io_draw_to(messages)
+                img_data = await img.io_draw_to(messages_text)
             elif XiuConfig().img_send_type == "base64":
-                img_data = img.sync_draw_to(messages)
+                img_data = img.sync_draw_to(messages_text)
+                
             if isinstance(event, GroupMessageEvent):
                 await bot.send_group_msg(
                     group_id=event.group_id, message=MessageSegment.image(img_data)
@@ -544,7 +563,13 @@ def number_to(num):
     """
     递归实现，精确为最大单位值 + 小数点后一位
     处理科学计数法表示的数值
+    增加负数支持
     """
+    # 处理负数情况
+    is_negative = False
+    if num < 0:
+        is_negative = True
+        num = abs(num)
 
     def strofsize(num, level):
         if level >= 29:
@@ -594,19 +619,42 @@ def number_to(num):
     num, level = strofsize(num, 0)
     if level >= len(units):
         level = len(units) - 1
-    return f"{round(num, 1)}{units[level]}"
+    
+    # 根据是否为负数添加负号
+    if is_negative:
+        return f"负{round(num, 1)}{units[level]}"
+    else:
+        return f"{round(num, 1)}{units[level]}"
 
 
 async def pic_msg_format(msg, event):
-    user_name = event.sender.card if event.sender.card else event.sender.nickname
+    isUser, user_info, msg = await check_user(event)
+    user_name = event.sender.card if event.sender.card else user_info['user_name'] or event.sender.nickname
     result = "@" + user_name + "\n" + msg
     return result
 
 
-async def handle_send(bot, event, send_group_id, msg: str):
+async def get_sender_display_name(event, user_info):
+    """
+    优先返回 user_info['user_name']，否则回退到 event.sender.nickname。
+    """
+    if user_info is None:
+        return event.sender.nickname or "不知名道友"
+    return user_info.get('user_name') or event.sender.nickname
+
+
+async def handle_send(bot, event, send_group_id, msg: str, boss_name=""):
     """处理文本，根据配置发送文本或者图片消息"""
+    if event and hasattr(event, 'user_id'):
+        user_id = event.user_id
+        user_info = await XiuxianDataManager().get_user_infos_by_ids(user_id)
+        user_name = await get_sender_display_name(event, user_info)
+        at_text = f"@{user_name}\n"
+    else:
+        at_text = ""
+    
     if XiuConfig().img:
-        pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
+        pic = await get_msg_pic(at_text + msg, boss_name=boss_name)
         await bot.send_group_msg(
             group_id=int(send_group_id),
             message=MessageSegment.image(pic),
@@ -615,21 +663,101 @@ async def handle_send(bot, event, send_group_id, msg: str):
         await bot.send_group_msg(group_id=int(send_group_id), message=msg)
 
 
-def append_draw_card_node(bot: Bot, list_tp: list, summary: str, content):
-    """添加节点进转发消息
-
+def build_forward_msg_list(bot: Bot, summary: str, text_msg: str, images: list = None, image_params: dict = None):
+    """创建转发消息节点列表，用于构建包含文本和多张图片的转发消息
+    
     Args:
-        list_tp (list): 要制作的转发消息列表
-        summary (str): 转发消息的标题
-        content (_type_): 转发消息的内容
+        bot (Bot): 机器人实例
+        summary (str): 转发消息的标题/用户名
+        text_msg (str): 要发送的文本消息
+        images (list, optional): 要发送的图片列表，如卡片名列表
+        image_params (dict, optional): 图片处理相关参数，可包含以下键:
+            - use_merge_forward_send (bool): 是否使用合并转发发送
+            - img_path (Path): 图片路径
+            - img_format (str): 图片格式，默认为"png"
+            - get_image_func (callable): 获取图片的函数，默认直接使用MessageSegment.image
+    
+    Returns:
+        list: 转发消息节点列表，可用于send_msg_handler
     """
-    list_tp.append(
-        {
+    # 检查是否使用合并转发发送
+    use_merge_forward_send = image_params.get("use_merge_forward_send", XiuConfig().merge_forward_send) if image_params else XiuConfig().merge_forward_send
+    
+    if use_merge_forward_send:
+        # 使用合并转发发送
+        list_tp = []
+        
+        # 添加文本消息
+        list_tp.append({
             "type": "node",
             "data": {
                 "name": summary,
                 "uin": bot.self_id,
-                "content": content,
+                "content": text_msg,
             },
-        }
-    )
+        })
+        
+        # 如果提供了图片列表，则添加图片
+        if images:
+            img_path = image_params.get("img_path") if image_params else None
+            img_format = image_params.get("img_format", "png") if image_params else "png"
+            get_image_func = image_params.get("get_image_func") if image_params else None
+            
+            for image in images:
+                if get_image_func:
+                    # 使用提供的图片获取函数
+                    img = get_image_func(image)
+                elif img_path and use_merge_forward_send:
+                    # 使用路径构建图片
+                    img = MessageSegment.image(img_path / f"{image}.{img_format}")
+                else:
+                    # 默认情况下只使用图片名称作为内容
+                    img = str(image)
+                    
+                list_tp.append({
+                    "type": "node",
+                    "data": {
+                        "name": summary,
+                        "uin": bot.self_id,
+                        "content": img,
+                    },
+                })
+        
+        return list_tp
+    else:
+        # 不使用合并转发发送，返回纯文本消息
+        # 组合所有图片名称与文本消息
+        result_msgs = []
+        result_msgs.append(text_msg)
+        
+        if images:
+            result_msgs.extend([str(img) for img in images])
+        
+        # 返回适合send_msg_handler的格式
+        return [summary, bot.self_id, result_msgs]
+    
+
+def get_qbot_uid(qbot_id: str) -> str:
+    """获取qq官bot的uid"""
+    return QBOT_ID_DATA.get(qbot_id, "")
+
+def is_qbot(session) -> bool:
+    """判断bot是否为qq官bot
+
+    参数:
+        session: Uninfo 或 Bot 实例
+
+    返回:
+        bool: 是否为官bot
+    """
+    try:
+        if isinstance(session, Bot):
+            return bool(get_qbot_uid(session.self_id))
+        elif hasattr(session, 'self_id'):
+            if hasattr(session, 'scope'):
+                return str(session.scope) in ['QQClient', 'qq_client', 'qq_api']
+            return bool(get_qbot_uid(session.self_id))
+        return False
+    except (AttributeError, TypeError):
+        # 如果出现任何错误，默认返回 False
+        return False

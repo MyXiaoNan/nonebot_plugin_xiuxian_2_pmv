@@ -11,11 +11,10 @@ from nonebot.params import Depends
 from nonebot.adapters.onebot.v11.event import MessageEvent, GroupMessageEvent
 from nonebot.adapters.onebot.v11 import Bot, MessageSegment
 from ..xiuxian_config import XiuConfig, JsonConfig
-from .xiuxian2_handle import XiuxianDateManage
-from .utils import get_msg_pic, check_user
+from .xiuxian2_handle import XiuxianDataManager
+from .utils import check_user, get_msg_pic, is_qbot
+from nonebot_plugin_uninfo import Uninfo
 
-
-sql_message = XiuxianDateManage()
 
 limit_all_message = require("nonebot_plugin_apscheduler").scheduler
 limit_all_stamina = require("nonebot_plugin_apscheduler").scheduler
@@ -25,20 +24,29 @@ limit_all_data: Dict[str, Any] = {}
 limit_num = 99999
 
 @auto_recover_hp.scheduled_job('interval', minutes=1)
-def auto_recover_hp_():
-    sql_message.auto_recover_hp
+async def auto_recover_hp_():
+    """恢复生命值的定时任务"""
+    try:
+        if XiuConfig().postgresql_url != "":
+            await XiuxianDataManager().auto_recover_hp()
+    except Exception as e:
+        logger.opt(colors=True).error(f"<red>生命值恢复定时任务出错：{e}</red>")
 
 @limit_all_message.scheduled_job('interval', minutes=1)
 def limit_all_message_():
     # 重置消息字典
     global limit_all_data
     limit_all_data  = {}
-    logger.opt(colors=True).success(f"<green>已重置消息字典！</green>")
+    logger.opt(colors=True).success("<green>已重置消息字典！</green>")
 
 @limit_all_stamina.scheduled_job('interval', minutes=1)
-def limit_all_stamina_():
-    # 恢复体力
-    sql_message.update_all_users_stamina(XiuConfig().max_stamina, XiuConfig().stamina_recovery_points)
+async def limit_all_stamina_():
+    """恢复体力值的定时任务"""
+    try:
+        if XiuConfig().postgresql_url != "":
+            await XiuxianDataManager().update_all_users_stamina(XiuConfig().max_stamina, XiuConfig().stamina_recovery_points)
+    except Exception as e:
+        logger.opt(colors=True).error(f"<red>体力恢复定时任务出错：{e}</red>")
 
 def limit_all_run(user_id: str):
     global limit_all_data
@@ -48,18 +56,18 @@ def limit_all_run(user_id: str):
     try:
         num = limit_all_data[user_id]["num"]
         tip = limit_all_data[user_id]["tip"]
-    except:
+    except KeyError:
         limit_all_data[user_id] = {"num": 0,
                                    "tip" : False}
         num = 0
         tip = False
     num += 1    
-    if num > limit_num and tip == False:
+    if num > limit_num and tip is False:
         tip = True
         limit_all_data[user_id]["num"] = num
         limit_all_data[user_id]["tip"] = tip
         return True
-    if num > limit_num and tip == True:
+    if num > limit_num and tip is True:
         limit_all_data[user_id]["num"] = num
         return False
     else:
@@ -140,12 +148,17 @@ def Cooldown(
             del time_sy[key]
         return
 
-    async def dependency(bot: Bot, matcher: Matcher, event: MessageEvent):
-        user_id = str(event.get_user_id())
+    async def dependency(bot: Bot, matcher: Matcher, event: MessageEvent, session: Uninfo):
+        user_id = int(event.get_user_id())
         group_id = str(event.group_id)
         conf_data = JsonConfig().read_data()
 
-        limit_type = limit_all_run(str(event.get_user_id()))
+        # 首先检查数据库连接
+        if XiuConfig().postgresql_url == "":
+            await bot.send(event=event, message="请先在xiuxian_config.py文件中配置数据库地址!", reply_message=True)
+            await matcher.finish()
+
+        limit_type = limit_all_run(user_id)
         if limit_type is True:
             bot = await assign_bot_group(group_id=group_id)
             await bot.send(event=event, message=bu_ji_notice)
@@ -154,6 +167,8 @@ def Cooldown(
             await matcher.finish()
         else:
             pass
+
+        isUser, user_info, msg = await check_user(event)
 
         loop = get_running_loop()
 
@@ -173,39 +188,46 @@ def Cooldown(
             )
         else:
             key = CooldownIsolateLevel.GLOBAL.name
+
         if group_id not in conf_data["group"]:
-            if (
-                    event.sender.role == "admin" or
-                    event.sender.role == "owner" or
-                    event.get_user_id() in bot.config.superusers
-            ):
-                bot = await assign_bot_group(group_id=group_id)
-                if at_sender:
-                    await bot.send(event=event, message=MessageSegment.at(event.get_user_id()) + "本群已关闭修仙模组,请联系管理员开启,开启命令为【启用修仙功能】!")
+            try:
+                is_official_bot = is_qbot(session)
+            except Exception:
+                is_official_bot = False
+                
+            if not is_official_bot:
+                if (
+                        event.sender.role == "admin" or
+                        event.sender.role == "owner" or
+                        event.get_user_id() in bot.config.superusers
+                ):
+                    bot = await assign_bot_group(group_id=group_id)
+                    if at_sender:
+                        await bot.send(event=event, message=MessageSegment.at(event.get_user_id()) + "本群已关闭修仙模组,请联系管理员开启,开启命令为【启用修仙功能】!", reply_message=True)
+                    else:
+                        await bot.send(event=event, message="本群已关闭修仙模组,请联系管理员开启,开启命令为【启用修仙功能】!", reply_message=True)
+                    await matcher.finish()
                 else:
-                    await bot.send(event=event, message="本群已关闭修仙模组,请联系管理员开启,开启命令为【启用修仙功能】!")
-                await matcher.finish()
+                    await matcher.finish()
             else:
-                await matcher.finish()
-        else:
-            pass
+                pass
         
         if XiuConfig().admin_debug:
             if event.get_user_id() not in bot.config.superusers:
                 await matcher.finish()
 
         if stamina_cost > 0:
-            user_data = sql_message.get_user_info_with_id(user_id)
+            user_data = await XiuxianDataManager().get_user_infos_by_ids(user_id)
             if user_data:
-                if user_data['user_stamina'] < stamina_cost:
+                if user_data['stamina'] < stamina_cost:
                     msg = "你没有足够的体力，请等待体力恢复后再试！"
                     if XiuConfig().img:
-                        pic = await get_msg_pic(f"@{event.sender.nickname}\n" + msg)
+                        pic = await get_msg_pic(f"@{user_info['user_name'] or event.sender.nickname}\n" + msg)
                         await bot.send_group_msg(group_id=int(group_id), message=MessageSegment.image(pic))
                     else:
                         await bot.send_group_msg(group_id=int(group_id), message=msg)
                     await matcher.finish()
-                sql_message.update_user_stamina(user_id, stamina_cost, 2)  # 减少体力
+                await XiuxianDataManager().update_user_stamina(user_id, stamina_cost, 2)  # 减少体力
         if running[key] <= 0:
             if cd_time >= 1.5:
                 time = int(cd_time - (loop.time() - time_sy[key]))
@@ -213,7 +235,7 @@ def Cooldown(
                     time = 1
                 formatted_time = format_time(time)
                 if XiuConfig().img:
-                    pic = await get_msg_pic(f"@{event.sender.nickname}\n" + get_random_chat_notice().format(formatted_time))
+                    pic = await get_msg_pic(f"@{user_info['user_name'] or event.sender.nickname}\n" + get_random_chat_notice().format(formatted_time))
                     bot = await assign_bot_group(group_id=group_id)
                     await bot.send_group_msg(group_id=int(group_id), message=MessageSegment.image(pic))
                     await matcher.finish()
@@ -247,7 +269,7 @@ async def check_bot(bot: Bot) -> bool:  # 检测bot实例是否为主qq
 def check_rule_bot() -> Rule:  # 对传入的消息检测，是主qq传入的消息就响应，其他的不响应
     async def _check_bot_(bot: Bot, event: GroupMessageEvent) -> bool:
         if str(bot.self_id) in put_bot:
-            if str(event.get_user_id()) in main_bot:
+            if int(event.get_user_id()) in main_bot:
                 return False
             else:
                 return True
@@ -277,7 +299,7 @@ async def assign_bot(bot=None, event=None):  # 按字典分配对应qq发送消�
             bot = get_bots()[random.choice(bot_id)]
         else:
             bot = bot
-    except:
+    except KeyError:
         bot = bot
     return bot, group_id
 
@@ -301,7 +323,7 @@ async def assign_bot_group(group_id):  # 只导入群号，按字典分配对应
         try:
             bot = get_bot()
         except ValueError:
-            logger.opt(colors=True).error(f"<red>未找到对应的bot实例,请检查实现端链接状况！</red>")
+            logger.opt(colors=True).error("<red>未找到对应的bot实例,请检查实现端链接状况！</red>")
             bot = None
 
     return bot

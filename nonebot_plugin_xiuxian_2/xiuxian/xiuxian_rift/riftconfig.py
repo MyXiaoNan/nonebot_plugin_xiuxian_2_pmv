@@ -74,7 +74,7 @@ def get_rift_config():
             if key not in list(config.keys()):
                 config[key] = CONFIG[key]
         savef_rift(config)
-    except:
+    except FileNotFoundError:
         config = CONFIG
         savef_rift(config)
     return config

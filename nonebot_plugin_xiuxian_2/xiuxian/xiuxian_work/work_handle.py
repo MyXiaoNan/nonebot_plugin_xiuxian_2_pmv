@@ -1,16 +1,17 @@
-from ..xiuxian_utils.xiuxian2_handle import *
-from .workmake import *
-from ..xiuxian_utils.xiuxian2_handle import XiuxianDateManage
+import json
+import random
+from ..xiuxian_utils.xiuxian2_handle import XiuxianJsonData
+from .workmake import workmake
+from ..xiuxian_utils.xiuxian2_handle import XiuxianDataManager
 from ..xiuxian_utils.item_json import Items
+from .reward_data_source import savef, readf
 
-sql_message = XiuxianDateManage()  # sql类
+class workhandle(XiuxianJsonData):
 
-class workhandle(XiuxianJsonDate):
-
-    def do_work(self, key, work_list=None, name=None, level="江湖好手", exp=None, user_id=None):
+    async def do_work(self, key, work_list=None, name=None, level="江湖好手", exp=None, user_id=None):
         """悬赏令获取"""
         if key == 0:  # 如果没有获取过，则返回悬赏令
-            data = workmake(level, exp, sql_message.get_user_info_with_id(user_id)['level'])
+            data = workmake(level, exp, (await XiuxianDataManager().get_user_infos_by_ids(user_id))['level'])
             get_work_list = []
             for k, v in data.items():
                 if v[3] == 0:
@@ -26,7 +27,7 @@ class workhandle(XiuxianJsonDate):
             try:
                 data = readf(user_id)
                 return data[name][2]
-            except:
+            except ValueError:
                 pass
 
         elif key == 2:  # 如果是结算，则获取结果

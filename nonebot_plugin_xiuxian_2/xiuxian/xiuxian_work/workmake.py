@@ -1,4 +1,4 @@
-from .reward_data_source import *
+from .reward_data_source import reward
 import random
 from ..xiuxian_utils.item_json import Items
 from ..xiuxian_config import convert_rank
@@ -58,7 +58,7 @@ def get_random_item_type():
     for i, v in type_rate.items():
         try:
             temp_dict[i] = v["type_rate"]
-        except:
+        except ValueError:
             continue
     key = [OtherSet().calculated(temp_dict)]
     return key
@@ -74,7 +74,7 @@ def countrate(exp, needexp):
             r = exp / needexp * 100
             if r > 100:
                 tp += 1
-                exp /= 1.5
+                exp = float(exp) / 1.5
             else:
                 flag = False
 

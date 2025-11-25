@@ -7,7 +7,7 @@ from pathlib import Path
 DATABASE = Path() / "data" / "xiuxian"
 
 
-class JsonDate:
+class JsonData:
     """处理基础配置 JSON数据"""
 
     def __init__(self):
@@ -57,4 +57,4 @@ class JsonDate:
             return data
 
 
-jsondata = JsonDate()
+jsondata = JsonData()

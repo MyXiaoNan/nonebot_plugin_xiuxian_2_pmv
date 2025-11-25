@@ -182,7 +182,7 @@ def get_auction_config():
         if 'user_auctions' not in config:
             config['user_auctions'] = []
         savef_auction(config)
-    except:
+    except FileNotFoundError:
         config = CONFIG
         config['user_auctions'] = []
         savef_auction(config)
